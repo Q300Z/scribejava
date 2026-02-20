@@ -21,60 +21,19 @@ import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CompletableFuture; // CHANGED
+import java.util.concurrent.CompletableFuture;
 import java.nio.charset.StandardCharsets;
-
 import com.github.scribejava.core.model.PushedAuthorizationResponse;
 import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.dpop.DPoPProofCreator;
 
 public class OAuth20Service extends OAuthService {
-    // ... existings fields ...
-
-    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType, String apiKey, String callback, String scope, String state, Map<String, String> additionalParams) {
-        return pushAuthorizationRequestAsync(responseType, apiKey, callback, scope, state, additionalParams, null);
-    }
-
-    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType, String apiKey, String callback, String scope, String state, Map<String, String> additionalParams, OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
-        final String parEndpoint = api.getPushedAuthorizationRequestEndpoint();
-        if (parEndpoint == null) {
-            final CompletableFuture<PushedAuthorizationResponse> future = new CompletableFuture<>();
-            future.completeExceptionally(new UnsupportedOperationException("This API doesn't support Pushed Authorization Requests"));
-            return future;
-        }
-
-        final OAuthRequest request = new OAuthRequest(Verb.POST, parEndpoint);
-        request.addParameter(OAuthConstants.RESPONSE_TYPE, responseType);
-        request.addParameter(OAuthConstants.CLIENT_ID, apiKey);
-        if (callback != null) {
-            request.addParameter(OAuthConstants.REDIRECT_URI, callback);
-        }
-        if (scope != null) {
-            request.addParameter(OAuthConstants.SCOPE, scope);
-        }
-        if (state != null) {
-            request.addParameter(OAuthConstants.STATE, state);
-        }
-        if (additionalParams != null) {
-            additionalParams.forEach(request::addParameter);
-        }
-
-        api.getClientAuthentication().addClientAuthentication(request, getApiKey(), getApiSecret());
-
-        return execute(request, callbackConsumer, response -> {
-            try (Response resp = response) {
-                if (resp.getCode() != 201 && resp.getCode() != 200) {
-                    throw new OAuthException("Failed to push authorization request. Status: " + resp.getCode() + ", Body: " + resp.getBody());
-                }
-                return PushedAuthorizationResponse.parse(resp.getBody());
-            }
-        });
-    }
-}
 
     private static final String VERSION = "2.0";
     private final DefaultApi20 api;
     private final String responseType;
     private final String defaultScope;
+    private DPoPProofCreator dpopProofCreator;
 
     public OAuth20Service(DefaultApi20 api, String apiKey, String apiSecret, String callback, String defaultScope,
             String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
@@ -83,6 +42,13 @@ public class OAuth20Service extends OAuthService {
         this.responseType = responseType;
         this.api = api;
         this.defaultScope = defaultScope;
+    }
+
+    public OAuth20Service(DefaultApi20 api, String apiKey, String apiSecret, String callback, String defaultScope,
+            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+            HttpClient httpClient, DPoPProofCreator dpopProofCreator) {
+        this(api, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent, httpClientConfig, httpClient);
+        this.dpopProofCreator = dpopProofCreator;
     }
 
     // ===== common OAuth methods =====
@@ -95,6 +61,9 @@ public class OAuth20Service extends OAuthService {
     }
 
     public void signRequest(String accessToken, OAuthRequest request) {
+        if (dpopProofCreator != null) {
+            request.setDPoPProof(dpopProofCreator.createDPoPProof(request, accessToken));
+        }
         api.getBearerSignature().signRequest(accessToken, request);
     }
 
@@ -717,5 +686,45 @@ public class OAuth20Service extends OAuthService {
             }
             Thread.sleep(intervalMillis);
         }
+    }
+
+    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType, String apiKey, String callback, String scope, String state, Map<String, String> additionalParams) {
+        return pushAuthorizationRequestAsync(responseType, apiKey, callback, scope, state, additionalParams, null);
+    }
+
+    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType, String apiKey, String callback, String scope, String state, Map<String, String> additionalParams, OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
+        final String parEndpoint = api.getPushedAuthorizationRequestEndpoint();
+        if (parEndpoint == null) {
+            final CompletableFuture<PushedAuthorizationResponse> future = new CompletableFuture<>();
+            future.completeExceptionally(new UnsupportedOperationException("This API doesn't support Pushed Authorization Requests"));
+            return future;
+        }
+
+        final OAuthRequest request = new OAuthRequest(Verb.POST, parEndpoint);
+        request.addParameter(OAuthConstants.RESPONSE_TYPE, responseType);
+        request.addParameter(OAuthConstants.CLIENT_ID, apiKey);
+        if (callback != null) {
+            request.addParameter(OAuthConstants.REDIRECT_URI, callback);
+        }
+        if (scope != null) {
+            request.addParameter(OAuthConstants.SCOPE, scope);
+        }
+        if (state != null) {
+            request.addParameter(OAuthConstants.STATE, state);
+        }
+        if (additionalParams != null) {
+            additionalParams.forEach(request::addParameter);
+        }
+
+        api.getClientAuthentication().addClientAuthentication(request, getApiKey(), getApiSecret());
+
+        return execute(request, callbackConsumer, response -> {
+            try (Response resp = response) {
+                if (resp.getCode() != 201 && resp.getCode() != 200) {
+                    throw new OAuthException("Failed to push authorization request. Status: " + resp.getCode() + ", Body: " + resp.getBody());
+                }
+                return PushedAuthorizationResponse.parse(resp.getBody());
+            }
+        });
     }
 }

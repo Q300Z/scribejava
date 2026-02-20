@@ -313,6 +313,15 @@ public class OAuthRequest {
         charset = charsetName;
     }
 
+    /**
+     * Set the DPoP header.
+     *
+     * @param dpopProof the DPoP proof JWT as a string
+     */
+    public void setDPoPProof(String dpopProof) {
+        addHeader("DPoP", dpopProof);
+    }
+
     public interface ResponseConverter<T> {
 
         /**

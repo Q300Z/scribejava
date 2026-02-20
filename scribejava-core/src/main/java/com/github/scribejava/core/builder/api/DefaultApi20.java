@@ -14,22 +14,13 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureAuthorizationRequestHeaderField;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.HttpBasicAuthenticationScheme;
+import com.github.scribejava.core.dpop.DPoPProofCreator;
 
 import java.io.OutputStream;
 import java.util.Map;
 
 /**
  * Default implementation of the OAuth protocol, version 2.0
- *
- * This class is meant to be extended by concrete implementations of the API, providing the endpoints and
- * endpoint-http-verbs.
- *
- * If your API adheres to the 2.0 protocol correctly, you just need to extend this class and define the getters for your
- * endpoints.
- *
- * If your API does something a bit different, you can override the different extractors or services, in order to
- * fine-tune the process. Please read the javadocs of the interfaces to get an idea of what to do.
- *
  */
 public abstract class DefaultApi20 {
 
@@ -88,14 +79,6 @@ public abstract class DefaultApi20 {
 
     /**
      * Returns the URL where you should redirect your users to authenticate your application.
-     *
-     * @param responseType responseType
-     * @param apiKey apiKey
-     * @param additionalParams any additional GET params to add to the URL
-     * @param callback callback
-     * @param state state
-     * @param scope scope
-     * @return the URL where you should redirect your users
      */
     public String getAuthorizationUrl(String responseType, String apiKey, String callback, String scope, String state,
             Map<String, String> additionalParams) {
@@ -123,6 +106,13 @@ public abstract class DefaultApi20 {
             HttpClient httpClient) {
         return new OAuth20Service(this, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent,
                 httpClientConfig, httpClient);
+    }
+
+    public OAuth20Service createService(String apiKey, String apiSecret, String callback, String defaultScope,
+            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+            HttpClient httpClient, DPoPProofCreator dpopProofCreator) {
+        return new OAuth20Service(this, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent,
+                httpClientConfig, httpClient, dpopProofCreator);
     }
 
     public BearerSignature getBearerSignature() {
