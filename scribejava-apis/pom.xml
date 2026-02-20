@@ -22,6 +22,11 @@
         </dependency>
         <dependency>
             <groupId>com.github.scribejava</groupId>
+            <artifactId>scribejava-oauth1</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.scribejava</groupId>
             <artifactId>scribejava-httpclient-ahc</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

@@ -1,10 +1,10 @@
 package com.github.scribejava.core.builder;
 
-import com.github.scribejava.core.builder.api.DefaultApi10a;
+import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-import com.github.scribejava.core.oauth.OAuth10aService;
+import com.github.scribejava.oauth1.oauth.OAuth10aService;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth.OAuthService;
 import com.github.scribejava.core.utils.Preconditions;
