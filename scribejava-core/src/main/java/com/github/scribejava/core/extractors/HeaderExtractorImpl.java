@@ -1,6 +1,7 @@
 package com.github.scribejava.core.extractors;
 
 import java.util.Map;
+import java.util.stream.Collectors; // ADDED
 import com.github.scribejava.core.exceptions.OAuthParametersMissingException;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
@@ -21,19 +22,12 @@ public class HeaderExtractorImpl implements HeaderExtractor {
     @Override
     public String extract(OAuthRequest request) {
         checkPreconditions(request);
-        final Map<String, String> parameters = request.getOauthParameters();
+        
+        final String oauthParams = request.getOauthParameters().entrySet().stream()
+                .map(entry -> entry.getKey() + "=\"" + OAuthEncoder.encode(entry.getValue()) + "\"")
+                .collect(Collectors.joining(PARAM_SEPARATOR)); // USE Stream
 
-        final StringBuilder header = new StringBuilder(PREAMBLE);
-
-        for (Map.Entry<String, String> parameter : parameters.entrySet()) {
-            if (header.length() > PREAMBLE.length()) {
-                header.append(PARAM_SEPARATOR);
-            }
-            header.append(parameter.getKey())
-                    .append("=\"")
-                    .append(OAuthEncoder.encode(parameter.getValue()))
-                    .append('"');
-        }
+        final StringBuilder header = new StringBuilder(PREAMBLE).append(oauthParams);
 
         if (request.getRealm() != null && !request.getRealm().isEmpty()) {
             header.append(PARAM_SEPARATOR)
@@ -48,7 +42,7 @@ public class HeaderExtractorImpl implements HeaderExtractor {
     private void checkPreconditions(OAuthRequest request) {
         Preconditions.checkNotNull(request, "Cannot extract a header from a null object");
 
-        if (request.getOauthParameters() == null || request.getOauthParameters().size() <= 0) {
+        if (request.getOauthParameters() == null || request.getOauthParameters().isEmpty()) {
             throw new OAuthParametersMissingException(request);
         }
     }

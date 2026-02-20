@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors; // ADDED
+import java.util.Arrays; // ADDED
 import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.utils.Preconditions;
 
@@ -27,9 +29,7 @@ public class ParameterList {
     public ParameterList(Map<String, String> map) {
         this();
         if (map != null && !map.isEmpty()) {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                params.add(new Parameter(entry.getKey(), entry.getValue()));
-            }
+            map.forEach((key, value) -> params.add(new Parameter(key, value))); // USE Lambda
         }
     }
 
@@ -54,15 +54,9 @@ public class ParameterList {
     }
 
     public String asFormUrlEncodedString() {
-        if (params.isEmpty()) {
-            return EMPTY_STRING;
-        }
-
-        final StringBuilder builder = new StringBuilder();
-        for (Parameter p : params) {
-            builder.append(PARAM_SEPARATOR).append(p.asUrlEncodedPair());
-        }
-        return builder.substring(1);
+        return params.stream()
+                .map(Parameter::asUrlEncodedPair)
+                .collect(Collectors.joining(PARAM_SEPARATOR)); // USE Stream
     }
 
     public void addAll(ParameterList other) {
@@ -71,12 +65,13 @@ public class ParameterList {
 
     public void addQuerystring(String queryString) {
         if (queryString != null && !queryString.isEmpty()) {
-            for (String param : queryString.split(PARAM_SEPARATOR)) {
-                final String[] pair = param.split(PAIR_SEPARATOR);
-                final String key = OAuthEncoder.decode(pair[0]);
-                final String value = pair.length > 1 ? OAuthEncoder.decode(pair[1]) : EMPTY_STRING;
-                params.add(new Parameter(key, value));
-            }
+            Arrays.stream(queryString.split(PARAM_SEPARATOR))
+                    .map(param -> param.split(PAIR_SEPARATOR))
+                    .forEach(pair -> {
+                        final String key = OAuthEncoder.decode(pair[0]);
+                        final String value = pair.length > 1 ? OAuthEncoder.decode(pair[1]) : EMPTY_STRING;
+                        params.add(new Parameter(key, value));
+                    }); // USE Stream
         }
     }
 

@@ -1,19 +1,19 @@
 package com.github.scribejava.core.services;
 
-import java.util.Random;
+import java.time.Instant;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Implementation of {@link TimestampService} using plain java classes.
+ * Implementation of {@link TimestampService} using java.time.Instant.
  */
 public class TimestampServiceImpl implements TimestampService {
 
-    private Timer timer;
-
     /**
-     * Default constructor.
+     * {@inheritDoc}
      */
-    public TimestampServiceImpl() {
-        timer = new Timer();
+    @Override
+    public String getTimestampInSeconds() {
+        return String.valueOf(Instant.now().getEpochSecond());
     }
 
     /**
@@ -21,40 +21,6 @@ public class TimestampServiceImpl implements TimestampService {
      */
     @Override
     public String getNonce() {
-        final Long ts = getTs();
-        return String.valueOf(ts + timer.getRandomInteger());
+        return String.valueOf(Instant.now().getEpochSecond() + ThreadLocalRandom.current().nextLong());
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTimestampInSeconds() {
-        return String.valueOf(getTs());
-    }
-
-    private Long getTs() {
-        return timer.getMilis() / 1000;
-    }
-
-    void setTimer(Timer timer) {
-        this.timer = timer;
-    }
-
-    /**
-     * Inner class that uses {@link System} for generating the timestamps.
-     */
-    static class Timer {
-
-        private final Random rand = new Random();
-
-        Long getMilis() {
-            return System.currentTimeMillis();
-        }
-
-        Integer getRandomInteger() {
-            return rand.nextInt();
-        }
-    }
-
 }
