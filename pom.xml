@@ -19,6 +19,7 @@
         <module>scribejava-core</module>
         <module>scribejava-apis</module>
         <module>scribejava-oauth1</module>
+        <module>scribejava-oidc</module>
         <module>scribejava-httpclient-okhttp</module>
         <module>scribejava-httpclient-armeria</module>
     </modules>
