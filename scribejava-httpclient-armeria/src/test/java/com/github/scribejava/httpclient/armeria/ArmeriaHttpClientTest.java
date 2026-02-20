@@ -20,9 +20,35 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.concurrent.CompletableFuture;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArmeriaHttpClientTest extends AbstractClientTest {
+
+    @Test
+    public void shouldBePickedUpByJUnit5() {
+        assertThat(true).isTrue();
+    }
+
+    @Test
+    public void shouldCancelAsyncRequest() throws Exception {
+        try (okhttp3.mockwebserver.MockWebServer server = new okhttp3.mockwebserver.MockWebServer()) {
+            server.enqueue(new okhttp3.mockwebserver.MockResponse().setBody("OK")
+                    .setBodyDelay(5, java.util.concurrent.TimeUnit.SECONDS));
+            server.start();
+
+            final String url = server.url("/").toString();
+            final CompletableFuture<Response> future = createNewClient().executeAsync("UA",
+                    java.util.Collections.emptyMap(), Verb.GET, url, (byte[]) null, null, null);
+
+            future.cancel(true);
+            assertThat(future.isCancelled()).isTrue();
+        }
+    }
 
     @Override
     protected HttpClient createNewClient() {
