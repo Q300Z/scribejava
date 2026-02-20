@@ -17,12 +17,8 @@
 
     <modules>
         <module>scribejava-core</module>
-        <!-- Removed scribejava-java8 module -->
         <module>scribejava-apis</module>
-        <module>scribejava-httpclient-ahc</module>
-        <module>scribejava-httpclient-ning</module>
         <module>scribejava-httpclient-okhttp</module>
-        <module>scribejava-httpclient-apache</module>
         <module>scribejava-httpclient-armeria</module>
     </modules>
 
@@ -141,7 +137,6 @@
                 <version>3.10.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <!-- Removed <release>${java.release}</release> -->
                     <showDeprecation>true</showDeprecation>
                     <compilerArgs>
                         <arg>-Xlint:-options</arg>
@@ -249,10 +244,10 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <targetJdk>1.${java.release}</targetJdk>
+                    <targetJdk>1.8</targetJdk>
                     <linkXRef>false</linkXRef>
                     <rulesets>
-                        <ruleset>../pmd.xml</rulesets>
+                        <ruleset>../pmd.xml</ruleset>
                     </rulesets>
                     <verbose>true</verbose>
                     <analysisCache>true</analysisCache>
