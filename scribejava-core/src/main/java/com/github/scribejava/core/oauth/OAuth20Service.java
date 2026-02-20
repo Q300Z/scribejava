@@ -18,11 +18,11 @@ import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture; // CHANGED
+import java.nio.charset.StandardCharsets;
 
 public class OAuth20Service extends OAuthService {
 
@@ -110,15 +110,15 @@ public class OAuth20Service extends OAuthService {
                 try {
                     switch (keyValue[0]) {
                         case "code":
-                            authorization.setCode(URLDecoder.decode(keyValue[1], "UTF-8"));
+                            authorization.setCode(URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8.name()));
                             break;
                         case "state":
-                            authorization.setState(URLDecoder.decode(keyValue[1], "UTF-8"));
+                            authorization.setState(URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8.name()));
                             break;
                         default: //just ignore any other param;
                     }
-                } catch (UnsupportedEncodingException ueE) {
-                    throw new IllegalStateException("jvm without UTF-8, really?", ueE);
+                } catch (IOException | RuntimeException ueE) {
+                    throw new IllegalStateException("Unexpected encoding exception with UTF-8", ueE);
                 }
             }
         }
@@ -159,12 +159,12 @@ public class OAuth20Service extends OAuthService {
     }
 
     //protected to facilitate mocking
-    protected Future<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequest request) {
+    protected CompletableFuture<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequest request) {
         return sendAccessTokenRequestAsync(request, null);
     }
 
     //protected to facilitate mocking
-    protected Future<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequest request,
+    protected CompletableFuture<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequest request,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         if (isDebug()) {
             log("send request for access token asynchronously to %s", request.getCompleteUrl());
@@ -220,11 +220,11 @@ public class OAuth20Service extends OAuthService {
         return request;
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenAsync(String code) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(String code) {
         return getAccessToken(AccessTokenRequestParams.create(code), null);
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenAsync(AccessTokenRequestParams params) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(AccessTokenRequestParams params) {
         return getAccessToken(params, null);
     }
 
@@ -243,14 +243,14 @@ public class OAuth20Service extends OAuthService {
      *
      * @param params params
      * @param callback optional callback
-     * @return Future
+     * @return CompletableFuture
      */
-    public Future<OAuth2AccessToken> getAccessToken(AccessTokenRequestParams params,
+    public CompletableFuture<OAuth2AccessToken> getAccessToken(AccessTokenRequestParams params,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         return sendAccessTokenRequestAsync(createAccessTokenRequest(params), callback);
     }
 
-    public Future<OAuth2AccessToken> getAccessToken(String code,
+    public CompletableFuture<OAuth2AccessToken> getAccessToken(String code,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         return getAccessToken(AccessTokenRequestParams.create(code), callback);
     }
@@ -278,11 +278,11 @@ public class OAuth20Service extends OAuthService {
         return request;
     }
 
-    public Future<OAuth2AccessToken> refreshAccessTokenAsync(String refreshToken) {
+    public CompletableFuture<OAuth2AccessToken> refreshAccessTokenAsync(String refreshToken) {
         return refreshAccessToken(refreshToken, (OAuthAsyncRequestCallback<OAuth2AccessToken>) null);
     }
 
-    public Future<OAuth2AccessToken> refreshAccessTokenAsync(String refreshToken, String scope) {
+    public CompletableFuture<OAuth2AccessToken> refreshAccessTokenAsync(String refreshToken, String scope) {
         return refreshAccessToken(refreshToken, scope, null);
     }
 
@@ -298,14 +298,14 @@ public class OAuth20Service extends OAuthService {
         return sendAccessTokenRequestSync(request);
     }
 
-    public Future<OAuth2AccessToken> refreshAccessToken(String refreshToken,
+    public CompletableFuture<OAuth2AccessToken> refreshAccessToken(String refreshToken,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createRefreshTokenRequest(refreshToken, null);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
-    public Future<OAuth2AccessToken> refreshAccessToken(String refreshToken, String scope,
+    public CompletableFuture<OAuth2AccessToken> refreshAccessToken(String refreshToken, String scope,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createRefreshTokenRequest(refreshToken, scope);
 
@@ -347,12 +347,12 @@ public class OAuth20Service extends OAuthService {
         return sendAccessTokenRequestSync(request);
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password) {
         return getAccessTokenPasswordGrantAsync(username, password,
                 (OAuthAsyncRequestCallback<OAuth2AccessToken>) null);
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password, String scope) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password, String scope) {
         return getAccessTokenPasswordGrantAsync(username, password, scope, null);
     }
 
@@ -362,16 +362,16 @@ public class OAuth20Service extends OAuthService {
      * @param username User name
      * @param password User password
      * @param callback Optional callback
-     * @return Future
+     * @return CompletableFuture
      */
-    public Future<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password,
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenPasswordGrantRequest(username, password, null);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password, String scope,
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password, String scope,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenPasswordGrantRequest(username, password, scope);
 
@@ -396,11 +396,11 @@ public class OAuth20Service extends OAuthService {
         return request;
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenClientCredentialsGrantAsync() {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenClientCredentialsGrantAsync() {
         return getAccessTokenClientCredentialsGrant((OAuthAsyncRequestCallback<OAuth2AccessToken>) null);
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenClientCredentialsGrantAsync(String scope) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenClientCredentialsGrantAsync(String scope) {
         return getAccessTokenClientCredentialsGrant(scope, null);
     }
 
@@ -423,16 +423,16 @@ public class OAuth20Service extends OAuthService {
      * will be called with the Token when it is available.
      *
      * @param callback optional callback
-     * @return Future
+     * @return CompletableFuture
      */
-    public Future<OAuth2AccessToken> getAccessTokenClientCredentialsGrant(
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenClientCredentialsGrant(
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenClientCredentialsGrantRequest(null);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenClientCredentialsGrant(String scope,
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenClientCredentialsGrant(String scope,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenClientCredentialsGrantRequest(scope);
 
@@ -455,11 +455,11 @@ public class OAuth20Service extends OAuthService {
         return request;
     }
 
-    public Future<Void> revokeTokenAsync(String tokenToRevoke) {
+    public CompletableFuture<Void> revokeTokenAsync(String tokenToRevoke) {
         return revokeTokenAsync(tokenToRevoke, null);
     }
 
-    public Future<Void> revokeTokenAsync(String tokenToRevoke, TokenTypeHint tokenTypeHint) {
+    public CompletableFuture<Void> revokeTokenAsync(String tokenToRevoke, TokenTypeHint tokenTypeHint) {
         return revokeToken(tokenToRevoke, null, tokenTypeHint);
     }
 
@@ -476,11 +476,11 @@ public class OAuth20Service extends OAuthService {
         }
     }
 
-    public Future<Void> revokeToken(String tokenToRevoke, OAuthAsyncRequestCallback<Void> callback) {
+    public CompletableFuture<Void> revokeToken(String tokenToRevoke, OAuthAsyncRequestCallback<Void> callback) {
         return revokeToken(tokenToRevoke, callback, null);
     }
 
-    public Future<Void> revokeToken(String tokenToRevoke, OAuthAsyncRequestCallback<Void> callback,
+    public CompletableFuture<Void> revokeToken(String tokenToRevoke, OAuthAsyncRequestCallback<Void> callback,
             TokenTypeHint tokenTypeHint) {
         final OAuthRequest request = createRevokeTokenRequest(tokenToRevoke, tokenTypeHint);
 
@@ -555,12 +555,12 @@ public class OAuth20Service extends OAuthService {
         }
     }
 
-    public Future<DeviceAuthorization> getDeviceAuthorizationCodes(
+    public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodes(
             OAuthAsyncRequestCallback<DeviceAuthorization> callback) {
         return getDeviceAuthorizationCodes(null, callback);
     }
 
-    public Future<DeviceAuthorization> getDeviceAuthorizationCodes(String scope,
+    public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodes(String scope,
             OAuthAsyncRequestCallback<DeviceAuthorization> callback) {
         final OAuthRequest request = createDeviceAuthorizationCodesRequest(scope);
 
@@ -574,11 +574,11 @@ public class OAuth20Service extends OAuthService {
         });
     }
 
-    public Future<DeviceAuthorization> getDeviceAuthorizationCodesAsync() {
+    public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodesAsync() {
         return getDeviceAuthorizationCodesAsync(null);
     }
 
-    public Future<DeviceAuthorization> getDeviceAuthorizationCodesAsync(String scope) {
+    public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodesAsync(String scope) {
         return getDeviceAuthorizationCodes(scope, null);
     }
 
@@ -623,7 +623,7 @@ public class OAuth20Service extends OAuthService {
         }
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrant(DeviceAuthorization deviceAuthorization,
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrant(DeviceAuthorization deviceAuthorization,
             OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenDeviceAuthorizationGrantRequest(deviceAuthorization);
 
@@ -637,7 +637,7 @@ public class OAuth20Service extends OAuthService {
         });
     }
 
-    public Future<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrantAsync(
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrantAsync(
             DeviceAuthorization deviceAuthorization) {
         return getAccessTokenDeviceAuthorizationGrant(deviceAuthorization, null);
     }

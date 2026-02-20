@@ -13,9 +13,10 @@ import java.io.File;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets; // ADDED
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture; // CHANGED
 
 public abstract class OAuthService implements Closeable {
 
@@ -75,15 +76,15 @@ public abstract class OAuthService implements Closeable {
      */
     public abstract String getVersion();
 
-    public Future<Response> executeAsync(OAuthRequest request) {
+    public CompletableFuture<Response> executeAsync(OAuthRequest request) {
         return execute(request, null);
     }
 
-    public Future<Response> execute(OAuthRequest request, OAuthAsyncRequestCallback<Response> callback) {
+    public CompletableFuture<Response> execute(OAuthRequest request, OAuthAsyncRequestCallback<Response> callback) {
         return execute(request, callback, null);
     }
 
-    public <R> Future<R> execute(OAuthRequest request, OAuthAsyncRequestCallback<R> callback,
+    public <R> CompletableFuture<R> execute(OAuthRequest request, OAuthAsyncRequestCallback<R> callback,
             OAuthRequest.ResponseConverter<R> converter) {
 
         final File filePayload = request.getFilePayload();
@@ -93,6 +94,9 @@ public abstract class OAuthService implements Closeable {
         } else if (request.getStringPayload() != null) {
             return httpClient.executeAsync(userAgent, request.getHeaders(), request.getVerb(), request.getCompleteUrl(),
                     request.getStringPayload(), callback, converter);
+        } else if (request.getMultipartPayload() != null) { // ADDED
+            return httpClient.executeAsync(userAgent, request.getHeaders(), request.getVerb(), request.getCompleteUrl(),
+                    request.getMultipartPayload(), callback, converter);
         } else {
             return httpClient.executeAsync(userAgent, request.getHeaders(), request.getVerb(), request.getCompleteUrl(),
                     request.getByteArrayPayload(), callback, converter);
@@ -136,7 +140,7 @@ public abstract class OAuthService implements Closeable {
     public void log(String messagePattern, Object... params) {
         final String message = String.format(messagePattern, params) + '\n';
         try {
-            debugStream.write(message.getBytes("UTF8"));
+            debugStream.write(message.getBytes(StandardCharsets.UTF_8)); // CHANGED
         } catch (IOException | RuntimeException e) {
             throw new RuntimeException("there were problems while writting to the debug stream", e);
         }

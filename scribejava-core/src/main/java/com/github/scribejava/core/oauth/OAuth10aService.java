@@ -1,7 +1,7 @@
 package com.github.scribejava.core.oauth;
 
 import java.io.IOException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture; // CHANGED
 import com.github.scribejava.core.builder.api.DefaultApi10a;
 import com.github.scribejava.core.builder.api.OAuth1SignatureType;
 import com.github.scribejava.core.httpclient.HttpClient;
@@ -49,11 +49,11 @@ public class OAuth10aService extends OAuthService {
         }
     }
 
-    public Future<OAuth1RequestToken> getRequestTokenAsync() {
+    public CompletableFuture<OAuth1RequestToken> getRequestTokenAsync() {
         return getRequestTokenAsync(null);
     }
 
-    public Future<OAuth1RequestToken> getRequestTokenAsync(OAuthAsyncRequestCallback<OAuth1RequestToken> callback) {
+    public CompletableFuture<OAuth1RequestToken> getRequestTokenAsync(OAuthAsyncRequestCallback<OAuth1RequestToken> callback) {
         if (isDebug()) {
             log("async obtaining request token from %s", api.getRequestTokenEndpoint());
         }
@@ -110,7 +110,7 @@ public class OAuth10aService extends OAuthService {
         }
     }
 
-    public Future<OAuth1AccessToken> getAccessTokenAsync(OAuth1RequestToken requestToken, String oauthVerifier) {
+    public CompletableFuture<OAuth1AccessToken> getAccessTokenAsync(OAuth1RequestToken requestToken, String oauthVerifier) {
         return getAccessTokenAsync(requestToken, oauthVerifier, null);
     }
 
@@ -121,9 +121,9 @@ public class OAuth10aService extends OAuthService {
      * @param requestToken request token (obtained previously or null)
      * @param oauthVerifier oauth_verifier
      * @param callback optional callback
-     * @return Future
+     * @return CompletableFuture
      */
-    public Future<OAuth1AccessToken> getAccessTokenAsync(OAuth1RequestToken requestToken, String oauthVerifier,
+    public CompletableFuture<OAuth1AccessToken> getAccessTokenAsync(OAuth1RequestToken requestToken, String oauthVerifier,
             OAuthAsyncRequestCallback<OAuth1AccessToken> callback) {
         if (isDebug()) {
             log("async obtaining access token from %s", api.getAccessTokenEndpoint());

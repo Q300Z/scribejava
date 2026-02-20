@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture; // CHANGED
 
 public interface HttpClient extends Closeable {
 
@@ -18,17 +18,17 @@ public interface HttpClient extends Closeable {
     String CONTENT_TYPE = "Content-Type";
     String CONTENT_LENGTH = "Content-Length";
 
-    <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             byte[] bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter);
 
-    <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
             OAuthRequest.ResponseConverter<T> converter);
 
-    <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             String bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter);
 
-    <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             File bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter);
 
     Response execute(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,

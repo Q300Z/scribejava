@@ -16,11 +16,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture; // CHANGED
+import java.util.stream.Collectors; // ADDED
 
 public class JDKHttpClient implements HttpClient {
 
@@ -39,7 +38,7 @@ public class JDKHttpClient implements HttpClient {
     }
 
     @Override
-    public <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             byte[] bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.BYTE_ARRAY, bodyContents, callback,
@@ -47,7 +46,7 @@ public class JDKHttpClient implements HttpClient {
     }
 
     @Override
-    public <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
             OAuthRequest.ResponseConverter<T> converter) {
 
@@ -56,7 +55,7 @@ public class JDKHttpClient implements HttpClient {
     }
 
     @Override
-    public <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             String bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.STRING, bodyContents, callback,
@@ -64,14 +63,15 @@ public class JDKHttpClient implements HttpClient {
     }
 
     @Override
-    public <T> Future<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             File bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
         throw new UnsupportedOperationException("JDKHttpClient does not support File payload for the moment");
     }
 
-    private <T> Future<T> doExecuteAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+    private <T> CompletableFuture<T> doExecuteAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
             String completeUrl, BodyType bodyType, Object bodyContents, OAuthAsyncRequestCallback<T> callback,
             OAuthRequest.ResponseConverter<T> converter) {
+        final CompletableFuture<T> future = new CompletableFuture<>();
         try {
             final Response response = doExecute(userAgent, headers, httpVerb, completeUrl, bodyType, bodyContents);
             @SuppressWarnings("unchecked")
@@ -79,13 +79,14 @@ public class JDKHttpClient implements HttpClient {
             if (callback != null) {
                 callback.onCompleted(t);
             }
-            return new JDKHttpFuture<>(t);
+            future.complete(t);
         } catch (IOException | RuntimeException e) {
             if (callback != null) {
                 callback.onThrowable(e);
             }
-            return new JDKHttpFuture<>(e);
+            future.completeExceptionally(e);
         }
+        return future;
     }
 
     @Override
@@ -170,18 +171,13 @@ public class JDKHttpClient implements HttpClient {
     }
 
     private static Map<String, String> parseHeaders(HttpURLConnection conn) {
-        final Map<String, String> headers = new HashMap<>();
-
-        for (Map.Entry<String, List<String>> headerField : conn.getHeaderFields().entrySet()) {
-            final String key = headerField.getKey();
-            final String value = headerField.getValue().get(0);
-            if ("Content-Encoding".equalsIgnoreCase(key)) {
-                headers.put("Content-Encoding", value);
-            } else {
-                headers.put(key, value);
-            }
-        }
-        return headers;
+        return conn.getHeaderFields().entrySet().stream()
+                .filter(entry -> entry.getKey() != null)
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().get(0),
+                        (existing, replacement) -> entry.getKey().equalsIgnoreCase("Content-Encoding") ? existing : replacement
+                ));
     }
 
     private static void addHeaders(HttpURLConnection connection, Map<String, String> headers, String userAgent) {
