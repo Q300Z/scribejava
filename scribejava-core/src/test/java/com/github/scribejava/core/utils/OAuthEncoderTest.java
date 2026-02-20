@@ -1,9 +1,8 @@
 package com.github.scribejava.core.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
 
 public class OAuthEncoderTest {
 
@@ -11,47 +10,41 @@ public class OAuthEncoderTest {
     public void shouldPercentEncodeString() {
         final String plain = "this is a test &^";
         final String encoded = "this%20is%20a%20test%20%26%5E";
-        assertEquals(encoded, OAuthEncoder.encode(plain));
+        assertThat(OAuthEncoder.encode(plain)).isEqualTo(encoded);
     }
 
     @Test
     public void shouldFormURLDecodeString() {
         final String encoded = "this+is+a+test+%26%5E";
         final String plain = "this is a test &^";
-        assertEquals(plain, OAuthEncoder.decode(encoded));
+        assertThat(OAuthEncoder.decode(encoded)).isEqualTo(plain);
     }
 
     @Test
     public void shouldPercentEncodeAllSpecialCharacters() {
         final String plain = "!*'();:@&=+$,/?#[]";
         final String encoded = "%21%2A%27%28%29%3B%3A%40%26%3D%2B%24%2C%2F%3F%23%5B%5D";
-        assertEquals(encoded, OAuthEncoder.encode(plain));
-        assertEquals(plain, OAuthEncoder.decode(encoded));
+        assertThat(OAuthEncoder.encode(plain)).isEqualTo(encoded);
+        assertThat(OAuthEncoder.decode(encoded)).isEqualTo(plain);
     }
 
     @Test
     public void shouldNotPercentEncodeReservedCharacters() {
         final String plain = "abcde123456-._~";
         final String encoded = plain;
-        assertEquals(encoded, OAuthEncoder.encode(plain));
+        assertThat(OAuthEncoder.encode(plain)).isEqualTo(encoded);
     }
 
+    @Test
     public void shouldThrowExceptionIfStringToEncodeIsNull() {
-        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                OAuthEncoder.encode(null);
-            }
-        });
+        assertThatThrownBy(() -> OAuthEncoder.encode(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
     public void shouldThrowExceptionIfStringToDecodeIsNull() {
-        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                OAuthEncoder.decode(null);
-            }
-        });
+        assertThatThrownBy(() -> OAuthEncoder.decode(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -63,7 +56,7 @@ public class OAuthEncoderTest {
             "Dogs%2C%20Cats%20%26%20Mice"};
 
         for (int i = 0; i < sources.length; i++) {
-            assertEquals(encoded[i], OAuthEncoder.encode(sources[i]));
+            assertThat(OAuthEncoder.encode(sources[i])).isEqualTo(encoded[i]);
         }
     }
 }

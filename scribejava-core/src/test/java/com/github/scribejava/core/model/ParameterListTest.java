@@ -1,35 +1,29 @@
 package com.github.scribejava.core.model;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThrows;
-import org.junit.function.ThrowingRunnable;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ParameterListTest {
 
     private ParameterList params;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.params = new ParameterList();
     }
 
+    @Test
     public void shouldThrowExceptionWhenAppendingNullMapToQuerystring() {
-        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                params.appendTo(null);
-            }
-        });
+        assertThatThrownBy(() -> params.appendTo(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldAppendNothingToQuerystringIfGivenEmptyMap() {
         final String url = "http://www.example.com";
-        Assert.assertEquals(url, params.appendTo(url));
+        assertThat(params.appendTo(url)).isEqualTo(url);
     }
 
     @Test
@@ -41,7 +35,7 @@ public class ParameterListTest {
         params.add("param2", "value with spaces");
 
         url = params.appendTo(url);
-        Assert.assertEquals(expectedUrl, url);
+        assertThat(url).isEqualTo(expectedUrl);
     }
 
     @Test
@@ -53,7 +47,7 @@ public class ParameterListTest {
         params.add("param2", "value with spaces");
 
         url = params.appendTo(url);
-        Assert.assertEquals(expectedUrl, url);
+        assertThat(url).isEqualTo(expectedUrl);
     }
 
     @Test
@@ -62,7 +56,7 @@ public class ParameterListTest {
         params.add("param6", "v2");
         params.add("a_param", "v3");
         params.add("param2", "v4");
-        Assert.assertEquals("a_param=v3&param1=v1&param2=v4&param6=v2", params.sort().asFormUrlEncodedString());
+        assertThat(params.sort().asFormUrlEncodedString()).isEqualTo("a_param=v3&param1=v1&param2=v4&param6=v2");
     }
 
     @Test
@@ -71,7 +65,7 @@ public class ParameterListTest {
         params.add("param6", "v2");
         params.add("a_param", "v3");
         params.add("param1", "v4");
-        Assert.assertEquals("a_param=v3&param1=v1&param1=v4&param6=v2", params.sort().asFormUrlEncodedString());
+        assertThat(params.sort().asFormUrlEncodedString()).isEqualTo("a_param=v3&param1=v1&param1=v4&param6=v2");
     }
 
     @Test
@@ -79,6 +73,6 @@ public class ParameterListTest {
         params.add("param1", "v1");
         params.add("param6", "v2");
 
-        assertNotSame(params, params.sort());
+        assertThat(params.sort()).isNotSameAs(params);
     }
 }

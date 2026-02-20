@@ -12,15 +12,13 @@ import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractClientTest {
 
@@ -44,13 +42,13 @@ public abstract class AbstractClientTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         oAuthService = new OAuth20Service(null, "test", "test", null, null, null, System.out, null, null,
                 createNewClient());
     }
 
-    @After
+    @AfterEach
     public void shutDown() throws Exception {
         oAuthService.close();
     }
@@ -70,11 +68,11 @@ public abstract class AbstractClientTest {
         final OAuthRequest request = new OAuthRequest(Verb.GET, baseUrl.toString());
 
         try (Response response = oAuthService.execute(request, null).get(30, TimeUnit.SECONDS)) {
-            assertEquals(expectedResponseBody, response.getBody());
+            assertThat(response.getBody()).isEqualTo(expectedResponseBody);
         }
 
         final RecordedRequest recordedRequest = server.takeRequest();
-        assertEquals("GET", recordedRequest.getMethod());
+        assertThat(recordedRequest.getMethod()).isEqualTo("GET");
 
         server.shutdown();
     }
@@ -91,8 +89,8 @@ public abstract class AbstractClientTest {
         oAuthService.execute(request, null).get(30, TimeUnit.SECONDS).close();
 
         final RecordedRequest recordedRequest = server.takeRequest();
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals(HttpClient.DEFAULT_CONTENT_TYPE, recordedRequest.getHeader(HttpClient.CONTENT_TYPE));
+        assertThat(recordedRequest.getMethod()).isEqualTo("POST");
+        assertThat(recordedRequest.getHeader(HttpClient.CONTENT_TYPE)).isEqualTo(HttpClient.DEFAULT_CONTENT_TYPE);
 
         server.shutdown();
     }
@@ -110,13 +108,13 @@ public abstract class AbstractClientTest {
 
         final OAuthRequest request = new OAuthRequest(Verb.POST, baseUrl.toString());
         try (Response response = oAuthService.execute(request, null).get(30, TimeUnit.SECONDS)) {
-            assertEquals(expectedResponseBody, response.getBody());
+            assertThat(response.getBody()).isEqualTo(expectedResponseBody);
         }
 
         final RecordedRequest recordedRequest = server.takeRequest();
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals(expectedRequestBody, recordedRequest.getBody().readUtf8());
-        assertEquals(HttpClient.DEFAULT_CONTENT_TYPE, recordedRequest.getHeader(HttpClient.CONTENT_TYPE));
+        assertThat(recordedRequest.getMethod()).isEqualTo("POST");
+        assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(expectedRequestBody);
+        assertThat(recordedRequest.getHeader(HttpClient.CONTENT_TYPE)).isEqualTo(HttpClient.DEFAULT_CONTENT_TYPE);
 
         server.shutdown();
     }
@@ -135,15 +133,15 @@ public abstract class AbstractClientTest {
         final OAuthRequest request = new OAuthRequest(Verb.POST, baseUrl.toString());
         request.setPayload(expectedRequestBody);
         try (Response response = oAuthService.execute(request, null).get(30, TimeUnit.SECONDS)) {
-            assertEquals(expectedResponseBody, response.getBody());
+            assertThat(response.getBody()).isEqualTo(expectedResponseBody);
         }
 
         final RecordedRequest recordedRequest = server.takeRequest();
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals(expectedRequestBody, recordedRequest.getBody().readUtf8());
+        assertThat(recordedRequest.getMethod()).isEqualTo("POST");
+        assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(expectedRequestBody);
         final String contentTypeHeader = recordedRequest.getHeader(HttpClient.CONTENT_TYPE);
-        assertNotNull(contentTypeHeader);
-        assertTrue(contentTypeHeader.startsWith(HttpClient.DEFAULT_CONTENT_TYPE));
+        assertThat(contentTypeHeader).isNotNull();
+        assertThat(contentTypeHeader).startsWith(HttpClient.DEFAULT_CONTENT_TYPE);
 
         server.shutdown();
     }
@@ -162,13 +160,13 @@ public abstract class AbstractClientTest {
         final OAuthRequest request = new OAuthRequest(Verb.POST, baseUrl.toString());
         request.setPayload(expectedRequestBody.getBytes());
         try (Response response = oAuthService.execute(request, null).get(30, TimeUnit.SECONDS)) {
-            assertEquals(expectedResponseBody, response.getBody());
+            assertThat(response.getBody()).isEqualTo(expectedResponseBody);
         }
 
         final RecordedRequest recordedRequest = server.takeRequest();
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals(expectedRequestBody, recordedRequest.getBody().readUtf8());
-        assertEquals(HttpClient.DEFAULT_CONTENT_TYPE, recordedRequest.getHeader(HttpClient.CONTENT_TYPE));
+        assertThat(recordedRequest.getMethod()).isEqualTo("POST");
+        assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(expectedRequestBody);
+        assertThat(recordedRequest.getHeader(HttpClient.CONTENT_TYPE)).isEqualTo(HttpClient.DEFAULT_CONTENT_TYPE);
 
         server.shutdown();
     }
@@ -189,13 +187,13 @@ public abstract class AbstractClientTest {
         final OAuthRequest request = new OAuthRequest(Verb.POST, baseUrl.toString());
         request.addBodyParameter(expectedRequestBodyParamName, expectedRequestBodyParamValue);
         try (Response response = oAuthService.execute(request, null).get(30, TimeUnit.SECONDS)) {
-            assertEquals(expectedResponseBody, response.getBody());
+            assertThat(response.getBody()).isEqualTo(expectedResponseBody);
         }
 
         final RecordedRequest recordedRequest = server.takeRequest();
-        assertEquals("POST", recordedRequest.getMethod());
-        assertEquals(expectedRequestBody, recordedRequest.getBody().readUtf8());
-        assertEquals(HttpClient.DEFAULT_CONTENT_TYPE, recordedRequest.getHeader(HttpClient.CONTENT_TYPE));
+        assertThat(recordedRequest.getMethod()).isEqualTo("POST");
+        assertThat(recordedRequest.getBody().readUtf8()).isEqualTo(expectedRequestBody);
+        assertThat(recordedRequest.getHeader(HttpClient.CONTENT_TYPE)).isEqualTo(HttpClient.DEFAULT_CONTENT_TYPE);
 
         server.shutdown();
     }
@@ -212,11 +210,11 @@ public abstract class AbstractClientTest {
 
         final OAuthRequest request = new OAuthRequest(Verb.GET, baseUrl.toString());
         try (Response response = oAuthService.execute(request, null).get(30, TimeUnit.SECONDS)) {
-            assertEquals(expectedResponseBody, StreamUtils.getStreamContents(response.getStream()));
+            assertThat(StreamUtils.getStreamContents(response.getStream())).isEqualTo(expectedResponseBody);
         }
 
         final RecordedRequest recordedRequest = server.takeRequest();
-        assertEquals("GET", recordedRequest.getMethod());
+        assertThat(recordedRequest.getMethod()).isEqualTo("GET");
 
         server.shutdown();
     }
@@ -236,7 +234,7 @@ public abstract class AbstractClientTest {
         final TestCallback callback = new TestCallback();
         oAuthService.execute(request, callback).get();
 
-        assertEquals(expectedResponseBody, callback.getResponse().getBody());
+        assertThat(callback.getResponse().getBody()).isEqualTo(expectedResponseBody);
 
         server.shutdown();
     }
@@ -255,8 +253,8 @@ public abstract class AbstractClientTest {
         final TestCallback callback = new TestCallback();
         try (Response response = oAuthService.execute(request, callback).get()) {
 
-            assertEquals(500, response.getCode());
-            assertEquals(500, callback.getResponse().getCode());
+            assertThat(response.getCode()).isEqualTo(500);
+            assertThat(callback.getResponse().getCode()).isEqualTo(500);
         }
 
         server.shutdown();

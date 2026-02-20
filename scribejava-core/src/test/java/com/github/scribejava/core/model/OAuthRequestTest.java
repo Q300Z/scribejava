@@ -1,17 +1,15 @@
 package com.github.scribejava.core.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OAuthRequestTest {
 
     private OAuthRequest request;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         request = new OAuthRequest(Verb.GET, "http://example.com");
     }
@@ -24,33 +22,30 @@ public class OAuthRequestTest {
         request.addOAuthParameter(OAuthConstants.SCOPE, "feeds");
         request.addOAuthParameter(OAuthConstants.REALM, "some-realm");
 
-        assertEquals(5, request.getOauthParameters().size());
+        assertThat(request.getOauthParameters()).hasSize(5);
     }
 
+    @Test
     public void shouldThrowExceptionIfParameterIsNotOAuth() {
-        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                request.addOAuthParameter("otherParam", "value");
-            }
-        });
+        assertThatThrownBy(() -> request.addOAuthParameter("otherParam", "value"))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldNotSentHeaderTwice() {
-        assertTrue(request.getHeaders().isEmpty());
+        assertThat(request.getHeaders()).isEmpty();
         request.addHeader("HEADER-NAME", "first");
         request.addHeader("header-name", "middle");
         request.addHeader("Header-Name", "last");
 
-        assertEquals(1, request.getHeaders().size());
+        assertThat(request.getHeaders()).hasSize(1);
 
-        assertTrue(request.getHeaders().containsKey("HEADER-NAME"));
-        assertTrue(request.getHeaders().containsKey("header-name"));
-        assertTrue(request.getHeaders().containsKey("Header-Name"));
+        assertThat(request.getHeaders()).containsKey("HEADER-NAME");
+        assertThat(request.getHeaders()).containsKey("header-name");
+        assertThat(request.getHeaders()).containsKey("Header-Name");
 
-        assertEquals("last", request.getHeaders().get("HEADER-NAME"));
-        assertEquals("last", request.getHeaders().get("header-name"));
-        assertEquals("last", request.getHeaders().get("Header-Name"));
+        assertThat(request.getHeaders().get("HEADER-NAME")).isEqualTo("last");
+        assertThat(request.getHeaders().get("header-name")).isEqualTo("last");
+        assertThat(request.getHeaders().get("Header-Name")).isEqualTo("last");
     }
 }

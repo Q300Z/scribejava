@@ -1,14 +1,13 @@
 package com.github.scribejava.core.extractors;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import com.github.scribejava.core.ObjectMother;
 import com.github.scribejava.core.exceptions.OAuthParametersMissingException;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
-import static org.junit.Assert.assertThrows;
-import org.junit.function.ThrowingRunnable;
 
 public class BaseStringExtractorTest {
 
@@ -20,7 +19,7 @@ public class BaseStringExtractorTest {
     private OAuthRequest requestPort443;
     private OAuthRequest requestPort443v2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         request = ObjectMother.createSampleOAuthRequest();
         requestPort80 = ObjectMother.createSampleOAuthRequestPort80();
@@ -37,7 +36,7 @@ public class BaseStringExtractorTest {
                 + "%26oauth_consumer_key%3DAS%2523%2524%255E%252A%2540%2526%26oauth_signature%3DOAuth-Signature"
                 + "%26oauth_timestamp%3D123456";
         final String baseString = extractor.extract(request);
-        assertEquals(expected, baseString);
+        assertThat(baseString).isEqualTo(expected);
     }
 
     @Test
@@ -46,7 +45,7 @@ public class BaseStringExtractorTest {
                 + "%26oauth_consumer_key%3DAS%2523%2524%255E%252A%2540%2526%26oauth_signature%3DOAuth-Signature"
                 + "%26oauth_timestamp%3D123456";
         final String baseString = extractor.extract(requestPort80);
-        assertEquals(expected, baseString);
+        assertThat(baseString).isEqualTo(expected);
     }
 
     @Test
@@ -55,7 +54,7 @@ public class BaseStringExtractorTest {
                 + "%252Fcallback%26oauth_consumer_key%3DAS%2523%2524%255E%252A%2540%2526%26oauth_signature"
                 + "%3DOAuth-Signature%26oauth_timestamp%3D123456";
         final String baseString = extractor.extract(requestPort80v2);
-        assertEquals(expected, baseString);
+        assertThat(baseString).isEqualTo(expected);
     }
 
     @Test
@@ -64,7 +63,7 @@ public class BaseStringExtractorTest {
                 + "%252Fcallback%26oauth_consumer_key%3DAS%2523%2524%255E%252A%2540%2526%26oauth_signature"
                 + "%3DOAuth-Signature%26oauth_timestamp%3D123456";
         final String baseString = extractor.extract(requestPort8080);
-        assertEquals(expected, baseString);
+        assertThat(baseString).isEqualTo(expected);
     }
 
     @Test
@@ -73,7 +72,7 @@ public class BaseStringExtractorTest {
                 + "%26oauth_consumer_key%3DAS%2523%2524%255E%252A%2540%2526%26oauth_signature%3DOAuth-Signature"
                 + "%26oauth_timestamp%3D123456";
         final String baseString = extractor.extract(requestPort443);
-        assertEquals(expected, baseString);
+        assertThat(baseString).isEqualTo(expected);
     }
 
     @Test
@@ -82,26 +81,20 @@ public class BaseStringExtractorTest {
                 + "%252Fcallback%26oauth_consumer_key%3DAS%2523%2524%255E%252A%2540%2526%26oauth_signature"
                 + "%3DOAuth-Signature%26oauth_timestamp%3D123456";
         final String baseString = extractor.extract(requestPort443v2);
-        assertEquals(expected, baseString);
+        assertThat(baseString).isEqualTo(expected);
     }
 
-    public void shouldThrowExceptionIfRquestIsNull() {
-        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                extractor.extract(null);
-            }
-        });
+    @Test
+    public void shouldThrowExceptionIfRequestIsNull() {
+        assertThatThrownBy(() -> extractor.extract(null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
-    public void shouldThrowExceptionIfRquestHasNoOAuthParameters() {
+    @Test
+    public void shouldThrowExceptionIfRequestHasNoOAuthParameters() {
         final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
-        assertThrows(OAuthParametersMissingException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                extractor.extract(request);
-            }
-        });
+        assertThatThrownBy(() -> extractor.extract(request))
+                .isInstanceOf(OAuthParametersMissingException.class);
     }
 
     @Test
@@ -110,6 +103,6 @@ public class BaseStringExtractorTest {
                 + "%26oauth_callback%3Dhttp%253A%252F%252Fexample%252Fcallback%26oauth_consumer_key"
                 + "%3DAS%2523%2524%255E%252A%2540%2526%26oauth_signature%3DOAuth-Signature%26oauth_timestamp%3D123456";
         request.addBodyParameter("body", "this param has whitespace");
-        assertEquals(expected, extractor.extract(request));
+        assertThat(extractor.extract(request)).isEqualTo(expected);
     }
 }
