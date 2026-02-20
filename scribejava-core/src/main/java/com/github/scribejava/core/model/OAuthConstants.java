@@ -8,7 +8,6 @@ public interface OAuthConstants {
     String TIMESTAMP = "oauth_timestamp";
     String SIGN_METHOD = "oauth_signature_method";
     String SIGNATURE = "oauth_signature";
-    String CONSUMER_SECRET = "oauth_consumer_secret";
     String CONSUMER_KEY = "oauth_consumer_key";
     String CALLBACK = "oauth_callback";
     String VERSION = "oauth_version";
@@ -43,7 +42,6 @@ public interface OAuthConstants {
     String USERNAME = "username";
     String PASSWORD = "password";
     String RESPONSE_TYPE = "response_type";
-    String RESPONSE_TYPE_CODE = "code";
 
     //not OAuth specific
     String USER_AGENT_HEADER_NAME = "User-Agent";

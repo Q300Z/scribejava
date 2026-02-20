@@ -32,9 +32,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/scribejava/scribejava</connection>
-        <developerConnection>scm:git:https://github.com/scribejava/scribejava</developerConnection>
-        <url>https://github.com/scribejava/scribejava</url>
+        <connection>scm:git:https://github.com/q300z/scribejava</connection>
+        <developerConnection>scm:git:https://github.com/q300z/scribejava</developerConnection>
+        <url>https://github.com/q300z/scribejava</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -48,6 +48,14 @@
             </roles>
             <timezone>+3</timezone>
         </developer>
+        <developer>
+            <id>q300z</id>
+            <name>Q300Z</name>
+            <email>Q300Zhomas@gmail.com</email>
+            <roles>
+                <role>all</role>
+            </roles>
+        </developer>
     </developers>
 
     <dependencies>
@@ -55,6 +63,30 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.14.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.9.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.23.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -259,6 +291,25 @@
                     <execution>
                         <goals>
                             <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.13</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
