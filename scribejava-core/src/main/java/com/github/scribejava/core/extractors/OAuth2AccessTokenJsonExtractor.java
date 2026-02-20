@@ -82,10 +82,12 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor implem
         final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
 
         final Integer expiresIn = Optional.ofNullable(response.get("expires_in")).map(JsonNode::asInt).orElse(null);
-        final String refreshToken = Optional.ofNullable(response.get(OAuthConstants.REFRESH_TOKEN)).map(JsonNode::asText).orElse(null);
+        final String refreshToken = Optional.ofNullable(response.get(OAuthConstants.REFRESH_TOKEN))
+                .map(JsonNode::asText).orElse(null);
         final String scope = Optional.ofNullable(response.get(OAuthConstants.SCOPE)).map(JsonNode::asText).orElse(null);
         final String tokenType = Optional.ofNullable(response.get("token_type")).map(JsonNode::asText).orElse(null);
-        final String accessToken = extractRequiredParameter(response, OAuthConstants.ACCESS_TOKEN, rawResponse).asText();
+        final String accessToken = extractRequiredParameter(response, OAuthConstants.ACCESS_TOKEN, rawResponse)
+                .asText();
 
         return createToken(accessToken, tokenType, expiresIn, refreshToken, scope, response, rawResponse);
     }

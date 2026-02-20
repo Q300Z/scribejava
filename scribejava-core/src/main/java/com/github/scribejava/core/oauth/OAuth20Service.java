@@ -47,7 +47,8 @@ public class OAuth20Service extends OAuthService {
     public OAuth20Service(DefaultApi20 api, String apiKey, String apiSecret, String callback, String defaultScope,
             String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
             HttpClient httpClient, DPoPProofCreator dpopProofCreator) {
-        this(api, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent, httpClientConfig, httpClient);
+        this(api, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent, httpClientConfig,
+                httpClient);
         this.dpopProofCreator = dpopProofCreator;
     }
 
@@ -366,7 +367,8 @@ public class OAuth20Service extends OAuthService {
                 (OAuthAsyncRequestCallback<OAuth2AccessToken>) null);
     }
 
-    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password, String scope) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password,
+            String scope) {
         return getAccessTokenPasswordGrantAsync(username, password, scope, null);
     }
 
@@ -385,8 +387,8 @@ public class OAuth20Service extends OAuthService {
         return sendAccessTokenRequestAsync(request, callback);
     }
 
-    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password, String scope,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password,
+            String scope, OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenPasswordGrantRequest(username, password, scope);
 
         return sendAccessTokenRequestAsync(request, callback);
@@ -637,8 +639,8 @@ public class OAuth20Service extends OAuthService {
         }
     }
 
-    public CompletableFuture<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrant(DeviceAuthorization deviceAuthorization,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+    public CompletableFuture<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrant(
+            DeviceAuthorization deviceAuthorization, OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenDeviceAuthorizationGrantRequest(deviceAuthorization);
 
         return execute(request, callback, new OAuthRequest.ResponseConverter<OAuth2AccessToken>() {
@@ -688,15 +690,19 @@ public class OAuth20Service extends OAuthService {
         }
     }
 
-    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType, String apiKey, String callback, String scope, String state, Map<String, String> additionalParams) {
+    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType,
+            String apiKey, String callback, String scope, String state, Map<String, String> additionalParams) {
         return pushAuthorizationRequestAsync(responseType, apiKey, callback, scope, state, additionalParams, null);
     }
 
-    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType, String apiKey, String callback, String scope, String state, Map<String, String> additionalParams, OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
+    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType,
+            String apiKey, String callback, String scope, String state, Map<String, String> additionalParams,
+            OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
         final String parEndpoint = api.getPushedAuthorizationRequestEndpoint();
         if (parEndpoint == null) {
             final CompletableFuture<PushedAuthorizationResponse> future = new CompletableFuture<>();
-            future.completeExceptionally(new UnsupportedOperationException("This API doesn't support Pushed Authorization Requests"));
+            future.completeExceptionally(new UnsupportedOperationException(
+                    "This API doesn't support Pushed Authorization Requests"));
             return future;
         }
 
@@ -721,7 +727,8 @@ public class OAuth20Service extends OAuthService {
         return execute(request, callbackConsumer, response -> {
             try (Response resp = response) {
                 if (resp.getCode() != 201 && resp.getCode() != 200) {
-                    throw new OAuthException("Failed to push authorization request. Status: " + resp.getCode() + ", Body: " + resp.getBody());
+                    throw new OAuthException("Failed to push authorization request. Status: " + resp.getCode()
+                            + ", Body: " + resp.getBody());
                 }
                 return PushedAuthorizationResponse.parse(resp.getBody());
             }

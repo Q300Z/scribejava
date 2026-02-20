@@ -29,8 +29,9 @@ public class HttpBasicAuthenticationScheme implements ClientAuthentication {
     @Override
     public void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret) {
         if (apiKey != null && apiSecret != null) {
+            final String auth = String.format("%s:%s", apiKey, apiSecret);
             request.addHeader(OAuthConstants.HEADER, OAuthConstants.BASIC + ' '
-                    + Base64.getEncoder().encodeToString(String.format("%s:%s", apiKey, apiSecret).getBytes(StandardCharsets.UTF_8)));
+                    + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)));
         }
     }
 

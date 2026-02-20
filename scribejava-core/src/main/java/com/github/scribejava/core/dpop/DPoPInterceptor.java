@@ -1,6 +1,5 @@
 package com.github.scribejava.core.dpop;
 
-import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuthRequestInterceptor;
 

@@ -10,6 +10,7 @@ public class JDKHttpClientConfig implements HttpClientConfig {
     private Integer readTimeout;
     private boolean followRedirects = true;
     private Proxy proxy;
+    private javax.net.ssl.SSLSocketFactory sslSocketFactory;
 
     @Override
     public JDKHttpClientConfig createDefaultConfig() {
@@ -18,6 +19,19 @@ public class JDKHttpClientConfig implements HttpClientConfig {
 
     public static JDKHttpClientConfig defaultConfig() {
         return new JDKHttpClientConfig();
+    }
+
+    public javax.net.ssl.SSLSocketFactory getSslSocketFactory() {
+        return sslSocketFactory;
+    }
+
+    public void setSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
+        this.sslSocketFactory = sslSocketFactory;
+    }
+
+    public JDKHttpClientConfig withSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
+        this.sslSocketFactory = sslSocketFactory;
+        return this;
     }
 
     public Integer getConnectTimeout() {

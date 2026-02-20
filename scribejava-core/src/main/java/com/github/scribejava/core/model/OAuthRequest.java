@@ -136,36 +136,10 @@ public class OAuthRequest {
         this.multipartPayload = multipartPayload;
     }
 
-    public void initMultipartPayload() {
-        this.multipartPayload = new MultipartPayload();
-    }
-
-    public void initMultipartPayload(String boundary) {
-        this.multipartPayload = new MultipartPayload(boundary);
-    }
-
-    public void initMultipartPayload(String subtype, String boundary) {
-        this.multipartPayload = new MultipartPayload(subtype, boundary);
-    }
-
-    public void initMultipartPayload(Map<String, String> headers) {
-        this.multipartPayload = new MultipartPayload(headers);
-    }
-
-    public void initMultipartPayload(String boundary, Map<String, String> headers) {
-        this.multipartPayload = new MultipartPayload(boundary, headers);
-    }
-
-    public void initMultipartPayload(String subtype, String boundary, Map<String, String> headers) {
-        this.multipartPayload = new MultipartPayload(subtype, boundary, headers);
-    }
-
-    public void setBodyPartPayloadInMultipartPayload(BodyPartPayload bodyPartPayload) {
-        initMultipartPayload();
-        addBodyPartPayloadInMultipartPayload(bodyPartPayload);
-    }
-
     public void addBodyPartPayloadInMultipartPayload(BodyPartPayload bodyPartPayload) {
+        if (multipartPayload == null) {
+            multipartPayload = new MultipartPayload();
+        }
         multipartPayload.addBodyPart(bodyPartPayload);
     }
 
@@ -323,6 +297,8 @@ public class OAuthRequest {
     }
 
     public interface ResponseConverter<T> {
+
+        ResponseConverter<Response> IDENTITY = response -> response;
 
         /**
          * Implementations of this method should close provided Response in case response is not included in the return

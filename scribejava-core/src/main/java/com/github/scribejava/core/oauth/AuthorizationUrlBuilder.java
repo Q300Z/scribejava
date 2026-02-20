@@ -64,7 +64,8 @@ public class AuthorizationUrlBuilder {
             initPKCE();
         }
 
-        final Map<String, String> authorizationParams = additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
+        final Map<String, String> authorizationParams = additionalParams == null
+                ? new HashMap<>() : new HashMap<>(additionalParams);
 
         if (pkce != null) {
             authorizationParams.putAll(pkce.getAuthorizationUrlParams());
@@ -80,7 +81,7 @@ public class AuthorizationUrlBuilder {
                         state,
                         authorizationParams
                 ).get();
-                
+
                 final ParameterList parameters = new ParameterList();
                 parameters.add("request_uri", parResponse.getRequestUri());
                 parameters.add(OAuthConstants.CLIENT_ID, oauth20Service.getApiKey());
@@ -93,8 +94,9 @@ public class AuthorizationUrlBuilder {
                 throw new OAuthException("Failed to push authorization request", e);
             }
         } else {
-            return oauth20Service.getApi().getAuthorizationUrl(oauth20Service.getResponseType(), oauth20Service.getApiKey(),
-                    oauth20Service.getCallback(), scope == null ? oauth20Service.getDefaultScope() : scope, state, authorizationParams);
+            return oauth20Service.getApi().getAuthorizationUrl(oauth20Service.getResponseType(),
+                    oauth20Service.getApiKey(), oauth20Service.getCallback(),
+                    scope == null ? oauth20Service.getDefaultScope() : scope, state, authorizationParams);
         }
     }
 }

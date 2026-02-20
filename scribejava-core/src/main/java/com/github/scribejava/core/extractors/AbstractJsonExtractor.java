@@ -12,7 +12,7 @@ public abstract class AbstractJsonExtractor {
             throws OAuthException {
         final JsonNode value = errorNode.get(parameterName);
 
-        if (value == null) {
+        if (value == null || value.isNull()) {
             throw new OAuthException("Response body is incorrect. Can't extract a '" + parameterName
                     + "' from this: '" + rawResponse + "'", null);
         }

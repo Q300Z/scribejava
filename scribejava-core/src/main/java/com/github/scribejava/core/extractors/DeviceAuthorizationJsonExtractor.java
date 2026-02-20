@@ -1,7 +1,5 @@
 package com.github.scribejava.core.extractors;
 
-import static com.github.scribejava.core.extractors.AbstractJsonExtractor.OBJECT_MAPPER;
-import static com.github.scribejava.core.extractors.AbstractJsonExtractor.extractRequiredParameter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.model.DeviceAuthorization;
 import java.io.IOException;
@@ -37,18 +35,18 @@ public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
         final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
 
         final DeviceAuthorization deviceAuthorization = new DeviceAuthorization(
-                extractRequiredParameter(response, "device_code", rawResponse).textValue(),
-                extractRequiredParameter(response, "user_code", rawResponse).textValue(),
-                extractRequiredParameter(response, getVerificationUriParamName(), rawResponse).textValue(),
-                extractRequiredParameter(response, "expires_in", rawResponse).intValue());
+                extractRequiredParameter(response, "device_code", rawResponse).asText(),
+                extractRequiredParameter(response, "user_code", rawResponse).asText(),
+                extractRequiredParameter(response, getVerificationUriParamName(), rawResponse).asText(),
+                extractRequiredParameter(response, "expires_in", rawResponse).asInt());
 
         final JsonNode intervalSeconds = response.get("interval");
-        if (intervalSeconds != null) {
+        if (intervalSeconds != null && !intervalSeconds.isNull()) {
             deviceAuthorization.setIntervalSeconds(intervalSeconds.asInt(5));
         }
 
         final JsonNode verificationUriComplete = response.get("verification_uri_complete");
-        if (verificationUriComplete != null) {
+        if (verificationUriComplete != null && !verificationUriComplete.isNull()) {
             deviceAuthorization.setVerificationUriComplete(verificationUriComplete.asText());
         }
 

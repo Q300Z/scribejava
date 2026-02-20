@@ -44,7 +44,8 @@ public class PushedAuthorizationResponse {
         final JsonNode expiresIn = body.get("expires_in");
 
         if (requestUri == null || requestUri.isNull()) {
-            throw new OAuthException("Response body is incorrect. Missing 'request_uri' parameter. Raw response: " + responseBody);
+            throw new OAuthException("Response body is incorrect. Missing 'request_uri' parameter. Raw response: "
+                    + responseBody);
         }
 
         return new PushedAuthorizationResponse(requestUri.asText(),

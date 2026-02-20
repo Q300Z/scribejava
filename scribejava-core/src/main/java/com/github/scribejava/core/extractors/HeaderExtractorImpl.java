@@ -1,6 +1,5 @@
 package com.github.scribejava.core.extractors;
 
-import java.util.Map;
 import java.util.stream.Collectors; // ADDED
 import com.github.scribejava.core.exceptions.OAuthParametersMissingException;
 import com.github.scribejava.core.model.OAuthConstants;
@@ -22,7 +21,7 @@ public class HeaderExtractorImpl implements HeaderExtractor {
     @Override
     public String extract(OAuthRequest request) {
         checkPreconditions(request);
-        
+
         final String oauthParams = request.getOauthParameters().entrySet().stream()
                 .map(entry -> entry.getKey() + "=\"" + OAuthEncoder.encode(entry.getValue()) + "\"")
                 .collect(Collectors.joining(PARAM_SEPARATOR)); // USE Stream

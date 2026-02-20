@@ -75,7 +75,7 @@ public abstract class DefaultApi20 {
         return null;
     }
 
-    protected abstract String getAuthorizationBaseUrl();
+    public abstract String getAuthorizationBaseUrl();
 
     /**
      * Returns the URL where you should redirect your users to authenticate your application.

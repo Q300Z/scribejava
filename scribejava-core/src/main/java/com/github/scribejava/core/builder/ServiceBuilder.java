@@ -1,10 +1,8 @@
 package com.github.scribejava.core.builder;
 
-import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-import com.github.scribejava.oauth1.oauth.OAuth10aService;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth.OAuthService;
 import com.github.scribejava.core.utils.Preconditions;
@@ -14,7 +12,7 @@ import java.io.OutputStream;
 /**
  * Implementation of the Builder pattern, with a fluent interface that creates a {@link OAuthService}
  */
-public class ServiceBuilder implements ServiceBuilderOAuth10a, ServiceBuilderOAuth20 {
+public class ServiceBuilder implements ServiceBuilderOAuth20 {
 
     private String callback;
     private String apiKey;
@@ -74,11 +72,6 @@ public class ServiceBuilder implements ServiceBuilderOAuth10a, ServiceBuilderOAu
     }
 
     @Override
-    public ServiceBuilderOAuth10a withScope(String scope) {
-        return setScope(scope);
-    }
-
-    @Override
     public ServiceBuilder debugStream(OutputStream debugStream) {
         Preconditions.checkNotNull(debugStream, "debug stream can't be null");
         this.debugStream = debugStream;
@@ -114,12 +107,6 @@ public class ServiceBuilder implements ServiceBuilderOAuth10a, ServiceBuilderOAu
     @Override
     public ServiceBuilder debug() {
         return debugStream(System.out);
-    }
-
-    @Override
-    public OAuth10aService build(DefaultApi10a api) {
-        return api.createService(apiKey, apiSecret, callback, scope, debugStream, userAgent, httpClientConfig,
-                httpClient);
     }
 
     @Override

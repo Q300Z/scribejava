@@ -18,18 +18,21 @@ public interface HttpClient extends Closeable {
     String CONTENT_TYPE = "Content-Type";
     String CONTENT_LENGTH = "Content-Length";
 
-    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            byte[] bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter);
-
-    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, byte[] bodyContents, OAuthAsyncRequestCallback<T> callback,
             OAuthRequest.ResponseConverter<T> converter);
 
-    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            String bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter);
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
+            OAuthRequest.ResponseConverter<T> converter);
 
-    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            File bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter);
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, String bodyContents, OAuthAsyncRequestCallback<T> callback,
+            OAuthRequest.ResponseConverter<T> converter);
+
+    <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, File bodyContents, OAuthAsyncRequestCallback<T> callback,
+            OAuthRequest.ResponseConverter<T> converter);
 
     Response execute(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
             byte[] bodyContents) throws InterruptedException, ExecutionException, IOException;

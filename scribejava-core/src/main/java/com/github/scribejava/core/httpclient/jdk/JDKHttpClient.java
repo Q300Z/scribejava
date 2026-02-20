@@ -38,16 +38,17 @@ public class JDKHttpClient implements HttpClient {
     }
 
     @Override
-    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            byte[] bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, byte[] bodyContents, OAuthAsyncRequestCallback<T> callback,
+            OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.BYTE_ARRAY, bodyContents, callback,
                 converter);
     }
 
     @Override
-    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
             OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.MULTIPART, bodyContents, callback,
@@ -55,16 +56,18 @@ public class JDKHttpClient implements HttpClient {
     }
 
     @Override
-    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            String bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, String bodyContents, OAuthAsyncRequestCallback<T> callback,
+            OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.STRING, bodyContents, callback,
                 converter);
     }
 
     @Override
-    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            File bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
+    public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
+            String completeUrl, File bodyContents, OAuthAsyncRequestCallback<T> callback,
+            OAuthRequest.ResponseConverter<T> converter) {
         throw new UnsupportedOperationException("JDKHttpClient does not support File payload for the moment");
     }
 
@@ -123,6 +126,9 @@ public class JDKHttpClient implements HttpClient {
             connection = (HttpURLConnection) url.openConnection(config.getProxy());
         }
         connection.setInstanceFollowRedirects(config.isFollowRedirects());
+        if (connection instanceof javax.net.ssl.HttpsURLConnection && config.getSslSocketFactory() != null) {
+            ((javax.net.ssl.HttpsURLConnection) connection).setSSLSocketFactory(config.getSslSocketFactory());
+        }
         connection.setRequestMethod(httpVerb.name());
         if (config.getConnectTimeout() != null) {
             connection.setConnectTimeout(config.getConnectTimeout());
@@ -176,7 +182,7 @@ public class JDKHttpClient implements HttpClient {
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().get(0),
-                        (existing, replacement) -> entry.getKey().equalsIgnoreCase("Content-Encoding") ? existing : replacement
+                        (existing, replacement) -> existing // Default to first value
                 ));
     }
 
