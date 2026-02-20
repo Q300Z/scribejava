@@ -4,87 +4,153 @@ import com.github.scribejava.core.exceptions.OAuthException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
-import java.util.Optional;
 
 /**
- * Validator for OpenID Connect ID Tokens.
+ * Validator for OpenID Connect ID Tokens and Logout Tokens.
  */
 public class IdTokenValidator {
 
     private final IDTokenValidator validator;
     private final String clientSecret;
+    private final JWKSet jwkSet;
+    private final JWK clientPrivateJWK;
 
     public IdTokenValidator(String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet) {
-        this(issuer, clientID, jwsAlgorithm, jwkSet, null);
+        this(issuer, clientID, jwsAlgorithm, jwkSet, null, null);
     }
 
-    public IdTokenValidator(String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet, String clientSecret) {
+    public IdTokenValidator(String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet,
+            String clientSecret) {
+        this(issuer, clientID, jwsAlgorithm, jwkSet, clientSecret, null);
+    }
+
+    public IdTokenValidator(final String issuer, final ClientID clientID, final JWSAlgorithm jwsAlgorithm,
+            final JWKSet jwkSet, final String clientSecret, final JWK clientPrivateJWK) {
         this.clientSecret = clientSecret;
-        this.validator = new IDTokenValidator(
-                new com.nimbusds.oauth2.sdk.id.Issuer(issuer),
-                clientID,
-                jwsAlgorithm,
-                jwkSet
-        );
+        this.jwkSet = jwkSet;
+        this.clientPrivateJWK = clientPrivateJWK;
+        if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm) && clientSecret != null) {
+            this.validator = new IDTokenValidator(
+                    new com.nimbusds.oauth2.sdk.id.Issuer(issuer),
+                    clientID,
+                    jwsAlgorithm,
+                    new com.nimbusds.oauth2.sdk.auth.Secret(clientSecret)
+            );
+        } else {
+            this.validator = new IDTokenValidator(
+                    new com.nimbusds.oauth2.sdk.id.Issuer(issuer),
+                    clientID,
+                    jwsAlgorithm,
+                    jwkSet
+            );
+        }
     }
 
-    /**
-     * Validates a signed ID Token string.
-     */
-    public IDTokenClaimsSet validate(String idTokenString, Nonce expectedNonce, long maxAuthAgeSeconds) throws OAuthException {
+    public IdToken validate(String idTokenString, Nonce expectedNonce, long maxAuthAgeSeconds) throws OAuthException {
         try {
-            SignedJWT signedJWT = SignedJWT.parse(idTokenString);
+            final String tokenToValidate = decryptIfEncrypted(idTokenString);
 
-            // Verify signature
-            verifySignature(signedJWT);
-
-            // Validate claims using Nimbus's built-in validator
-            IDTokenClaimsSet claimsSet = validator.validate(signedJWT, expectedNonce);
-
-            // Custom validation for max authentication age if provided
-            if (maxAuthAgeSeconds > 0) {
-                Long authTime = claimsSet.getAuthTime();
-                if (authTime == null) {
-                    throw new OAuthException("ID Token does not contain 'auth_time' claim, but maxAuthAgeSeconds is specified.");
+            if (tokenToValidate.split("\\.").length == 3) {
+                final SignedJWT signedJWT = SignedJWT.parse(tokenToValidate);
+                verifySignature(signedJWT);
+                final IDTokenClaimsSet claimsSet = validator.validate(signedJWT, expectedNonce);
+                if (claimsSet.getAudience().size() > 1 && claimsSet.getAuthorizedParty() == null) {
+                    throw new OAuthException("ID Token has multiple audiences but 'azp' claim is missing.");
                 }
-                long nowSeconds = new Date().getTime() / 1000;
-
-                if (nowSeconds - authTime > maxAuthAgeSeconds) {
-                    throw new OAuthException("ID Token has expired due to max authentication age. Issued at: " + authTime + ", Max age: " + maxAuthAgeSeconds + "s.");
+                if (claimsSet.getAuthorizedParty() != null
+                        && !claimsSet.getAuthorizedParty().getValue().equals(validator.getClientID().getValue())) {
+                    throw new OAuthException("ID Token 'azp' claim does not match the client ID.");
                 }
+                validateMaxAuthAge(claimsSet, maxAuthAgeSeconds);
             }
 
-            return claimsSet;
-        } catch (java.text.ParseException | com.nimbusds.oauth2.sdk.ParseException e) {
-            throw new OAuthException("Error parsing ID Token", e);
+            return new IdToken(tokenToValidate);
+        } catch (java.text.ParseException | com.nimbusds.jose.JOSEException
+                | com.nimbusds.jose.proc.BadJOSEException e) {
+            throw new OAuthException("Error parsing or validating ID Token", e);
         }
+    }
+
+    private void validateMaxAuthAge(IDTokenClaimsSet claimsSet, long maxAuthAgeSeconds) throws OAuthException {
+        if (maxAuthAgeSeconds > 0) {
+            final Date authTime = claimsSet.getAuthenticationTime();
+            if (authTime == null) {
+                throw new OAuthException("ID Token does not contain 'auth_time' claim,"
+                        + " but maxAuthAgeSeconds is specified.");
+            }
+            final long nowSeconds = new Date().getTime() / 1000;
+            final long authTimeSeconds = authTime.getTime() / 1000;
+
+            if (nowSeconds - authTimeSeconds > maxAuthAgeSeconds) {
+                throw new OAuthException("ID Token has expired due to max authentication age. Issued at: "
+                        + authTimeSeconds + ", Max age: " + maxAuthAgeSeconds + "s.");
+            }
+        }
+    }
+
+    private String decryptIfEncrypted(String token) throws com.nimbusds.jose.JOSEException, java.text.ParseException,
+            OAuthException {
+        if (token.split("\\.").length == 5) {
+            if (clientPrivateJWK == null) {
+                throw new OAuthException("Token is encrypted but no client private key provided for decryption.");
+            }
+            final EncryptedJWT encryptedJWT = EncryptedJWT.parse(token);
+            final JWEDecrypter decrypter;
+            if (clientPrivateJWK instanceof RSAKey) {
+                decrypter = new com.nimbusds.jose.crypto.RSADecrypter((RSAKey) clientPrivateJWK);
+            } else if (clientPrivateJWK instanceof com.nimbusds.jose.jwk.ECKey) {
+                decrypter = new com.nimbusds.jose.crypto.ECDHDecrypter((com.nimbusds.jose.jwk.ECKey) clientPrivateJWK);
+            } else {
+                throw new OAuthException("Unsupported JWK type for decryption: "
+                        + clientPrivateJWK.getClass().getName());
+            }
+            encryptedJWT.decrypt(decrypter);
+            final com.nimbusds.jose.Payload payload = encryptedJWT.getPayload();
+            final SignedJWT nestedSignedJWT = payload.toSignedJWT();
+            if (nestedSignedJWT != null) {
+                return nestedSignedJWT.serialize();
+            }
+            return payload.toString();
+        }
+        return token;
     }
 
     private void verifySignature(SignedJWT signedJWT) throws OAuthException {
         try {
-            JWSHeader header = signedJWT.getHeader();
-            JWSAlgorithm alg = header.getAlgorithm();
+            final JWSHeader header = signedJWT.getHeader();
+            final JWSAlgorithm alg = header.getAlgorithm();
 
-            JWSVerifier verifier;
+            final JWSVerifier verifier;
             if (JWSAlgorithm.Family.RSA.contains(alg)) {
-                RSAKey rsaJWK = Optional.ofNullable(validator.getJWKSet().getKeyByKeyID(header.getKeyID()))
+                final RSAKey rsaJWK = jwkSet.getKeys().stream()
+                        .filter(k -> header.getKeyID().equals(k.getKeyID()))
                         .filter(k -> k instanceof RSAKey)
                         .map(k -> (RSAKey) k)
+                        .findFirst()
                         .orElseThrow(() -> new OAuthException("RSA JWK not found for key ID: " + header.getKeyID()));
                 verifier = new RSASSAVerifier(rsaJWK);
+            } else if (JWSAlgorithm.Family.EC.contains(alg)) {
+                final com.nimbusds.jose.jwk.ECKey ecJWK = jwkSet.getKeys().stream()
+                        .filter(k -> header.getKeyID().equals(k.getKeyID()))
+                        .filter(k -> k instanceof com.nimbusds.jose.jwk.ECKey)
+                        .map(k -> (com.nimbusds.jose.jwk.ECKey) k)
+                        .findFirst()
+                        .orElseThrow(() -> new OAuthException("EC JWK not found for key ID: " + header.getKeyID()));
+                verifier = new com.nimbusds.jose.crypto.ECDSAVerifier(ecJWK);
             } else if (JWSAlgorithm.Family.HMAC_SHA.contains(alg)) {
                 if (clientSecret == null || clientSecret.isEmpty()) {
                     throw new OAuthException("Client secret is required for HMAC signature verification.");
@@ -97,8 +163,63 @@ public class IdTokenValidator {
             if (!signedJWT.verify(verifier)) {
                 throw new OAuthException("ID Token signature verification failed.");
             }
-        } catch (com.nimbusds.jose.JOSEException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+        } catch (com.nimbusds.jose.JOSEException e) {
             throw new OAuthException("Error during ID Token signature verification", e);
+        }
+    }
+
+    public void validateLogoutToken(String logoutTokenString) throws OAuthException {
+        try {
+            final String tokenToValidate = decryptIfEncrypted(logoutTokenString);
+            final SignedJWT signedJWT = SignedJWT.parse(tokenToValidate);
+            verifySignature(signedJWT);
+
+            final IDTokenClaimsSet claimsSet = new IDTokenClaimsSet(signedJWT.getJWTClaimsSet());
+
+            if (claimsSet.getNonce() != null) {
+                throw new OAuthException("Logout Token MUST NOT contain a nonce.");
+            }
+
+            final Object events = claimsSet.getClaim("events");
+            if (!(events instanceof java.util.Map) || !((java.util.Map<?, ?>) events).containsKey(
+                    "http://schemas.openid.net/event/backchannel-logout")) {
+                throw new OAuthException("Logout Token MUST contain the backchannel-logout event claim.");
+            }
+
+            validator.validate(signedJWT, null);
+
+        } catch (java.text.ParseException | com.nimbusds.jose.JOSEException | com.nimbusds.jose.proc.BadJOSEException
+                | com.nimbusds.oauth2.sdk.ParseException e) {
+            throw new OAuthException("Error validating Logout Token", e);
+        }
+    }
+
+    /**
+     * Validates that the access token is bound to the correct public key or certificate.
+     *
+     * @param idToken The validated ID Token.
+     * @param expectedJkt The expected JWK Thumbprint (for DPoP).
+     * @param expectedX5t The expected X.509 Certificate Thumbprint (for mTLS).
+     */
+    public void validateTokenBinding(IdToken idToken, String expectedJkt, String expectedX5t) throws OAuthException {
+        final Object cnf = idToken.getClaim("cnf");
+        if (!(cnf instanceof java.util.Map)) {
+            return;
+        }
+        final java.util.Map<?, ?> cnfMap = (java.util.Map<?, ?>) cnf;
+
+        if (expectedJkt != null) {
+            final Object jkt = cnfMap.get("jkt");
+            if (!expectedJkt.equals(jkt)) {
+                throw new OAuthException("DPoP proof key mismatch. Expected: " + expectedJkt + ", Got: " + jkt);
+            }
+        }
+
+        if (expectedX5t != null) {
+            final Object x5t = cnfMap.get("x5t#S256");
+            if (!expectedX5t.equals(x5t)) {
+                throw new OAuthException("mTLS certificate mismatch. Expected: " + expectedX5t + ", Got: " + x5t);
+            }
         }
     }
 }
