@@ -23,7 +23,7 @@ public class LiveApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://login.live.com/oauth20_authorize.srf";
     }
 

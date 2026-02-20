@@ -22,7 +22,7 @@ public class GeniusApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://api.genius.com/oauth/authorize";
     }
 }

@@ -25,7 +25,7 @@ public class XeroApi20 extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://login.xero.com/identity/connect/authorize";
     }
 }

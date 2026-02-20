@@ -16,7 +16,7 @@ public class DiscordApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://discordapp.com/api/oauth2/authorize";
     }
 

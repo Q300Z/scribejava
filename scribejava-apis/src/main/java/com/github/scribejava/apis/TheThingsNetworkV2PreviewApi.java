@@ -21,7 +21,7 @@ public class TheThingsNetworkV2PreviewApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://preview.account.thethingsnetwork.org/users/authorize";
     }
 }

@@ -21,7 +21,7 @@ public class DoktornaraboteApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://auth.doktornarabote.ru/OAuth/Authorize";
     }
 }

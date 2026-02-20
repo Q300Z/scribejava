@@ -27,7 +27,7 @@ public class BoxApi20 extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://account.box.com/api/oauth2/authorize";
     }
 

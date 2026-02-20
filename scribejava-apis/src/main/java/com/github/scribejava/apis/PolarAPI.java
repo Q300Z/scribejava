@@ -33,7 +33,7 @@ public class PolarAPI extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://flow.polar.com/oauth2/authorization";
     }
 

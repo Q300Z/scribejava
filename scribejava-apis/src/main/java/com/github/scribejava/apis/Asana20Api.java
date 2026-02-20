@@ -21,7 +21,7 @@ public class Asana20Api extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://app.asana.com/-/oauth_authorize";
     }
 }

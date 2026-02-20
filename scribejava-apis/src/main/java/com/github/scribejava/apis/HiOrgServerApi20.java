@@ -38,7 +38,7 @@ public class HiOrgServerApi20 extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://www.hiorg-server.de/api/oauth2/" + version + "/authorize.php";
     }
 }

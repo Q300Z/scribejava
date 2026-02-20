@@ -47,7 +47,7 @@ public class KeycloakApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return baseUrlWithRealm + "/protocol/openid-connect/auth";
     }
 

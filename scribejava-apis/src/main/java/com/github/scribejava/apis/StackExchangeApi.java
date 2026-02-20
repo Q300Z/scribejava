@@ -30,7 +30,7 @@ public class StackExchangeApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://stackexchange.com/oauth";
     }
 

@@ -1,22 +1,18 @@
 package com.github.scribejava.oauth1.model;
 
-import com.github.scribejava.core.utils.Preconditions;
+import com.github.scribejava.core.model.Token;
+import java.util.Objects;
 
 /**
- * Represents an abstract OAuth 1 Token (either request or access token)
+ * Abstract class for OAuth 1.0a tokens.
  */
 public abstract class OAuth1Token extends Token {
 
-    private static final long serialVersionUID = 6285873427974823019L;
-
     private final String token;
-
     private final String tokenSecret;
 
     public OAuth1Token(String token, String tokenSecret, String rawResponse) {
         super(rawResponse);
-        Preconditions.checkNotNull(token, "oauth_token can't be null");
-        Preconditions.checkNotNull(tokenSecret, "oauth_token_secret can't be null");
         this.token = token;
         this.tokenSecret = tokenSecret;
     }
@@ -29,10 +25,23 @@ public abstract class OAuth1Token extends Token {
         return tokenSecret;
     }
 
-    /**
-     * @return true if the token is empty (oauth_token = "", oauth_token_secret = "")
-     */
-    public boolean isEmpty() {
-        return "".equals(token) && "".equals(tokenSecret);
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(token);
+        hash = 29 * hash + Objects.hashCode(tokenSecret);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final OAuth1Token other = (OAuth1Token) obj;
+        return Objects.equals(token, other.token) && Objects.equals(tokenSecret, other.tokenSecret);
     }
 }

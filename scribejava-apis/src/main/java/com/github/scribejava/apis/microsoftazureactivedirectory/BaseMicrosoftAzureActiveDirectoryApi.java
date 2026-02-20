@@ -26,7 +26,7 @@ public abstract class BaseMicrosoftAzureActiveDirectoryApi extends DefaultApi20 
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return MSFT_LOGIN_URL + tenant + OAUTH_2 + getEndpointVersionPath() + "/authorize";
     }
 

@@ -23,7 +23,7 @@ public class LinkedInApi20 extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://www.linkedin.com/oauth/v2/authorization";
     }
 

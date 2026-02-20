@@ -24,7 +24,7 @@ public class HHApi extends DefaultApi20 {
     }
 
     @Override
-    protected String getAuthorizationBaseUrl() {
+    public String getAuthorizationBaseUrl() {
         return "https://hh.ru/oauth/authorize";
     }
 
