@@ -13,10 +13,12 @@ import java.io.File;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets; // ADDED
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList; // ADDED
+import java.util.List; // ADDED
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CompletableFuture; // CHANGED
+import java.util.concurrent.CompletableFuture;
 
 public abstract class OAuthService implements Closeable {
 
@@ -26,6 +28,7 @@ public abstract class OAuthService implements Closeable {
     private final String userAgent;
     private final HttpClient httpClient;
     private final OutputStream debugStream;
+    private final List<OAuthRequestInterceptor> interceptors = new ArrayList<>(); // ADDED
 
     public OAuthService(String apiKey, String apiSecret, String callback, OutputStream debugStream,
             String userAgent, HttpClientConfig httpClientConfig, HttpClient httpClient) {
@@ -40,6 +43,10 @@ public abstract class OAuthService implements Closeable {
         } else {
             this.httpClient = httpClient == null ? getClient(httpClientConfig) : httpClient;
         }
+    }
+
+    public void addInterceptor(OAuthRequestInterceptor interceptor) { // ADDED
+        interceptors.add(interceptor);
     }
 
     private static HttpClient getClient(HttpClientConfig config) {
@@ -69,11 +76,6 @@ public abstract class OAuthService implements Closeable {
         return callback;
     }
 
-    /**
-     * Returns the OAuth version of the service.
-     *
-     * @return OAuth version as string
-     */
     public abstract String getVersion();
 
     public CompletableFuture<Response> executeAsync(OAuthRequest request) {
@@ -87,6 +89,8 @@ public abstract class OAuthService implements Closeable {
     public <R> CompletableFuture<R> execute(OAuthRequest request, OAuthAsyncRequestCallback<R> callback,
             OAuthRequest.ResponseConverter<R> converter) {
 
+        interceptors.forEach(interceptor -> interceptor.intercept(request)); // ADDED: Execute interceptors
+
         final File filePayload = request.getFilePayload();
         if (filePayload != null) {
             return httpClient.executeAsync(userAgent, request.getHeaders(), request.getVerb(), request.getCompleteUrl(),
@@ -94,7 +98,7 @@ public abstract class OAuthService implements Closeable {
         } else if (request.getStringPayload() != null) {
             return httpClient.executeAsync(userAgent, request.getHeaders(), request.getVerb(), request.getCompleteUrl(),
                     request.getStringPayload(), callback, converter);
-        } else if (request.getMultipartPayload() != null) { // ADDED
+        } else if (request.getMultipartPayload() != null) {
             return httpClient.executeAsync(userAgent, request.getHeaders(), request.getVerb(), request.getCompleteUrl(),
                     request.getMultipartPayload(), callback, converter);
         } else {
@@ -104,6 +108,8 @@ public abstract class OAuthService implements Closeable {
     }
 
     public Response execute(OAuthRequest request) throws InterruptedException, ExecutionException, IOException {
+        interceptors.forEach(interceptor -> interceptor.intercept(request)); // ADDED: Execute interceptors
+
         final File filePayload = request.getFilePayload();
         if (filePayload != null) {
             return httpClient.execute(userAgent, request.getHeaders(), request.getVerb(), request.getCompleteUrl(),
@@ -120,27 +126,16 @@ public abstract class OAuthService implements Closeable {
         }
     }
 
-    /**
-     * No need to wrap usages in {@link #isDebug()}.
-     *
-     * @param message message to log
-     */
     public void log(String message) {
         if (debugStream != null) {
             log(message, (Object[]) null);
         }
     }
 
-    /**
-     * Wrap usages in {@link #isDebug()}. It was made for optimization - to not calculate "params" in production mode.
-     *
-     * @param messagePattern messagePattern
-     * @param params params
-     */
     public void log(String messagePattern, Object... params) {
         final String message = String.format(messagePattern, params) + '\n';
         try {
-            debugStream.write(message.getBytes(StandardCharsets.UTF_8)); // CHANGED
+            debugStream.write(message.getBytes(StandardCharsets.UTF_8));
         } catch (IOException | RuntimeException e) {
             throw new RuntimeException("there were problems while writting to the debug stream", e);
         }

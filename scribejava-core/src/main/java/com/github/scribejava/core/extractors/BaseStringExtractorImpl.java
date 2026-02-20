@@ -14,9 +14,6 @@ public class BaseStringExtractorImpl implements BaseStringExtractor {
 
     protected static final String AMPERSAND_SEPARATED_STRING = "%s&%s&%s";
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String extract(OAuthRequest request) {
         checkPreconditions(request);
@@ -30,11 +27,6 @@ public class BaseStringExtractorImpl implements BaseStringExtractor {
         return request.getVerb().name();
     }
 
-    /**
-     * https://tools.ietf.org/html/rfc5849#section-3.4.1.2
-     * @param request request
-     * @return url
-     */
     protected String getUrl(OAuthRequest request) {
         return request.getSanitizedUrl();
     }
@@ -50,7 +42,7 @@ public class BaseStringExtractorImpl implements BaseStringExtractor {
     protected void checkPreconditions(OAuthRequest request) {
         Preconditions.checkNotNull(request, "Cannot extract base string from a null object");
 
-        if (request.getOauthParameters() == null || request.getOauthParameters().size() <= 0) {
+        if (request.getOauthParameters() == null || request.getOauthParameters().isEmpty()) {
             throw new OAuthParametersMissingException(request);
         }
     }

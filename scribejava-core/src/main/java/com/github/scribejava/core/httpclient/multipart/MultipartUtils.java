@@ -2,6 +2,7 @@ package com.github.scribejava.core.httpclient.multipart;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -35,7 +36,7 @@ public class MultipartUtils {
     }
 
     public static String generateDefaultBoundary() {
-        return "----ScribeJava----" + System.currentTimeMillis();
+        return "----ScribeJava----" + Instant.now().toEpochMilli();
     }
 
     public static ByteArrayOutputStream getPayload(MultipartPayload multipartPayload) throws IOException {
@@ -55,9 +56,13 @@ public class MultipartUtils {
 
                 final Map<String, String> bodyPartHeaders = bodyPart.getHeaders();
                 if (bodyPartHeaders != null) {
-                    for (Map.Entry<String, String> header : bodyPartHeaders.entrySet()) {
-                        os.write((header.getKey() + ": " + header.getValue() + "\r\n").getBytes());
-                    }
+                    bodyPartHeaders.forEach((key, value) -> {
+                        try {
+                            os.write((key + ": " + value + "\r\n").getBytes());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
                 }
 
                 os.write("\r\n".getBytes());

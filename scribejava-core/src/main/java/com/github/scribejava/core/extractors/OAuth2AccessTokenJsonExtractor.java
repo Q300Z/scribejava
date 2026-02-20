@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.OAuthConstants;
@@ -39,13 +40,6 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor implem
         return createToken(body);
     }
 
-    /**
-     * Related documentation: https://tools.ietf.org/html/rfc6749#section-5.2
-     *
-     * @param response response
-     * @throws java.io.IOException IOException
-     *
-     */
     public void generateError(Response response) throws IOException {
         final String responseBody = response.getBody();
         final JsonNode responseBodyJson;
@@ -55,42 +49,45 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor implem
             throw new OAuth2AccessTokenErrorResponse(null, null, null, response);
         }
 
-        final JsonNode errorUriInString = responseBodyJson.get("error_uri");
-        URI errorUri;
-        try {
-            errorUri = errorUriInString == null ? null : URI.create(errorUriInString.asText());
-        } catch (IllegalArgumentException iae) {
-            errorUri = null;
-        }
+        final URI errorUri = Optional.ofNullable(responseBodyJson.get("error_uri"))
+                .map(JsonNode::asText)
+                .map(uri -> {
+                    try {
+                        return URI.create(uri);
+                    } catch (IllegalArgumentException iae) {
+                        return null;
+                    }
+                })
+                .orElse(null);
 
-        OAuth2Error errorCode;
-        try {
-            errorCode = OAuth2Error
-                    .parseFrom(extractRequiredParameter(responseBodyJson, "error", responseBody).asText());
-        } catch (IllegalArgumentException iaE) {
-            //non oauth standard error code
-            errorCode = null;
-        }
+        final OAuth2Error errorCode = Optional.ofNullable(responseBodyJson.get("error"))
+                .map(JsonNode::asText)
+                .map(error -> {
+                    try {
+                        return OAuth2Error.parseFrom(error);
+                    } catch (IllegalArgumentException iaE) {
+                        return null;
+                    }
+                })
+                .orElse(null);
 
-        final JsonNode errorDescription = responseBodyJson.get("error_description");
+        final String errorDescription = Optional.ofNullable(responseBodyJson.get("error_description"))
+                .map(JsonNode::asText)
+                .orElse(null);
 
-        throw new OAuth2AccessTokenErrorResponse(errorCode, errorDescription == null ? null : errorDescription.asText(),
-                errorUri, response);
+        throw new OAuth2AccessTokenErrorResponse(errorCode, errorDescription, errorUri, response);
     }
 
     private OAuth2AccessToken createToken(String rawResponse) throws IOException {
-
         final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
 
-        final JsonNode expiresInNode = response.get("expires_in");
-        final JsonNode refreshToken = response.get(OAuthConstants.REFRESH_TOKEN);
-        final JsonNode scope = response.get(OAuthConstants.SCOPE);
-        final JsonNode tokenType = response.get("token_type");
+        final Integer expiresIn = Optional.ofNullable(response.get("expires_in")).map(JsonNode::asInt).orElse(null);
+        final String refreshToken = Optional.ofNullable(response.get(OAuthConstants.REFRESH_TOKEN)).map(JsonNode::asText).orElse(null);
+        final String scope = Optional.ofNullable(response.get(OAuthConstants.SCOPE)).map(JsonNode::asText).orElse(null);
+        final String tokenType = Optional.ofNullable(response.get("token_type")).map(JsonNode::asText).orElse(null);
+        final String accessToken = extractRequiredParameter(response, OAuthConstants.ACCESS_TOKEN, rawResponse).asText();
 
-        return createToken(extractRequiredParameter(response, OAuthConstants.ACCESS_TOKEN, rawResponse).asText(),
-                tokenType == null ? null : tokenType.asText(), expiresInNode == null ? null : expiresInNode.asInt(),
-                refreshToken == null ? null : refreshToken.asText(), scope == null ? null : scope.asText(), response,
-                rawResponse);
+        return createToken(accessToken, tokenType, expiresIn, refreshToken, scope, response, rawResponse);
     }
 
     protected OAuth2AccessToken createToken(String accessToken, String tokenType, Integer expiresIn,
