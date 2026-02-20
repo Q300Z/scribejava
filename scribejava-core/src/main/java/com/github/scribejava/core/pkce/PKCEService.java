@@ -1,8 +1,8 @@
 package com.github.scribejava.core.pkce;
 
-import com.github.scribejava.core.base64.Base64;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 /**
  * Used to implement Proof Key for Code Exchange by OAuth Public Clients https://tools.ietf.org/html/rfc7636
@@ -43,7 +43,7 @@ public class PKCEService {
     }
 
     public PKCE generatePKCE(byte[] randomBytes) {
-        final String codeVerifier = Base64.encodeUrlWithoutPadding(randomBytes);
+        final String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
 
         final PKCE pkce = new PKCE();
         pkce.setCodeVerifier(codeVerifier);

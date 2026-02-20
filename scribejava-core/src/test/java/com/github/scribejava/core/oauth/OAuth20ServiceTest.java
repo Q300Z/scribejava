@@ -2,7 +2,6 @@ package com.github.scribejava.core.oauth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.scribejava.core.base64.Base64;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2Authorization;
@@ -12,7 +11,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 
 public class OAuth20ServiceTest {
@@ -33,8 +33,8 @@ public class OAuth20ServiceTest {
         assertEquals(OAuth20ServiceUnit.TOKEN, response.get(OAuthConstants.ACCESS_TOKEN).asText());
         assertEquals(OAuth20ServiceUnit.EXPIRES, response.get("expires_in").asInt());
 
-        final String authorize = Base64.encode(
-                String.format("%s:%s", service.getApiKey(), service.getApiSecret()).getBytes(Charset.forName("UTF-8")));
+        final String authorize = Base64.getEncoder().encodeToString(
+                String.format("%s:%s", service.getApiKey(), service.getApiSecret()).getBytes(StandardCharsets.UTF_8));
 
         assertEquals(OAuthConstants.BASIC + ' ' + authorize, response.get(OAuthConstants.HEADER).asText());
 
@@ -58,8 +58,8 @@ public class OAuth20ServiceTest {
         assertEquals(OAuth20ServiceUnit.TOKEN, response.get(OAuthConstants.ACCESS_TOKEN).asText());
         assertEquals(OAuth20ServiceUnit.EXPIRES, response.get("expires_in").asInt());
 
-        final String authorize = Base64.encode(
-                String.format("%s:%s", service.getApiKey(), service.getApiSecret()).getBytes(Charset.forName("UTF-8")));
+        final String authorize = Base64.getEncoder().encodeToString(
+                String.format("%s:%s", service.getApiKey(), service.getApiSecret()).getBytes(StandardCharsets.UTF_8));
 
         assertEquals(OAuthConstants.BASIC + ' ' + authorize, response.get(OAuthConstants.HEADER).asText());
 

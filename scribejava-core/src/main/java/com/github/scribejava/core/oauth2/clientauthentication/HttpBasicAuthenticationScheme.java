@@ -1,9 +1,9 @@
 package com.github.scribejava.core.oauth2.clientauthentication;
 
-import com.github.scribejava.core.base64.Base64;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * 2.3. Client Authentication<br>
@@ -30,7 +30,7 @@ public class HttpBasicAuthenticationScheme implements ClientAuthentication {
     public void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret) {
         if (apiKey != null && apiSecret != null) {
             request.addHeader(OAuthConstants.HEADER, OAuthConstants.BASIC + ' '
-                    + Base64.encode(String.format("%s:%s", apiKey, apiSecret).getBytes(Charset.forName("UTF-8"))));
+                    + Base64.getEncoder().encodeToString(String.format("%s:%s", apiKey, apiSecret).getBytes(StandardCharsets.UTF_8)));
         }
     }
 
