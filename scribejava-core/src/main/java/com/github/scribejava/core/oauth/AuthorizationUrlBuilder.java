@@ -48,13 +48,21 @@ public class AuthorizationUrlBuilder {
     }
 
     public String build() {
-        final Map<String, String> params;
         if (pkce == null) {
-            params = additionalParams;
+            initPKCE(); // Initialize PKCE by default if not set
+        }
+
+        final Map<String, String> params;
+        if (additionalParams == null) {
+            params = new HashMap<>();
         } else {
-            params = additionalParams == null ? new HashMap<String, String>() : new HashMap<>(additionalParams);
+            params = new HashMap<>(additionalParams);
+        }
+
+        if (pkce != null) { // PKCE parameters are always added if PKCE is present
             params.putAll(pkce.getAuthorizationUrlParams());
         }
+        
         return oauth20Service.getApi().getAuthorizationUrl(oauth20Service.getResponseType(), oauth20Service.getApiKey(),
                 oauth20Service.getCallback(), scope == null ? oauth20Service.getDefaultScope() : scope, state, params);
     }
