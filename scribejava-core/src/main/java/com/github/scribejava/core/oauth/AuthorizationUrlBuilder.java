@@ -2,8 +2,14 @@ package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCEService;
+import com.github.scribejava.core.model.OAuthConstants;
+import com.github.scribejava.core.model.ParameterList;
+import com.github.scribejava.core.model.PushedAuthorizationResponse;
+import com.github.scribejava.core.exceptions.OAuthException;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class AuthorizationUrlBuilder {
 
@@ -13,6 +19,7 @@ public class AuthorizationUrlBuilder {
     private Map<String, String> additionalParams;
     private PKCE pkce;
     private String scope;
+    private boolean usePushedAuthorizationRequests;
 
     public AuthorizationUrlBuilder(OAuth20Service oauth20Service) {
         this.oauth20Service = oauth20Service;
@@ -43,27 +50,51 @@ public class AuthorizationUrlBuilder {
         return this;
     }
 
+    public AuthorizationUrlBuilder usePushedAuthorizationRequests() {
+        this.usePushedAuthorizationRequests = true;
+        return this;
+    }
+
     public PKCE getPkce() {
         return pkce;
     }
 
     public String build() {
         if (pkce == null) {
-            initPKCE(); // Initialize PKCE by default if not set
+            initPKCE();
         }
 
-        final Map<String, String> params;
-        if (additionalParams == null) {
-            params = new HashMap<>();
+        final Map<String, String> authorizationParams = additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
+
+        if (pkce != null) {
+            authorizationParams.putAll(pkce.getAuthorizationUrlParams());
+        }
+
+        if (usePushedAuthorizationRequests) {
+            try {
+                final PushedAuthorizationResponse parResponse = oauth20Service.pushAuthorizationRequestAsync(
+                        oauth20Service.getResponseType(),
+                        oauth20Service.getApiKey(),
+                        oauth20Service.getCallback(),
+                        scope == null ? oauth20Service.getDefaultScope() : scope,
+                        state,
+                        authorizationParams
+                ).get();
+                
+                final ParameterList parameters = new ParameterList();
+                parameters.add("request_uri", parResponse.getRequestUri());
+                parameters.add(OAuthConstants.CLIENT_ID, oauth20Service.getApiKey());
+                if (state != null) {
+                    parameters.add(OAuthConstants.STATE, state);
+                }
+                return parameters.appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
+
+            } catch (InterruptedException | ExecutionException e) {
+                throw new OAuthException("Failed to push authorization request", e);
+            }
         } else {
-            params = new HashMap<>(additionalParams);
+            return oauth20Service.getApi().getAuthorizationUrl(oauth20Service.getResponseType(), oauth20Service.getApiKey(),
+                    oauth20Service.getCallback(), scope == null ? oauth20Service.getDefaultScope() : scope, state, authorizationParams);
         }
-
-        if (pkce != null) { // PKCE parameters are always added if PKCE is present
-            params.putAll(pkce.getAuthorizationUrlParams());
-        }
-        
-        return oauth20Service.getApi().getAuthorizationUrl(oauth20Service.getResponseType(), oauth20Service.getApiKey(),
-                oauth20Service.getCallback(), scope == null ? oauth20Service.getDefaultScope() : scope, state, params);
     }
 }

@@ -74,6 +74,16 @@ public abstract class DefaultApi20 {
                 "This API doesn't support revoking tokens or we have no info about this");
     }
 
+    /**
+     * As stated in RFC 9126 OAuth 2.0 Pushed Authorization Requests
+     *
+     * @return endpoint, which allows clients to push the authorization request parameters to the authorization server.
+     * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126</a>
+     */
+    public String getPushedAuthorizationRequestEndpoint() {
+        return null;
+    }
+
     protected abstract String getAuthorizationBaseUrl();
 
     /**
