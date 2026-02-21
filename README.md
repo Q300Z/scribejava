@@ -31,54 +31,23 @@ OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code
 
 ## 📦 Installation
 
-ScribeJava est distribué via **GitHub Releases**. Vous pouvez télécharger les JARs manuellement ou utiliser **JitPack** pour une intégration Maven/Gradle facile.
+ScribeJava est distribué exclusivement via **[GitHub Releases](https://github.com/Q300Z/scribejava/releases)**. Comme la bibliothèque n'est pas publiée sur un dépôt public (Maven Central), vous devez installer les JARs manuellement.
 
-### 1. Configurer le dépôt (JitPack)
-Ajoutez ceci à votre `pom.xml` :
-```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
+### 1. Téléchargement
+Récupérez les fichiers `.jar` de la dernière version sur la page des [Releases](https://github.com/Q300Z/scribejava/releases).
+
+*   **scribejava-core.jar** (Obligatoire) : Le cœur du moteur.
+*   **scribejava-oidc.jar** (Optionnel) : Pour le support OpenID Connect.
+*   **scribejava-apis.jar** (Optionnel) : Pour les configurations fournisseurs (Google, GitHub, etc.).
+
+### 2. Installation locale (Recommandé pour Maven)
+Pour utiliser ces JARs dans un projet Maven, installez-les dans votre répertoire local `.m2` :
+
+```bash
+mvn install:install-file -Dfile=scribejava-core-9.0.0.jar -DgroupId=com.github.scribejava -DartifactId=scribejava-core -Dversion=9.0.0 -Dpackaging=jar
 ```
 
-### 2. Ajouter les dépendances (v9.0.0)
-
-**Cœur de la bibliothèque (Obligatoire) :**
-```xml
-<dependency>
-    <groupId>com.github.Q300Z.scribejava</groupId>
-    <artifactId>scribejava-core</artifactId>
-    <version>9.0.0</version>
-</dependency>
-```
-
-**Support OpenID Connect (Optionnel) :**
-```xml
-<dependency>
-    <groupId>com.github.Q300Z.scribejava</groupId>
-    <artifactId>scribejava-oidc</artifactId>
-    <version>9.0.0</version>
-</dependency>
-```
-
-**APIs pré-configurées (Google, GitHub, etc.) (Optionnel) :**
-```xml
-<dependency>
-    <groupId>com.github.Q300Z.scribejava</groupId>
-    <artifactId>scribejava-apis</artifactId>
-    <version>9.0.0</version>
-</dependency>
-```
-
-**Clients HTTP Alternatifs (Optionnel) :**
-*   **OkHttp** : `scribejava-httpclient-okhttp`
-*   **Armeria** : `scribejava-httpclient-armeria`
-
----
-📥 *Vous pouvez également récupérer les JARs directement sur la page [Releases](https://github.com/Q300Z/scribejava/releases).*
+Vous pourrez ensuite les déclarer normalement dans votre `pom.xml`.
 
 ## 🛠️ Fonctionnalités
 

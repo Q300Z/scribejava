@@ -26,20 +26,6 @@ Comme ScribeJava n'est pas publié sur Maven Central, les releases sont gérées
 
 ## 🛠️ Utiliser cette version dans un autre projet
 
-Comme la librairie n'est pas sur Maven Central, un utilisateur peut :
-1.  Télécharger les JARs depuis la page Release de GitHub.
-2.  Ou utiliser **JitPack** en ajoutant ceci à leur `pom.xml` :
-    ```xml
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-    
-    <dependency>
-        <groupId>com.github.Q300Z.scribejava</groupId>
-        <artifactId>scribejava-core</artifactId>
-        <version>9.0.0</version>
-    </dependency>
-    ```
+Comme la librairie n'est pas sur Maven Central, un utilisateur doit :
+1.  Télécharger les JARs depuis la page **Releases** de GitHub.
+2.  Les ajouter au classpath de son projet ou les installer manuellement dans son repo local via `mvn install:install-file`.
