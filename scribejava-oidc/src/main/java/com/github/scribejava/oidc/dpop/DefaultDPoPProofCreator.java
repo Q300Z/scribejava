@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2010 Pablo Fernandez
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.github.scribejava.oidc.dpop;
 
 import com.github.scribejava.core.dpop.DPoPProofCreator;
@@ -14,7 +37,6 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -26,80 +48,87 @@ import java.util.UUID;
 
 /**
  * Default implementation of {@link DPoPProofCreator} using Nimbus JOSE+JWT library.
- * <p>
- * Implements <b>RFC 9449:</b> OAuth 2.0 Demonstrating Proof of Possession (DPoP).
- * <p>
- * This creator generates a DPoP proof JWT that includes claims like {@code htm} (HTTP method),
- * {@code htu} (HTTP target URI), and optionally {@code ath} (Access Token Hash) to bind
- * the request to a specific token.
+ *
+ * <p>Implements <b>RFC 9449:</b> OAuth 2.0 Demonstrating Proof of Possession (DPoP).
+ *
+ * <p>This creator generates a DPoP proof JWT that includes claims like {@code htm} (HTTP method),
+ * {@code htu} (HTTP target URI), and optionally {@code ath} (Access Token Hash) to bind the request
+ * to a specific token.
  */
 public class DefaultDPoPProofCreator implements DPoPProofCreator {
 
-    private final JWK dpopJWK;
-    private final JWSAlgorithm jwsAlgorithm;
+  private final JWK dpopJWK;
+  private final JWSAlgorithm jwsAlgorithm;
 
-    public DefaultDPoPProofCreator() {
-        try {
-            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-            keyGen.initialize(2048);
-            final KeyPair keyPair = keyGen.generateKeyPair();
-            dpopJWK = new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
-                    .privateKey((RSAPrivateKey) keyPair.getPrivate())
-                    .keyUse(KeyUse.SIGNATURE)
-                    .keyID(UUID.randomUUID().toString())
-                    .build();
-            jwsAlgorithm = JWSAlgorithm.RS256;
-        } catch (final NoSuchAlgorithmException e) {
-            throw new OAuthException("Failed to generate RSA key pair for DPoP", e);
-        }
+  public DefaultDPoPProofCreator() {
+    try {
+      final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+      keyGen.initialize(2048);
+      final KeyPair keyPair = keyGen.generateKeyPair();
+      dpopJWK =
+          new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
+              .privateKey((RSAPrivateKey) keyPair.getPrivate())
+              .keyUse(KeyUse.SIGNATURE)
+              .keyID(UUID.randomUUID().toString())
+              .build();
+      jwsAlgorithm = JWSAlgorithm.RS256;
+    } catch (final NoSuchAlgorithmException e) {
+      throw new OAuthException("Failed to generate RSA key pair for DPoP", e);
+    }
+  }
+
+  public DefaultDPoPProofCreator(final JWK dpopJWK, final JWSAlgorithm jwsAlgorithm) {
+    if (!dpopJWK.isPrivate()) {
+      throw new IllegalArgumentException("DPoP JWK must contain a private key for signing.");
+    }
+    this.dpopJWK = dpopJWK;
+    this.jwsAlgorithm = jwsAlgorithm;
+  }
+
+  @Override
+  public String createDPoPProof(final OAuthRequest request, final String accessToken) {
+    final JWSHeader header =
+        new JWSHeader.Builder(jwsAlgorithm)
+            .jwk(dpopJWK.toPublicJWK())
+            .type(new com.nimbusds.jose.JOSEObjectType("dpop+jwt"))
+            .build();
+
+    final JWTClaimsSet.Builder claimsBuilder =
+        new JWTClaimsSet.Builder()
+            .jwtID(UUID.randomUUID().toString())
+            .issueTime(new Date())
+            .claim("htm", request.getVerb().name())
+            .claim("htu", request.getCompleteUrl());
+
+    if (accessToken != null && !accessToken.isEmpty()) {
+      try {
+        final String ath =
+            com.nimbusds.jose.util.Base64URL.encode(
+                    java.security.MessageDigest.getInstance("SHA-256")
+                        .digest(accessToken.getBytes(StandardCharsets.UTF_8)))
+                .toString();
+        claimsBuilder.claim("ath", ath);
+      } catch (final NoSuchAlgorithmException e) {
+        throw new OAuthException("SHA-256 algorithm not found for 'ath' claim in DPoP", e);
+      }
     }
 
-    public DefaultDPoPProofCreator(final JWK dpopJWK, final JWSAlgorithm jwsAlgorithm) {
-        if (!dpopJWK.isPrivate()) {
-            throw new IllegalArgumentException("DPoP JWK must contain a private key for signing.");
-        }
-        this.dpopJWK = dpopJWK;
-        this.jwsAlgorithm = jwsAlgorithm;
+    final JWTClaimsSet claims = claimsBuilder.build();
+    final SignedJWT signedJWT = new SignedJWT(header, claims);
+
+    try {
+      if (dpopJWK instanceof RSAKey) {
+        signedJWT.sign(new RSASSASigner((RSAKey) dpopJWK));
+      } else if (dpopJWK instanceof ECKey) {
+        signedJWT.sign(new ECDSASigner((ECKey) dpopJWK));
+      } else {
+        throw new OAuthException(
+            "Unsupported JWK type for DPoP signing: " + dpopJWK.getClass().getName());
+      }
+    } catch (final JOSEException e) {
+      throw new OAuthException("Error signing DPoP proof JWT", e);
     }
 
-    @Override
-    public String createDPoPProof(final OAuthRequest request, final String accessToken) {
-        final JWSHeader header = new JWSHeader.Builder(jwsAlgorithm)
-                .jwk(dpopJWK.toPublicJWK())
-                .type(new com.nimbusds.jose.JOSEObjectType("dpop+jwt"))
-                .build();
-
-        final JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
-                .jwtID(UUID.randomUUID().toString())
-                .issueTime(new Date())
-                .claim("htm", request.getVerb().name())
-                .claim("htu", request.getCompleteUrl());
-
-        if (accessToken != null && !accessToken.isEmpty()) {
-            try {
-                final String ath = com.nimbusds.jose.util.Base64URL.encode(java.security.MessageDigest
-                        .getInstance("SHA-256").digest(accessToken.getBytes(StandardCharsets.UTF_8))).toString();
-                claimsBuilder.claim("ath", ath);
-            } catch (final NoSuchAlgorithmException e) {
-                throw new OAuthException("SHA-256 algorithm not found for 'ath' claim in DPoP", e);
-            }
-        }
-
-        final JWTClaimsSet claims = claimsBuilder.build();
-        final SignedJWT signedJWT = new SignedJWT(header, claims);
-
-        try {
-            if (dpopJWK instanceof RSAKey) {
-                signedJWT.sign(new RSASSASigner((RSAKey) dpopJWK));
-            } else if (dpopJWK instanceof ECKey) {
-                signedJWT.sign(new ECDSASigner((ECKey) dpopJWK));
-            } else {
-                throw new OAuthException("Unsupported JWK type for DPoP signing: " + dpopJWK.getClass().getName());
-            }
-        } catch (final JOSEException e) {
-            throw new OAuthException("Error signing DPoP proof JWT", e);
-        }
-
-        return signedJWT.serialize();
-    }
+    return signedJWT.serialize();
+  }
 }

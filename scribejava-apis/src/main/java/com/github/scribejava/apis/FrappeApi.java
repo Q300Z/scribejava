@@ -1,3 +1,26 @@
+/*
+ * The MIT License
+ *
+ * Copyright (c) 2010 Pablo Fernandez
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.github.scribejava.apis;
 
 import com.github.scribejava.apis.openid.OpenIdJsonTokenExtractor;
@@ -7,36 +30,36 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 
 public class FrappeApi extends DefaultApi20 {
 
-    private final String serverURL;
-    private final String accessTokenEndpoint;
-    private final String authorizationBaseUrl;
+  private final String serverURL;
+  private final String accessTokenEndpoint;
+  private final String authorizationBaseUrl;
 
-    protected FrappeApi(String serverURL) {
-        this.serverURL = serverURL;
-        this.accessTokenEndpoint = serverURL + "/api/method/frappe.integrations.oauth2.get_token";
-        this.authorizationBaseUrl = serverURL + "/api/method/frappe.integrations.oauth2.authorize";
-    }
+  protected FrappeApi(String serverURL) {
+    this.serverURL = serverURL;
+    this.accessTokenEndpoint = serverURL + "/api/method/frappe.integrations.oauth2.get_token";
+    this.authorizationBaseUrl = serverURL + "/api/method/frappe.integrations.oauth2.authorize";
+  }
 
-    public static FrappeApi instance(String serverUrl) {
-        return new FrappeApi(serverUrl);
-    }
+  public static FrappeApi instance(String serverUrl) {
+    return new FrappeApi(serverUrl);
+  }
 
-    public String getServerURL() {
-        return serverURL;
-    }
+  public String getServerURL() {
+    return serverURL;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return accessTokenEndpoint;
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return accessTokenEndpoint;
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return authorizationBaseUrl;
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return authorizationBaseUrl;
+  }
 
-    @Override
-    public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
-        return OpenIdJsonTokenExtractor.instance();
-    }
+  @Override
+  public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
+    return OpenIdJsonTokenExtractor.instance();
+  }
 }

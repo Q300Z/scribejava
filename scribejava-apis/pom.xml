@@ -41,7 +41,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-resolver</artifactId>
-            <version>4.1.84.Final</version>
+            <version>5.0.0.Alpha2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
