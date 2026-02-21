@@ -12,12 +12,12 @@ jobs:
       contents: write # Requis pour créer la release et uploader les assets
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Set up JDK 8
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '8'
         distribution: 'temurin'
@@ -30,11 +30,10 @@ jobs:
       run: |
         mkdir dist
         find . -name "*.jar" -not -path "*/target/test-classes/*" -not -path "*/target/classes/*" -exec cp {} dist/ \;
-        # On ne garde que les JARs finaux (pas les original-*.jar si présents)
         rm -f dist/original-*.jar
 
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: dist/*.jar
         generate_release_notes: true
