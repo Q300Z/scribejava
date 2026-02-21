@@ -9,8 +9,8 @@ import com.nimbusds.jose.jwk.JWKSet;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service to handle OpenID Connect Discovery and JWKS retrieval.
@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
  *   <li><b>RFC 7517:</b> JSON Web Key (JWK) for JWKS retrieval via {@code jwks_uri}</li>
  * </ul>
  */
-public class OidcDiscoveryService {
+public class OidcDiscoveryService implements com.github.scribejava.core.oauth.DiscoveryService {
 
     private static final String OIDC_DISCOVERY_PATH = "/.well-known/openid-configuration";
 
@@ -40,6 +40,14 @@ public class OidcDiscoveryService {
         this.issuerUri = issuerUri;
         this.httpClient = httpClient;
         this.userAgent = userAgent;
+    }
+
+    @Override
+    public CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> discoverAsync(String issuer) {
+        return getProviderMetadataAsync().thenApply(metadata -> new com.github.scribejava.core.oauth.DiscoveredEndpoints(
+                metadata.getAuthorizationEndpoint(),
+                metadata.getTokenEndpoint()
+        ));
     }
 
     /**

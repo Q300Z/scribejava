@@ -25,8 +25,17 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     private HttpClientConfig httpClientConfig;
     private HttpClient httpClient;
 
+    private String discoveryIssuer;
+    private com.github.scribejava.core.oauth.DiscoveryService discoveryService;
+
     public ServiceBuilder(String apiKey) {
         apiKey(apiKey);
+    }
+
+    public ServiceBuilder discoverFromIssuer(String issuer, com.github.scribejava.core.oauth.DiscoveryService service) {
+        this.discoveryIssuer = issuer;
+        this.discoveryService = service;
+        return this;
     }
 
     @Override
@@ -110,8 +119,28 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     }
 
     @Override
-    public OAuth20Service build(DefaultApi20 api) {
-        return api.createService(apiKey, apiSecret, callback, scope, responseType, debugStream, userAgent,
+    public OAuth20Service build(final DefaultApi20 api) {
+        DefaultApi20 apiToUse = api;
+        if (discoveryIssuer != null && discoveryService != null) {
+            try {
+                final com.github.scribejava.core.oauth.DiscoveredEndpoints endpoints = discoveryService
+                        .discoverAsync(discoveryIssuer).get();
+                apiToUse = new DefaultApi20() {
+                    @Override
+                    public String getAccessTokenEndpoint() {
+                        return endpoints.getTokenEndpoint();
+                    }
+
+                    @Override
+                    public String getAuthorizationBaseUrl() {
+                        return endpoints.getAuthorizationEndpoint();
+                    }
+                };
+            } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+                throw new com.github.scribejava.core.exceptions.OAuthException("Failed to discover endpoints", e);
+            }
+        }
+        return apiToUse.createService(apiKey, apiSecret, callback, scope, responseType, debugStream, userAgent,
                 httpClientConfig, httpClient);
     }
 }
