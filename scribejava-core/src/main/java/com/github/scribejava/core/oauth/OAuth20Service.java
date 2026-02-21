@@ -1,31 +1,23 @@
 package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.dpop.DPoPProofCreator;
+import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-import com.github.scribejava.core.model.DeviceAuthorization;
-import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
-import com.github.scribejava.core.model.OAuth2Authorization;
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth2.OAuth2Error;
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.revoke.TokenTypeHint;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CompletableFuture;
 import java.nio.charset.StandardCharsets;
-import com.github.scribejava.core.model.PushedAuthorizationResponse;
-import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.dpop.DPoPProofCreator;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class OAuth20Service extends OAuthService {
 
@@ -36,8 +28,8 @@ public class OAuth20Service extends OAuthService {
     private DPoPProofCreator dpopProofCreator;
 
     public OAuth20Service(DefaultApi20 api, String apiKey, String apiSecret, String callback, String defaultScope,
-            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
-            HttpClient httpClient) {
+                          String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+                          HttpClient httpClient) {
         super(apiKey, apiSecret, callback, debugStream, userAgent, httpClientConfig, httpClient);
         this.responseType = responseType;
         this.api = api;
@@ -45,14 +37,15 @@ public class OAuth20Service extends OAuthService {
     }
 
     public OAuth20Service(DefaultApi20 api, String apiKey, String apiSecret, String callback, String defaultScope,
-            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
-            HttpClient httpClient, DPoPProofCreator dpopProofCreator) {
+                          String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+                          HttpClient httpClient, DPoPProofCreator dpopProofCreator) {
         this(api, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent, httpClientConfig,
                 httpClient);
         this.dpopProofCreator = dpopProofCreator;
     }
 
     // ===== common OAuth methods =====
+
     /**
      * {@inheritDoc}
      */
@@ -180,7 +173,7 @@ public class OAuth20Service extends OAuthService {
 
     //protected to facilitate mocking
     protected CompletableFuture<OAuth2AccessToken> sendAccessTokenRequestAsync(OAuthRequest request,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                                               OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         if (isDebug()) {
             log("send request for access token asynchronously to %s", request.getCompleteUrl());
         }
@@ -253,20 +246,34 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * Unified method to get access token using any grant type strategy.
+     *
+     * @param grant the grant strategy to use
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
+     */
+    public OAuth2AccessToken getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant grant)
+            throws IOException, InterruptedException, ExecutionException {
+        return sendAccessTokenRequestSync(grant.createRequest(this));
+    }
+
+    /**
      * Start the request to retrieve the access token. The optionally provided callback will be called with the Token
      * when it is available.
      *
-     * @param params params
+     * @param params   params
      * @param callback optional callback
      * @return CompletableFuture
      */
     public CompletableFuture<OAuth2AccessToken> getAccessToken(AccessTokenRequestParams params,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                               OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         return sendAccessTokenRequestAsync(createAccessTokenRequest(params), callback);
     }
 
     public CompletableFuture<OAuth2AccessToken> getAccessToken(String code,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                               OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         return getAccessToken(AccessTokenRequestParams.create(code), callback);
     }
 
@@ -314,14 +321,14 @@ public class OAuth20Service extends OAuthService {
     }
 
     public CompletableFuture<OAuth2AccessToken> refreshAccessToken(String refreshToken,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                                   OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createRefreshTokenRequest(refreshToken, null);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
     public CompletableFuture<OAuth2AccessToken> refreshAccessToken(String refreshToken, String scope,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                                   OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createRefreshTokenRequest(refreshToken, scope);
 
         return sendAccessTokenRequestAsync(request, callback);
@@ -368,7 +375,7 @@ public class OAuth20Service extends OAuthService {
     }
 
     public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password,
-            String scope) {
+                                                                                 String scope) {
         return getAccessTokenPasswordGrantAsync(username, password, scope, null);
     }
 
@@ -381,14 +388,14 @@ public class OAuth20Service extends OAuthService {
      * @return CompletableFuture
      */
     public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                                                 OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenPasswordGrantRequest(username, password, null);
 
         return sendAccessTokenRequestAsync(request, callback);
     }
 
     public CompletableFuture<OAuth2AccessToken> getAccessTokenPasswordGrantAsync(String username, String password,
-            String scope, OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                                                 String scope, OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenPasswordGrantRequest(username, password, scope);
 
         return sendAccessTokenRequestAsync(request, callback);
@@ -449,7 +456,7 @@ public class OAuth20Service extends OAuthService {
     }
 
     public CompletableFuture<OAuth2AccessToken> getAccessTokenClientCredentialsGrant(String scope,
-            OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
+                                                                                     OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
         final OAuthRequest request = createAccessTokenClientCredentialsGrantRequest(scope);
 
         return sendAccessTokenRequestAsync(request, callback);
@@ -497,7 +504,7 @@ public class OAuth20Service extends OAuthService {
     }
 
     public CompletableFuture<Void> revokeToken(String tokenToRevoke, OAuthAsyncRequestCallback<Void> callback,
-            TokenTypeHint tokenTypeHint) {
+                                               TokenTypeHint tokenTypeHint) {
         final OAuthRequest request = createRevokeTokenRequest(tokenToRevoke, tokenTypeHint);
 
         return execute(request, callback, new OAuthRequest.ResponseConverter<Void>() {
@@ -534,12 +541,11 @@ public class OAuth20Service extends OAuthService {
     /**
      * Requests a set of verification codes from the authorization server with the default scope
      *
-     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628</a>
-     *
      * @return DeviceAuthorization
      * @throws InterruptedException InterruptedException
-     * @throws ExecutionException ExecutionException
-     * @throws IOException IOException
+     * @throws ExecutionException   ExecutionException
+     * @throws IOException          IOException
+     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628</a>
      */
     public DeviceAuthorization getDeviceAuthorizationCodes()
             throws InterruptedException, ExecutionException, IOException {
@@ -549,13 +555,12 @@ public class OAuth20Service extends OAuthService {
     /**
      * Requests a set of verification codes from the authorization server
      *
-     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628</a>
-     *
      * @param scope scope
      * @return DeviceAuthorization
      * @throws InterruptedException InterruptedException
-     * @throws ExecutionException ExecutionException
-     * @throws IOException IOException
+     * @throws ExecutionException   ExecutionException
+     * @throws IOException          IOException
+     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628</a>
      */
     public DeviceAuthorization getDeviceAuthorizationCodes(String scope)
             throws InterruptedException, ExecutionException, IOException {
@@ -577,7 +582,7 @@ public class OAuth20Service extends OAuthService {
     }
 
     public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodes(String scope,
-            OAuthAsyncRequestCallback<DeviceAuthorization> callback) {
+                                                                              OAuthAsyncRequestCallback<DeviceAuthorization> callback) {
         final OAuthRequest request = createDeviceAuthorizationCodesRequest(scope);
 
         return execute(request, callback, new OAuthRequest.ResponseConverter<DeviceAuthorization>() {
@@ -609,20 +614,18 @@ public class OAuth20Service extends OAuthService {
 
     /**
      * Attempts to get a token from a server.
-     *
+     * <p>
      * Function {@link #pollAccessTokenDeviceAuthorizationGrant(com.github.scribejava.core.model.DeviceAuthorization)}
      * is usually used instead of this.
      *
      * @param deviceAuthorization deviceAuthorization
      * @return token
-     *
-     * @throws java.lang.InterruptedException InterruptedException
+     * @throws java.lang.InterruptedException          InterruptedException
      * @throws java.util.concurrent.ExecutionException ExecutionException
-     * @throws java.io.IOException IOException
-     * @throws OAuth2AccessTokenErrorResponse If {@link OAuth2AccessTokenErrorResponse#getError()} is
-     * {@link com.github.scribejava.core.oauth2.OAuth2Error#AUTHORIZATION_PENDING} or
-     * {@link com.github.scribejava.core.oauth2.OAuth2Error#SLOW_DOWN}, another attempt should be made after a while.
-     *
+     * @throws java.io.IOException                     IOException
+     * @throws OAuth2AccessTokenErrorResponse          If {@link OAuth2AccessTokenErrorResponse#getError()} is
+     *                                                 {@link com.github.scribejava.core.oauth2.OAuth2Error#AUTHORIZATION_PENDING} or
+     *                                                 {@link com.github.scribejava.core.oauth2.OAuth2Error#SLOW_DOWN}, another attempt should be made after a while.
      * @see #getDeviceAuthorizationCodes()
      */
     public OAuth2AccessToken getAccessTokenDeviceAuthorizationGrant(DeviceAuthorization deviceAuthorization)
@@ -664,11 +667,10 @@ public class OAuth20Service extends OAuthService {
      *
      * @param deviceAuthorization deviceAuthorization
      * @return token
-     * @throws java.lang.InterruptedException InterruptedException
+     * @throws java.lang.InterruptedException          InterruptedException
      * @throws java.util.concurrent.ExecutionException ExecutionException
-     * @throws java.io.IOException IOException
-     * @throws OAuth2AccessTokenErrorResponse Indicates OAuth error.
-     *
+     * @throws java.io.IOException                     IOException
+     * @throws OAuth2AccessTokenErrorResponse          Indicates OAuth error.
      * @see #getDeviceAuthorizationCodes()
      */
     public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(DeviceAuthorization deviceAuthorization)
@@ -691,13 +693,13 @@ public class OAuth20Service extends OAuthService {
     }
 
     public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType,
-            String apiKey, String callback, String scope, String state, Map<String, String> additionalParams) {
+                                                                                        String apiKey, String callback, String scope, String state, Map<String, String> additionalParams) {
         return pushAuthorizationRequestAsync(responseType, apiKey, callback, scope, state, additionalParams, null);
     }
 
     public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(String responseType,
-            String apiKey, String callback, String scope, String state, Map<String, String> additionalParams,
-            OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
+                                                                                        String apiKey, String callback, String scope, String state, Map<String, String> additionalParams,
+                                                                                        OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
         final String parEndpoint = api.getPushedAuthorizationRequestEndpoint();
         if (parEndpoint == null) {
             final CompletableFuture<PushedAuthorizationResponse> future = new CompletableFuture<>();
