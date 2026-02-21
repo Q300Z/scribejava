@@ -1,0 +1,25 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - octocat
+  categories:
+    - title: "🚀 Nouvelles Fonctionnalités"
+      labels:
+        - feature
+        - enhancement
+    - title: "🐛 Correctifs"
+      labels:
+        - bug
+        - fix
+    - title: "🏗️ Refactorisation & SOLID"
+      labels:
+        - refactor
+    - title: "📚 Documentation"
+      labels:
+        - documentation
+    - title: "🛠️ Maintenance & Build"
+      labels:
+        - dependencies
+        - build
