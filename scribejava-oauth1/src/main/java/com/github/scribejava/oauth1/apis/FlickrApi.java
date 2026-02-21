@@ -10,11 +10,6 @@ import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 public class FlickrApi extends DefaultApi10a {
 
     private static final String AUTHORIZE_URL = "https://www.flickr.com/services/oauth/authorize";
-
-    public enum FlickrPerm {
-        READ, WRITE, DELETE
-    };
-
     /**
      * read, write, or delete (delete includes read/write)
      */
@@ -26,11 +21,6 @@ public class FlickrApi extends DefaultApi10a {
 
     protected FlickrApi(FlickrPerm perm) {
         permString = perm.name().toLowerCase();
-    }
-
-    private static class InstanceHolder {
-
-        private static final FlickrApi INSTANCE = new FlickrApi();
     }
 
     public static FlickrApi instance() {
@@ -60,5 +50,14 @@ public class FlickrApi extends DefaultApi10a {
     @Override
     public String getRequestTokenEndpoint() {
         return "https://www.flickr.com/services/oauth/request_token";
+    }
+
+    public enum FlickrPerm {
+        READ, WRITE, DELETE
+    }
+
+    private static class InstanceHolder {
+
+        private static final FlickrApi INSTANCE = new FlickrApi();
     }
 }
