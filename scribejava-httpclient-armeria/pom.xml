@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.linecorp.armeria</groupId>
             <artifactId>armeria</artifactId>
-            <version>1.20.2</version>
+            <version>${armeria.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.scribejava</groupId>
