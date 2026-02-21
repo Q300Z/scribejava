@@ -6,6 +6,19 @@ Ce document rassemble les instructions pour contribuer, les détails de l'archit
 
 ## 🏗️ Architecture & Responsabilités
 
+ScribeJava suit une architecture modulaire et strictement **SOLID**.
+
+### Diagramme de Flux
+```mermaid
+graph TD
+    Client[Développeur] --> Service[OAuth20Service]
+    Service --> Grants[Strategy: OAuth20Grant]
+    Service --> Signer[OAuth20RequestSigner]
+    Service --> Handlers[Handlers: Revocation, Device, PAR]
+    Service --> HTTP[HttpClient Abstraction]
+    HTTP --> Impl[JDK, OkHttp, Armeria]
+```
+
 ### Modules Maven
 *   **`scribejava-core`** : Le moteur OAuth agnostique (Protocole, Signature, Abstraction HTTP).
 *   **`scribejava-oidc`** : Support d'OpenID Connect (Discovery, Registration, Validation).
@@ -22,35 +35,47 @@ Ce document rassemble les instructions pour contribuer, les détails de l'archit
 | **`OAuth20DeviceFlowHandler`** | Gère le flux "Device Authorization" (RFC 8628). |
 | **`OAuth20PushedAuthHandler`** | Gère les requêtes PAR (RFC 9126). |
 
-### Principes SOLID Appliqués
-1.  **SRP** : Chaque Handler a une responsabilité unique.
-2.  **OCP** : Nouveau flux ? Ajoutez un `OAuth20Grant` sans toucher au service.
-3.  **DIP** : Dépendance vers des interfaces (`HttpClient`, `TokenExtractor`).
-
 ---
 
 ## 🛠️ Comment contribuer
 
+### Gestion des Branches
+1.  Créez une branche à partir de `master` avec un nom explicite : `feat/ma-fonctionnalite` ou `fix/nom-du-bug`.
+2.  Soumettez votre Pull Request (PR) vers la branche `master`.
+
 ### Ajouter une fonctionnalité
 *   **Nouveau Grant** : Implémentez `OAuth20Grant` dans `com.github.scribejava.core.oauth2.grant`.
-*   **Nouveau Provider** : Étendez `DefaultApi20` dans `scribejava-apis` et testez via `ReflectiveApiTest`.
+*   **Nouveau Provider** : Étendez `DefaultApi20` dans `scribejava-apis`. **Note** : Privilégiez systématiquement `OAuth2AccessTokenJsonExtractor` pour les nouveaux fournisseurs.
+*   **Tests** : Les nouveaux tests doivent être placés dans le module correspondant. Utilisez `MockWebServer` pour simuler les réponses du serveur OAuth.
 
 ### Standards & Qualité
-*   **Java 8** : Compatibilité obligatoire.
-*   **TDD** : Tout code doit être testé (JUnit 5 + AssertJ).
+*   **Java 8** : Compatibilité obligatoire pour supporter les environnements legacy.
+*   **TDD** : Tout code doit être testé (JUnit 5 + AssertJ). Couverture cible : **> 80%**.
 *   **Checkstyle & PMD** : Lancement systématique via `mvn checkstyle:check pmd:check`.
-*   **Mutation Testing** : Utilisez PITest pour valider la force de vos tests.
+*   **Mutation Testing** : Nous visons un score de mutation **PITest de 75% minimum** sur le code métier.
 
 ### Conventions de Commit
-Utilisez **Conventional Commits** : `feat:`, `fix:`, `refactor:`, `docs:`, `build:`.
+Nous suivons la convention **Conventional Commits**.
+Exemple : `feat(core): add support for OIDC backchannel logout`
+*   `feat`: Nouvelle fonctionnalité.
+*   `fix`: Correction de bug.
+*   `refactor`: Modification sans changement de comportement.
+*   `docs`: Documentation uniquement.
+
+---
+
+## 💻 Configuration de l'IDE
+
+Pour éviter les allers-retours avec la CI, nous recommandons :
+*   **IntelliJ IDEA** : Installez le plugin "Checkstyle-IDEA" et importez le fichier `checkstyle.xml` du projet.
+*   **Eclipse** : Utilisez le plugin "Checkstyle" et liez-le au fichier de configuration à la racine.
 
 ---
 
 ## 🔒 Politique de Sécurité
 
 *   **Signalement** : Ne créez pas de ticket public pour une faille. Contactez les mainteneurs par email.
-*   **Secrets** : Ne jamais coder de secrets en dur. Utilisez `System.getenv()`.
-*   **Stockage** : Utilisez des cookies sécurisés (HttpOnly) ou le stockage sécurisé de l'OS.
+*   **Secrets** : Ne jamais coder de secrets en dur dans les tests ou le code. Utilisez `System.getenv()`.
 *   **PKCE** : Recommandé pour tous les flux afin de prévenir l'injection de code.
 
 ---
@@ -71,12 +96,21 @@ Implémentez `com.github.scribejava.core.httpclient.HttpClient` et passez-le au 
 *   **handshake_failure** : Mettez à jour votre JDK (>= 8u251) ou forcez TLS 1.2 via `-Dhttps.protocols=TLSv1.2`.
 *   **PKIX path building failed** : Importez le certificat du serveur dans `cacerts` via `keytool`.
 
-### Débogage
-Activez le mode debug dans le builder : `.debug()`. Pour SLF4J, utilisez `.debugStream(new MyLoggingStream())`.
-
 ---
 
 ## 🚀 Commandes utiles
 
 *   **Tests parallèles** : `mvn test -T 1C -Dmaven.javadoc.skip=true`
-*   **Javadoc locale** : `mvn javadoc:aggregate -Dmaven.test.skip=true` (Disponible dans `target/site/apidocs/`).
+*   **Mutation Testing** : `mvn pitest:mutationCoverage -pl scribejava-core`
+*   **Javadoc locale** : `mvn javadoc:aggregate -Dmaven.test.skip=true`
+
+---
+
+## ✅ Checklist avant de soumettre une PR
+
+- [ ] Le code est compatible **Java 8**.
+- [ ] `mvn checkstyle:check pmd:check` passe sans erreur.
+- [ ] Les nouveaux tests couvrent les cas limites (Edge cases).
+- [ ] Le Mutation Score (PITest) est maintenu ou amélioré.
+- [ ] Le fichier `CHANGELOG.md` a été mis à jour.
+- [ ] Les messages de commit sont clairs et préfixés.

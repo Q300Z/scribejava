@@ -79,6 +79,14 @@ public abstract class DefaultApi20 {
 
     /**
      * Returns the URL where you should redirect your users to authenticate your application.
+     *
+     * @param responseType responseType
+     * @param apiKey apiKey
+     * @param callback callback
+     * @param scope scope
+     * @param state state
+     * @param additionalParams additionalParams
+     * @return authorization URL
      */
     public String getAuthorizationUrl(String responseType, String apiKey, String callback, String scope, String state,
                                       Map<String, String> additionalParams) {
@@ -101,6 +109,18 @@ public abstract class DefaultApi20 {
         return parameters.appendTo(getAuthorizationBaseUrl());
     }
 
+    /**
+     * @param apiKey apiKey
+     * @param apiSecret apiSecret
+     * @param callback callback
+     * @param defaultScope defaultScope
+     * @param responseType responseType
+     * @param debugStream debugStream
+     * @param userAgent userAgent
+     * @param httpClientConfig httpClientConfig
+     * @param httpClient httpClient
+     * @return OAuth20Service
+     */
     public OAuth20Service createService(String apiKey, String apiSecret, String callback, String defaultScope,
                                         String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
                                         HttpClient httpClient) {
@@ -108,6 +128,19 @@ public abstract class DefaultApi20 {
                 httpClientConfig, httpClient);
     }
 
+    /**
+     * @param apiKey apiKey
+     * @param apiSecret apiSecret
+     * @param callback callback
+     * @param defaultScope defaultScope
+     * @param responseType responseType
+     * @param debugStream debugStream
+     * @param userAgent userAgent
+     * @param httpClientConfig httpClientConfig
+     * @param httpClient httpClient
+     * @param dpopProofCreator dpopProofCreator
+     * @return OAuth20Service
+     */
     public OAuth20Service createService(String apiKey, String apiSecret, String callback, String defaultScope,
                                         String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
                                         HttpClient httpClient, DPoPProofCreator dpopProofCreator) {

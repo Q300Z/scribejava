@@ -231,6 +231,11 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param code code
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -239,6 +244,11 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param params params
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -277,6 +287,9 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param code code
+     * @param callback callback
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -286,6 +299,8 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param code code
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -294,6 +309,8 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param params params
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -336,6 +353,8 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param refreshToken refreshToken
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -344,6 +363,9 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param refreshToken refreshToken
+     * @param scope scope
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -352,6 +374,11 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param refreshToken refreshToken
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -361,6 +388,12 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param refreshToken refreshToken
+     * @param scope scope
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -372,6 +405,9 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param refreshToken refreshToken
+     * @param callback callback
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -383,6 +419,10 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param refreshToken refreshToken
+     * @param scope scope
+     * @param callback callback
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      */
     @Deprecated
@@ -415,6 +455,12 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param username username
+     * @param password password
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.PasswordGrant}
      */
@@ -425,6 +471,13 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param username username
+     * @param password password
+     * @param scope scope
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.PasswordGrant}
      */
@@ -435,6 +488,9 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param username username
+     * @param password password
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.PasswordGrant}
      */
@@ -445,6 +501,10 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param username username
+     * @param password password
+     * @param scope scope
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.PasswordGrant}
      */
@@ -471,6 +531,11 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param username username
+     * @param password password
+     * @param scope scope
+     * @param callback callback
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.PasswordGrant}
      */
@@ -501,6 +566,7 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.ClientCredentialsGrant}
      */
@@ -510,6 +576,8 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param scope scope
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.ClientCredentialsGrant}
      */
@@ -519,6 +587,10 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.ClientCredentialsGrant}
      */
@@ -531,6 +603,11 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param scope scope
+     * @return OAuth2AccessToken
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
      * @deprecated use {@link #getAccessToken(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.ClientCredentialsGrant}
      */
@@ -558,6 +635,9 @@ public class OAuth20Service extends OAuthService {
     }
 
     /**
+     * @param scope scope
+     * @param callback callback
+     * @return CompletableFuture
      * @deprecated use {@link #getAccessTokenAsync(com.github.scribejava.core.oauth2.grant.OAuth20Grant)}
      * with {@link com.github.scribejava.core.oauth2.grant.ClientCredentialsGrant}
      */

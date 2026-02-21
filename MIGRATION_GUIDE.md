@@ -1,6 +1,6 @@
-# Guide de Migration : Passage à ScribeJava 8.3.4+ (Refactorisation SOLID)
+# Guide de Migration : Passage à ScribeJava 9.0.0+ (Refactorisation SOLID)
 
-ScribeJava 8.3.4 introduit une refonte architecturale majeure pour mieux adhérer aux principes SOLID. Bien que nous maintenions la compatibilité ascendante pour le moment, de nombreuses méthodes dans `OAuth20Service` sont désormais obsolètes (deprecated).
+ScribeJava 9.0.0 introduit une refonte architecturale majeure pour mieux adhérer aux principes SOLID. Bien que nous maintenions la compatibilité ascendante pour le moment, de nombreuses méthodes dans `OAuth20Service` sont désormais obsolètes (deprecated).
 
 ## 1. OAuth 2.0 Grants (Pattern Strategy)
 

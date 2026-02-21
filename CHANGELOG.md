@@ -18,6 +18,7 @@ Cette version marque une transition majeure vers une architecture strictement **
 - **Auto-découverte OIDC** : Support natif de l'OIDC Discovery dans le `ServiceBuilder`.
 - **Typage des erreurs** : Nouvelles exceptions `OAuthRateLimitException` et `OAuthProtocolException`.
 - **Qualité & Tests** : Intégration de **PITest** pour le Mutation Testing.
+- **Documentation Javadoc** : Couverture à 100% sur les classes et méthodes publiques.
 
 ### Modifié
 - **Performance** : Suite de tests optimisée pour une exécution parallèle (~19s).

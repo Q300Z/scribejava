@@ -9,6 +9,10 @@ public interface DPoPProofCreator {
 
     /**
      * Creates a DPoP proof JWT for a given HTTP request.
+     *
+     * @param request request
+     * @param accessToken accessToken
+     * @return DPoP proof
      */
     String createDPoPProof(OAuthRequest request, String accessToken);
 }
