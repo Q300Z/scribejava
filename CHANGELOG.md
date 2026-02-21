@@ -2,7 +2,7 @@
 
 Toutes les modifications notables de ce projet à partir de la version 9.0.0 sont documentées dans ce fichier.
 
-## [9.0.0-SNAPSHOT] - 21/02/2026
+## [9.0.0] - 21/02/2026
 
 Cette version marque une transition majeure vers une architecture strictement **SOLID** et l'abandon des méthodes monolithiques au profit de composants spécialisés.
 
