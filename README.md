@@ -1,37 +1,37 @@
-# Welcome to the home of ScribeJava, the simple OAuth client Java lib!
+# Bienvenue sur ScribeJava, la bibliothèque OAuth simple pour Java !
 
-[![Donate](https://www.paypalobjects.com/en_US/RU/i/btn/btn_donateCC_LG.gif)](https://github.com/scribejava/scribejava/blob/master/donate.md) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.scribejava/scribejava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.scribejava/scribejava)
+[![Faire un don](https://www.paypalobjects.com/en_US/RU/i/btn/btn_donateCC_LG.gif)](https://github.com/scribejava/scribejava/blob/master/donate.md) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.scribejava/scribejava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.scribejava/scribejava)
 
-ScribeJava is a simple, threadsafe and modular OAuth client library for Java.
+ScribeJava est une bibliothèque client OAuth simple, thread-safe et modulaire pour Java.
 
-## 🚀 Why use ScribeJava?
+## 🚀 Pourquoi utiliser ScribeJava ?
 
-### Dead Simple (Modern Strategy Pattern)
-Configuring ScribeJava is intuitive and extensible. Use our new Strategy pattern for cleaner code:
+### Simplicité (Pattern Strategy Moderne)
+La configuration de ScribeJava est intuitive et extensible. Utilisez notre nouveau pattern Strategy pour un code plus propre :
 
 ```java
-OAuth20Service service = new ServiceBuilder(YOUR_CLIENT_ID)
-    .apiSecret(YOUR_CLIENT_SECRET)
+OAuth20Service service = new ServiceBuilder(VOTRE_CLIENT_ID)
+    .apiSecret(VOTRE_CLIENT_SECRET)
     .callback("https://app.com/callback")
     .build(LinkedInApi20.instance());
 
-// Get token using Strategy
+// Récupération du token via Strategy
 OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
 ```
 
-### Advanced Security & OIDC
-*   **DPoP Support**: Out-of-the-box support for Demonstrating Proof-of-Possession.
-*   **OpenID Connect (OIDC)**: Automatic Discovery, Dynamic Registration, and rigorous ID Token validation.
-*   **Pushed Authorization Requests (PAR)**: Enhanced security for the authorization flow.
+### Sécurité Avancée & OIDC
+*   **Support DPoP** : Support natif pour "Demonstrating Proof-of-Possession".
+*   **OpenID Connect (OIDC)** : Découverte automatique (Discovery), enregistrement dynamique et validation rigoureuse des ID Tokens.
+*   **Pushed Authorization Requests (PAR)** : Sécurité renforcée du flux d'autorisation.
 
-### Modular & High Performance
-*   **Java 8+ Compatible**: Optimized for modern environments while maintaining compatibility.
-*   **Native JDK Client**: No external dependencies required by default.
-*   **Async Support**: OkHttp, Armeria, and Apache HttpClient adapters available.
+### Modulaire & Haute Performance
+*   **Compatible Java 8+** : Optimisé pour les environnements modernes tout en maintenant la compatibilité.
+*   **Client JDK Natif** : Aucune dépendance externe requise par défaut.
+*   **Support Asynchrone** : Adaptateurs disponibles pour OkHttp, Armeria et Apache HttpClient.
 
 ## 📦 Installation
 
-Add the core dependency to your `pom.xml`:
+Ajoutez la dépendance principale à votre `pom.xml` :
 
 ```xml
 <dependency>
@@ -41,23 +41,26 @@ Add the core dependency to your `pom.xml`:
 </dependency>
 ```
 
-## 🛠️ Features
+## 🛠️ Fonctionnalités
 
-*   **OAuth 2.0 Strategy Flow**: `AuthorizationCodeGrant`, `PasswordGrant`, `ClientCredentialsGrant`, `RefreshTokenGrant`, `DeviceCodeGrant`.
-*   **OIDC Discovery**: `.discoverFromIssuer(issuerUri, discoveryService)` support in `ServiceBuilder`.
-*   **Rich Exceptions**: Granular error handling with `OAuthRateLimitException` and `OAuthProtocolException`.
-*   **Multi-tenant Ready**: Built for scalability and clean architecture.
+*   **Flux OAuth 2.0 via Strategy** : `AuthorizationCodeGrant`, `PasswordGrant`, `ClientCredentialsGrant`, `RefreshTokenGrant`, `DeviceCodeGrant`.
+*   **OIDC Discovery** : Support de `.discoverFromIssuer(issuerUri, discoveryService)` dans le `ServiceBuilder`.
+*   **Exceptions Riches** : Gestion d'erreurs granulaire avec `OAuthRateLimitException` et `OAuthProtocolException`.
+*   **Prêt pour le Multi-tenant** : Conçu pour la scalabilité et une architecture propre.
 
 ## 📚 Documentation
 
-*   **[Migration Guide](MIGRATION_GUIDE.md)** - How to upgrade from legacy versions to 8.3.4+.
-*   [Architecture Overview](ARCHITECTURE.md) - Deep dive into our SOLID implementation.
-*   [Contributing Guide](CONTRIBUTING.md) - Learn how to contribute and our coding standards.
-*   [Supported APIs List](scribejava-apis/README.md) - List of 50+ pre-configured providers.
+*   **[Guide de Migration](MIGRATION_GUIDE.md)** - Comment passer des versions legacy à la 8.3.4+.
+*   [Aperçu de l'Architecture](ARCHITECTURE.md) - Plongée dans notre implémentation SOLID.
+*   [Guide de Contribution](CONTRIBUTING.md) - Standards de code et comment contribuer.
+*   [Dépannage](TROUBLESHOOTING.md) - Erreurs SSL, problèmes de signature et logging.
+*   [Politique de Sécurité](SECURITY.md) - Divulgation et meilleures pratiques.
+*   [Extensibilité](EXTENSIBILITY.md) - Extracteurs et clients HTTP personnalisés.
+*   [Liste des APIs Supportées](scribejava-apis/README.md) - Liste de 50+ fournisseurs pré-configurés.
 
-## ⚡ Quick Start: OpenID Connect Discovery
+## ⚡ Démarrage Rapide : Découverte OpenID Connect
 
-Skip manual endpoint configuration by using OIDC Discovery:
+Évitez la configuration manuelle des endpoints en utilisant l'auto-découverte OIDC :
 
 ```java
 OidcDiscoveryService discovery = new OidcDiscoveryService(issuerUri, httpClient, userAgent);
@@ -68,5 +71,5 @@ OAuth20Service service = new ServiceBuilder(clientId)
     .build(DefaultOidcApi20.instance());
 ```
 
-## 🛡️ License
-ScribeJava is released under the MIT License.
+## 🛡️ Licence
+ScribeJava est publié sous licence MIT.
