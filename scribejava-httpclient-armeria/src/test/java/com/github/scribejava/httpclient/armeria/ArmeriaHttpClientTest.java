@@ -45,7 +45,7 @@ public class ArmeriaHttpClientTest extends AbstractClientTest {
 
             final String url = server.url("/").toString();
             final CompletableFuture<Response> future = createNewClient().executeAsync("UA",
-                    java.util.Collections.emptyMap(), Verb.GET, url, (byte[]) null, null, null);
+                    Collections.emptyMap(), Verb.GET, url, (byte[]) null, null, null);
 
             future.cancel(true);
             assertThat(future.isCancelled()).isTrue();
