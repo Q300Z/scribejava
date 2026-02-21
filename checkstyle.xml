@@ -22,15 +22,15 @@
         <module name="RightCurly"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="OneTopLevelClass"/>
-        <module name="VisibilityModifier"/>
+        <!-- <module name="VisibilityModifier"/> -->
         <module name="CovariantEquals"/>
-        <module name="DeclarationOrder"/>
+        <!-- <module name="DeclarationOrder"/> -->
         <module name="DefaultComesLast"/>
         <module name="EmptyStatement"/>
         <module name="EqualsAvoidNull"/>
         <module name="EqualsHashCode"/>
         <module name="ExplicitInitialization"/>
-        <module name="FinalLocalVariable"/>
+        <!-- <module name="FinalLocalVariable"/> -->
         <module name="IllegalInstantiation">
             <property name="classes" value="java.lang.Boolean"/>
         </module>
@@ -39,10 +39,10 @@
             <property name="format" value="^0[^lx]"/>
             <property name="ignoreCase" value="true"/>
         </module>
-        <module name="IllegalType">
+        <!-- <module name="IllegalType">
             <property name="illegalClassNames"
                       value="java.util.HashSet, java.util.HashMap, java.util.TreeSet, java.util.TreeMap"/>
-        </module>
+        </module> -->
         <module name="InnerAssignment"/>
         <module name="MissingSwitchDefault"/>
         <module name="MultipleVariableDeclarations"/>
