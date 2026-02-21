@@ -7,10 +7,6 @@ public class TheThingsNetworkV2PreviewApi extends DefaultApi20 {
     protected TheThingsNetworkV2PreviewApi() {
     }
 
-    private static class InstanceHolder {
-        private static final TheThingsNetworkV2PreviewApi INSTANCE = new TheThingsNetworkV2PreviewApi();
-    }
-
     public static TheThingsNetworkV2PreviewApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -23,5 +19,9 @@ public class TheThingsNetworkV2PreviewApi extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://preview.account.thethingsnetwork.org/users/authorize";
+    }
+
+    private static class InstanceHolder {
+        private static final TheThingsNetworkV2PreviewApi INSTANCE = new TheThingsNetworkV2PreviewApi();
     }
 }

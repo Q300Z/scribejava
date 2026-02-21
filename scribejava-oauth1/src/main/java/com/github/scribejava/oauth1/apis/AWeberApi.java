@@ -11,11 +11,6 @@ public class AWeberApi extends DefaultApi10a {
     protected AWeberApi() {
     }
 
-    private static class InstanceHolder {
-
-        private static final AWeberApi INSTANCE = new AWeberApi();
-    }
-
     public static AWeberApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -33,5 +28,10 @@ public class AWeberApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+
+        private static final AWeberApi INSTANCE = new AWeberApi();
     }
 }

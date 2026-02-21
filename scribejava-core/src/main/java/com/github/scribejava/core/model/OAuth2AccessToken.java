@@ -1,6 +1,7 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.utils.Preconditions;
+
 import java.util.Objects;
 
 /**
@@ -62,7 +63,7 @@ public class OAuth2AccessToken extends Token {
     }
 
     public OAuth2AccessToken(String accessToken, String tokenType, Integer expiresIn, String refreshToken, String scope,
-            String rawResponse) {
+                             String rawResponse) {
         super(rawResponse);
         Preconditions.checkNotNull(accessToken, "access_token can't be null");
         this.accessToken = accessToken;

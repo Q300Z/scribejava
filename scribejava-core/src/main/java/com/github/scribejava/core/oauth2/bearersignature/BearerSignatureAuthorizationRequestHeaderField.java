@@ -12,12 +12,6 @@ public class BearerSignatureAuthorizationRequestHeaderField implements BearerSig
     protected BearerSignatureAuthorizationRequestHeaderField() {
     }
 
-    private static class InstanceHolder {
-
-        private static final BearerSignatureAuthorizationRequestHeaderField INSTANCE
-                = new BearerSignatureAuthorizationRequestHeaderField();
-    }
-
     public static BearerSignatureAuthorizationRequestHeaderField instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -25,5 +19,11 @@ public class BearerSignatureAuthorizationRequestHeaderField implements BearerSig
     @Override
     public void signRequest(String accessToken, OAuthRequest request) {
         request.addHeader(OAuthConstants.HEADER, "Bearer " + accessToken);
+    }
+
+    private static class InstanceHolder {
+
+        private static final BearerSignatureAuthorizationRequestHeaderField INSTANCE
+                = new BearerSignatureAuthorizationRequestHeaderField();
     }
 }

@@ -26,19 +26,6 @@ public class OidcApiDiscoveryTest {
         server.shutdown();
     }
 
-    public static class TestOidcApi extends DefaultOidcApi20 {
-        private final String issuer;
-
-        public TestOidcApi(final String issuer) {
-            this.issuer = issuer;
-        }
-
-        @Override
-        public String getIssuer() {
-            return issuer;
-        }
-    }
-
     @Test
     public void shouldConfigureEndpointsAutomatically() throws Exception {
         final String issuer = server.url("/").toString();
@@ -59,5 +46,18 @@ public class OidcApiDiscoveryTest {
         assertThat(api.getAuthorizationBaseUrl()).isEqualTo(issuer + "auth");
         assertThat(api.getAccessTokenEndpoint()).isEqualTo(issuer + "token");
         assertThat(api.getJwksUri()).isEqualTo(issuer + "keys");
+    }
+
+    public static class TestOidcApi extends DefaultOidcApi20 {
+        private final String issuer;
+
+        public TestOidcApi(final String issuer) {
+            this.issuer = issuer;
+        }
+
+        @Override
+        public String getIssuer() {
+            return issuer;
+        }
     }
 }

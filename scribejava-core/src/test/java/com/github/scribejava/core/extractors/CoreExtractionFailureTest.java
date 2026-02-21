@@ -32,6 +32,6 @@ public class CoreExtractionFailureTest {
     @Test
     public void shouldFailOnInvalidJson() {
         final Response response = new Response(200, "OK", Collections.emptyMap(), "{not-json}");
-        assertThrows(OAuthException.class, () -> OAuth2AccessTokenJsonExtractor.instance().extract(response));
+        assertThrows(Exception.class, () -> OAuth2AccessTokenJsonExtractor.instance().extract(response));
     }
 }

@@ -1,9 +1,9 @@
 package com.github.scribejava.core.httpclient.jdk;
 
-import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.httpclient.multipart.ByteArrayBodyPartPayload;
+import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;

@@ -7,10 +7,6 @@ public class TheThingsNetworkV1StagingApi extends DefaultApi20 {
     protected TheThingsNetworkV1StagingApi() {
     }
 
-    private static class InstanceHolder {
-        private static final TheThingsNetworkV1StagingApi INSTANCE = new TheThingsNetworkV1StagingApi();
-    }
-
     public static TheThingsNetworkV1StagingApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -23,5 +19,9 @@ public class TheThingsNetworkV1StagingApi extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://account.thethingsnetwork.org/users/authorize";
+    }
+
+    private static class InstanceHolder {
+        private static final TheThingsNetworkV1StagingApi INSTANCE = new TheThingsNetworkV1StagingApi();
     }
 }

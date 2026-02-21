@@ -1,9 +1,5 @@
 package com.github.scribejava.oidc;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Date;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -12,6 +8,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.junit.jupiter.api.Test;
+
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

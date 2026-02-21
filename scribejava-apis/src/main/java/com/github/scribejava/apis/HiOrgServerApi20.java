@@ -19,11 +19,6 @@ public class HiOrgServerApi20 extends DefaultApi20 {
         this.version = version;
     }
 
-    private static class InstanceHolder {
-
-        private static final HiOrgServerApi20 INSTANCE = new HiOrgServerApi20();
-    }
-
     public static HiOrgServerApi20 instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -40,5 +35,10 @@ public class HiOrgServerApi20 extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://www.hiorg-server.de/api/oauth2/" + version + "/authorize.php";
+    }
+
+    private static class InstanceHolder {
+
+        private static final HiOrgServerApi20 INSTANCE = new HiOrgServerApi20();
     }
 }

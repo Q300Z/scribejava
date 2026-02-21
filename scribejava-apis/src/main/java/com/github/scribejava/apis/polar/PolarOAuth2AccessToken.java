@@ -11,7 +11,7 @@ public class PolarOAuth2AccessToken extends OAuth2AccessToken {
     private final String userId;
 
     public PolarOAuth2AccessToken(String accessToken, String tokenType, Integer expiresIn, String refreshToken,
-            String scope, String userId, String rawResponse) {
+                                  String scope, String userId, String rawResponse) {
         super(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
         this.userId = userId;
     }

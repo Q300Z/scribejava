@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.exceptions.OAuthException;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +29,7 @@ public class OidcRegistrationService {
     }
 
     public CompletableFuture<JsonNode> registerClientAsync(final String registrationEndpoint,
-            final List<String> redirectUris, final String clientName, final String tokenEndpointAuthMethod) {
+                                                           final List<String> redirectUris, final String clientName, final String tokenEndpointAuthMethod) {
         final ObjectNode registrationRequest = OBJECT_MAPPER.createObjectNode();
         final ArrayNode redirectUrisNode = registrationRequest.putArray("redirect_uris");
         redirectUris.forEach(redirectUrisNode::add);

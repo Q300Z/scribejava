@@ -1,8 +1,8 @@
 package com.github.scribejava.core.httpclient.jdk;
 
-import java.net.Proxy;
-
 import com.github.scribejava.core.httpclient.HttpClientConfig;
+
+import java.net.Proxy;
 
 public class JDKHttpClientConfig implements HttpClientConfig {
 
@@ -12,13 +12,13 @@ public class JDKHttpClientConfig implements HttpClientConfig {
     private Proxy proxy;
     private javax.net.ssl.SSLSocketFactory sslSocketFactory;
 
+    public static JDKHttpClientConfig defaultConfig() {
+        return new JDKHttpClientConfig();
+    }
+
     @Override
     public JDKHttpClientConfig createDefaultConfig() {
         return defaultConfig();
-    }
-
-    public static JDKHttpClientConfig defaultConfig() {
-        return new JDKHttpClientConfig();
     }
 
     public javax.net.ssl.SSLSocketFactory getSslSocketFactory() {
@@ -60,12 +60,12 @@ public class JDKHttpClientConfig implements HttpClientConfig {
         return this;
     }
 
-    public void setProxy(Proxy proxy) {
-        this.proxy = proxy;
-    }
-
     public Proxy getProxy() {
         return proxy;
+    }
+
+    public void setProxy(Proxy proxy) {
+        this.proxy = proxy;
     }
 
     public JDKHttpClientConfig withProxy(Proxy proxy) {
@@ -79,12 +79,12 @@ public class JDKHttpClientConfig implements HttpClientConfig {
 
     /**
      * Sets whether the underlying Http Connection follows redirects or not.
-     *
+     * <p>
      * Defaults to true (follow redirects)
      *
+     * @param followRedirects boolean
      * @see <a
      * href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
-     * @param followRedirects boolean
      */
     public void setFollowRedirects(boolean followRedirects) {
         this.followRedirects = followRedirects;
@@ -92,13 +92,13 @@ public class JDKHttpClientConfig implements HttpClientConfig {
 
     /**
      * Sets whether the underlying Http Connection follows redirects or not.
-     *
+     * <p>
      * Defaults to true (follow redirects)
      *
-     * @see <a
-     * href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
      * @param followRedirects boolean
      * @return this for chaining methods invocations
+     * @see <a
+     * href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
      */
     public JDKHttpClientConfig withFollowRedirects(boolean followRedirects) {
         this.followRedirects = followRedirects;

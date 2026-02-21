@@ -9,10 +9,6 @@ public class Px500Api extends DefaultApi10a {
     protected Px500Api() {
     }
 
-    private static class InstanceHolder {
-        private static final Px500Api INSTANCE = new Px500Api();
-    }
-
     public static Px500Api instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +26,9 @@ public class Px500Api extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZATION_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final Px500Api INSTANCE = new Px500Api();
     }
 }

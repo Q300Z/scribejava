@@ -1,6 +1,7 @@
 package com.github.scribejava.oauth1.model;
 
 import com.github.scribejava.core.model.Token;
+
 import java.util.Objects;
 
 /**

@@ -14,8 +14,8 @@ import java.io.OutputStream;
 public class PolarOAuthService extends OAuth20Service {
 
     public PolarOAuthService(PolarAPI api, String apiKey, String apiSecret, String callback, String defaultScope,
-            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
-            HttpClient httpClient) {
+                             String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+                             HttpClient httpClient) {
         super(api, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent, httpClientConfig,
                 httpClient);
     }

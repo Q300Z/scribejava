@@ -11,6 +11,10 @@ public class OkHttpHttpClientConfig implements HttpClientConfig {
         this.clientBuilder = clientBuilder;
     }
 
+    public static OkHttpHttpClientConfig defaultConfig() {
+        return new OkHttpHttpClientConfig(null);
+    }
+
     public OkHttpClient.Builder getClientBuilder() {
         return clientBuilder;
     }
@@ -18,9 +22,5 @@ public class OkHttpHttpClientConfig implements HttpClientConfig {
     @Override
     public OkHttpHttpClientConfig createDefaultConfig() {
         return defaultConfig();
-    }
-
-    public static OkHttpHttpClientConfig defaultConfig() {
-        return new OkHttpHttpClientConfig(null);
     }
 }

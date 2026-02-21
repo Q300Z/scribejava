@@ -10,11 +10,6 @@ public class DropboxApi extends DefaultApi20 {
     protected DropboxApi() {
     }
 
-    private static class InstanceHolder {
-
-        private static final DropboxApi INSTANCE = new DropboxApi();
-    }
-
     public static DropboxApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -27,5 +22,10 @@ public class DropboxApi extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://www.dropbox.com/oauth2/authorize";
+    }
+
+    private static class InstanceHolder {
+
+        private static final DropboxApi INSTANCE = new DropboxApi();
     }
 }

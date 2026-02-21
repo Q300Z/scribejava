@@ -9,11 +9,6 @@ public class HHApi extends DefaultApi20 {
     protected HHApi() {
     }
 
-    private static class InstanceHolder {
-
-        private static final HHApi INSTANCE = new HHApi();
-    }
-
     public static HHApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -31,5 +26,10 @@ public class HHApi extends DefaultApi20 {
     @Override
     public ClientAuthentication getClientAuthentication() {
         return RequestBodyAuthenticationScheme.instance();
+    }
+
+    private static class InstanceHolder {
+
+        private static final HHApi INSTANCE = new HHApi();
     }
 }

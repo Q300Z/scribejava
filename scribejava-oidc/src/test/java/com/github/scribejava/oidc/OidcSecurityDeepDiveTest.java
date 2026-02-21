@@ -15,11 +15,7 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -166,7 +162,7 @@ public class OidcSecurityDeepDiveTest {
         final SignedJWT signedJWT = new SignedJWT(
                 new JWSHeader.Builder(alg).keyID(key.getKeyID()).build(),
                 createBaseClaims().build());
-        signedJWT.sign(new com.nimbusds.jose.crypto.RSASSASigner(key));
+        signedJWT.sign(new RSASSASigner(key));
         return signedJWT;
     }
 

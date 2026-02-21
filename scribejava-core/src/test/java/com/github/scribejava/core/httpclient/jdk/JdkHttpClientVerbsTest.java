@@ -1,14 +1,16 @@
 package com.github.scribejava.core.httpclient.jdk;
 
-import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
 import java.io.IOException;
 import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 
 public class JdkHttpClientVerbsTest {

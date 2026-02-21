@@ -7,10 +7,6 @@ public class DiscordApi extends DefaultApi20 {
     private DiscordApi() {
     }
 
-    private static class InstanceHolder {
-        private static final DiscordApi INSTANCE = new DiscordApi();
-    }
-
     public static DiscordApi instance() {
         return DiscordApi.InstanceHolder.INSTANCE;
     }
@@ -28,5 +24,9 @@ public class DiscordApi extends DefaultApi20 {
     @Override
     public String getAccessTokenEndpoint() {
         return "https://discordapp.com/api/oauth2/token";
+    }
+
+    private static class InstanceHolder {
+        private static final DiscordApi INSTANCE = new DiscordApi();
     }
 }

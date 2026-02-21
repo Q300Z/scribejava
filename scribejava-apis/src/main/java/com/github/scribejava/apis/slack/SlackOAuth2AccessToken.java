@@ -11,7 +11,7 @@ public class SlackOAuth2AccessToken extends OAuth2AccessToken {
     private final String userAccessToken;
 
     public SlackOAuth2AccessToken(String accessToken, String tokenType, Integer expiresIn, String refreshToken,
-            String scope, String userAccessToken, String rawResponse) {
+                                  String scope, String userAccessToken, String rawResponse) {
         super(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
         this.userAccessToken = userAccessToken;
     }

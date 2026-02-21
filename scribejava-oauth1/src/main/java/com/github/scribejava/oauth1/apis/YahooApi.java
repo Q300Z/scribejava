@@ -9,10 +9,6 @@ public class YahooApi extends DefaultApi10a {
     protected YahooApi() {
     }
 
-    private static class InstanceHolder {
-        private static final YahooApi INSTANCE = new YahooApi();
-    }
-
     public static YahooApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +26,9 @@ public class YahooApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final YahooApi INSTANCE = new YahooApi();
     }
 }

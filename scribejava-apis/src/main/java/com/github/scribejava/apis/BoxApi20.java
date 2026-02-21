@@ -13,10 +13,6 @@ public class BoxApi20 extends DefaultApi20 {
     protected BoxApi20() {
     }
 
-    private static class InstanceHolder {
-        private static final BoxApi20 INSTANCE = new BoxApi20();
-    }
-
     public static BoxApi20 instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -34,5 +30,9 @@ public class BoxApi20 extends DefaultApi20 {
     @Override
     public BearerSignature getBearerSignature() {
         return BearerSignatureURIQueryParameter.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final BoxApi20 INSTANCE = new BoxApi20();
     }
 }

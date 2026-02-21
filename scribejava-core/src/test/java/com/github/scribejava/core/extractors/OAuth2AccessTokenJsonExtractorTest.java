@@ -5,17 +5,25 @@ import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth2.OAuth2Error;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 
 import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import org.junit.function.ThrowingRunnable;
 
 public class OAuth2AccessTokenJsonExtractorTest {
 
     private final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
+
+    private static Response ok(String body) {
+        return new Response(200, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+    }
+
+    private static Response error(String body) {
+        return new Response(400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+    }
 
     @Test
     public void shouldParseResponse() throws IOException {
@@ -95,11 +103,11 @@ public class OAuth2AccessTokenJsonExtractorTest {
         try (Response response = error(responseBody)) {
             final OAuth2AccessTokenErrorResponse oaer = assertThrows(OAuth2AccessTokenErrorResponse.class,
                     new ThrowingRunnable() {
-                @Override
-                public void run() throws Throwable {
-                    extractor.extract(response);
-                }
-            });
+                        @Override
+                        public void run() throws Throwable {
+                            extractor.extract(response);
+                        }
+                    });
             assertEquals(OAuth2Error.INVALID_GRANT, oaer.getError());
             assertEquals("unknown, invalid, or expired refresh token", oaer.getErrorDescription());
         }
@@ -114,13 +122,5 @@ public class OAuth2AccessTokenJsonExtractorTest {
             token = extractor.extract(response);
         }
         assertEquals("I0122HKLEM2/MV3ABKFTDT3T5X", token.getAccessToken());
-    }
-
-    private static Response ok(String body) {
-        return new Response(200, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
-    }
-
-    private static Response error(String body) {
-        return new Response(400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
     }
 }

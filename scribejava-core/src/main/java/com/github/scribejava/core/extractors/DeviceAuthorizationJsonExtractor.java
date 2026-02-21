@@ -2,17 +2,13 @@ package com.github.scribejava.core.extractors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.model.DeviceAuthorization;
-import java.io.IOException;
 import com.github.scribejava.core.model.Response;
+
+import java.io.IOException;
 
 public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
 
     protected DeviceAuthorizationJsonExtractor() {
-    }
-
-    private static class InstanceHolder {
-
-        private static final DeviceAuthorizationJsonExtractor INSTANCE = new DeviceAuthorizationJsonExtractor();
     }
 
     public static DeviceAuthorizationJsonExtractor instance() {
@@ -55,5 +51,10 @@ public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
 
     protected String getVerificationUriParamName() {
         return "verification_uri";
+    }
+
+    private static class InstanceHolder {
+
+        private static final DeviceAuthorizationJsonExtractor INSTANCE = new DeviceAuthorizationJsonExtractor();
     }
 }

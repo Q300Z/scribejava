@@ -1,9 +1,10 @@
 package com.github.scribejava.apis.extractors;
 
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.apis.GitHubApi;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.Response;
 import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.util.Collections;
 

@@ -1,6 +1,7 @@
 package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.builder.ScopeBuilder;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,13 +57,13 @@ public class AccessTokenRequestParams {
         return this;
     }
 
+    public Map<String, String> getExtraParameters() {
+        return extraParameters;
+    }
+
     public AccessTokenRequestParams setExtraParameters(Map<String, String> extraParameters) {
         this.extraParameters = extraParameters;
         return this;
-    }
-
-    public Map<String, String> getExtraParameters() {
-        return extraParameters;
     }
 
     public String getCode() {

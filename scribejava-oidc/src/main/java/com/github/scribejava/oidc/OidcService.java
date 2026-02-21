@@ -1,22 +1,21 @@
 package com.github.scribejava.oidc;
 
-import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.oauth.OAuth20Service;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthConstants;
+import com.github.scribejava.core.model.ParameterList;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import com.nimbusds.openid.connect.sdk.Nonce;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.concurrent.CompletableFuture;
-
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.ParameterList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Specialized OAuth20Service for OpenID Connect.
@@ -27,9 +26,9 @@ public class OidcService extends OAuth20Service {
     private final IdTokenValidator idTokenValidator;
 
     public OidcService(final DefaultApi20 api, final String apiKey, final String apiSecret, final String callback,
-            final String defaultScope, final String responseType, final OutputStream debugStream,
-            final String userAgent, final HttpClientConfig httpClientConfig, final HttpClient httpClient,
-            final IdTokenValidator idTokenValidator) {
+                       final String defaultScope, final String responseType, final OutputStream debugStream,
+                       final String userAgent, final HttpClientConfig httpClientConfig, final HttpClient httpClient,
+                       final IdTokenValidator idTokenValidator) {
         super(api, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent, httpClientConfig,
                 httpClient);
         this.idTokenValidator = idTokenValidator;
@@ -49,7 +48,7 @@ public class OidcService extends OAuth20Service {
     }
 
     public String getRpInitiatedLogoutUrl(final String endSessionEndpoint, final String idTokenHint,
-            final String postLogoutRedirectUri, final String state) {
+                                          final String postLogoutRedirectUri, final String state) {
         final ParameterList parameters = new ParameterList();
         if (idTokenHint != null) {
             parameters.add("id_token_hint", idTokenHint);

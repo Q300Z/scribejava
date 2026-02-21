@@ -24,24 +24,6 @@ public abstract class AbstractClientTest {
 
     private OAuthService oAuthService;
 
-    private static class TestCallback implements OAuthAsyncRequestCallback<Response> {
-
-        private Response response;
-
-        @Override
-        public void onCompleted(Response response) {
-            this.response = response;
-        }
-
-        @Override
-        public void onThrowable(Throwable throwable) {
-        }
-
-        public Response getResponse() {
-            return response;
-        }
-    }
-
     @BeforeEach
     public void setUp() {
         oAuthService = new OAuth20Service(null, "test", "test", null, null, null, System.out, null, null,
@@ -258,5 +240,23 @@ public abstract class AbstractClientTest {
         }
 
         server.shutdown();
+    }
+
+    private static class TestCallback implements OAuthAsyncRequestCallback<Response> {
+
+        private Response response;
+
+        @Override
+        public void onCompleted(Response response) {
+            this.response = response;
+        }
+
+        @Override
+        public void onThrowable(Throwable throwable) {
+        }
+
+        public Response getResponse() {
+            return response;
+        }
     }
 }

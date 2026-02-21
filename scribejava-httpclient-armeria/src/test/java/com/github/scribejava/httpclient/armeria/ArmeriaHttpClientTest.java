@@ -2,6 +2,8 @@ package com.github.scribejava.httpclient.armeria;
 
 import com.github.scribejava.core.AbstractClientTest;
 import com.github.scribejava.core.httpclient.HttpClient;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import com.linecorp.armeria.client.ClientFactory;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retry.Backoff;
@@ -15,16 +17,16 @@ import io.netty.resolver.AddressResolver;
 import io.netty.resolver.AddressResolverGroup;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Promise;
+import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.concurrent.CompletableFuture;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
-import org.slf4j.LoggerFactory;
-import org.junit.jupiter.api.Test;
+import java.util.function.Function;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ArmeriaHttpClientTest extends AbstractClientTest {

@@ -1,21 +1,29 @@
 package com.github.scribejava.core.extractors;
 
+import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Response;
 import org.junit.Before;
 import org.junit.Test;
-import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import org.junit.function.ThrowingRunnable;
 
 import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import org.junit.function.ThrowingRunnable;
 
 public class OAuth2AccessTokenExtractorTest {
 
     private OAuth2AccessTokenExtractor extractor;
+
+    private static Response ok(String body) {
+        return new Response(200, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+    }
+
+    private static Response error(String body) {
+        return new Response(400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+    }
 
     @Before
     public void setUp() {
@@ -117,13 +125,5 @@ public class OAuth2AccessTokenExtractorTest {
                 }
             });
         }
-    }
-
-    private static Response ok(String body) {
-        return new Response(200, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
-    }
-
-    private static Response error(String body) {
-        return new Response(400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
     }
 }

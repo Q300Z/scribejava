@@ -12,10 +12,6 @@ public class MeetupApi extends DefaultApi10a {
     protected MeetupApi() {
     }
 
-    private static class InstanceHolder {
-        private static final MeetupApi INSTANCE = new MeetupApi();
-    }
-
     public static MeetupApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -33,5 +29,9 @@ public class MeetupApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final MeetupApi INSTANCE = new MeetupApi();
     }
 }

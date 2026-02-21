@@ -1,18 +1,27 @@
 package com.github.scribejava.core.httpclient.multipart;
 
 import com.github.scribejava.core.httpclient.HttpClient;
+import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
+
+import static org.junit.Assert.*;
 
 public class MultipartUtilsTest {
+
+    private static void testNotValidBoundary(final String boundary) {
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                MultipartUtils.checkBoundarySyntax(boundary);
+            }
+        });
+        assertTrue(thrown.getMessage().startsWith("{'boundary'='" + boundary + "'} has invalid syntax. Should be '"));
+    }
 
     @Test
     public void testEmptyMultipartPayload() throws IOException {
@@ -62,24 +71,24 @@ public class MultipartUtilsTest {
         }
 
         assertEquals("X-Header: X-Value\r\n"
-                + "Content-Disposition: Content-Disposition-Value\r\n"
-                + "Content-Type: multipart/mixed; boundary=\"simple boundary\"\r\n",
+                        + "Content-Disposition: Content-Disposition-Value\r\n"
+                        + "Content-Type: multipart/mixed; boundary=\"simple boundary\"\r\n",
                 headersString.toString());
 
         assertEquals("This is the preamble.  It is to be ignored, though it\n"
-                + "is a handy place for composition agents to include an\n"
-                + "explanatory note to non-MIME conformant readers."
-                + "\r\n--simple boundary\r\n"
-                + "\r\n"
-                + "This is implicitly typed plain US-ASCII text.\n"
-                + "It does NOT end with a linebreak."
-                + "\r\n--simple boundary\r\n"
-                + "Content-Type: text/plain; charset=us-ascii\r\n"
-                + "\r\n"
-                + "This is explicitly typed plain US-ASCII text.\n"
-                + "It DOES end with a linebreak.\n"
-                + "\r\n--simple boundary--"
-                + "\r\nThis is the epilogue.  It is also to be ignored.",
+                        + "is a handy place for composition agents to include an\n"
+                        + "explanatory note to non-MIME conformant readers."
+                        + "\r\n--simple boundary\r\n"
+                        + "\r\n"
+                        + "This is implicitly typed plain US-ASCII text.\n"
+                        + "It does NOT end with a linebreak."
+                        + "\r\n--simple boundary\r\n"
+                        + "Content-Type: text/plain; charset=us-ascii\r\n"
+                        + "\r\n"
+                        + "This is explicitly typed plain US-ASCII text.\n"
+                        + "It DOES end with a linebreak.\n"
+                        + "\r\n--simple boundary--"
+                        + "\r\nThis is the epilogue.  It is also to be ignored.",
                 MultipartUtils.getPayload(mP).toString());
     }
 
@@ -103,21 +112,21 @@ public class MultipartUtilsTest {
         assertEquals("Content-Type: multipart/form-data; boundary=\"simple-boundary\"\r\n", headersString.toString());
 
         assertEquals("--simple-boundary\r\n"
-                + "\r\n"
-                + "It does NOT end with a linebreak."
-                + "\r\n--simple-boundary\r\n"
-                + "\r\n"
-                + "It does end with a \\r linebreak.\r"
-                + "\r\n--simple-boundary\r\n"
-                + "\r\n"
-                + "It does end with a \\n linebreak.\n"
-                + "\r\n--simple-boundary\r\n"
-                + "\r\n"
-                + "It does end with a \\r\\n linebreak.\r\n"
-                + "\r\n--simple-boundary\r\n"
-                + "\r\n"
-                + "the last one"
-                + "\r\n--simple-boundary--",
+                        + "\r\n"
+                        + "It does NOT end with a linebreak."
+                        + "\r\n--simple-boundary\r\n"
+                        + "\r\n"
+                        + "It does end with a \\r linebreak.\r"
+                        + "\r\n--simple-boundary\r\n"
+                        + "\r\n"
+                        + "It does end with a \\n linebreak.\n"
+                        + "\r\n--simple-boundary\r\n"
+                        + "\r\n"
+                        + "It does end with a \\r\\n linebreak.\r\n"
+                        + "\r\n--simple-boundary\r\n"
+                        + "\r\n"
+                        + "the last one"
+                        + "\r\n--simple-boundary--",
                 MultipartUtils.getPayload(mP).toString());
     }
 
@@ -135,14 +144,14 @@ public class MultipartUtilsTest {
         }
 
         assertEquals("Content-Type: multipart/form-data; "
-                + "boundary=\"testFileByteArrayBodyPartPayloadMultipartPayload boundary\"\r\n",
+                        + "boundary=\"testFileByteArrayBodyPartPayloadMultipartPayload boundary\"\r\n",
                 headersString.toString());
 
         assertEquals("--testFileByteArrayBodyPartPayloadMultipartPayload boundary\r\n"
-                + "Content-Disposition: form-data; name=\"name\"; filename=\"filename.ext\"\r\n"
-                + "\r\n"
-                + "fileContent"
-                + "\r\n--testFileByteArrayBodyPartPayloadMultipartPayload boundary--",
+                        + "Content-Disposition: form-data; name=\"name\"; filename=\"filename.ext\"\r\n"
+                        + "\r\n"
+                        + "fileContent"
+                        + "\r\n--testFileByteArrayBodyPartPayloadMultipartPayload boundary--",
                 MultipartUtils.getPayload(mP).toString());
     }
 
@@ -203,54 +212,54 @@ public class MultipartUtilsTest {
         assertEquals("Content-Type: multipart/mixed; boundary=\"unique-boundary-1\"\r\n", headersString.toString());
 
         assertEquals("This is the preamble area of a multipart message.\n"
-                + "Mail readers that understand multipart format\n"
-                + "should ignore this preamble.\n"
-                + "\n"
-                + "If you are reading this text, you might want to\n"
-                + "consider changing to a mail reader that understands\n"
-                + "how to properly display multipart messages.\n"
-                + "\r\n--unique-boundary-1\r\n"
-                + "\r\n"
-                + "... Some text appears here ..."
-                + "\r\n--unique-boundary-1\r\n"
-                + "Content-Type: text/plain; charset=US-ASCII\r\n"
-                + "\r\n"
-                + "This could have been part of the previous part, but\n"
-                + "illustrates explicit versus implicit typing of body\n"
-                + "parts.\n"
-                + "\r\n--unique-boundary-1\r\n"
-                + "Content-Type: multipart/parallel; boundary=\"unique-boundary-2\"\r\n"
-                + "\r\n--unique-boundary-2\r\n"
-                + "Content-Type: audio/basic\r\n"
-                + "Content-Transfer-Encoding: base64\r\n"
-                + "\r\n"
-                + "... base64-encoded 8000 Hz single-channel\n"
-                + "    mu-law-format audio data goes here ..."
-                + "\r\n--unique-boundary-2\r\n"
-                + "Content-Type: image/jpeg\r\n"
-                + "Content-Transfer-Encoding: base64\r\n"
-                + "\r\n"
-                + "... base64-encoded image data goes here ..."
-                + "\r\n--unique-boundary-2--"
-                + "\r\n--unique-boundary-1\r\n"
-                + "Content-Type: text/enriched\r\n"
-                + "\r\n"
-                + "This is <bold><italic>enriched.</italic></bold>\n"
-                + "<smaller>as defined in RFC 1896</smaller>\n"
-                + "\n"
-                + "Isn't it\n"
-                + "<bigger><bigger>cool?</bigger></bigger>\n"
-                + "\r\n--unique-boundary-1\r\n"
-                + "Content-Type: message/rfc822\r\n"
-                + "\r\n"
-                + "From: (mailbox in US-ASCII)\n"
-                + "To: (address in US-ASCII)\n"
-                + "Subject: (subject in US-ASCII)\n"
-                + "Content-Type: Text/plain; charset=ISO-8859-1\n"
-                + "Content-Transfer-Encoding: Quoted-printable\n"
-                + "\n"
-                + "... Additional text in ISO-8859-1 goes here ...\n"
-                + "\r\n--unique-boundary-1--",
+                        + "Mail readers that understand multipart format\n"
+                        + "should ignore this preamble.\n"
+                        + "\n"
+                        + "If you are reading this text, you might want to\n"
+                        + "consider changing to a mail reader that understands\n"
+                        + "how to properly display multipart messages.\n"
+                        + "\r\n--unique-boundary-1\r\n"
+                        + "\r\n"
+                        + "... Some text appears here ..."
+                        + "\r\n--unique-boundary-1\r\n"
+                        + "Content-Type: text/plain; charset=US-ASCII\r\n"
+                        + "\r\n"
+                        + "This could have been part of the previous part, but\n"
+                        + "illustrates explicit versus implicit typing of body\n"
+                        + "parts.\n"
+                        + "\r\n--unique-boundary-1\r\n"
+                        + "Content-Type: multipart/parallel; boundary=\"unique-boundary-2\"\r\n"
+                        + "\r\n--unique-boundary-2\r\n"
+                        + "Content-Type: audio/basic\r\n"
+                        + "Content-Transfer-Encoding: base64\r\n"
+                        + "\r\n"
+                        + "... base64-encoded 8000 Hz single-channel\n"
+                        + "    mu-law-format audio data goes here ..."
+                        + "\r\n--unique-boundary-2\r\n"
+                        + "Content-Type: image/jpeg\r\n"
+                        + "Content-Transfer-Encoding: base64\r\n"
+                        + "\r\n"
+                        + "... base64-encoded image data goes here ..."
+                        + "\r\n--unique-boundary-2--"
+                        + "\r\n--unique-boundary-1\r\n"
+                        + "Content-Type: text/enriched\r\n"
+                        + "\r\n"
+                        + "This is <bold><italic>enriched.</italic></bold>\n"
+                        + "<smaller>as defined in RFC 1896</smaller>\n"
+                        + "\n"
+                        + "Isn't it\n"
+                        + "<bigger><bigger>cool?</bigger></bigger>\n"
+                        + "\r\n--unique-boundary-1\r\n"
+                        + "Content-Type: message/rfc822\r\n"
+                        + "\r\n"
+                        + "From: (mailbox in US-ASCII)\n"
+                        + "To: (address in US-ASCII)\n"
+                        + "Subject: (subject in US-ASCII)\n"
+                        + "Content-Type: Text/plain; charset=ISO-8859-1\n"
+                        + "Content-Transfer-Encoding: Quoted-printable\n"
+                        + "\n"
+                        + "... Additional text in ISO-8859-1 goes here ...\n"
+                        + "\r\n--unique-boundary-1--",
                 MultipartUtils.getPayload(mP).toString());
     }
 
@@ -339,15 +348,5 @@ public class MultipartUtilsTest {
     @Test
     public void testNonValidNullCheckBoundarySyntax() {
         testNotValidBoundary(null);
-    }
-
-    private static void testNotValidBoundary(final String boundary) {
-        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                MultipartUtils.checkBoundarySyntax(boundary);
-            }
-        });
-        assertTrue(thrown.getMessage().startsWith("{'boundary'='" + boundary + "'} has invalid syntax. Should be '"));
     }
 }

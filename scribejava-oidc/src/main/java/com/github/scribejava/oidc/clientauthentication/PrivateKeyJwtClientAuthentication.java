@@ -37,7 +37,7 @@ public class PrivateKeyJwtClientAuthentication implements ClientAuthentication {
     private final JWSAlgorithm jwsAlgorithm;
 
     public PrivateKeyJwtClientAuthentication(final String clientId, final String audience, final JWK privateJWK,
-            final JWSAlgorithm jwsAlgorithm) {
+                                             final JWSAlgorithm jwsAlgorithm) {
         this.clientId = clientId;
         this.audience = audience;
         this.privateJWK = privateJWK;

@@ -9,10 +9,6 @@ public class MeetupApi20 extends DefaultApi20 {
     protected MeetupApi20() {
     }
 
-    private static class InstanceHolder {
-        private static final MeetupApi20 INSTANCE = new MeetupApi20();
-    }
-
     public static MeetupApi20 instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +26,9 @@ public class MeetupApi20 extends DefaultApi20 {
     @Override
     public ClientAuthentication getClientAuthentication() {
         return RequestBodyAuthenticationScheme.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final MeetupApi20 INSTANCE = new MeetupApi20();
     }
 }

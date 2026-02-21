@@ -1,35 +1,32 @@
 package com.github.scribejava.oauth1.builder.api;
 
-import com.github.scribejava.core.extractors.BaseStringExtractor;
-import com.github.scribejava.core.extractors.BaseStringExtractorImpl;
-import com.github.scribejava.core.extractors.HeaderExtractor;
-import com.github.scribejava.core.extractors.HeaderExtractorImpl;
-import com.github.scribejava.oauth1.extractors.OAuth1AccessTokenExtractor;
-import com.github.scribejava.oauth1.extractors.OAuth1RequestTokenExtractor;
+import com.github.scribejava.core.extractors.*;
+import com.github.scribejava.core.httpclient.HttpClient;
+import com.github.scribejava.core.httpclient.HttpClientConfig;
+import com.github.scribejava.core.model.OAuthConstants;
+import com.github.scribejava.core.model.ParameterList;
 import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.oauth1.oauth.OAuth10aService;
-import com.github.scribejava.oauth1.services.HMACSha1SignatureService;
 import com.github.scribejava.core.services.SignatureService;
 import com.github.scribejava.core.services.TimestampService;
 import com.github.scribejava.core.services.TimestampServiceImpl;
-import com.github.scribejava.core.extractors.TokenExtractor;
-import com.github.scribejava.core.httpclient.HttpClient;
-import com.github.scribejava.core.httpclient.HttpClientConfig;
+import com.github.scribejava.oauth1.extractors.OAuth1AccessTokenExtractor;
+import com.github.scribejava.oauth1.extractors.OAuth1RequestTokenExtractor;
 import com.github.scribejava.oauth1.model.OAuth1AccessToken;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.ParameterList;
+import com.github.scribejava.oauth1.oauth.OAuth10aService;
+import com.github.scribejava.oauth1.services.HMACSha1SignatureService;
+
 import java.io.OutputStream;
 
 /**
  * Default implementation of the OAuth protocol, version 1.0a
- *
+ * <p>
  * This class is meant to be extended by concrete implementations of the API, providing the endpoints and
  * endpoint-http-verbs.
- *
+ * <p>
  * If your Api adheres to the 1.0a protocol correctly, you just need to extend this class and define the getters for
  * your endpoints.
- *
+ * <p>
  * If your Api does something a bit different, you can override the different extractors or services, in order to
  * fine-tune the process. Please read the javadocs of the interfaces to get an idea of what to do.
  *
@@ -144,7 +141,7 @@ public abstract class DefaultApi10a {
     }
 
     public OAuth10aService createService(String apiKey, String apiSecret, String callback, String scope,
-            OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig, HttpClient httpClient) {
+                                         OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig, HttpClient httpClient) {
         return new OAuth10aService(this, apiKey, apiSecret, callback, scope, debugStream, userAgent, httpClientConfig,
                 httpClient);
     }

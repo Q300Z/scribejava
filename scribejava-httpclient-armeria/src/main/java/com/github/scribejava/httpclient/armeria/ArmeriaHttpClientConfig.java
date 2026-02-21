@@ -7,6 +7,7 @@ import com.linecorp.armeria.client.HttpClient;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retry.RetryingClient;
 import com.linecorp.armeria.common.SessionProtocol;
+
 import java.util.function.Function;
 
 public class ArmeriaHttpClientConfig implements HttpClientConfig {
@@ -32,6 +33,15 @@ public class ArmeriaHttpClientConfig implements HttpClientConfig {
     }
 
     /**
+     * Creates new {@link ArmeriaHttpClientConfig} using default settings.
+     *
+     * @return ArmeriaHttpClientConfig
+     */
+    public static ArmeriaHttpClientConfig defaultConfig() {
+        return new ArmeriaHttpClientConfig(null, null);
+    }
+
+    /**
      * Creates new {@link HttpClientConfig} using default settings.
      *
      * @return new {@link HttpClientConfig} using default settings.
@@ -42,20 +52,11 @@ public class ArmeriaHttpClientConfig implements HttpClientConfig {
     }
 
     /**
-     * Creates new {@link ArmeriaHttpClientConfig} using default settings.
-     *
-     * @return ArmeriaHttpClientConfig
-     */
-    public static ArmeriaHttpClientConfig defaultConfig() {
-        return new ArmeriaHttpClientConfig(null, null);
-    }
-
-    /**
      * Selects which protocol shall take preference when generic protocol scheme used by the URL, like {@code http} or
      * {@code https}.
      *
      * @param protocolPreference specifies which protocol shall take preference. Acceptable values:
-     * {@link SessionProtocol#H1} and {@link SessionProtocol#H2}
+     *                           {@link SessionProtocol#H1} and {@link SessionProtocol#H2}
      */
     public void setProtocolPreference(SessionProtocol protocolPreference) {
         if (protocolPreference != SessionProtocol.H1 && protocolPreference != SessionProtocol.H2) {

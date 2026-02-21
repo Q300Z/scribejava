@@ -9,10 +9,6 @@ public class PinterestApi extends DefaultApi20 {
     protected PinterestApi() {
     }
 
-    private static class InstanceHolder {
-        private static final PinterestApi INSTANCE = new PinterestApi();
-    }
-
     public static PinterestApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +26,9 @@ public class PinterestApi extends DefaultApi20 {
     @Override
     public ClientAuthentication getClientAuthentication() {
         return RequestBodyAuthenticationScheme.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final PinterestApi INSTANCE = new PinterestApi();
     }
 }

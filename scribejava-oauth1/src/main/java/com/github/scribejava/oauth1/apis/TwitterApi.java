@@ -11,10 +11,6 @@ public class TwitterApi extends DefaultApi10a {
     protected TwitterApi() {
     }
 
-    private static class InstanceHolder {
-        private static final TwitterApi INSTANCE = new TwitterApi();
-    }
-
     public static TwitterApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -34,9 +30,13 @@ public class TwitterApi extends DefaultApi10a {
         return AUTHORIZE_URL;
     }
 
+    private static class InstanceHolder {
+        private static final TwitterApi INSTANCE = new TwitterApi();
+    }
+
     /**
      * Twitter 'friendlier' authorization endpoint for OAuth.
-     *
+     * <p>
      * Uses SSL.
      */
     public static class Authenticate extends TwitterApi {
@@ -46,10 +46,6 @@ public class TwitterApi extends DefaultApi10a {
         private Authenticate() {
         }
 
-        private static class InstanceHolder {
-            private static final Authenticate INSTANCE = new Authenticate();
-        }
-
         public static Authenticate instance() {
             return InstanceHolder.INSTANCE;
         }
@@ -57,6 +53,10 @@ public class TwitterApi extends DefaultApi10a {
         @Override
         public String getAuthorizationBaseUrl() {
             return AUTHENTICATE_URL;
+        }
+
+        private static class InstanceHolder {
+            private static final Authenticate INSTANCE = new Authenticate();
         }
     }
 }

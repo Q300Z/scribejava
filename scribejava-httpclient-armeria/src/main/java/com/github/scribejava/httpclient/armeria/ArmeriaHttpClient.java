@@ -1,24 +1,12 @@
 package com.github.scribejava.httpclient.armeria;
 
-import static java.util.Objects.requireNonNull;
-
 import com.github.scribejava.core.httpclient.AbstractAsyncOnlyHttpClient;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartUtils;
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
 import com.linecorp.armeria.client.WebClient;
-import com.linecorp.armeria.common.AggregatedHttpResponse;
-import com.linecorp.armeria.common.HttpData;
-import com.linecorp.armeria.common.HttpMethod;
-import com.linecorp.armeria.common.HttpResponse;
-import com.linecorp.armeria.common.HttpStatus;
-import com.linecorp.armeria.common.MediaType;
-import com.linecorp.armeria.common.RequestHeaders;
-import com.linecorp.armeria.common.RequestHeadersBuilder;
+import com.linecorp.armeria.common.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +19,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of {@link AbstractAsyncOnlyHttpClient} based on
@@ -50,6 +40,47 @@ public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
         clientBuilder = config.createClientBuilder();
     }
 
+    private static String getEndPoint(final URI uri) {
+        return requireNonNull(uri.getScheme(), "scheme") + "://" + requireNonNull(uri.getAuthority(), "authority");
+    }
+
+    private static String getServicePath(final URI uri) {
+        final StringBuilder builder = new StringBuilder()
+                .append(requireNonNull(uri.getPath(), "path"));
+        final String query = uri.getQuery();
+        if (query != null) {
+            builder.append('?').append(query);
+        }
+        final String fragment = uri.getFragment();
+        if (fragment != null) {
+            builder.append('#').append(fragment);
+        }
+        return builder.toString();
+    }
+
+    private static HttpMethod getHttpMethod(final Verb httpVerb) {
+        switch (httpVerb) {
+            case GET:
+                return HttpMethod.GET;
+            case POST:
+                return HttpMethod.POST;
+            case PUT:
+                return HttpMethod.PUT;
+            case DELETE:
+                return HttpMethod.DELETE;
+            case HEAD:
+                return HttpMethod.HEAD;
+            case OPTIONS:
+                return HttpMethod.OPTIONS;
+            case TRACE:
+                return HttpMethod.TRACE;
+            case PATCH:
+                return HttpMethod.PATCH;
+            default:
+                throw new IllegalArgumentException("message build error: unsupported HTTP method: " + httpVerb.name());
+        }
+    }
+
     @Override
     public void close() {
         final Lock writeLock = httpClientsLock.writeLock();
@@ -63,39 +94,39 @@ public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final byte[] bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final byte[] bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, new BytesBody(bodyContents), callback,
                 converter);
     }
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final MultipartPayload bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final MultipartPayload bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, new MultipartBody(bodyContents), callback,
                 converter);
     }
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final String bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final String bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, new StringBody(bodyContents), callback,
                 converter);
     }
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final File bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final File bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, new FileBody(bodyContents), callback,
                 converter);
     }
 
     private <T> CompletableFuture<T> doExecuteAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final Supplier<HttpData> contentSupplier,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                    final Verb httpVerb, final String completeUrl, final Supplier<HttpData> contentSupplier,
+                                                    final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
 
         final URI uri = URI.create(completeUrl);
         final String path = getServicePath(uri);
@@ -175,47 +206,6 @@ public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
         }
     }
 
-    private static String getEndPoint(final URI uri) {
-        return requireNonNull(uri.getScheme(), "scheme") + "://" + requireNonNull(uri.getAuthority(), "authority");
-    }
-
-    private static String getServicePath(final URI uri) {
-        final StringBuilder builder = new StringBuilder()
-                .append(requireNonNull(uri.getPath(), "path"));
-        final String query = uri.getQuery();
-        if (query != null) {
-            builder.append('?').append(query);
-        }
-        final String fragment = uri.getFragment();
-        if (fragment != null) {
-            builder.append('#').append(fragment);
-        }
-        return builder.toString();
-    }
-
-    private static HttpMethod getHttpMethod(final Verb httpVerb) {
-        switch (httpVerb) {
-            case GET:
-                return HttpMethod.GET;
-            case POST:
-                return HttpMethod.POST;
-            case PUT:
-                return HttpMethod.PUT;
-            case DELETE:
-                return HttpMethod.DELETE;
-            case HEAD:
-                return HttpMethod.HEAD;
-            case OPTIONS:
-                return HttpMethod.OPTIONS;
-            case TRACE:
-                return HttpMethod.TRACE;
-            case PATCH:
-                return HttpMethod.PATCH;
-            default:
-                throw new IllegalArgumentException("message build error: unsupported HTTP method: " + httpVerb.name());
-        }
-    }
-
     private Response convertResponse(final AggregatedHttpResponse aggregatedResponse) {
         final Map<String, String> headersMap = new HashMap<>();
         aggregatedResponse.headers().forEach((header, value) -> headersMap.put(header.toString(), value));
@@ -227,11 +217,10 @@ public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
     }
 
     private <T> T whenResponseComplete(final OAuthAsyncRequestCallback<T> callback,
-            final OAuthRequest.ResponseConverter<T> converter, final AggregatedHttpResponse aggregatedResponse) {
+                                       final OAuthRequest.ResponseConverter<T> converter, final AggregatedHttpResponse aggregatedResponse) {
         final Response response = convertResponse(aggregatedResponse);
         try {
-            @SuppressWarnings("unchecked")
-            final T t = converter == null ? (T) response : converter.convert(response);
+            @SuppressWarnings("unchecked") final T t = converter == null ? (T) response : converter.convert(response);
             if (callback != null) {
                 callback.onCompleted(t);
             }

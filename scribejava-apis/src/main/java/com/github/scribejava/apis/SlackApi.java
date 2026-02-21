@@ -11,11 +11,6 @@ public class SlackApi extends DefaultApi20 {
     protected SlackApi() {
     }
 
-    private static class InstanceHolder {
-
-        private static final SlackApi INSTANCE = new SlackApi();
-    }
-
     public static SlackApi instance() {
         return SlackApi.InstanceHolder.INSTANCE;
     }
@@ -33,5 +28,10 @@ public class SlackApi extends DefaultApi20 {
     @Override
     public SlackJsonTokenExtractor getAccessTokenExtractor() {
         return SlackJsonTokenExtractor.instance();
+    }
+
+    private static class InstanceHolder {
+
+        private static final SlackApi INSTANCE = new SlackApi();
     }
 }

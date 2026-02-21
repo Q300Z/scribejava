@@ -7,10 +7,6 @@ public class DoktornaraboteApi extends DefaultApi20 {
     protected DoktornaraboteApi() {
     }
 
-    private static class InstanceHolder {
-        private static final DoktornaraboteApi INSTANCE = new DoktornaraboteApi();
-    }
-
     public static DoktornaraboteApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -23,5 +19,9 @@ public class DoktornaraboteApi extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://auth.doktornarabote.ru/OAuth/Authorize";
+    }
+
+    private static class InstanceHolder {
+        private static final DoktornaraboteApi INSTANCE = new DoktornaraboteApi();
     }
 }

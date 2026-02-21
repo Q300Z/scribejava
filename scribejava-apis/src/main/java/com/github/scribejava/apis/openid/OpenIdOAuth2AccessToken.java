@@ -1,6 +1,7 @@
 package com.github.scribejava.apis.openid;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
+
 import java.util.Objects;
 
 public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
@@ -10,10 +11,10 @@ public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
     /**
      * Id_token is part of OpenID Connect specification. It can hold user information that you can directly extract
      * without additional request to provider.
-     *
+     * <p>
      * See http://openid.net/specs/openid-connect-core-1_0.html#id_token-tokenExample and
      * https://bitbucket.org/nimbusds/nimbus-jose-jwt/wiki/Home
-     *
+     * <p>
      * Here will be encoded and signed id token in JWT format or null, if not defined.
      */
     private final String openIdToken;
@@ -23,7 +24,7 @@ public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
     }
 
     public OpenIdOAuth2AccessToken(String accessToken, String tokenType, Integer expiresIn, String refreshToken,
-            String scope, String openIdToken, String rawResponse) {
+                                   String scope, String openIdToken, String rawResponse) {
         super(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
         this.openIdToken = openIdToken;
     }

@@ -17,10 +17,6 @@ public class SkyrockApi extends DefaultApi10a {
     protected SkyrockApi() {
     }
 
-    private static class InstanceHolder {
-        private static final SkyrockApi INSTANCE = new SkyrockApi();
-    }
-
     public static SkyrockApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -38,5 +34,9 @@ public class SkyrockApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return API_ENDPOINT + AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final SkyrockApi INSTANCE = new SkyrockApi();
     }
 }

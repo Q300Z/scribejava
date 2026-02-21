@@ -11,10 +11,6 @@ public class TumblrApi extends DefaultApi10a {
     protected TumblrApi() {
     }
 
-    private static class InstanceHolder {
-        private static final TumblrApi INSTANCE = new TumblrApi();
-    }
-
     public static TumblrApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -32,5 +28,9 @@ public class TumblrApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final TumblrApi INSTANCE = new TumblrApi();
     }
 }

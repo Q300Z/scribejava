@@ -7,10 +7,6 @@ public class Asana20Api extends DefaultApi20 {
     protected Asana20Api() {
     }
 
-    private static class InstanceHolder {
-        private static final Asana20Api INSTANCE = new Asana20Api();
-    }
-
     public static Asana20Api instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -23,5 +19,9 @@ public class Asana20Api extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://app.asana.com/-/oauth_authorize";
+    }
+
+    private static class InstanceHolder {
+        private static final Asana20Api INSTANCE = new Asana20Api();
     }
 }

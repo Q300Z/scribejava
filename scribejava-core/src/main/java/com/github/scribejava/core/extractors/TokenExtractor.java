@@ -8,6 +8,7 @@ import java.io.IOException;
 
 /**
  * Simple command object that extracts a concrete {@link Token} from a String
+ *
  * @param <T> concrete type of Token
  */
 public interface TokenExtractor<T extends Token> {

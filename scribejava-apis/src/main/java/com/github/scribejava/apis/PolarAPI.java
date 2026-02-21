@@ -18,11 +18,6 @@ public class PolarAPI extends DefaultApi20 {
     protected PolarAPI() {
     }
 
-    private static class InstanceHolder {
-
-        private static final PolarAPI INSTANCE = new PolarAPI();
-    }
-
     public static PolarAPI instance() {
         return PolarAPI.InstanceHolder.INSTANCE;
     }
@@ -39,8 +34,8 @@ public class PolarAPI extends DefaultApi20 {
 
     @Override
     public PolarOAuthService createService(String apiKey, String apiSecret, String callback, String defaultScope,
-            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
-            HttpClient httpClient) {
+                                           String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+                                           HttpClient httpClient) {
 
         return new PolarOAuthService(this, apiKey, apiSecret, callback, defaultScope, responseType, debugStream,
                 userAgent, httpClientConfig, httpClient);
@@ -49,5 +44,10 @@ public class PolarAPI extends DefaultApi20 {
     @Override
     public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
         return PolarJsonTokenExtractor.instance();
+    }
+
+    private static class InstanceHolder {
+
+        private static final PolarAPI INSTANCE = new PolarAPI();
     }
 }

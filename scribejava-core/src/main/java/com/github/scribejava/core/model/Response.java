@@ -1,10 +1,11 @@
 package com.github.scribejava.core.model;
 
+import com.github.scribejava.core.utils.StreamUtils;
+
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import com.github.scribejava.core.utils.StreamUtils;
-import java.io.Closeable;
 
 /**
  * An HTTP response.
@@ -30,7 +31,7 @@ public class Response implements Closeable {
     }
 
     public Response(int code, String message, Map<String, String> headers, InputStream stream,
-            Closeable... closeables) {
+                    Closeable... closeables) {
         this(code, message, headers);
         this.stream = stream;
         this.closeables = closeables;
@@ -109,7 +110,6 @@ public class Response implements Closeable {
      * Obtains a single HTTP Header value, or null if undefined
      *
      * @param name the header name.
-     *
      * @return header value or null.
      */
     public String getHeader(String name) {

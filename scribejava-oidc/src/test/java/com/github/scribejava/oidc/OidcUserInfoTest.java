@@ -1,7 +1,7 @@
 package com.github.scribejava.oidc;
 
-import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;

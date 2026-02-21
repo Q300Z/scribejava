@@ -5,12 +5,13 @@ import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.CompletableFuture; // CHANGED
 
 public interface HttpClient extends Closeable {
 
@@ -19,30 +20,30 @@ public interface HttpClient extends Closeable {
     String CONTENT_LENGTH = "Content-Length";
 
     <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
-            String completeUrl, byte[] bodyContents, OAuthAsyncRequestCallback<T> callback,
-            OAuthRequest.ResponseConverter<T> converter);
+                                          String completeUrl, byte[] bodyContents, OAuthAsyncRequestCallback<T> callback,
+                                          OAuthRequest.ResponseConverter<T> converter);
 
     <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
-            String completeUrl, MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
-            OAuthRequest.ResponseConverter<T> converter);
+                                          String completeUrl, MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback,
+                                          OAuthRequest.ResponseConverter<T> converter);
 
     <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
-            String completeUrl, String bodyContents, OAuthAsyncRequestCallback<T> callback,
-            OAuthRequest.ResponseConverter<T> converter);
+                                          String completeUrl, String bodyContents, OAuthAsyncRequestCallback<T> callback,
+                                          OAuthRequest.ResponseConverter<T> converter);
 
     <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb,
-            String completeUrl, File bodyContents, OAuthAsyncRequestCallback<T> callback,
-            OAuthRequest.ResponseConverter<T> converter);
+                                          String completeUrl, File bodyContents, OAuthAsyncRequestCallback<T> callback,
+                                          OAuthRequest.ResponseConverter<T> converter);
 
     Response execute(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            byte[] bodyContents) throws InterruptedException, ExecutionException, IOException;
+                     byte[] bodyContents) throws InterruptedException, ExecutionException, IOException;
 
     Response execute(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            MultipartPayload bodyContents) throws InterruptedException, ExecutionException, IOException;
+                     MultipartPayload bodyContents) throws InterruptedException, ExecutionException, IOException;
 
     Response execute(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            String bodyContents) throws InterruptedException, ExecutionException, IOException;
+                     String bodyContents) throws InterruptedException, ExecutionException, IOException;
 
     Response execute(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl,
-            File bodyContents) throws InterruptedException, ExecutionException, IOException;
+                     File bodyContents) throws InterruptedException, ExecutionException, IOException;
 }

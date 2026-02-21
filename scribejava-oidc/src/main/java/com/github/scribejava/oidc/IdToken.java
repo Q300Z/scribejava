@@ -26,6 +26,7 @@ public class IdToken extends Token {
         }
     }
 
+    @Override
     public String getRawResponse() {
         return rawToken;
     }

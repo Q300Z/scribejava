@@ -1,13 +1,10 @@
 package com.github.scribejava.core.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors; // ADDED
-import java.util.Arrays; // ADDED
 import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.utils.Preconditions;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ParameterList {
 

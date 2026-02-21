@@ -9,10 +9,6 @@ public class LinkedInApi20 extends DefaultApi20 {
     protected LinkedInApi20() {
     }
 
-    private static class InstanceHolder {
-        private static final LinkedInApi20 INSTANCE = new LinkedInApi20();
-    }
-
     public static LinkedInApi20 instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +26,9 @@ public class LinkedInApi20 extends DefaultApi20 {
     @Override
     public ClientAuthentication getClientAuthentication() {
         return RequestBodyAuthenticationScheme.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final LinkedInApi20 INSTANCE = new LinkedInApi20();
     }
 }

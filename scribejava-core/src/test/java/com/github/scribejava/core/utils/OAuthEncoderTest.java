@@ -1,8 +1,9 @@
 package com.github.scribejava.core.utils;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.junit.jupiter.api.Test;
 
 public class OAuthEncoderTest {
 
@@ -53,7 +54,7 @@ public class OAuthEncoderTest {
         // -> https://dev.twitter.com/docs/auth/percent-encoding-parameters
         final String[] sources = {"Ladies + Gentlemen", "An encoded string!", "Dogs, Cats & Mice"};
         final String[] encoded = {"Ladies%20%2B%20Gentlemen", "An%20encoded%20string%21",
-            "Dogs%2C%20Cats%20%26%20Mice"};
+                "Dogs%2C%20Cats%20%26%20Mice"};
 
         for (int i = 0; i < sources.length; i++) {
             assertThat(OAuthEncoder.encode(sources[i])).isEqualTo(encoded[i]);

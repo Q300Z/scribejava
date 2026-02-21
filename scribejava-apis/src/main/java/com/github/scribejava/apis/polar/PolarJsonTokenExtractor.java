@@ -6,6 +6,7 @@ import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth2.OAuth2Error;
+
 import java.io.IOException;
 
 /**
@@ -16,18 +17,13 @@ public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
     protected PolarJsonTokenExtractor() {
     }
 
-    private static class InstanceHolder {
-
-        private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
-    }
-
     public static PolarJsonTokenExtractor instance() {
         return InstanceHolder.INSTANCE;
     }
 
     @Override
     protected PolarOAuth2AccessToken createToken(String accessToken, String tokenType, Integer expiresIn,
-            String refreshToken, String scope, JsonNode response, String rawResponse) {
+                                                 String refreshToken, String scope, JsonNode response, String rawResponse) {
         return new PolarOAuth2AccessToken(accessToken, tokenType, expiresIn, refreshToken, scope,
                 response.get("x_user_id").asText(), rawResponse);
     }
@@ -51,5 +47,10 @@ public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
         }
 
         throw new OAuth2AccessTokenErrorResponse(errorCode, errorNode.get("message").asText(), null, response);
+    }
+
+    private static class InstanceHolder {
+
+        private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
     }
 }

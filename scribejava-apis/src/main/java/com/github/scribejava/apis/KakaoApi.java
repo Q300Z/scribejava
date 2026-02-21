@@ -9,11 +9,6 @@ public class KakaoApi extends DefaultApi20 {
     protected KakaoApi() {
     }
 
-    private static class InstanceHolder {
-
-        private static final KakaoApi INSTANCE = new KakaoApi();
-    }
-
     public static KakaoApi instance() {
         return KakaoApi.InstanceHolder.INSTANCE;
     }
@@ -31,5 +26,10 @@ public class KakaoApi extends DefaultApi20 {
     @Override
     public ClientAuthentication getClientAuthentication() {
         return RequestBodyAuthenticationScheme.instance();
+    }
+
+    private static class InstanceHolder {
+
+        private static final KakaoApi INSTANCE = new KakaoApi();
     }
 }

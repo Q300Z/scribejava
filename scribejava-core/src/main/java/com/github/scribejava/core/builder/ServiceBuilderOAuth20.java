@@ -4,6 +4,7 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.oauth.OAuth20Service;
+
 import java.io.OutputStream;
 
 public interface ServiceBuilderOAuth20 extends ServiceBuilderCommon {
@@ -39,10 +40,10 @@ public interface ServiceBuilderOAuth20 extends ServiceBuilderCommon {
 
     /**
      * Configures the default OAuth 2.0 scope.<br>
-     *
+     * <p>
      * You can request any uniq scope per each access token request using
      * {@link com.github.scribejava.core.oauth.AuthorizationUrlBuilder#scope(java.lang.String) }.<br><br>
-     *
+     * <p>
      * In case you're requesting always the same scope,<br>
      * you can just set it here and do not provide scope param nowhere more.
      *

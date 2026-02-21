@@ -1,6 +1,7 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.exceptions.OAuthException;
+
 import java.io.IOException;
 import java.util.Objects;
 

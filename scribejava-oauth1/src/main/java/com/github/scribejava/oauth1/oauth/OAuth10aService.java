@@ -1,20 +1,21 @@
 package com.github.scribejava.oauth1.oauth;
 
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
-import com.github.scribejava.oauth1.builder.api.OAuth1SignatureType;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-import com.github.scribejava.oauth1.model.OAuth1AccessToken;
-import com.github.scribejava.oauth1.model.OAuth1RequestToken;
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth.OAuthService;
+import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
+import com.github.scribejava.oauth1.builder.api.OAuth1SignatureType;
+import com.github.scribejava.oauth1.model.OAuth1AccessToken;
+import com.github.scribejava.oauth1.model.OAuth1RequestToken;
+
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -27,8 +28,8 @@ public class OAuth10aService extends OAuthService {
     private final String scope;
 
     public OAuth10aService(final DefaultApi10a api, final String apiKey, final String apiSecret, final String callback,
-            final String scope, final OutputStream debugStream, final String userAgent,
-            final HttpClientConfig httpClientConfig, final HttpClient httpClient) {
+                           final String scope, final OutputStream debugStream, final String userAgent,
+                           final HttpClientConfig httpClientConfig, final HttpClient httpClient) {
         super(apiKey, apiSecret, callback, debugStream, userAgent, httpClientConfig, httpClient);
         this.api = api;
         this.scope = scope;
@@ -111,12 +112,12 @@ public class OAuth10aService extends OAuthService {
     }
 
     public CompletableFuture<OAuth1AccessToken> getAccessTokenAsync(final OAuth1RequestToken requestToken,
-            final String oauthVerifier) {
+                                                                    final String oauthVerifier) {
         return getAccessTokenAsync(requestToken, oauthVerifier, null);
     }
 
     public CompletableFuture<OAuth1AccessToken> getAccessTokenAsync(final OAuth1RequestToken requestToken,
-            final String oauthVerifier, final OAuthAsyncRequestCallback<OAuth1AccessToken> callback) {
+                                                                    final String oauthVerifier, final OAuthAsyncRequestCallback<OAuth1AccessToken> callback) {
         if (isDebug()) {
             log("async obtaining access token from " + api.getAccessTokenEndpoint());
         }
@@ -129,7 +130,7 @@ public class OAuth10aService extends OAuthService {
     }
 
     protected OAuthRequest prepareAccessTokenRequest(final OAuth1RequestToken requestToken,
-            final String oauthVerifier) {
+                                                     final String oauthVerifier) {
         final OAuthRequest request = new OAuthRequest(api.getAccessTokenVerb(), api.getAccessTokenEndpoint());
         request.addOAuthParameter(OAuthConstants.TOKEN, requestToken.getToken());
         request.addOAuthParameter(OAuthConstants.VERIFIER, oauthVerifier);

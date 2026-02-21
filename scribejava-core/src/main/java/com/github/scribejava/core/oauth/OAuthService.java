@@ -1,24 +1,24 @@
 package com.github.scribejava.core.oauth;
 
-import com.github.scribejava.core.httpclient.HttpClientProvider;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
+import com.github.scribejava.core.httpclient.HttpClientProvider;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig;
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
+
 import java.io.Closeable;
 import java.io.File;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList; // ADDED
-import java.util.List; // ADDED
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public abstract class OAuthService implements Closeable {
 
@@ -31,7 +31,7 @@ public abstract class OAuthService implements Closeable {
     private final List<OAuthRequestInterceptor> interceptors = new ArrayList<>(); // ADDED
 
     public OAuthService(String apiKey, String apiSecret, String callback, OutputStream debugStream,
-            String userAgent, HttpClientConfig httpClientConfig, HttpClient httpClient) {
+                        String userAgent, HttpClientConfig httpClientConfig, HttpClient httpClient) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
         this.callback = callback;
@@ -45,10 +45,6 @@ public abstract class OAuthService implements Closeable {
         }
     }
 
-    public void addInterceptor(OAuthRequestInterceptor interceptor) { // ADDED
-        interceptors.add(interceptor);
-    }
-
     private static HttpClient getClient(HttpClientConfig config) {
         for (HttpClientProvider provider : ServiceLoader.load(HttpClientProvider.class)) {
             final HttpClient client = provider.createClient(config);
@@ -57,6 +53,10 @@ public abstract class OAuthService implements Closeable {
             }
         }
         return null;
+    }
+
+    public void addInterceptor(OAuthRequestInterceptor interceptor) { // ADDED
+        interceptors.add(interceptor);
     }
 
     @Override
@@ -87,7 +87,7 @@ public abstract class OAuthService implements Closeable {
     }
 
     public <R> CompletableFuture<R> execute(OAuthRequest request, OAuthAsyncRequestCallback<R> callback,
-            OAuthRequest.ResponseConverter<R> converter) {
+                                            OAuthRequest.ResponseConverter<R> converter) {
 
         interceptors.forEach(interceptor -> interceptor.intercept(request)); // ADDED: Execute interceptors
 
@@ -133,7 +133,7 @@ public abstract class OAuthService implements Closeable {
     }
 
     public void log(String messagePattern, Object... params) {
-        final String message = (params == null || params.length == 0) ? messagePattern
+        final String message = params == null || params.length == 0 ? messagePattern
                 : String.format(messagePattern, params);
         final String messageWithNewline = message + '\n';
         try {

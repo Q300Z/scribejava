@@ -1,18 +1,14 @@
 package com.github.scribejava.oauth1.apis;
 
+import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 import com.github.scribejava.oauth1.builder.api.OAuth1SignatureType;
-import com.github.scribejava.core.model.Verb;
 
 public class FreelancerApi extends DefaultApi10a {
 
     private static final String AUTHORIZATION_URL = "http://www.freelancer.com/users/api-token/auth.php";
 
     protected FreelancerApi() {
-    }
-
-    private static class InstanceHolder {
-        private static final FreelancerApi INSTANCE = new FreelancerApi();
     }
 
     public static FreelancerApi instance() {
@@ -49,16 +45,16 @@ public class FreelancerApi extends DefaultApi10a {
         return AUTHORIZATION_URL;
     }
 
+    private static class InstanceHolder {
+        private static final FreelancerApi INSTANCE = new FreelancerApi();
+    }
+
     public static class Sandbox extends FreelancerApi {
 
         private static final String SANDBOX_AUTHORIZATION_URL
                 = "http://www.sandbox.freelancer.com/users/api-token/auth.php";
 
         private Sandbox() {
-        }
-
-        private static class InstanceHolder {
-            private static final Sandbox INSTANCE = new Sandbox();
         }
 
         public static Sandbox instance() {
@@ -78,6 +74,10 @@ public class FreelancerApi extends DefaultApi10a {
         @Override
         public String getAuthorizationBaseUrl() {
             return SANDBOX_AUTHORIZATION_URL;
+        }
+
+        private static class InstanceHolder {
+            private static final Sandbox INSTANCE = new Sandbox();
         }
     }
 }

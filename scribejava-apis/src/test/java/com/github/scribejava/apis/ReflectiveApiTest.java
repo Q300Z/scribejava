@@ -2,11 +2,13 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Set;
-import java.util.HashSet;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 

@@ -1,9 +1,9 @@
 package com.github.scribejava.oauth1.apis;
 
+import com.github.scribejava.core.extractors.TokenExtractor;
+import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 import com.github.scribejava.oauth1.extractors.OAuth1AccessTokenJSONExtractor;
 import com.github.scribejava.oauth1.extractors.OAuth1RequestTokenJSONExtractor;
-import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
-import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.oauth1.model.OAuth1AccessToken;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
 
@@ -13,16 +13,12 @@ public class UcozApi extends DefaultApi10a {
     protected UcozApi() {
     }
 
-    private static class InstanceHolder {
-        private static final UcozApi INSTANCE = new UcozApi();
-    }
-
     public static UcozApi instance() {
         return InstanceHolder.INSTANCE;
     }
 
     @Override
-    public String getAccessTokenEndpoint(){
+    public String getAccessTokenEndpoint() {
         return "http://uapi.ucoz.com/accounts/oauthgetaccesstoken";
     }
 
@@ -38,11 +34,15 @@ public class UcozApi extends DefaultApi10a {
 
     @Override
     public TokenExtractor<OAuth1AccessToken> getAccessTokenExtractor() {
-           return OAuth1AccessTokenJSONExtractor.instance();
+        return OAuth1AccessTokenJSONExtractor.instance();
     }
 
     @Override
     public TokenExtractor<OAuth1RequestToken> getRequestTokenExtractor() {
         return OAuth1RequestTokenJSONExtractor.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final UcozApi INSTANCE = new UcozApi();
     }
 }

@@ -2,9 +2,6 @@ package com.github.scribejava.core.extractors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Optional;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.OAuthConstants;
@@ -12,17 +9,16 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth2.OAuth2Error;
 import com.github.scribejava.core.utils.Preconditions;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.Optional;
+
 /**
  * JSON (default) implementation of {@link TokenExtractor} for OAuth 2.0
  */
 public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor implements TokenExtractor<OAuth2AccessToken> {
 
     protected OAuth2AccessTokenJsonExtractor() {
-    }
-
-    private static class InstanceHolder {
-
-        private static final OAuth2AccessTokenJsonExtractor INSTANCE = new OAuth2AccessTokenJsonExtractor();
     }
 
     public static OAuth2AccessTokenJsonExtractor instance() {
@@ -93,7 +89,12 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor implem
     }
 
     protected OAuth2AccessToken createToken(String accessToken, String tokenType, Integer expiresIn,
-            String refreshToken, String scope, JsonNode response, String rawResponse) {
+                                            String refreshToken, String scope, JsonNode response, String rawResponse) {
         return new OAuth2AccessToken(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
+    }
+
+    private static class InstanceHolder {
+
+        private static final OAuth2AccessTokenJsonExtractor INSTANCE = new OAuth2AccessTokenJsonExtractor();
     }
 }

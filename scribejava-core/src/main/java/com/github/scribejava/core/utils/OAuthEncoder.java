@@ -1,14 +1,16 @@
 package com.github.scribejava.core.utils;
 
 // import java.io.UnsupportedEncodingException; // REMOVED IMPORT
+
+import com.github.scribejava.core.exceptions.OAuthException;
+
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import com.github.scribejava.core.exceptions.OAuthException;
-import java.nio.charset.StandardCharsets; // ADDED IMPORT
 
 public abstract class OAuthEncoder {
 

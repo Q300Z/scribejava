@@ -5,6 +5,7 @@ import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.utils.Preconditions;
 import com.github.scribejava.oauth1.model.OAuth1Token;
+
 import java.io.IOException;
 
 /**

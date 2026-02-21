@@ -21,11 +21,6 @@ public class LinkedInApi extends DefaultApi10a {
         scopesAsString = "?scope=" + builder.substring(1);
     }
 
-    private static class InstanceHolder {
-
-        private static final LinkedInApi INSTANCE = new LinkedInApi();
-    }
-
     public static LinkedInApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -47,5 +42,10 @@ public class LinkedInApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+
+        private static final LinkedInApi INSTANCE = new LinkedInApi();
     }
 }

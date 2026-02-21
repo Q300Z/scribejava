@@ -3,6 +3,7 @@ package com.github.scribejava.core.builder;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.oauth.OAuthService;
+
 import java.io.OutputStream;
 
 /**
@@ -14,7 +15,7 @@ public interface ServiceBuilderCommon {
      * Adds an OAuth callback url
      *
      * @param callback callback url. Must be a valid url or 'oob'
-     * ({@link com.github.scribejava.core.model.OAuthConstants#OOB} for out of band OAuth
+     *                 ({@link com.github.scribejava.core.model.OAuthConstants#OOB} for out of band OAuth
      * @return the {@link ServiceBuilder} instance for method chaining
      */
     ServiceBuilderCommon callback(String callback);
@@ -37,7 +38,7 @@ public interface ServiceBuilderCommon {
 
     /**
      * Configures the api secret as "" (empty string).
-     *
+     * <p>
      * Used usually for a test environments or another strange cases. Not all providers support empty string as api key
      * and will throw an Exception in such cases.
      *

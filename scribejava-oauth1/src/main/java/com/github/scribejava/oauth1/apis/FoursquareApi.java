@@ -9,10 +9,6 @@ public class FoursquareApi extends DefaultApi10a {
     protected FoursquareApi() {
     }
 
-    private static class InstanceHolder {
-        private static final FoursquareApi INSTANCE = new FoursquareApi();
-    }
-
     public static FoursquareApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +26,9 @@ public class FoursquareApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZATION_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final FoursquareApi INSTANCE = new FoursquareApi();
     }
 }

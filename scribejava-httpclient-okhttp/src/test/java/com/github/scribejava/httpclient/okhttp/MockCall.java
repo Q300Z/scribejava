@@ -1,14 +1,14 @@
 package com.github.scribejava.httpclient.okhttp;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.Timeout;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class MockCall implements Call {
 

@@ -1,14 +1,11 @@
 package com.github.scribejava.oauth1.services;
 
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.SignatureException;
 import com.github.scribejava.core.exceptions.OAuthSignatureException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import com.github.scribejava.core.services.SignatureService;
+
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.Base64;
 
 /**
  * A signature service that uses the RSA-SHA1 algorithm.

@@ -8,18 +8,13 @@ public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
     protected SlackJsonTokenExtractor() {
     }
 
-    private static class InstanceHolder {
-
-        private static final SlackJsonTokenExtractor INSTANCE = new SlackJsonTokenExtractor();
-    }
-
     public static SlackJsonTokenExtractor instance() {
         return SlackJsonTokenExtractor.InstanceHolder.INSTANCE;
     }
 
     @Override
     protected SlackOAuth2AccessToken createToken(String accessToken, String tokenType, Integer expiresIn,
-            String refreshToken, String scope, JsonNode response, String rawResponse) {
+                                                 String refreshToken, String scope, JsonNode response, String rawResponse) {
         final String userAccessToken;
         final JsonNode userAccessTokenNode = response.get("authed_user").get("access_token");
         if (userAccessTokenNode == null) {
@@ -30,5 +25,10 @@ public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
         return new SlackOAuth2AccessToken(accessToken, tokenType, expiresIn, refreshToken, scope, userAccessToken,
                 rawResponse);
+    }
+
+    private static class InstanceHolder {
+
+        private static final SlackJsonTokenExtractor INSTANCE = new SlackJsonTokenExtractor();
     }
 }

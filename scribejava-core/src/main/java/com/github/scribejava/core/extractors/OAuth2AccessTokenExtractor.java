@@ -1,14 +1,14 @@
 package com.github.scribejava.core.extractors;
 
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.utils.Preconditions;
+
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Custom implementation of {@link TokenExtractor} for OAuth 2.0
@@ -24,13 +24,22 @@ public class OAuth2AccessTokenExtractor implements TokenExtractor<OAuth2AccessTo
     protected OAuth2AccessTokenExtractor() {
     }
 
-    private static class InstanceHolder {
-
-        private static final OAuth2AccessTokenExtractor INSTANCE = new OAuth2AccessTokenExtractor();
-    }
-
     public static OAuth2AccessTokenExtractor instance() {
         return InstanceHolder.INSTANCE;
+    }
+
+    private static String extractParameter(String response, Pattern regexPattern, boolean required)
+            throws OAuthException {
+
+        final Matcher matcher = regexPattern.matcher(response);
+        if (matcher.find()) {
+            return OAuthEncoder.decode(matcher.group(1));
+        } else if (required) {
+            throw new OAuthException("Response body is incorrect. Can't extract a '" + regexPattern.pattern()
+                    + "' from this: '" + response + "'", null);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -60,17 +69,8 @@ public class OAuth2AccessTokenExtractor implements TokenExtractor<OAuth2AccessTo
         return new OAuth2AccessToken(accessToken, tokenType, expiresIn, refreshToken, scope, body);
     }
 
-    private static String extractParameter(String response, Pattern regexPattern, boolean required)
-            throws OAuthException {
+    private static class InstanceHolder {
 
-        final Matcher matcher = regexPattern.matcher(response);
-        if (matcher.find()) {
-            return OAuthEncoder.decode(matcher.group(1));
-        } else if (required) {
-            throw new OAuthException("Response body is incorrect. Can't extract a '" + regexPattern.pattern()
-                    + "' from this: '" + response + "'", null);
-        } else {
-            return null;
-        }
+        private static final OAuth2AccessTokenExtractor INSTANCE = new OAuth2AccessTokenExtractor();
     }
 }

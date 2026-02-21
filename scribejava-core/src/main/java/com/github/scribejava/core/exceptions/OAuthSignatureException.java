@@ -12,7 +12,7 @@ public class OAuthSignatureException extends OAuthException {
      * Default constructor
      *
      * @param stringToSign plain string that gets signed (HMAC-SHA, etc)
-     * @param e original exception
+     * @param e            original exception
      */
     public OAuthSignatureException(String stringToSign, Exception e) {
         super(String.format(MSG, stringToSign), e);

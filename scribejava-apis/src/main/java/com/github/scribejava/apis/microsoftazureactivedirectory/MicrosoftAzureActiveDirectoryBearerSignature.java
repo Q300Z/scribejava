@@ -6,13 +6,13 @@ public class MicrosoftAzureActiveDirectoryBearerSignature extends BaseMicrosoftA
         super("application/json; odata=minimalmetadata; streaming=true; charset=utf-8");
     }
 
+    public static MicrosoftAzureActiveDirectoryBearerSignature instance() {
+        return InstanceHolder.INSTANCE;
+    }
+
     private static class InstanceHolder {
 
         private static final MicrosoftAzureActiveDirectoryBearerSignature INSTANCE
                 = new MicrosoftAzureActiveDirectoryBearerSignature();
-    }
-
-    public static MicrosoftAzureActiveDirectoryBearerSignature instance() {
-        return InstanceHolder.INSTANCE;
     }
 }

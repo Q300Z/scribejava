@@ -1,5 +1,6 @@
 package com.github.scribejava.core.builder.api;
 
+import com.github.scribejava.core.dpop.DPoPProofCreator;
 import com.github.scribejava.core.extractors.DeviceAuthorizationJsonExtractor;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
 import com.github.scribejava.core.extractors.TokenExtractor;
@@ -14,7 +15,6 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureAuthorizationRequestHeaderField;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.HttpBasicAuthenticationScheme;
-import com.github.scribejava.core.dpop.DPoPProofCreator;
 
 import java.io.OutputStream;
 import java.util.Map;
@@ -81,7 +81,7 @@ public abstract class DefaultApi20 {
      * Returns the URL where you should redirect your users to authenticate your application.
      */
     public String getAuthorizationUrl(String responseType, String apiKey, String callback, String scope, String state,
-            Map<String, String> additionalParams) {
+                                      Map<String, String> additionalParams) {
         final ParameterList parameters = new ParameterList(additionalParams);
         parameters.add(OAuthConstants.RESPONSE_TYPE, responseType);
         parameters.add(OAuthConstants.CLIENT_ID, apiKey);
@@ -102,15 +102,15 @@ public abstract class DefaultApi20 {
     }
 
     public OAuth20Service createService(String apiKey, String apiSecret, String callback, String defaultScope,
-            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
-            HttpClient httpClient) {
+                                        String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+                                        HttpClient httpClient) {
         return new OAuth20Service(this, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent,
                 httpClientConfig, httpClient);
     }
 
     public OAuth20Service createService(String apiKey, String apiSecret, String callback, String defaultScope,
-            String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
-            HttpClient httpClient, DPoPProofCreator dpopProofCreator) {
+                                        String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+                                        HttpClient httpClient, DPoPProofCreator dpopProofCreator) {
         return new OAuth20Service(this, apiKey, apiSecret, callback, defaultScope, responseType, debugStream, userAgent,
                 httpClientConfig, httpClient, dpopProofCreator);
     }
@@ -126,8 +126,8 @@ public abstract class DefaultApi20 {
     /**
      * RFC 8628 OAuth 2.0 Device Authorization Grant
      *
-     * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628</a>
      * @return the device authorization endpoint
+     * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628</a>
      */
     public String getDeviceAuthorizationEndpoint() {
         throw new UnsupportedOperationException(

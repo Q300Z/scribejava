@@ -1,14 +1,15 @@
 package com.github.scribejava.oauth1.services;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import com.github.scribejava.core.exceptions.OAuthSignatureException;
+import com.github.scribejava.core.services.SignatureService;
 import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.utils.Preconditions;
-import com.github.scribejava.core.services.SignatureService;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**

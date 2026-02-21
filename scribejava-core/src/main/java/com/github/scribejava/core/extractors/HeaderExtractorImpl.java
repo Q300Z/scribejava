@@ -1,11 +1,12 @@
 package com.github.scribejava.core.extractors;
 
-import java.util.stream.Collectors; // ADDED
 import com.github.scribejava.core.exceptions.OAuthParametersMissingException;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.utils.Preconditions;
+
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of {@link HeaderExtractor}. Conforms to OAuth 1.0a

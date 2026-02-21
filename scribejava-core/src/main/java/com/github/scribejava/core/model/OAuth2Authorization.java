@@ -2,7 +2,7 @@ package com.github.scribejava.core.model;
 
 /**
  * represents Authorization Response http://tools.ietf.org/html/rfc6749#section-4.1.2
- *
+ * <p>
  * If the resource owner grants the access request, the authorization server issues an authorization code and delivers
  * it to the client by adding the following parameters to the query component of the redirection URI using the
  * "application/x-www-form-urlencoded" format.

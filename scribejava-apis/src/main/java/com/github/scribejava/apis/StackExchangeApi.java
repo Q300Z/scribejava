@@ -16,10 +16,6 @@ public class StackExchangeApi extends DefaultApi20 {
     protected StackExchangeApi() {
     }
 
-    private static class InstanceHolder {
-        private static final StackExchangeApi INSTANCE = new StackExchangeApi();
-    }
-
     public static StackExchangeApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -42,5 +38,9 @@ public class StackExchangeApi extends DefaultApi20 {
     @Override
     public BearerSignature getBearerSignature() {
         return BearerSignatureURIQueryParameter.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final StackExchangeApi INSTANCE = new StackExchangeApi();
     }
 }

@@ -1,8 +1,8 @@
 package com.github.scribejava.httpclient.okhttp;
 
-import com.github.scribejava.core.httpclient.HttpClientProvider;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
+import com.github.scribejava.core.httpclient.HttpClientProvider;
 
 public class OkHttpProvider implements HttpClientProvider {
 

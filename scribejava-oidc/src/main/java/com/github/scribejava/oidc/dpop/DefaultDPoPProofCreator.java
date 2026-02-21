@@ -1,9 +1,8 @@
 package com.github.scribejava.oidc.dpop;
 
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.dpop.DPoPProofCreator;
-
+import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.model.OAuthRequest;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -16,6 +15,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +23,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.UUID;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Default implementation of {@link DPoPProofCreator} using Nimbus JOSE+JWT library.

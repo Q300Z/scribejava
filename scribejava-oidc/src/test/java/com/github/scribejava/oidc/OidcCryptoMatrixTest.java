@@ -1,18 +1,7 @@
 package com.github.scribejava.oidc;
 
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.JWEHeader;
-import com.nimbusds.jose.JWEObject;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.Payload;
-import com.nimbusds.jose.crypto.ECDHEncrypter;
-import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jose.crypto.MACSigner;
-import com.nimbusds.jose.crypto.RSAEncrypter;
-import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.*;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -34,9 +23,9 @@ public class OidcCryptoMatrixTest {
 
     private static final String ISSUER = "https://issuer.example.com";
     private static final ClientID CLIENT_ID = new ClientID("client-id");
+    private final String hmacSecret = "super-secret-hmac-key-of-at-least-32-chars";
     private RSAKey rsaKey;
     private ECKey ecKey;
-    private final String hmacSecret = "super-secret-hmac-key-of-at-least-32-chars";
 
     @BeforeEach
     public void setUp() throws Exception {

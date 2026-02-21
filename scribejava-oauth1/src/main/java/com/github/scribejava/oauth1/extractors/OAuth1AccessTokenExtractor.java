@@ -1,8 +1,9 @@
 package com.github.scribejava.oauth1.extractors;
 
-import com.github.scribejava.oauth1.model.OAuth1AccessToken;
-import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.utils.OAuthEncoder;
+import com.github.scribejava.oauth1.model.OAuth1AccessToken;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,10 +16,6 @@ public class OAuth1AccessTokenExtractor extends AbstractOAuth1TokenExtractor<OAu
     private static final Pattern SECRET_PATTERN = Pattern.compile("oauth_token_secret=([^&]+)");
 
     protected OAuth1AccessTokenExtractor() {
-    }
-
-    private static class InstanceHolder {
-        private static final OAuth1AccessTokenExtractor INSTANCE = new OAuth1AccessTokenExtractor();
     }
 
     public static OAuth1AccessTokenExtractor instance() {
@@ -38,5 +35,9 @@ public class OAuth1AccessTokenExtractor extends AbstractOAuth1TokenExtractor<OAu
             throw new OAuthException("Response body is incorrect. Can't extract token and secret from this: '"
                     + response + "'", null);
         }
+    }
+
+    private static class InstanceHolder {
+        private static final OAuth1AccessTokenExtractor INSTANCE = new OAuth1AccessTokenExtractor();
     }
 }

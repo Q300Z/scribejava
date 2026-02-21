@@ -11,10 +11,6 @@ public class GitHubApi extends DefaultApi20 {
     protected GitHubApi() {
     }
 
-    private static class InstanceHolder {
-        private static final GitHubApi INSTANCE = new GitHubApi();
-    }
-
     public static GitHubApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -37,5 +33,9 @@ public class GitHubApi extends DefaultApi20 {
     @Override
     public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
         return OAuth2AccessTokenExtractor.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final GitHubApi INSTANCE = new GitHubApi();
     }
 }

@@ -2,6 +2,7 @@ package com.github.scribejava.core.oauth2.clientauthentication;
 
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -17,11 +18,6 @@ public class HttpBasicAuthenticationScheme implements ClientAuthentication {
     protected HttpBasicAuthenticationScheme() {
     }
 
-    private static class InstanceHolder {
-
-        private static final HttpBasicAuthenticationScheme INSTANCE = new HttpBasicAuthenticationScheme();
-    }
-
     public static HttpBasicAuthenticationScheme instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -33,6 +29,11 @@ public class HttpBasicAuthenticationScheme implements ClientAuthentication {
             request.addHeader(OAuthConstants.HEADER, OAuthConstants.BASIC + ' '
                     + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)));
         }
+    }
+
+    private static class InstanceHolder {
+
+        private static final HttpBasicAuthenticationScheme INSTANCE = new HttpBasicAuthenticationScheme();
     }
 
 }

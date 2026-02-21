@@ -11,10 +11,6 @@ public class SinaWeiboApi extends DefaultApi10a {
     protected SinaWeiboApi() {
     }
 
-    private static class InstanceHolder {
-        private static final SinaWeiboApi INSTANCE = new SinaWeiboApi();
-    }
-
     public static SinaWeiboApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -32,5 +28,9 @@ public class SinaWeiboApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final SinaWeiboApi INSTANCE = new SinaWeiboApi();
     }
 }

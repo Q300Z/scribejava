@@ -3,6 +3,7 @@ package com.github.scribejava.core.model;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.multipart.BodyPartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -25,23 +26,19 @@ public class OAuthRequest {
     private final ParameterList querystringParams = new ParameterList();
     private final ParameterList bodyParams = new ParameterList();
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
+    private final Map<String, String> oauthParameters = new HashMap<>();
     private String charset;
-
     private String stringPayload;
     private byte[] byteArrayPayload;
     private File filePayload;
     private MultipartPayload multipartPayload;
-
-    private final Map<String, String> oauthParameters = new HashMap<>();
-
     private String realm;
 
     /**
      * Default constructor.
      *
      * @param verb Http verb/method
-     * @param url resource URL
+     * @param url  resource URL
      */
     public OAuthRequest(Verb verb, String url) {
         this.verb = verb;
@@ -51,7 +48,7 @@ public class OAuthRequest {
     /**
      * Adds an OAuth parameter.
      *
-     * @param key name of the parameter
+     * @param key   name of the parameter
      * @param value value of the parameter
      * @throws IllegalArgumentException if the parameter is not an OAuth parameter
      */
@@ -73,12 +70,12 @@ public class OAuthRequest {
         return oauthParameters;
     }
 
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
-
     public String getRealm() {
         return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
     }
 
     /**
@@ -93,7 +90,7 @@ public class OAuthRequest {
     /**
      * Add an HTTP Header to the Request
      *
-     * @param key the header name
+     * @param key   the header name
      * @param value the header value
      */
     public void addHeader(String key, String value) {
@@ -103,7 +100,7 @@ public class OAuthRequest {
     /**
      * Add a body Parameter (for POST/ PUT Requests)
      *
-     * @param key the parameter name
+     * @param key   the parameter name
      * @param value the parameter value
      */
     public void addBodyParameter(String key, String value) {
@@ -113,7 +110,7 @@ public class OAuthRequest {
     /**
      * Add a QueryString parameter
      *
-     * @param key the parameter name
+     * @param key   the parameter name
      * @param value the parameter value
      */
     public void addQuerystringParameter(String key, String value) {

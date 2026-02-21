@@ -12,7 +12,7 @@ public class OAuthException extends RuntimeException {
      * Default constructor
      *
      * @param message message explaining what went wrong
-     * @param e original exception
+     * @param e       original exception
      */
     public OAuthException(String message, Exception e) {
         super(message, e);

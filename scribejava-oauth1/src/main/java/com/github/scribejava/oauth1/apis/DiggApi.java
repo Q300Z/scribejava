@@ -10,10 +10,6 @@ public class DiggApi extends DefaultApi10a {
     protected DiggApi() {
     }
 
-    private static class InstanceHolder {
-        private static final DiggApi INSTANCE = new DiggApi();
-    }
-
     public static DiggApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -31,5 +27,9 @@ public class DiggApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZATION_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final DiggApi INSTANCE = new DiggApi();
     }
 }

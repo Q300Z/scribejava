@@ -16,12 +16,12 @@ public class OidcSessionHelper {
      * Generates the RP iframe HTML for Session Management.
      *
      * @param opCheckSessionIframe The check_session_iframe URL from OP metadata.
-     * @param clientId The client ID.
-     * @param sessionState The session_state from the authentication response.
+     * @param clientId             The client ID.
+     * @param sessionState         The session_state from the authentication response.
      * @return HTML string for the RP iframe.
      */
     public static String getSessionManagementIframeHtml(final String opCheckSessionIframe, final String clientId,
-            final String sessionState) {
+                                                        final String sessionState) {
         return "<html><body>"
                 + "<script>"
                 + "  var targetOrigin = '" + opCheckSessionIframe + "';"
@@ -45,12 +45,12 @@ public class OidcSessionHelper {
      * Generates the Front-Channel Logout iframe HTML.
      *
      * @param logoutUri The frontchannel_logout_uri.
-     * @param issuer The issuer (iss).
-     * @param sid The session ID (sid).
+     * @param issuer    The issuer (iss).
+     * @param sid       The session ID (sid).
      * @return HTML string for the logout iframe.
      */
     public static String getFrontChannelLogoutIframeHtml(final String logoutUri, final String issuer,
-            final String sid) {
+                                                         final String sid) {
         String url = logoutUri;
         if (issuer != null && sid != null) {
             url += (url.contains("?") ? "&" : "?") + "iss=" + OAuthEncoder.encode(issuer) + "&sid="

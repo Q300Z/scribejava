@@ -1,14 +1,10 @@
 package com.github.scribejava.httpclient.armeria;
 
-import com.linecorp.armeria.client.ClientFactory;
-import com.linecorp.armeria.client.ClientOptions;
-import com.linecorp.armeria.client.Endpoint;
-import com.linecorp.armeria.client.HttpClient;
-import com.linecorp.armeria.client.WebClient;
-import com.linecorp.armeria.client.WebClientBuilder;
+import com.linecorp.armeria.client.*;
 import com.linecorp.armeria.client.logging.LoggingClient;
 import com.linecorp.armeria.client.retry.RetryingClient;
 import com.linecorp.armeria.common.SessionProtocol;
+
 import java.util.function.Function;
 
 /**
@@ -23,8 +19,8 @@ public class ArmeriaWebClientBuilder {
     private final Function<? super HttpClient, LoggingClient> logging;
 
     ArmeriaWebClientBuilder(ClientOptions clientOptions, ClientFactory clientFactory,
-            SessionProtocol protocolPreference, Function<? super HttpClient, RetryingClient> retry,
-            Function<? super HttpClient, LoggingClient> logging) {
+                            SessionProtocol protocolPreference, Function<? super HttpClient, RetryingClient> retry,
+                            Function<? super HttpClient, LoggingClient> logging) {
         this.clientOptions = clientOptions;
         this.clientFactory = clientFactory;
         this.protocolPreference = protocolPreference;

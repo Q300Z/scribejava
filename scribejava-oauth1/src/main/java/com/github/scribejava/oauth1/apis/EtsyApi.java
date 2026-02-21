@@ -22,11 +22,6 @@ public class EtsyApi extends DefaultApi10a {
         scopeAsString = "?scope=" + builder.substring(3);
     }
 
-    private static class InstanceHolder {
-
-        private static final EtsyApi INSTANCE = new EtsyApi();
-    }
-
     public static EtsyApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -48,5 +43,10 @@ public class EtsyApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+
+        private static final EtsyApi INSTANCE = new EtsyApi();
     }
 }

@@ -19,10 +19,6 @@ public class UserInfoJsonExtractor {
     protected UserInfoJsonExtractor() {
     }
 
-    private static class InstanceHolder {
-        private static final UserInfoJsonExtractor INSTANCE = new UserInfoJsonExtractor();
-    }
-
     public static UserInfoJsonExtractor instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -44,5 +40,9 @@ public class UserInfoJsonExtractor {
             }
         }
         return new StandardClaims(claimsMap);
+    }
+
+    private static class InstanceHolder {
+        private static final UserInfoJsonExtractor INSTANCE = new UserInfoJsonExtractor();
     }
 }

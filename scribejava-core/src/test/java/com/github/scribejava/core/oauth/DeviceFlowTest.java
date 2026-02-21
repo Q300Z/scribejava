@@ -68,7 +68,7 @@ public class DeviceFlowTest {
     @Test
     public void shouldPollForToken() throws Exception {
         final DeviceAuthorization auth = new DeviceAuthorization("dev123", "user456", "http://v.com", 600);
-        auth.setIntervalSeconds(1);
+        auth.setIntervalSeconds(0);
 
         // First attempt: pending
         server.enqueue(new MockResponse().setResponseCode(400)

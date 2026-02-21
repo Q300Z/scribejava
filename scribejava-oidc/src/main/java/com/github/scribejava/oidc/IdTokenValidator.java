@@ -1,17 +1,17 @@
 package com.github.scribejava.oidc;
 
 import com.github.scribejava.core.exceptions.OAuthException;
+import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.EncryptedJWT;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
@@ -34,12 +34,12 @@ public class IdTokenValidator {
     }
 
     public IdTokenValidator(String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet,
-            String clientSecret) {
+                            String clientSecret) {
         this(issuer, clientID, jwsAlgorithm, jwkSet, clientSecret, null);
     }
 
     public IdTokenValidator(final String issuer, final ClientID clientID, final JWSAlgorithm jwsAlgorithm,
-            final JWKSet jwkSet, final String clientSecret, final JWK clientPrivateJWK) {
+                            final JWKSet jwkSet, final String clientSecret, final JWK clientPrivateJWK) {
         this.clientSecret = clientSecret;
         this.jwkSet = jwkSet;
         this.clientPrivateJWK = clientPrivateJWK;
@@ -80,7 +80,7 @@ public class IdTokenValidator {
 
             return new IdToken(tokenToValidate);
         } catch (java.text.ParseException | com.nimbusds.jose.JOSEException
-                | com.nimbusds.jose.proc.BadJOSEException e) {
+                 | com.nimbusds.jose.proc.BadJOSEException e) {
             throw new OAuthException("Error parsing or validating ID Token", e);
         }
     }
@@ -189,7 +189,7 @@ public class IdTokenValidator {
             validator.validate(signedJWT, null);
 
         } catch (java.text.ParseException | com.nimbusds.jose.JOSEException | com.nimbusds.jose.proc.BadJOSEException
-                | com.nimbusds.oauth2.sdk.ParseException e) {
+                 | com.nimbusds.oauth2.sdk.ParseException e) {
             throw new OAuthException("Error validating Logout Token", e);
         }
     }
@@ -197,7 +197,7 @@ public class IdTokenValidator {
     /**
      * Validates that the access token is bound to the correct public key or certificate.
      *
-     * @param idToken The validated ID Token.
+     * @param idToken     The validated ID Token.
      * @param expectedJkt The expected JWK Thumbprint (for DPoP).
      * @param expectedX5t The expected X.509 Certificate Thumbprint (for mTLS).
      */

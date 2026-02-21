@@ -1,6 +1,7 @@
 package com.github.scribejava.core.httpclient.multipart;
 
 import com.github.scribejava.core.httpclient.HttpClient;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,8 +12,8 @@ public class MultipartPayload extends BodyPartPayload {
     private static final String DEFAULT_SUBTYPE = "form-data";
 
     private final String boundary;
-    private String preamble;
     private final List<BodyPartPayload> bodyParts = new ArrayList<>();
+    private String preamble;
     private String epilogue;
 
     public MultipartPayload() {

@@ -9,10 +9,6 @@ public class LiveApi extends DefaultApi20 {
     protected LiveApi() {
     }
 
-    private static class InstanceHolder {
-        private static final LiveApi INSTANCE = new LiveApi();
-    }
-
     public static LiveApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +26,9 @@ public class LiveApi extends DefaultApi20 {
     @Override
     public BearerSignature getBearerSignature() {
         return BearerSignatureURIQueryParameter.instance();
+    }
+
+    private static class InstanceHolder {
+        private static final LiveApi INSTANCE = new LiveApi();
     }
 }

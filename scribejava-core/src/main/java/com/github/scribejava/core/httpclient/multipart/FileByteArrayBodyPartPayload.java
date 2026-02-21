@@ -1,6 +1,7 @@
 package com.github.scribejava.core.httpclient.multipart;
 
 import com.github.scribejava.core.httpclient.HttpClient;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class FileByteArrayBodyPartPayload extends ByteArrayBodyPartPayload {
     }
 
     public FileByteArrayBodyPartPayload(String contentType, byte[] payload, int off, int len, String name,
-            String filename) {
+                                        String filename) {
         super(payload, off, len, composeHeaders(contentType, name, filename));
     }
 

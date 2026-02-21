@@ -10,11 +10,6 @@ public class XeroApi20 extends DefaultApi20 {
     protected XeroApi20() {
     }
 
-    private static class InstanceHolder {
-
-        private static final XeroApi20 INSTANCE = new XeroApi20();
-    }
-
     public static XeroApi20 instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -27,5 +22,10 @@ public class XeroApi20 extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://login.xero.com/identity/connect/authorize";
+    }
+
+    private static class InstanceHolder {
+
+        private static final XeroApi20 INSTANCE = new XeroApi20();
     }
 }

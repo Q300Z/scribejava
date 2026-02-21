@@ -23,11 +23,6 @@ public class MicrosoftAzureActiveDirectory20Api extends BaseMicrosoftAzureActive
         super(tenant);
     }
 
-    private static class InstanceHolder {
-
-        private static final MicrosoftAzureActiveDirectory20Api INSTANCE = new MicrosoftAzureActiveDirectory20Api();
-    }
-
     public static MicrosoftAzureActiveDirectory20Api instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -44,5 +39,10 @@ public class MicrosoftAzureActiveDirectory20Api extends BaseMicrosoftAzureActive
     @Override
     protected String getEndpointVersionPath() {
         return "/v2.0";
+    }
+
+    private static class InstanceHolder {
+
+        private static final MicrosoftAzureActiveDirectory20Api INSTANCE = new MicrosoftAzureActiveDirectory20Api();
     }
 }

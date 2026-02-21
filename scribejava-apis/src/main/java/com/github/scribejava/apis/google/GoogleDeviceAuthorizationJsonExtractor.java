@@ -7,12 +7,6 @@ public class GoogleDeviceAuthorizationJsonExtractor extends DeviceAuthorizationJ
     protected GoogleDeviceAuthorizationJsonExtractor() {
     }
 
-    private static class InstanceHolder {
-
-        private static final GoogleDeviceAuthorizationJsonExtractor INSTANCE
-                = new GoogleDeviceAuthorizationJsonExtractor();
-    }
-
     public static GoogleDeviceAuthorizationJsonExtractor instance() {
         return GoogleDeviceAuthorizationJsonExtractor.InstanceHolder.INSTANCE;
     }
@@ -20,6 +14,12 @@ public class GoogleDeviceAuthorizationJsonExtractor extends DeviceAuthorizationJ
     @Override
     protected String getVerificationUriParamName() {
         return "verification_url";
+    }
+
+    private static class InstanceHolder {
+
+        private static final GoogleDeviceAuthorizationJsonExtractor INSTANCE
+                = new GoogleDeviceAuthorizationJsonExtractor();
     }
 
 }

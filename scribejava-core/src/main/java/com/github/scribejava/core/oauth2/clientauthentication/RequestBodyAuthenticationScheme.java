@@ -15,11 +15,6 @@ public class RequestBodyAuthenticationScheme implements ClientAuthentication {
     protected RequestBodyAuthenticationScheme() {
     }
 
-    private static class InstanceHolder {
-
-        private static final RequestBodyAuthenticationScheme INSTANCE = new RequestBodyAuthenticationScheme();
-    }
-
     public static RequestBodyAuthenticationScheme instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,5 +25,10 @@ public class RequestBodyAuthenticationScheme implements ClientAuthentication {
         if (apiSecret != null) {
             request.addParameter(OAuthConstants.CLIENT_SECRET, apiSecret);
         }
+    }
+
+    private static class InstanceHolder {
+
+        private static final RequestBodyAuthenticationScheme INSTANCE = new RequestBodyAuthenticationScheme();
     }
 }

@@ -1,8 +1,8 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.oauth2.OAuth2Error;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -17,7 +17,7 @@ public class OAuth2AccessTokenErrorResponse extends OAuthResponseException {
     private final URI errorUri;
 
     public OAuth2AccessTokenErrorResponse(OAuth2Error error, String errorDescription, URI errorUri,
-            Response rawResponse) throws IOException {
+                                          Response rawResponse) throws IOException {
         super(rawResponse);
         this.error = error;
         this.errorDescription = errorDescription;

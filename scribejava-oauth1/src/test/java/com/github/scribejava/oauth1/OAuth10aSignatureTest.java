@@ -1,10 +1,10 @@
 package com.github.scribejava.oauth1;
 
+import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.oauth1.oauth.OAuth10aService;
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
-import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
+import com.github.scribejava.oauth1.oauth.OAuth10aService;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

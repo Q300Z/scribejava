@@ -2,6 +2,7 @@ package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
+import com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig;
 import com.github.scribejava.core.model.DeviceAuthorization;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import okhttp3.mockwebserver.MockResponse;
@@ -41,8 +42,12 @@ public class OAuth20ServiceAsyncDetailedTest {
             }
         };
 
-        service = new OAuth20Service(api, "api-key", "api-secret", "callback", "scope", "code", null, null, null,
-                new JDKHttpClient());
+        final JDKHttpClientConfig config = JDKHttpClientConfig.defaultConfig();
+        config.setConnectTimeout(1000);
+        config.setReadTimeout(1000);
+
+        service = new OAuth20Service(api, "api-key", "api-secret", "callback", "scope", "code", null, null, config,
+                new JDKHttpClient(config));
     }
 
     @AfterEach

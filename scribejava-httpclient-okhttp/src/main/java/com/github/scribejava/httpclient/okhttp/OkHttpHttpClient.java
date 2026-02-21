@@ -2,28 +2,18 @@ package com.github.scribejava.httpclient.okhttp;
 
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Verb;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.internal.http.HttpMethod;
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.model.Response;
+import okhttp3.*;
+import okhttp3.internal.http.HttpMethod;
+
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import okhttp3.Cache;
-import okhttp3.Headers;
-import okhttp3.ResponseBody;
 
 public class OkHttpHttpClient implements HttpClient {
 
@@ -44,6 +34,18 @@ public class OkHttpHttpClient implements HttpClient {
         this.client = client;
     }
 
+    static Response convertResponse(final okhttp3.Response okHttpResponse) {
+        final Headers headers = okHttpResponse.headers();
+        final Map<String, String> headersMap = new HashMap<>();
+        for (final String headerName : headers.names()) {
+            headersMap.put(headerName, headers.get(headerName));
+        }
+
+        final ResponseBody body = okHttpResponse.body();
+        final InputStream bodyStream = body == null ? null : body.byteStream();
+        return new Response(okHttpResponse.code(), okHttpResponse.message(), headersMap, bodyStream);
+    }
+
     @Override
     public void close() throws IOException {
         client.dispatcher().executorService().shutdown();
@@ -56,8 +58,8 @@ public class OkHttpHttpClient implements HttpClient {
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final byte[] bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final byte[] bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.BYTE_ARRAY, bodyContents, callback,
                 converter);
@@ -65,16 +67,16 @@ public class OkHttpHttpClient implements HttpClient {
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final MultipartPayload bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final MultipartPayload bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
 
         throw new UnsupportedOperationException("OKHttpClient does not support Multipart payload for the moment");
     }
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final String bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final String bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.STRING, bodyContents, callback,
                 converter);
@@ -82,16 +84,16 @@ public class OkHttpHttpClient implements HttpClient {
 
     @Override
     public <T> CompletableFuture<T> executeAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final File bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                 final Verb httpVerb, final String completeUrl, final File bodyContents,
+                                                 final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
 
         return doExecuteAsync(userAgent, headers, httpVerb, completeUrl, BodyType.FILE, bodyContents, callback,
                 converter);
     }
 
     private <T> CompletableFuture<T> doExecuteAsync(final String userAgent, final Map<String, String> headers,
-            final Verb httpVerb, final String completeUrl, final BodyType bodyType, final Object bodyContents,
-            final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
+                                                    final Verb httpVerb, final String completeUrl, final BodyType bodyType, final Object bodyContents,
+                                                    final OAuthAsyncRequestCallback<T> callback, final OAuthRequest.ResponseConverter<T> converter) {
 
         final CompletableFuture<T> future = new CompletableFuture<>();
         final Call call = createCall(userAgent, headers, httpVerb, completeUrl, bodyType, bodyContents);
@@ -115,8 +117,7 @@ public class OkHttpHttpClient implements HttpClient {
             public void onResponse(final Call call, final okhttp3.Response response) throws IOException {
                 try {
                     final Response resp = convertResponse(response);
-                    @SuppressWarnings("unchecked")
-                    final T t = converter == null ? (T) resp : converter.convert(resp);
+                    @SuppressWarnings("unchecked") final T t = converter == null ? (T) resp : converter.convert(resp);
                     if (callback != null) {
                         callback.onCompleted(t);
                     }
@@ -134,7 +135,7 @@ public class OkHttpHttpClient implements HttpClient {
 
     @Override
     public Response execute(final String userAgent, final Map<String, String> headers, final Verb httpVerb,
-            final String completeUrl, final byte[] bodyContents)
+                            final String completeUrl, final byte[] bodyContents)
             throws InterruptedException, ExecutionException, IOException {
 
         return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.BYTE_ARRAY, bodyContents);
@@ -142,7 +143,7 @@ public class OkHttpHttpClient implements HttpClient {
 
     @Override
     public Response execute(final String userAgent, final Map<String, String> headers, final Verb httpVerb,
-            final String completeUrl, final MultipartPayload bodyContents)
+                            final String completeUrl, final MultipartPayload bodyContents)
             throws InterruptedException, ExecutionException, IOException {
 
         throw new UnsupportedOperationException("OKHttpClient does not support Multipart payload for the moment");
@@ -150,7 +151,7 @@ public class OkHttpHttpClient implements HttpClient {
 
     @Override
     public Response execute(final String userAgent, final Map<String, String> headers, final Verb httpVerb,
-            final String completeUrl, final String bodyContents)
+                            final String completeUrl, final String bodyContents)
             throws InterruptedException, ExecutionException, IOException {
 
         return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.STRING, bodyContents);
@@ -158,20 +159,20 @@ public class OkHttpHttpClient implements HttpClient {
 
     @Override
     public Response execute(final String userAgent, final Map<String, String> headers, final Verb httpVerb,
-            final String completeUrl, final File bodyContents)
+                            final String completeUrl, final File bodyContents)
             throws InterruptedException, ExecutionException, IOException {
 
         return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.FILE, bodyContents);
     }
 
     private Response doExecute(final String userAgent, final Map<String, String> headers, final Verb httpVerb,
-            final String completeUrl, final BodyType bodyType, final Object bodyContents) throws IOException {
+                               final String completeUrl, final BodyType bodyType, final Object bodyContents) throws IOException {
         final Call call = createCall(userAgent, headers, httpVerb, completeUrl, bodyType, bodyContents);
         return convertResponse(call.execute());
     }
 
     private Call createCall(final String userAgent, final Map<String, String> headers, final Verb httpVerb,
-            final String completeUrl, final BodyType bodyType, final Object bodyContents) {
+                            final String completeUrl, final BodyType bodyType, final Object bodyContents) {
         final Request.Builder requestBuilder = new Request.Builder();
         requestBuilder.url(completeUrl);
 
@@ -221,18 +222,6 @@ public class OkHttpHttpClient implements HttpClient {
         };
 
         abstract RequestBody createBody(MediaType mediaType, Object bodyContents);
-    }
-
-    static Response convertResponse(final okhttp3.Response okHttpResponse) {
-        final Headers headers = okHttpResponse.headers();
-        final Map<String, String> headersMap = new HashMap<>();
-        for (final String headerName : headers.names()) {
-            headersMap.put(headerName, headers.get(headerName));
-        }
-
-        final ResponseBody body = okHttpResponse.body();
-        final InputStream bodyStream = body == null ? null : body.byteStream();
-        return new Response(okHttpResponse.code(), okHttpResponse.message(), headersMap, bodyStream);
     }
 
 }

@@ -9,10 +9,6 @@ public class TrelloApi extends DefaultApi10a {
     protected TrelloApi() {
     }
 
-    private static class InstanceHolder {
-        private static final TrelloApi INSTANCE = new TrelloApi();
-    }
-
     public static TrelloApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -30,6 +26,10 @@ public class TrelloApi extends DefaultApi10a {
     @Override
     public String getAuthorizationBaseUrl() {
         return AUTHORIZE_URL;
+    }
+
+    private static class InstanceHolder {
+        private static final TrelloApi INSTANCE = new TrelloApi();
     }
 
 }

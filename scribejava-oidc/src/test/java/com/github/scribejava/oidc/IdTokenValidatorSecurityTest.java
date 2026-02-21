@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class IdTokenValidatorSecurityTest {
 
+    private final String clientId = "client-123";
+    private final String issuer = "https://idp.example.com";
     private RSAKey rsaJWK;
     private JWKSet jwkSet;
     private IdTokenValidator validator;
-    private final String clientId = "client-123";
-    private final String issuer = "https://idp.example.com";
 
     @BeforeEach
     public void setUp() throws Exception {

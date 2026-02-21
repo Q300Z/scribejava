@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.utils.Preconditions;
+
 import java.io.IOException;
 
 /**
@@ -24,18 +25,6 @@ public class PushedAuthorizationResponse {
         this.rawResponse = rawResponse;
     }
 
-    public String getRequestUri() {
-        return requestUri;
-    }
-
-    public Long getExpiresIn() {
-        return expiresIn;
-    }
-
-    public String getRawResponse() {
-        return rawResponse;
-    }
-
     public static PushedAuthorizationResponse parse(String responseBody) throws IOException {
         Preconditions.checkEmptyString(responseBody, "Response body is incorrect. Can't parse an empty string.");
 
@@ -51,5 +40,17 @@ public class PushedAuthorizationResponse {
         return new PushedAuthorizationResponse(requestUri.asText(),
                 expiresIn == null || expiresIn.isNull() ? null : expiresIn.asLong(),
                 responseBody);
+    }
+
+    public String getRequestUri() {
+        return requestUri;
+    }
+
+    public Long getExpiresIn() {
+        return expiresIn;
+    }
+
+    public String getRawResponse() {
+        return rawResponse;
     }
 }

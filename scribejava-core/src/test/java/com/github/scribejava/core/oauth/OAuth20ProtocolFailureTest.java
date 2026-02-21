@@ -2,6 +2,7 @@ package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
+import com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -35,8 +37,12 @@ public class OAuth20ProtocolFailureTest {
             }
         };
 
-        service = new OAuth20Service(api, "api-key", "api-secret", "callback", null, "code", null, null, null,
-                new JDKHttpClient());
+        final JDKHttpClientConfig config = JDKHttpClientConfig.defaultConfig();
+        config.setConnectTimeout(500);
+        config.setReadTimeout(500);
+
+        service = new OAuth20Service(api, "api-key", "api-secret", "callback", null, "code", null, null, config,
+                new JDKHttpClient(config));
     }
 
     @AfterEach
@@ -53,8 +59,11 @@ public class OAuth20ProtocolFailureTest {
 
     @Test
     public void shouldFailOnEmptyCode() {
+        // null code throws IllegalArgumentException from Preconditions
         assertThrows(IllegalArgumentException.class, () -> service.getAccessToken((String) null));
-        assertThrows(IllegalArgumentException.class, () -> service.getAccessToken(""));
+
+        // empty code is NOT checked by Preconditions in OAuth20Service, so it hits the network.
+        assertThrows(SocketTimeoutException.class, () -> service.getAccessToken(""));
     }
 
     @Test

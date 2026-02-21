@@ -7,10 +7,6 @@ public class DataportenApi extends DefaultApi20 {
     protected DataportenApi() {
     }
 
-    private static class InstanceHolder {
-        private static final DataportenApi INSTANCE = new DataportenApi();
-    }
-
     public static DataportenApi instance() {
         return InstanceHolder.INSTANCE;
     }
@@ -23,5 +19,9 @@ public class DataportenApi extends DefaultApi20 {
     @Override
     public String getAuthorizationBaseUrl() {
         return "https://auth.dataporten.no/oauth/authorization";
+    }
+
+    private static class InstanceHolder {
+        private static final DataportenApi INSTANCE = new DataportenApi();
     }
 }

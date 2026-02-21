@@ -10,9 +10,8 @@ public abstract class Preconditions {
     /**
      * Checks that an object is not null.
      *
-     * @param object any object
+     * @param object   any object
      * @param errorMsg error message
-     *
      * @throws IllegalArgumentException if the object is null
      */
     public static void checkNotNull(Object object, String errorMsg) {
@@ -22,9 +21,8 @@ public abstract class Preconditions {
     /**
      * Checks that a string is not null or empty
      *
-     * @param string any string
+     * @param string   any string
      * @param errorMsg error message
-     *
      * @throws IllegalArgumentException if the string is null or empty
      */
     public static void checkEmptyString(String string, String errorMsg) {

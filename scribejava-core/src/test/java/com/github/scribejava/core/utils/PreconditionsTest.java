@@ -1,7 +1,8 @@
 package com.github.scribejava.core.utils;
 
-import static org.junit.Assert.assertThrows;
 import org.junit.function.ThrowingRunnable;
+
+import static org.junit.Assert.assertThrows;
 
 public class PreconditionsTest {
 
