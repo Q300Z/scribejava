@@ -24,7 +24,7 @@ jobs:
       run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true checkstyle:check pmd:check
 
     - name: Upload compiled artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: compiled-jars
         path: "**/target/*.jar"
@@ -49,7 +49,7 @@ jobs:
         cache: 'maven' # ACTIVE LE CACHE AUSSI POUR LES JOBS DE TEST
 
     - name: Download compiled artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: compiled-jars
 
