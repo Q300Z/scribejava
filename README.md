@@ -31,15 +31,54 @@ OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code
 
 ## 📦 Installation
 
-Ajoutez la dépendance principale à votre `pom.xml` :
+ScribeJava est distribué via **GitHub Releases**. Vous pouvez télécharger les JARs manuellement ou utiliser **JitPack** pour une intégration Maven/Gradle facile.
 
+### 1. Configurer le dépôt (JitPack)
+Ajoutez ceci à votre `pom.xml` :
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+### 2. Ajouter les dépendances (v9.0.0)
+
+**Cœur de la bibliothèque (Obligatoire) :**
 ```xml
 <dependency>
-    <groupId>com.github.scribejava</groupId>
+    <groupId>com.github.Q300Z.scribejava</groupId>
     <artifactId>scribejava-core</artifactId>
-    <version>8.3.4-SNAPSHOT</version>
+    <version>9.0.0</version>
 </dependency>
 ```
+
+**Support OpenID Connect (Optionnel) :**
+```xml
+<dependency>
+    <groupId>com.github.Q300Z.scribejava</groupId>
+    <artifactId>scribejava-oidc</artifactId>
+    <version>9.0.0</version>
+</dependency>
+```
+
+**APIs pré-configurées (Google, GitHub, etc.) (Optionnel) :**
+```xml
+<dependency>
+    <groupId>com.github.Q300Z.scribejava</groupId>
+    <artifactId>scribejava-apis</artifactId>
+    <version>9.0.0</version>
+</dependency>
+```
+
+**Clients HTTP Alternatifs (Optionnel) :**
+*   **OkHttp** : `scribejava-httpclient-okhttp`
+*   **Armeria** : `scribejava-httpclient-armeria`
+
+---
+📥 *Vous pouvez également récupérer les JARs directement sur la page [Releases](https://github.com/Q300Z/scribejava/releases).*
 
 ## 🛠️ Fonctionnalités
 

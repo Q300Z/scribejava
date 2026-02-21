@@ -38,8 +38,8 @@ Comme la librairie n'est pas sur Maven Central, un utilisateur peut :
     </repositories>
     
     <dependency>
-        <groupId>com.github.scribejava</groupId>
+        <groupId>com.github.Q300Z.scribejava</groupId>
         <artifactId>scribejava-core</artifactId>
-        <version>v9.0.0</version>
+        <version>9.0.0</version>
     </dependency>
     ```
