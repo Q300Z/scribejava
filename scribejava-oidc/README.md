@@ -1,33 +1,45 @@
-# ScribeJava :: OpenID Connect (OIDC)
+# 🔐 Support OpenID Connect (OIDC)
 
-Ce module étend ScribeJava Core pour supporter le protocole OpenID Connect 1.0.
+Ce module fournit une implémentation complète et sécurisée du protocole OpenID Connect 1.0.
 
-## 🛡️ Sécurité & Validation
+---
 
-La validation d'identité est la partie la plus critique d'OIDC. Le `IdTokenValidator` de ScribeJava effectue plusieurs vérifications rigoureuses :
+## 🌟 Fonctionnalités Clés
 
-### 1. Le paramètre `nonce`
-Pour prévenir les attaques par rejeu, vous **devez** fournir un `nonce` lors de la requête d'autorisation et le vérifier à la réception de l'`id_token`.
+*   **Auto-découverte (Discovery)** : Récupération dynamique des endpoints via `/.well-known/openid-configuration`.
+*   **Validation d'ID Token** : Vérification rigoureuse de la signature (RS256, etc.), de l'émetteur (`iss`), de l'audience (`aud`) et de l'expiration (`exp`).
+*   **Gestion des JWKS** : Support de la rotation des clés publiques du fournisseur.
+*   **UserInfo** : Récupération et parsing des claims utilisateur (email, profile, etc.).
+
+---
+
+## 🛡️ Sécurité & OIDC
+L'utilisation d'OpenID Connect nécessite souvent une sécurité renforcée :
+*   Consultez le guide **[Sécurité Avancée (DPoP/PAR)](../ADVANCED_SECURITY.md)** pour protéger vos jetons OIDC.
+*   Utilisez systématiquement le **PKCE** pour prévenir l'injection de code.
+
+---
+
+## 🚀 Utilisation Avancée
+
+### Validation manuelle d'un ID Token
 ```java
-// 1. Générer et stocker le nonce
-String nonce = UUID.randomUUID().toString();
-// 2. Ajouter à l'URL d'auth
-String url = service.createAuthorizationUrlBuilder().nonce(nonce).build();
-// 3. Valider après le callback
-IdToken idToken = service.getAccessToken(grant).getIdToken();
-validator.validateNonce(idToken, nonce);
+IdTokenValidator validator = new IdTokenValidator(expectedIssuer, clientId);
+IdToken idToken = IdToken.parse(rawIdToken);
+validator.validate(idToken); 
 ```
 
-### 2. Multi-audience & `azp`
-Si un ID Token contient plusieurs audiences, le claim `azp` (Authorized Party) est obligatoire et doit correspondre à votre `client_id`. ScribeJava l'impose automatiquement.
+### Gestion des Claims (UserInfo)
+```java
+OAuthRequest request = new OAuthRequest(Verb.GET, service.getMetadata().getUserinfoEndpoint());
+service.signRequest(token, request);
 
-### 3. Signatures Cryptographiques
-Nous supportons :
-* **RSA** (RS256, RS384, RS512)
-* **HMAC** (HS256, HS384, HS512) utilisant votre `client_secret`.
+try (Response response = service.execute(request)) {
+    UserInfoJsonExtractor extractor = UserInfoJsonExtractor.instance();
+    Map<String, Object> claims = extractor.extract(response.getBody());
+    System.out.println("Email : " + claims.get("email"));
+}
+```
 
-## 🚀 Fonctionnalités Clés
-
-* **Découverte Automatique** : Utilisez `OidcDiscoveryService` pour récupérer métadonnées et JWKS.
-* **Claims Standards** : Accès facile via `IdToken.getStandardClaims()`.
-* **Enregistrement Dynamique** : Support de la RFC 7591 via `OidcRegistrationService`.
+---
+[🏠 Accueil](../README.md) | [🔌 APIs](../scribejava-apis/README.md) | [🔐 OIDC](../scribejava-oidc/README.md) | [🛡️ Sécurité](../ADVANCED_SECURITY.md)

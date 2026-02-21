@@ -33,6 +33,15 @@ pitest: ## Lance le Mutation Testing sur les modules critiques
 install: ## Installe les JARs dans le repo local .m2 sans lancer les tests
 	mvn clean install -DskipTests -Dmaven.javadoc.skip=true
 
+install-local: ## Aide à installer manuellement les JARs téléchargés (ex: make install-local VER=9.0.0)
+ifndef VER
+	@echo "\033[31mErreur: VER est obligatoire (ex: make install-local VER=9.0.0)\033[0m"
+	@exit 1
+endif
+	@for mod in core oidc apis; do \
+		mvn install:install-file -Dfile=scribejava-$$mod-$(VER).jar -DgroupId=com.github.scribejava -DartifactId=scribejava-$$mod -Dversion=$(VER) -Dpackaging=jar; \
+	done
+
 doc: ## Génère la Javadoc complète (agrégée)
 	mvn javadoc:aggregate -Dmaven.test.skip=true
 
