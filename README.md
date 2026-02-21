@@ -50,14 +50,10 @@ Ajoutez la dépendance principale à votre `pom.xml` :
 
 ## 📚 Documentation
 
-*   **[Guide de Migration](MIGRATION_GUIDE.md)** - Comment passer des versions legacy à la 8.3.4+.
-*   [Aperçu de l'Architecture](ARCHITECTURE.md) - Plongée dans notre implémentation SOLID.
-*   [Guide de Contribution](CONTRIBUTING.md) - Standards de code et comment contribuer.
-*   [Dépannage](TROUBLESHOOTING.md) - Erreurs SSL, problèmes de signature et logging.
-*   [Politique de Sécurité](SECURITY.md) - Divulgation et meilleures pratiques.
-*   [Processus de Release](RELEASES.md) - Comment sont gérées les versions.
-*   [Extensibilité](EXTENSIBILITY.md) - Extracteurs et clients HTTP personnalisés.
-*   [Liste des APIs Supportées](scribejava-apis/README.md) - Liste de 50+ fournisseurs pré-configurés.
+*   **[Guide de Migration](MIGRATION_GUIDE.md)** - Comment passer des versions legacy à la v9+.
+*   **[Guide du Contributeur](CONTRIBUTING.md)** - Architecture, Sécurité, Dépannage et Extensibilité.
+*   **[Processus de Release](RELEASES.md)** - Comment sont gérées les versions sur GitHub.
+*   **[Liste des APIs](scribejava-apis/README.md)** - Fournisseurs pré-configurés.
 
 ## ⚡ Démarrage Rapide : Découverte OpenID Connect
 

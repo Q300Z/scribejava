@@ -1,60 +1,82 @@
 # Guide de Contribution ScribeJava
 
-Merci de l'intérêt que vous portez à ScribeJava ! Ce document contient les instructions nécessaires pour contribuer au projet tout en respectant nos standards de qualité et d'architecture.
+Ce document rassemble les instructions pour contribuer, les détails de l'architecture, ainsi que les guides de sécurité et de dépannage.
 
-## 🏗️ Architecture du Projet
+---
 
-Le projet est divisé en plusieurs modules Maven, chacun ayant une responsabilité précise :
+## 🏗️ Architecture & Responsabilités
 
-*   **`scribejava-core`** : Le moteur OAuth agnostique.
-*   **`scribejava-oidc`** : Extension pour le support d'OpenID Connect.
-*   **`scribejava-apis`** : Implémentations concrètes des fournisseurs (Google, GitHub, etc.).
-*   **`scribejava-httpclient-*`** : Adaptateurs réseau.
+### Modules Maven
+*   **`scribejava-core`** : Le moteur OAuth agnostique (Protocole, Signature, Abstraction HTTP).
+*   **`scribejava-oidc`** : Support d'OpenID Connect (Discovery, Registration, Validation).
+*   **`scribejava-apis`** : Fournisseurs concrets (Google, GitHub, etc.).
+*   **`scribejava-httpclient-*`** : Adaptateurs réseau (OkHttp, Armeria, etc.).
 
-### Principes de Design
-Nous suivons strictement les principes **SOLID** :
-*   **Strategy Pattern** pour les types de Grant (`OAuth20Grant`).
-*   **Handler Pattern** pour les fonctionnalités complexes dans `OAuth20Service`.
+### Responsabilités des Classes (Core)
+| Composant | Rôle |
+| :--- | :--- |
+| **`OAuth20Service`** | Orchestrateur principal. Délègue la logique aux handlers spécialisés. |
+| **`OAuth20Grant`** | [Pattern Strategy] Encapsule la création de requêtes pour chaque flux (Code, Password, etc.). |
+| **`OAuth20RequestSigner`** | Gère la signature HTTP et les preuves DPoP. |
+| **`OAuth20RevocationHandler`** | Gère la révocation de token (RFC 7009). |
+| **`OAuth20DeviceFlowHandler`** | Gère le flux "Device Authorization" (RFC 8628). |
+| **`OAuth20PushedAuthHandler`** | Gère les requêtes PAR (RFC 9126). |
 
-## 🛠️ Comment ajouter une fonctionnalité
+### Principes SOLID Appliqués
+1.  **SRP** : Chaque Handler a une responsabilité unique.
+2.  **OCP** : Nouveau flux ? Ajoutez un `OAuth20Grant` sans toucher au service.
+3.  **DIP** : Dépendance vers des interfaces (`HttpClient`, `TokenExtractor`).
 
-### 1. Ajouter un nouveau Grant Type
-1. Créez une classe implémentant `OAuth20Grant` dans le package `com.github.scribejava.core.oauth2.grant`.
-2. Implémentez `createRequest(OAuth20Service service)`.
-3. Ajoutez un test unitaire.
+---
 
-### 2. Ajouter un nouveau fournisseur API
-1. Créez une classe étendant `DefaultApi20` ou `DefaultApi10a` dans le module `scribejava-apis`.
-2. Ajoutez un test dans `ReflectiveApiTest`.
+## 🛠️ Comment contribuer
 
-## 📏 Conventions de Code
+### Ajouter une fonctionnalité
+*   **Nouveau Grant** : Implémentez `OAuth20Grant` dans `com.github.scribejava.core.oauth2.grant`.
+*   **Nouveau Provider** : Étendez `DefaultApi20` dans `scribejava-apis` et testez via `ReflectiveApiTest`.
 
-### Standards Techniques
-*   **Compatibilité Java 8** : Requis pour la compilation et l'exécution.
-*   **Typage fort** : Évitez `Object`. Utilisez des génériques et des Enums.
+### Standards & Qualité
+*   **Java 8** : Compatibilité obligatoire.
+*   **TDD** : Tout code doit être testé (JUnit 5 + AssertJ).
+*   **Checkstyle & PMD** : Lancement systématique via `mvn checkstyle:check pmd:check`.
+*   **Mutation Testing** : Utilisez PITest pour valider la force de vos tests.
 
-### Qualité du Code
-*   **Checkstyle** : Respectez le fichier `checkstyle.xml`.
-*   **PMD** : Évitez le code mort et les mauvaises pratiques.
-*   **PITest** : Mutation Testing requis pour vérifier l'efficacité des tests.
+### Conventions de Commit
+Utilisez **Conventional Commits** : `feat:`, `fix:`, `refactor:`, `docs:`, `build:`.
 
-## 📜 Conventions de Commit
+---
 
-Nous utilisons **Conventional Commits** :
-*   `feat(...)`: Nouvelle fonctionnalité.
-*   `fix(...)`: Correction de bug.
-*   `test(...)`: Ajout ou modification de tests.
-*   `refactor(...)`: Modification structurelle sans changement de comportement.
+## 🔒 Politique de Sécurité
 
-## 🚀 Lancer les tests
+*   **Signalement** : Ne créez pas de ticket public pour une faille. Contactez les mainteneurs par email.
+*   **Secrets** : Ne jamais coder de secrets en dur. Utilisez `System.getenv()`.
+*   **Stockage** : Utilisez des cookies sécurisés (HttpOnly) ou le stockage sécurisé de l'OS.
+*   **PKCE** : Recommandé pour tous les flux afin de prévenir l'injection de code.
 
-```bash
-mvn test -T 1C -Dmaven.javadoc.skip=true
-```
+---
 
-## 📚 Javadoc locale
+## 📥 Guide d'Extensibilité
 
-```bash
-mvn javadoc:aggregate -Dmaven.test.skip=true
-```
-Les fichiers seront dans `target/site/apidocs/index.html`.
+### Extracteur de Token Personnalisé
+Implémentez `TokenExtractor<OAuth2AccessToken>` et déclarez-le dans votre classe `Api`.
+
+### Client HTTP Personnalisé
+Implémentez `com.github.scribejava.core.httpclient.HttpClient` et passez-le au `ServiceBuilder`.
+
+---
+
+## 🌐 Dépannage (Troubleshooting)
+
+### Erreurs SSL (Java 8)
+*   **handshake_failure** : Mettez à jour votre JDK (>= 8u251) ou forcez TLS 1.2 via `-Dhttps.protocols=TLSv1.2`.
+*   **PKIX path building failed** : Importez le certificat du serveur dans `cacerts` via `keytool`.
+
+### Débogage
+Activez le mode debug dans le builder : `.debug()`. Pour SLF4J, utilisez `.debugStream(new MyLoggingStream())`.
+
+---
+
+## 🚀 Commandes utiles
+
+*   **Tests parallèles** : `mvn test -T 1C -Dmaven.javadoc.skip=true`
+*   **Javadoc locale** : `mvn javadoc:aggregate -Dmaven.test.skip=true` (Disponible dans `target/site/apidocs/`).
