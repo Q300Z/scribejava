@@ -55,6 +55,7 @@ Ajoutez la dépendance principale à votre `pom.xml` :
 *   [Guide de Contribution](CONTRIBUTING.md) - Standards de code et comment contribuer.
 *   [Dépannage](TROUBLESHOOTING.md) - Erreurs SSL, problèmes de signature et logging.
 *   [Politique de Sécurité](SECURITY.md) - Divulgation et meilleures pratiques.
+*   [Processus de Release](RELEASES.md) - Comment sont gérées les versions.
 *   [Extensibilité](EXTENSIBILITY.md) - Extracteurs et clients HTTP personnalisés.
 *   [Liste des APIs Supportées](scribejava-apis/README.md) - Liste de 50+ fournisseurs pré-configurés.
 
