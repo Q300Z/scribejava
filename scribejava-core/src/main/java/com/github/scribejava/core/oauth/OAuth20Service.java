@@ -22,7 +22,6 @@ public class OAuth20Service extends OAuthService {
     private final DefaultApi20 api;
     private final String responseType;
     private final String defaultScope;
-    private DPoPProofCreator dpopProofCreator;
     private final OAuth20RequestSigner requestSigner;
     private final OAuth20RevocationHandler revocationHandler;
     private final OAuth20DeviceFlowHandler deviceFlowHandler;
@@ -42,7 +41,6 @@ public class OAuth20Service extends OAuthService {
         this.responseType = responseType;
         this.api = api;
         this.defaultScope = defaultScope;
-        this.dpopProofCreator = dpopProofCreator;
         this.requestSigner = new OAuth20RequestSigner(api, dpopProofCreator);
         this.revocationHandler = new OAuth20RevocationHandler(this);
         this.deviceFlowHandler = new OAuth20DeviceFlowHandler(this);
