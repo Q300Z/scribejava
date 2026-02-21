@@ -12,7 +12,8 @@
 
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-oauth1</artifactId>
-    <name>ScribeJava OAuth 1.0a API</name>
+    <name>ScribeJava OAuth 1.0a API [DEPRECATED]</name>
+    <description>OAuth 1.0a support for ScribeJava. This module is deprecated and will be removed in future versions.</description>
     <packaging>jar</packaging>
 
     <dependencies>

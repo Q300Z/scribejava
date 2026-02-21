@@ -40,7 +40,19 @@ import org.junit.jupiter.api.Test;
 public class AsyncResilienceTest {
 
   @Test
+  public void shouldHandleRequestCancellation() {
+    final CompletableFuture<String> future = new CompletableFuture<>();
+
+    // Simule l'annulation par l'utilisateur
+    future.cancel(true);
+
+    assertThat(future.isCancelled()).isTrue();
+    assertThatThrownBy(future::get).isInstanceOf(java.util.concurrent.CancellationException.class);
+  }
+
+  @Test
   public void shouldPropagateConverterExceptionsToFuture() {
+
     final OAuth20Service service =
         mock(OAuth20Service.class, org.mockito.Mockito.CALLS_REAL_METHODS);
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");

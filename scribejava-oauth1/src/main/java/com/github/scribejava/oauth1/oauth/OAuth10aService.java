@@ -40,7 +40,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-/** OAuth 1.0a implementation of {@link OAuthService} */
+/**
+ * OAuth 1.0a implementation of {@link OAuthService}
+ *
+ * @deprecated OAuth 1.0a is an old protocol. Use OAuth 2.0 / OIDC instead. This module is now in
+ *     maintenance mode and will be removed in a future major version.
+ */
+@Deprecated
 public class OAuth10aService extends OAuthService {
 
   private static final String VERSION = "1.0";

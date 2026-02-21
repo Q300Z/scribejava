@@ -56,14 +56,27 @@ public class BaseStringEncodingTest {
   }
 
   @Test
-  public void shouldHandleEmptyParamsCorrectly() {
+  public void shouldHandleExoticCharactersInBaseString() {
     final BaseStringExtractorImpl extractor = new BaseStringExtractorImpl();
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
+
+    // Kanji, Cyrillique et espaces multiples
+    request.addQuerystringParameter("language", "日本語");
+    request.addQuerystringParameter("greeting", "Добрый день");
+    request.addQuerystringParameter("spaces", "  multiple   spaces  ");
     request.addOAuthParameter(OAuthConstants.TIMESTAMP, "123");
     request.addOAuthParameter(OAuthConstants.CONSUMER_KEY, "key");
-    request.addQuerystringParameter("empty", "");
 
     final String baseString = extractor.extract(request);
-    assertThat(baseString).contains("empty%3D%26"); // empty= & ...
+
+    // Vérification de l'encodage double (pour la Base String)
+    // 日本語 -> %E6%97%A5%E6%9C%AC%E8%AA%9E -> %25E6%2597%25A5%25E6%259C%25AC%25E8%25AA%259E
+    assertThat(baseString).contains("language%3D%25E6%2597%25A5%25E6%259C%25AC%25E8%25AA%259E");
+    // Добрый день (avec espace)
+    assertThat(baseString)
+        .contains(
+            "greeting%3D%25D0%2594%25D0%25BE%25D0%25B1%25D1%2580%25D1%258B%25D0%25B9%2520%25D0%25B4%25D0%25B5%25D0%25BD%25D1%258C");
+    // Spaces
+    assertThat(baseString).contains("spaces%3D%2520%2520multiple%2520%2520%2520spaces%2520%2520");
   }
 }

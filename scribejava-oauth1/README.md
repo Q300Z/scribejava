@@ -1,6 +1,6 @@
-# 🗝️ Support OAuth 1.0a
+# 🗝️ Support OAuth 1.0a [DÉPRÉCIÉ]
 
-Bien que plus ancien, le protocole OAuth 1.0a reste utilisé par des services majeurs comme Twitter (API v1.1) ou Trello. Ce module fournit une implémentation robuste et thread-safe.
+⚠️ **ATTENTION** : Ce module est officiellement déprécié. Bien que toujours fonctionnel, il est en mode maintenance uniquement et sera supprimé dans une future version majeure. Veuillez migrer vers **OAuth 2.0 / OIDC** dès que possible.
 
 ---
 

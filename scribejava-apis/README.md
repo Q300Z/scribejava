@@ -12,7 +12,7 @@ ScribeJava inclut des configurations prêtes à l'emploi pour plus de **50 fourn
 | **GitHub** | OAuth 2.0 / OIDC | `GitHubApi` / `OidcGitHubApi20` | `user`, `repo` |
 | **Microsoft** | OAuth 2.0 / OIDC | `MicrosoftAzureActiveDirectory20Api` / `OidcMicrosoftAzureActiveDirectory20Api` | `User.Read`, `openid`, `profile` |
 | **LinkedIn** | OAuth 2.0 | `LinkedInApi20` | `r_liteprofile`, `r_emailaddress` |
-| **Twitter** | OAuth 1.0a / 2.0 | `TwitterApi` | N/A (1.0a) |
+| **Twitter** | OAuth 1.0a (**Déprécié**) / 2.0 | `TwitterApi` | N/A (1.0a) |
 | **Facebook** | OAuth 2.0 | `FacebookApi` | `public_profile`, `email` |
 
 ---
