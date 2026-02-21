@@ -1,0 +1,35 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '8', '11', '17' ]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ matrix.java }}
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Build and Test
+      run: mvn test -T 1C -Dmaven.javadoc.skip=true
+
+    - name: Static Analysis (Checkstyle & PMD)
+      if: matrix.java == '8'
+      run: mvn checkstyle:check pmd:check
+
+    - name: Mutation Testing (PITest)
+      if: github.event_name == 'pull_request' && matrix.java == '8'
+      run: mvn pitest:mutationCoverage -pl scribejava-core,scribejava-oidc

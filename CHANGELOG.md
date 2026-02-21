@@ -1,26 +1,27 @@
 # Journal des modifications (Changelog)
 
-Toutes les modifications notables de ce projet seront documentées dans ce fichier.
+Toutes les modifications notables de ce projet à partir de la version 9.0.0 sont documentées dans ce fichier.
 
-## [8.3.4-SNAPSHOT] - 21/02/2026
+## [9.0.0-SNAPSHOT] - 21/02/2026
+
+Cette version marque une transition majeure vers une architecture strictement **SOLID** et l'abandon des méthodes monolithiques au profit de composants spécialisés.
 
 ### Ajouté
-- **Pattern Strategy** pour les flux OAuth 2.0 (`AuthorizationCodeGrant`, `RefreshTokenGrant`, etc.).
-- **Auto-découverte OIDC** dans `ServiceBuilder` via `.discoverFromIssuer()`.
-- **Hiérarchie d'exceptions riche** : `OAuthRateLimitException` et `OAuthProtocolException`.
-- **Support DPoP** (Demonstrating Proof-of-Possession) pour une sécurité accrue.
-- **Support PAR** (Pushed Authorization Requests) (RFC 9126).
-- **Guides d'Architecture et de Contribution**.
+- **Architecture SOLID** : Refonte complète de `OAuth20Service`.
+- **Pattern Strategy** : Introduction de `OAuth20Grant` pour tous les flux (Authorization Code, Refresh Token, Client Credentials, Password, Device Code).
+- **Handlers Spécialisés** :
+    - `OAuth20RevocationHandler` (Révocation de token).
+    - `OAuth20DeviceFlowHandler` (Flux pour appareils).
+    - `OAuth20PushedAuthHandler` (PAR - Pushed Authorization Requests).
+- **Signature & Sécurité** :
+    - `OAuth20RequestSigner` pour la signature Bearer et le support **DPoP**.
+- **Auto-découverte OIDC** : Support natif de l'OIDC Discovery dans le `ServiceBuilder`.
+- **Typage des erreurs** : Nouvelles exceptions `OAuthRateLimitException` et `OAuthProtocolException`.
+- **Qualité & Tests** : Intégration de **PITest** pour le Mutation Testing.
 
 ### Modifié
-- **Refactorisation SRP** : Extraction des Handlers (`Revocation`, `DeviceFlow`, `PushedAuth`) et du `RequestSigner` depuis `OAuth20Service`.
-- **Modernisation des APIs** : Mise à jour de plus de 30 fournisseurs dans `scribejava-apis`.
-- **Performance** : Optimisation de la suite de tests pour exécution parallèle (temps de build ~19s).
+- **Performance** : Suite de tests optimisée pour une exécution parallèle (~19s).
+- **Modernisation** : Mise à jour exhaustive des 50+ fournisseurs dans `scribejava-apis`.
 
 ### Obsolète (Deprecated)
-- Les méthodes legacy `getAccessToken(...)` et `refreshAccessToken(...)` dans `OAuth20Service` au profit du pattern Strategy.
-
-## [8.3.3] - 2024-xx-xx
-### Corrigé
-- Divers correctifs dans la génération de signatures.
-- Correction du mapping des claims OIDC pour Google.
+- Toutes les méthodes `getAccessToken` et `refreshAccessToken` spécifiques de `OAuth20Service` (utiliser `getAccessToken(OAuth20Grant)`).
