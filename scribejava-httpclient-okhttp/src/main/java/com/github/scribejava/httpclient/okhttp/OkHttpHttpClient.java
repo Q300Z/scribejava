@@ -24,6 +24,8 @@
 package com.github.scribejava.httpclient.okhttp;
 
 import com.github.scribejava.core.httpclient.HttpClient;
+import com.github.scribejava.core.httpclient.multipart.BodyPartPayload;
+import com.github.scribejava.core.httpclient.multipart.ByteArrayBodyPartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.model.Response;
@@ -122,8 +124,15 @@ public class OkHttpHttpClient implements HttpClient {
       final OAuthAsyncRequestCallback<T> callback,
       final OAuthRequest.ResponseConverter<T> converter) {
 
-    throw new UnsupportedOperationException(
-        "OKHttpClient does not support Multipart payload for the moment");
+    return doExecuteAsync(
+        userAgent,
+        headers,
+        httpVerb,
+        completeUrl,
+        BodyType.MULTIPART,
+        bodyContents,
+        callback,
+        converter);
   }
 
   @Override
@@ -241,8 +250,7 @@ public class OkHttpHttpClient implements HttpClient {
       final MultipartPayload bodyContents)
       throws InterruptedException, ExecutionException, IOException {
 
-    throw new UnsupportedOperationException(
-        "OKHttpClient does not support Multipart payload for the moment");
+    return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.MULTIPART, bodyContents);
   }
 
   @Override
@@ -335,6 +343,52 @@ public class OkHttpHttpClient implements HttpClient {
       @Override
       RequestBody createBody(final MediaType mediaType, final Object bodyContents) {
         return RequestBody.create((File) bodyContents, mediaType);
+      }
+    },
+    MULTIPART {
+      @Override
+      RequestBody createBody(final MediaType mediaType, final Object bodyContents) {
+        final MultipartPayload multipartPayload = (MultipartPayload) bodyContents;
+        final MultipartBody.Builder builder =
+            new MultipartBody.Builder(multipartPayload.getBoundary());
+
+        final String contentType = multipartPayload.getHeaders().get(CONTENT_TYPE);
+        if (contentType != null) {
+          builder.setType(MediaType.parse(contentType));
+        }
+
+        for (final BodyPartPayload part : multipartPayload.getBodyParts()) {
+          final Headers.Builder headersBuilder = new Headers.Builder();
+          final Map<String, String> partHeaders = part.getHeaders();
+          String partContentType = null;
+          if (partHeaders != null) {
+            for (final Map.Entry<String, String> entry : partHeaders.entrySet()) {
+              if (CONTENT_TYPE.equalsIgnoreCase(entry.getKey())) {
+                partContentType = entry.getValue();
+              } else {
+                headersBuilder.add(entry.getKey(), entry.getValue());
+              }
+            }
+          }
+
+          final RequestBody partBody;
+          if (part instanceof ByteArrayBodyPartPayload) {
+            final ByteArrayBodyPartPayload byteArrayPart = (ByteArrayBodyPartPayload) part;
+            partBody =
+                RequestBody.create(
+                    byteArrayPart.getPayload(),
+                    partContentType == null ? null : MediaType.parse(partContentType),
+                    byteArrayPart.getOff(),
+                    byteArrayPart.getLen());
+          } else if (part instanceof MultipartPayload) {
+            partBody = createBody(null, part);
+          } else {
+            throw new IllegalArgumentException(
+                "Unknown body part type: " + part.getClass().getName());
+          }
+          builder.addPart(headersBuilder.build(), partBody);
+        }
+        return builder.build();
       }
     };
 

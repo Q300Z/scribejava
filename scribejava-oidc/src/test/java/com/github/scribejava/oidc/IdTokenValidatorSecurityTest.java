@@ -40,6 +40,12 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests de sécurité pour le validateur de jetons d'identité {@link IdTokenValidator}.
+ *
+ * <p>Vérifie la conformité aux exigences de sécurité d'OpenID Connect Core (signatures, audiences,
+ * expirations).
+ */
 public class IdTokenValidatorSecurityTest {
 
   private final String clientId = "client-123";
@@ -48,6 +54,7 @@ public class IdTokenValidatorSecurityTest {
   private JWKSet jwkSet;
   private IdTokenValidator validator;
 
+  /** Initialisation de l'environnement de test et des clés. */
   @BeforeEach
   public void setUp() throws Exception {
     rsaJWK = new RSAKeyGenerator(2048).keyID("kid-1").generate();
@@ -55,6 +62,14 @@ public class IdTokenValidatorSecurityTest {
     validator = new IdTokenValidator(issuer, new ClientID(clientId), JWSAlgorithm.RS256, jwkSet);
   }
 
+  /**
+   * Utilitaire de création de jeton signé.
+   *
+   * @param iss Émetteur.
+   * @param aud Audience.
+   * @param exp Date d'expiration.
+   * @return Le jeton sérialisé.
+   */
   private String createToken(final String iss, final String aud, final Date exp) throws Exception {
     final JWTClaimsSet claimsSet =
         new JWTClaimsSet.Builder()
@@ -70,6 +85,7 @@ public class IdTokenValidatorSecurityTest {
     return signedJWT.serialize();
   }
 
+  /** Vérifie que le validateur rejette les jetons dont la date d'expiration est passée. */
   @Test
   public void shouldRejectExpiredToken() throws Exception {
     final String token =
@@ -77,6 +93,7 @@ public class IdTokenValidatorSecurityTest {
     assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
   }
 
+  /** Vérifie le rejet d'un jeton destiné à un autre client (audience incorrecte). */
   @Test
   public void shouldRejectWrongAudience() throws Exception {
     final String token =
@@ -84,6 +101,7 @@ public class IdTokenValidatorSecurityTest {
     assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
   }
 
+  /** Vérifie que toute modification de la signature entraîne le rejet du jeton. */
   @Test
   public void shouldRejectInvalidSignature() throws Exception {
     final String token =
@@ -93,6 +111,7 @@ public class IdTokenValidatorSecurityTest {
     assertThrows(OAuthException.class, () -> validator.validate(tamperedToken, null, 0));
   }
 
+  /** Vérifie que le champ azp est requis si le jeton contient plusieurs audiences. */
   @Test
   public void shouldRejectMultipleAudiencesWithoutAzp() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -113,6 +132,7 @@ public class IdTokenValidatorSecurityTest {
     assertThat(ex.getMessage()).contains("azp");
   }
 
+  /** Vérifie la validation réussie avec plusieurs audiences si le champ azp est correct. */
   @Test
   public void shouldAcceptMultipleAudiencesWithAzp() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -132,6 +152,7 @@ public class IdTokenValidatorSecurityTest {
     assertThat(result).isNotNull();
   }
 
+  /** Vérifie le rejet si le champ azp ne correspond pas au client ID attendu. */
   @Test
   public void shouldRejectAzpMismatch() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -150,6 +171,7 @@ public class IdTokenValidatorSecurityTest {
     assertThrows(OAuthException.class, () -> validator.validate(signedJWT.serialize(), null, 0));
   }
 
+  /** Vérifie le rejet d'un jeton dont la date d'émission est située dans le futur. */
   @Test
   public void shouldRejectTokenIssuedInTheFuture() throws Exception {
     // Issue time 1 hour in the future

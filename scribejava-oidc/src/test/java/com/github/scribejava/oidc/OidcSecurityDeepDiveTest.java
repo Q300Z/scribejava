@@ -42,6 +42,12 @@ import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests de sécurité approfondis pour OpenID Connect.
+ *
+ * <p>Se concentre sur la validation rigoureuse des ID Tokens et des Logout Tokens conformément aux
+ * spécifications OIDC Core et Back-Channel Logout.
+ */
 public class OidcSecurityDeepDiveTest {
 
   private static final String ISSUER = "https://issuer.example.com";
@@ -49,12 +55,14 @@ public class OidcSecurityDeepDiveTest {
   private RSAKey rsaKey;
   private JWKSet jwkSet;
 
+  /** Configuration des clés cryptographiques avant chaque test. */
   @BeforeEach
   public void setUp() throws Exception {
     rsaKey = new RSAKeyGenerator(2048).keyID("rsa-1").generate();
     jwkSet = new JWKSet(rsaKey);
   }
 
+  /** Vérifie que les jetons dont la date d'expiration est dépassée sont rejetés. */
   @Test
   public void shouldRejectExpiredToken() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -69,6 +77,7 @@ public class OidcSecurityDeepDiveTest {
     assertThrows(OAuthException.class, () -> validator.validate(token, new Nonce("nonce123"), 0));
   }
 
+  /** Vérifie que les jetons émis dans le futur (au-delà de la marge de tolérance) sont rejetés. */
   @Test
   public void shouldRejectTokenFromFuture() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -84,6 +93,7 @@ public class OidcSecurityDeepDiveTest {
     assertThrows(OAuthException.class, () -> validator.validate(token, new Nonce("nonce123"), 0));
   }
 
+  /** Vérifie la validation correcte d'un jeton contenant plusieurs audiences si azp est présent. */
   @Test
   public void shouldHandleMultipleAudiencesWithAzp() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -101,6 +111,7 @@ public class OidcSecurityDeepDiveTest {
     assertThat(validatedToken).isNotNull();
   }
 
+  /** Vérifie le rejet d'audiences multiples si le champ azp est manquant (requis par OIDC Core). */
   @Test
   public void shouldRejectMultipleAudiencesWithoutAzp() throws Exception {
     // OIDC Core says azp is REQUIRED if aud has multiple values
@@ -118,6 +129,7 @@ public class OidcSecurityDeepDiveTest {
     assertThrows(OAuthException.class, () -> validator.validate(token, new Nonce("nonce123"), 0));
   }
 
+  /** Vérifie la validation conforme d'un Logout Token (Back-channel logout). */
   @Test
   public void shouldValidateLogoutToken() throws Exception {
     final Map<String, Object> events = new HashMap<>();
@@ -141,6 +153,7 @@ public class OidcSecurityDeepDiveTest {
     validator.validateLogoutToken(token);
   }
 
+  /** Vérifie qu'un Logout Token contenant un nonce est rejeté (interdit par la spec). */
   @Test
   public void shouldRejectLogoutTokenWithNonce() throws Exception {
     final Map<String, Object> events = new HashMap<>();
@@ -163,6 +176,7 @@ public class OidcSecurityDeepDiveTest {
     assertThrows(OAuthException.class, () -> validator.validateLogoutToken(token));
   }
 
+  /** Vérifie qu'un Logout Token sans l'événement de déconnexion est rejeté. */
   @Test
   public void shouldRejectLogoutTokenWithoutEvents() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -181,6 +195,9 @@ public class OidcSecurityDeepDiveTest {
     assertThrows(OAuthException.class, () -> validator.validateLogoutToken(token));
   }
 
+  /**
+   * Vérifie le rejet d'un jeton si le type de clé (ex: RSA vs EC) ne correspond pas à l'algorithme.
+   */
   @Test
   public void shouldRejectTokenIfKeyTypeMismatch() throws Exception {
     final SignedJWT signedJWT = createSignedJWTWithRsa(rsaKey, JWSAlgorithm.RS256);

@@ -42,10 +42,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Classe de base abstraite pour les tests unitaires des clients HTTP.
+ *
+ * <p>Définit une suite de tests standardisés que chaque implémentation de client doit valider.
+ */
 public abstract class AbstractClientTest {
 
   private OAuthService oAuthService;
 
+  /** Configuration initiale avant chaque test. */
   @BeforeEach
   public void setUp() {
     oAuthService =
@@ -53,13 +59,16 @@ public abstract class AbstractClientTest {
             null, "test", "test", null, null, null, System.out, null, null, createNewClient());
   }
 
+  /** Fermeture des ressources après chaque test. */
   @AfterEach
   public void shutDown() throws Exception {
     oAuthService.close();
   }
 
+  /** @return Une nouvelle instance du client HTTP à tester. */
   protected abstract HttpClient createNewClient();
 
+  /** Vérifie l'envoi correct d'une requête GET. */
   @Test
   public void shouldSendGetRequest() throws Exception {
     final String expectedResponseBody = "response body for test shouldSendGetRequest";
@@ -82,6 +91,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie la présence de l'en-tête Content-Type par défaut pour les requêtes POST. */
   @Test
   public void shouldSendPostWithApplicationXWwwFormUrlencodedRequestContentTypeHeader()
       throws Exception {
@@ -102,6 +112,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie l'envoi d'une requête POST avec un corps vide. */
   @Test
   public void shouldSendPostRequestWithEmptyBody() throws Exception {
     final String expectedResponseBody = "response body for test shouldSendPostRequest";
@@ -127,6 +138,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie l'envoi d'une requête POST avec une charge utile textuelle. */
   @Test
   public void shouldSendPostRequestWithStringBody() throws Exception {
     final String expectedResponseBody = "response body for test shouldSendPostRequest";
@@ -154,6 +166,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie l'envoi d'une requête POST avec une charge utile binaire. */
   @Test
   public void shouldSendPostRequestWithByteBodyBody() throws Exception {
     final String expectedResponseBody = "response body for test shouldSendPostRequest";
@@ -180,6 +193,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie l'envoi d'une requête POST avec des paramètres de corps. */
   @Test
   public void shouldSendPostRequestWithBodyParamsBody() throws Exception {
     final String expectedResponseBody = "response body for test shouldSendPostRequest";
@@ -209,6 +223,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie la capacité à lire le flux de données de la réponse brute. */
   @Test
   public void shouldReadResponseStream() throws Exception {
     final String expectedResponseBody = "response body for test shouldReadResponseStream";
@@ -231,6 +246,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie que le rappel (callback) est correctement invoqué lors d'une requête réussie. */
   @Test
   public void shouldCallCallback() throws Exception {
     final String expectedResponseBody = "response body for test shouldCallCallback";
@@ -251,6 +267,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Vérifie la propagation correcte des codes d'erreur HTTP. */
   @Test
   public void shouldPassErrors() throws Exception {
 
@@ -272,6 +289,7 @@ public abstract class AbstractClientTest {
     server.shutdown();
   }
 
+  /** Implémentation de test pour le rappel asynchrone. */
   private static class TestCallback implements OAuthAsyncRequestCallback<Response> {
 
     private Response response;

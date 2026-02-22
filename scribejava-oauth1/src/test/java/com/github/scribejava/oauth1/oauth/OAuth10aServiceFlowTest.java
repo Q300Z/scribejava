@@ -38,11 +38,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests d'intégration pour le flux complet du protocole OAuth 1.0a.
+ *
+ * <p>Simule les interactions avec un serveur OAuth 1.0a à l'aide de {@link MockWebServer}.
+ */
 public class OAuth10aServiceFlowTest {
 
   private MockWebServer server;
   private OAuth10aService service;
 
+  /** Configuration du serveur simulé et du service avant chaque test. */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -71,11 +77,13 @@ public class OAuth10aServiceFlowTest {
             api, "api-key", "api-secret", "callback", null, null, null, null, new JDKHttpClient());
   }
 
+  /** Fermeture du serveur simulé. */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'obtention réussie du jeton de requête (Request Token). */
   @Test
   public void shouldGetRequestToken() throws Exception {
     server.enqueue(
@@ -85,6 +93,7 @@ public class OAuth10aServiceFlowTest {
     assertThat(token.getTokenSecret()).isEqualTo("request_secret");
   }
 
+  /** Vérifie l'échange du jeton de requête contre un jeton d'accès (Access Token). */
   @Test
   public void shouldGetAccessToken() throws Exception {
     server.enqueue(
@@ -95,6 +104,7 @@ public class OAuth10aServiceFlowTest {
     assertThat(token.getTokenSecret()).isEqualTo("access_secret");
   }
 
+  /** Vérifie la signature correcte d'une requête HTTP avec un jeton d'accès. */
   @Test
   public void shouldSignRequest() {
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com/api");
@@ -103,6 +113,7 @@ public class OAuth10aServiceFlowTest {
     assertThat(request.getHeaders().get("Authorization")).contains("oauth_signature");
   }
 
+  /** Vérifie la préparation des paramètres pour la requête de jeton d'accès. */
   @Test
   public void shouldPrepareAccessTokenRequest() {
     final OAuth1RequestToken requestToken = new OAuth1RequestToken("req_token", "req_secret");
@@ -111,12 +122,14 @@ public class OAuth10aServiceFlowTest {
     assertThat(request.getOauthParameters()).containsKey("oauth_verifier");
   }
 
+  /** Vérifie la préparation des paramètres pour la requête de jeton de requête. */
   @Test
   public void shouldPrepareRequestTokenRequest() {
     final OAuthRequest request = service.prepareRequestTokenRequest();
     assertThat(request.getOauthParameters()).containsEntry("oauth_callback", "callback");
   }
 
+  /** Vérifie l'obtention asynchrone du jeton de requête. */
   @Test
   public void shouldGetRequestTokenAsync() throws Exception {
     server.enqueue(
@@ -125,6 +138,7 @@ public class OAuth10aServiceFlowTest {
     assertThat(token.getToken()).isEqualTo("request_token");
   }
 
+  /** Vérifie l'obtention asynchrone du jeton d'accès. */
   @Test
   public void shouldGetAccessTokenAsync() throws Exception {
     server.enqueue(

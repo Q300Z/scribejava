@@ -33,8 +33,10 @@ import java.io.IOException;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
+/** Tests de robustesse pour la gestion des erreurs JSON lors de l'extraction des jetons. */
 public class JsonErrorTest {
 
+  /** Vérifie que les réponses qui ne sont pas des objets JSON lèvent une exception. */
   @Test
   public void shouldHandleNonJsonObject() {
     final Response response = new Response(200, "OK", Collections.emptyMap(), "\"not an object\"");
@@ -42,6 +44,7 @@ public class JsonErrorTest {
         OAuthException.class, () -> OAuth2AccessTokenJsonExtractor.instance().extract(response));
   }
 
+  /** Vérifie la levée d'exception si le jeton d'accès est manquant. */
   @Test
   public void shouldHandleMissingRequiredAccessToken() {
     final Response response =
@@ -53,6 +56,7 @@ public class JsonErrorTest {
     assertThat(ex.getMessage()).contains("access_token");
   }
 
+  /** Vérifie la gestion d'une syntaxe JSON invalide. */
   @Test
   public void shouldHandleInvalidJsonSyntax() {
     final Response response = new Response(200, "OK", Collections.emptyMap(), "{invalid}");
@@ -61,6 +65,7 @@ public class JsonErrorTest {
         IOException.class, () -> OAuth2AccessTokenJsonExtractor.instance().extract(response));
   }
 
+  /** Vérifie que les types inversés (ex: nombre en chaîne) sont gérés avec souplesse. */
   @Test
   public void shouldHandleInvertedTypes() throws IOException {
     // expires_in as string "3600" should be handled by JsonNode.asInt()
@@ -71,6 +76,7 @@ public class JsonErrorTest {
     assertThat(token.getExpiresIn()).isEqualTo(3600);
   }
 
+  /** Vérifie que la valeur nulle pour un paramètre obligatoire est rejetée. */
   @Test
   public void shouldHandleNullRequiredParameter() {
     final Response response =
@@ -79,6 +85,7 @@ public class JsonErrorTest {
         OAuthException.class, () -> OAuth2AccessTokenJsonExtractor.instance().extract(response));
   }
 
+  /** Vérifie la gestion d'une réponse totalement vide. */
   @Test
   public void shouldHandleEmptyResponse() {
     final Response response = new Response(200, "OK", Collections.emptyMap(), "");
@@ -87,6 +94,7 @@ public class JsonErrorTest {
         () -> OAuth2AccessTokenJsonExtractor.instance().extract(response));
   }
 
+  /** Vérifie que la réception d'un tableau JSON au lieu d'un objet lève une exception. */
   @Test
   public void shouldHandleArrayInsteadOfObject() {
     final Response response =
@@ -95,6 +103,7 @@ public class JsonErrorTest {
         OAuthException.class, () -> OAuth2AccessTokenJsonExtractor.instance().extract(response));
   }
 
+  /** Vérifie la gestion d'une valeur de durée de validité extrêmement longue. */
   @Test
   public void shouldHandleExtremeLongValueForExpiresIn() throws IOException {
     // Jackson will parse 999999999999999 as a LongNode, asInt() will return its int value
@@ -108,6 +117,7 @@ public class JsonErrorTest {
     assertThat(token.getExpiresIn()).isNotNull();
   }
 
+  /** Vérifie la gestion d'une valeur non numérique pour la durée de validité. */
   @Test
   public void shouldHandleNonNumericExpiresIn() throws IOException {
     final String json = "{\"access_token\":\"at123\", \"expires_in\":\"not-a-number\"}";
@@ -118,6 +128,7 @@ public class JsonErrorTest {
     assertThat(token.getExpiresIn()).isEqualTo(0);
   }
 
+  /** Vérifie la gestion d'un objet imbriqué là où un entier est attendu. */
   @Test
   public void shouldHandleNestedObjectForExpiresIn() throws IOException {
     final String json = "{\"access_token\":\"at123\", \"expires_in\":{\"nested\":3600}}";

@@ -33,8 +33,14 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+/** Tests unitaires pour la classe utilitaire {@link MultipartUtils}. */
 public class MultipartUtilsTest {
 
+  /**
+   * Teste qu'une frontière (boundary) invalide lève bien une exception.
+   *
+   * @param boundary La frontière à tester.
+   */
   private static void testNotValidBoundary(final String boundary) {
     final IllegalArgumentException thrown =
         assertThrows(
@@ -51,6 +57,11 @@ public class MultipartUtilsTest {
             .startsWith("{'boundary'='" + boundary + "'} has invalid syntax. Should be '"));
   }
 
+  /**
+   * Vérifie le comportement avec une charge utile multipart vide.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @Test
   public void testEmptyMultipartPayload() throws IOException {
     final MultipartPayload mP = new MultipartPayload();
@@ -67,6 +78,11 @@ public class MultipartUtilsTest {
     assertEquals("", MultipartUtils.getPayload(mP).toString());
   }
 
+  /**
+   * Teste une charge utile multipart simple avec préambule et épilogue.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @Test
   public void testSimpleMultipartPayload() throws IOException {
     final Map<String, String> headers = new LinkedHashMap<>();
@@ -122,6 +138,11 @@ public class MultipartUtilsTest {
         MultipartUtils.getPayload(mP).toString());
   }
 
+  /**
+   * Vérifie la gestion correcte des CRLF dans les parties du corps.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @Test
   public void testCRLFMultipartPayload() throws IOException {
     final MultipartPayload mP = new MultipartPayload("simple-boundary");
@@ -161,6 +182,11 @@ public class MultipartUtilsTest {
         MultipartUtils.getPayload(mP).toString());
   }
 
+  /**
+   * Teste l'envoi d'un fichier via une charge utile multipart.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @Test
   public void testFileByteArrayBodyPartPayloadMultipartPayload() throws IOException {
     final MultipartPayload mP =
@@ -187,6 +213,11 @@ public class MultipartUtilsTest {
         MultipartUtils.getPayload(mP).toString());
   }
 
+  /**
+   * Teste une charge utile complexe avec des parties imbriquées (audio, image, enrichi).
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @Test
   public void testComplexMultipartPayload() throws IOException {
     final MultipartPayload mP = new MultipartPayload("mixed", "unique-boundary-1");
@@ -313,6 +344,7 @@ public class MultipartUtilsTest {
         MultipartUtils.getPayload(mP).toString());
   }
 
+  /** Vérifie l'extraction de la frontière à partir de l'en-tête Content-Type. */
   @Test
   public void testParseBoundaryFromHeader() {
     assertNull(MultipartUtils.parseBoundaryFromHeader(null));
