@@ -27,15 +27,33 @@ import com.github.scribejava.core.model.OAuthResponseException;
 import com.github.scribejava.core.model.Response;
 import java.io.IOException;
 
-/** Exception thrown when the API server returns a 429 (Too Many Requests) or a rate limit error. */
+/**
+ * Exception levée lorsque le serveur d'API retourne une erreur de limitation de débit (Rate Limit).
+ *
+ * <p>Correspond généralement au code de statut HTTP 429 (Too Many Requests).
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6585#section-4">RFC 6585, Section 4 (429 Too Many
+ *     Requests)</a>
+ */
 public class OAuthRateLimitException extends OAuthResponseException {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructeur.
+   *
+   * @param response La réponse HTTP contenant l'erreur de limitation.
+   * @throws IOException en cas d'erreur de lecture du corps de la réponse.
+   */
   public OAuthRateLimitException(Response response) throws IOException {
     super(response);
   }
 
+  /**
+   * Retourne un message détaillé incluant le code de statut et le corps de la réponse.
+   *
+   * @return Le message d'erreur formaté.
+   */
   @Override
   public String getMessage() {
     try {

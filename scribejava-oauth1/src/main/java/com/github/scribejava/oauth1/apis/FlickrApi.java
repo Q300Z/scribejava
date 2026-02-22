@@ -26,28 +26,45 @@ package com.github.scribejava.oauth1.apis;
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
 /**
- * OAuth API for Flickr.
+ * API OAuth 1.0a pour Flickr.
  *
- * @see <a href="http://www.flickr.com/services/api/">Flickr API</a>
+ * @see <a href="http://www.flickr.com/services/api/">Flickr API Documentation</a>
  */
 public class FlickrApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://www.flickr.com/services/oauth/authorize";
-  /** read, write, or delete (delete includes read/write) */
+  /** Lecture, écriture ou suppression. */
   private final String permString;
 
+  /** Constructeur par défaut. */
   protected FlickrApi() {
     permString = null;
   }
 
+  /**
+   * Constructeur avec permissions spécifiques.
+   *
+   * @param perm Le niveau de permission souhaité.
+   */
   protected FlickrApi(FlickrPerm perm) {
     permString = perm.name().toLowerCase();
   }
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Flickr.
+   *
+   * @return L'instance de {@link FlickrApi}.
+   */
   public static FlickrApi instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Retourne une instance de l'API Flickr avec des permissions spécifiques.
+   *
+   * @param perm Le niveau de permission.
+   * @return L'instance de {@link FlickrApi}.
+   */
   public static FlickrApi instance(FlickrPerm perm) {
     return perm == null ? instance() : new FlickrApi(perm);
   }

@@ -25,6 +25,7 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/** API OAuth 1.0a pour AWeberApi. */
 public class AWeberApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://auth.aweber.com/1.0/oauth/authorize";

@@ -27,10 +27,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.exceptions.OAuthException;
 
+/**
+ * Base abstraite pour tous les extracteurs de données au format JSON.
+ *
+ * <p>Utilise la bibliothèque Jackson pour analyser les réponses HTTP et extraire les informations
+ * nécessaires.
+ */
 public abstract class AbstractJsonExtractor {
 
+  /** Instance partagée du mappeur d'objets Jackson. */
   protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
+  /**
+   * Extrait un paramètre obligatoire d'un nœud JSON.
+   *
+   * @param errorNode Le nœud JSON à analyser.
+   * @param parameterName Le nom du paramètre attendu.
+   * @param rawResponse La réponse brute (utilisée pour le message d'erreur).
+   * @return Le {@link JsonNode} correspondant au paramètre.
+   * @throws OAuthException si le paramètre est absent ou nul.
+   */
   protected static JsonNode extractRequiredParameter(
       JsonNode errorNode, String parameterName, String rawResponse) throws OAuthException {
     final JsonNode value = errorNode.get(parameterName);

@@ -31,6 +31,12 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Classe de base pour les clients HTTP fonctionnant uniquement en mode asynchrone.
+ *
+ * <p>Cette classe implémente les méthodes synchrones de l'interface {@link HttpClient} en bloquant
+ * sur le résultat des méthodes asynchrones correspondantes.
+ */
 public abstract class AbstractAsyncOnlyHttpClient implements HttpClient {
 
   @Override

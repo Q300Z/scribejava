@@ -30,6 +30,7 @@ import com.github.scribejava.oauth1.extractors.OAuth1RequestTokenJSONExtractor;
 import com.github.scribejava.oauth1.model.OAuth1AccessToken;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
 
+/** API OAuth 1.0a pour UcozApi. */
 public class UcozApi extends DefaultApi10a {
   private static final String AUTHORIZE_URL = "http://uapi.ucoz.com/accounts/oauthauthorizetoken";
 

@@ -24,17 +24,30 @@
 package com.github.scribejava.core.exceptions;
 
 /**
- * Exception representing a general OAuth protocol error (e.g. malformed JSON, unexpected
- * parameters).
+ * Exception représentant une erreur générale du protocole OAuth.
+ *
+ * <p>Cette exception est levée lors de la détection de non-conformités aux spécifications, comme
+ * une réponse JSON malformée ou la présence de paramètres inattendus dans les échanges.
  */
 public class OAuthProtocolException extends OAuthException {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Constructeur avec message.
+   *
+   * @param message Le message détaillant l'erreur de protocole.
+   */
   public OAuthProtocolException(String message) {
     super(message);
   }
 
+  /**
+   * Constructeur avec message et cause.
+   *
+   * @param message Le message détaillant l'erreur.
+   * @param cause L'exception parente ayant provoqué l'erreur.
+   */
   public OAuthProtocolException(String message, Exception cause) {
     super(message, cause);
   }

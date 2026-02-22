@@ -25,16 +25,28 @@ package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.utils.OAuthEncoder;
 
+/** Représente un paramètre de requête HTTP (clé/valeur). */
 public class Parameter implements Comparable<Parameter> {
 
   private final String key;
   private final String value;
 
+  /**
+   * Constructeur.
+   *
+   * @param key La clé du paramètre.
+   * @param value La valeur du paramètre.
+   */
   public Parameter(String key, String value) {
     this.key = key;
     this.value = value;
   }
 
+  /**
+   * Retourne le paramètre sous forme de paire encodée pour URL.
+   *
+   * @return La chaîne {@code cle=valeur} encodée.
+   */
   public String asUrlEncodedPair() {
     return OAuthEncoder.encode(key).concat("=").concat(OAuthEncoder.encode(value));
   }
@@ -55,10 +67,12 @@ public class Parameter implements Comparable<Parameter> {
     return otherParam.getKey().equals(key) && otherParam.getValue().equals(value);
   }
 
+  /** @return La clé du paramètre. */
   public String getKey() {
     return key;
   }
 
+  /** @return La valeur du paramètre. */
   public String getValue() {
     return value;
   }

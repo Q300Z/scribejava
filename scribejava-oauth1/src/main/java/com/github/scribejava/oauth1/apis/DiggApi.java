@@ -25,6 +25,7 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/** API OAuth 1.0a pour DiggApi. */
 public class DiggApi extends DefaultApi10a {
 
   private static final String AUTHORIZATION_URL = "http://digg.com/oauth/authorize";

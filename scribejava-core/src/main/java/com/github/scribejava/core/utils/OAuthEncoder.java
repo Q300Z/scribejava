@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/** Utilitaires pour l'encodage et le décodage d'URL conforme aux spécifications OAuth. */
 public abstract class OAuthEncoder {
 
   // private static final String CHARSET = "UTF-8"; // REMOVED CONSTANT
@@ -47,6 +48,12 @@ public abstract class OAuthEncoder {
     ENCODING_RULES = Collections.unmodifiableMap(rules);
   }
 
+  /**
+   * Encode une chaîne de caractères pour une utilisation dans une URL.
+   *
+   * @param plain La chaîne à encoder.
+   * @return La chaîne encodée.
+   */
   public static String encode(String plain) {
     Preconditions.checkNotNull(plain, "Cannot encode null object");
     String encoded;
@@ -66,6 +73,12 @@ public abstract class OAuthEncoder {
     return encoded.replaceAll(Pattern.quote(toReplace), replacement);
   }
 
+  /**
+   * Décode une chaîne de caractères provenant d'une URL.
+   *
+   * @param encoded La chaîne à décoder.
+   * @return La chaîne décodée.
+   */
   public static String decode(String encoded) {
     Preconditions.checkNotNull(encoded, "Cannot decode null object");
     try {

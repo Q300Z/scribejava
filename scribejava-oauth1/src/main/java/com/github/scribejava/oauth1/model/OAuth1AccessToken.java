@@ -23,17 +23,31 @@
  */
 package com.github.scribejava.oauth1.model;
 
-/** OAuth 1.0a Access Token. */
+/** Représente un jeton d'accès (Access Token) OAuth 1.0a. */
 public class OAuth1AccessToken extends OAuth1Token {
 
+  /**
+   * Constructeur simple.
+   *
+   * @param token La valeur du jeton.
+   * @param tokenSecret Le secret du jeton.
+   */
   public OAuth1AccessToken(String token, String tokenSecret) {
     this(token, tokenSecret, null);
   }
 
+  /**
+   * Constructeur complet.
+   *
+   * @param token La valeur du jeton.
+   * @param tokenSecret Le secret du jeton.
+   * @param rawResponse La réponse brute.
+   */
   public OAuth1AccessToken(String token, String tokenSecret, String rawResponse) {
     super(token, tokenSecret, rawResponse);
   }
 
+  /** @return true si le jeton est vide ou nul. */
   public boolean isEmpty() {
     return getToken() == null || getToken().isEmpty();
   }

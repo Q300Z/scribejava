@@ -30,16 +30,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Default implementation of {@link com.github.scribejava.core.extractors.TokenExtractor} for OAuth
- * 1.0a
+ * Implémentation par défaut de l'extracteur de jeton de requête pour OAuth 1.0a.
+ *
+ * <p>Analyse le corps de la réponse pour en extraire {@code oauth_token} et {@code
+ * oauth_token_secret}.
  */
 public class OAuth1RequestTokenExtractor extends AbstractOAuth1TokenExtractor<OAuth1RequestToken> {
 
   private static final Pattern TOKEN_PATTERN = Pattern.compile("oauth_token=([^&]+)");
   private static final Pattern SECRET_PATTERN = Pattern.compile("oauth_token_secret=([^&]+)");
 
+  /** Constructeur protégé. */
   protected OAuth1RequestTokenExtractor() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link OAuth1RequestTokenExtractor}.
+   */
   public static OAuth1RequestTokenExtractor instance() {
     return InstanceHolder.INSTANCE;
   }

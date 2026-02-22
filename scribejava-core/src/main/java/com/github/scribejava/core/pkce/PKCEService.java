@@ -28,37 +28,56 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * Used to implement Proof Key for Code Exchange by OAuth Public Clients
- * https://tools.ietf.org/html/rfc7636
+ * Utilisé pour implémenter PKCE (Proof Key for Code Exchange) par les clients publics OAuth.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc7636">RFC 7636</a>
  */
 public class PKCEService {
 
   private static final SecureRandom RANDOM = new SecureRandom();
-  /** number of octets to randomly generate. */
+  /** Nombre d'octets à générer aléatoirement. */
   private final int numberOFOctets;
 
+  /**
+   * Constructeur avec nombre d'octets spécifique.
+   *
+   * @param numberOFOctets Le nombre d'octets pour l'entropie.
+   */
   public PKCEService(int numberOFOctets) {
     this.numberOFOctets = numberOFOctets;
   }
 
   /**
-   * will create random generator with recommended params (32 octets)
-   * https://tools.ietf.org/html/rfc7636#section-4.1
+   * Crée un générateur avec les paramètres recommandés (32 octets).
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7636#section-4.1">RFC 7636, Section 4.1</a>
    */
   public PKCEService() {
     this(32);
   }
 
+  /** @return L'instance par défaut de {@link PKCEService}. */
   public static PKCEService defaultInstance() {
     return DefaultInstanceHolder.INSTANCE;
   }
 
+  /**
+   * Génère un nouvel objet PKCE complet (verifier et challenge).
+   *
+   * @return Une instance de {@link PKCE}.
+   */
   public PKCE generatePKCE() {
     final byte[] bytes = new byte[numberOFOctets];
     RANDOM.nextBytes(bytes);
     return generatePKCE(bytes);
   }
 
+  /**
+   * Génère un objet PKCE à partir d'octets aléatoires fournis.
+   *
+   * @param randomBytes Octets d'entropie.
+   * @return Une instance de {@link PKCE}.
+   */
   public PKCE generatePKCE(byte[] randomBytes) {
     final String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
 

@@ -25,6 +25,7 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/** API OAuth 1.0a pour TrelloApi. */
 public class TrelloApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://trello.com/1/OAuthAuthorizeToken";

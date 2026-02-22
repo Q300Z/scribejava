@@ -25,6 +25,7 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/** API OAuth 1.0a pour SinaWeiboApi. */
 public class SinaWeiboApi extends DefaultApi10a {
 
   private static final String REQUEST_TOKEN_URL = "http://api.t.sina.com.cn/oauth/request_token";

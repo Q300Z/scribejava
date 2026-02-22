@@ -25,6 +25,7 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/** API OAuth 1.0a pour LinkedIn. */
 public class LinkedInApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://api.linkedin.com/uas/oauth/authenticate";
@@ -32,10 +33,16 @@ public class LinkedInApi extends DefaultApi10a {
 
   private final String scopesAsString;
 
+  /** Constructeur par défaut. */
   protected LinkedInApi() {
     scopesAsString = null;
   }
 
+  /**
+   * Constructeur avec portées spécifiques.
+   *
+   * @param scopes Tableau de portées.
+   */
   protected LinkedInApi(String... scopes) {
     final StringBuilder builder = new StringBuilder();
     for (String scope : scopes) {
@@ -44,10 +51,21 @@ public class LinkedInApi extends DefaultApi10a {
     scopesAsString = "?scope=" + builder.substring(1);
   }
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API LinkedIn (1.0a).
+   *
+   * @return L'instance de {@link LinkedInApi}.
+   */
   public static LinkedInApi instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Crée une instance avec des portées personnalisées.
+   *
+   * @param scopes Tableau de portées.
+   * @return Une instance de {@link LinkedInApi}.
+   */
   public static LinkedInApi instance(String... scopes) {
     return scopes == null || scopes.length == 0 ? instance() : new LinkedInApi(scopes);
   }

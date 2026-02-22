@@ -35,16 +35,34 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 
-/** JSON (default) implementation of {@link TokenExtractor} for OAuth 2.0 */
+/**
+ * Implémentation JSON par défaut de {@link TokenExtractor} pour OAuth 2.0.
+ *
+ * @see <a href="http://tools.ietf.org/html/rfc6749#section-5.1">RFC 6749, Section 5.1 (Successful
+ *     Response)</a>
+ */
 public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor
     implements TokenExtractor<OAuth2AccessToken> {
 
+  /** Constructeur protégé. */
   protected OAuth2AccessTokenJsonExtractor() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link OAuth2AccessTokenJsonExtractor}.
+   */
   public static OAuth2AccessTokenJsonExtractor instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Extrait le jeton d'accès de la réponse HTTP.
+   *
+   * @param response La réponse du serveur d'autorisation.
+   * @return Un objet {@link OAuth2AccessToken}.
+   * @throws IOException en cas d'erreur de lecture ou si le code de statut n'est pas 200.
+   */
   @Override
   public OAuth2AccessToken extract(Response response) throws IOException {
     final String body = response.getBody();
@@ -57,6 +75,14 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor
     return createToken(body);
   }
 
+  /**
+   * Analyse la réponse d'erreur au format JSON et lève une exception dédiée.
+   *
+   * @param response La réponse contenant l'erreur.
+   * @throws IOException toujours, sous forme de {@link OAuth2AccessTokenErrorResponse}.
+   * @see <a href="http://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, Section 5.2 (Error
+   *     Response)</a>
+   */
   public void generateError(Response response) throws IOException {
     final String responseBody = response.getBody();
     final JsonNode responseBodyJson;

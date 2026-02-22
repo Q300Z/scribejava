@@ -24,12 +24,26 @@
 package com.github.scribejava.oauth1.model;
 
 /** OAuth 1.0a Request Token. */
+/** Représente un jeton de requête (Request Token) OAuth 1.0a. */
 public class OAuth1RequestToken extends OAuth1Token {
 
+  /**
+   * Constructeur simple.
+   *
+   * @param token La valeur du jeton.
+   * @param tokenSecret Le secret du jeton.
+   */
   public OAuth1RequestToken(String token, String tokenSecret) {
     this(token, tokenSecret, null);
   }
 
+  /**
+   * Constructeur complet.
+   *
+   * @param token La valeur du jeton.
+   * @param tokenSecret Le secret du jeton.
+   * @param rawResponse La réponse brute.
+   */
   public OAuth1RequestToken(String token, String tokenSecret, String rawResponse) {
     super(token, tokenSecret, rawResponse);
   }

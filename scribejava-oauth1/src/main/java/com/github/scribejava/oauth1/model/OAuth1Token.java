@@ -26,22 +26,31 @@ package com.github.scribejava.oauth1.model;
 import com.github.scribejava.core.model.Token;
 import java.util.Objects;
 
-/** Abstract class for OAuth 1.0a tokens. */
+/** Classe abstraite pour les jetons OAuth 1.0a. */
 public abstract class OAuth1Token extends Token {
 
   private final String token;
   private final String tokenSecret;
 
+  /**
+   * Constructeur.
+   *
+   * @param token La valeur du jeton.
+   * @param tokenSecret Le secret du jeton.
+   * @param rawResponse La réponse brute du serveur.
+   */
   public OAuth1Token(String token, String tokenSecret, String rawResponse) {
     super(rawResponse);
     this.token = token;
     this.tokenSecret = tokenSecret;
   }
 
+  /** @return La valeur du jeton. */
   public String getToken() {
     return token;
   }
 
+  /** @return Le secret du jeton. */
   public String getTokenSecret() {
     return tokenSecret;
   }

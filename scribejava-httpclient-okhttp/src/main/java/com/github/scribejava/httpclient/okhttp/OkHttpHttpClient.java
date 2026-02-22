@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutionException;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
 
+/** Implémentation du client HTTP utilisant la bibliothèque OkHttp. */
 public class OkHttpHttpClient implements HttpClient {
 
   private static final MediaType DEFAULT_CONTENT_TYPE_MEDIA_TYPE =
@@ -44,15 +45,26 @@ public class OkHttpHttpClient implements HttpClient {
 
   private final OkHttpClient client;
 
+  /** Constructeur par défaut utilisant la configuration standard. */
   public OkHttpHttpClient() {
     this(OkHttpHttpClientConfig.defaultConfig());
   }
 
+  /**
+   * Constructeur avec configuration spécifique.
+   *
+   * @param config La configuration OkHttp.
+   */
   public OkHttpHttpClient(final OkHttpHttpClientConfig config) {
     final OkHttpClient.Builder clientBuilder = config.getClientBuilder();
     client = clientBuilder == null ? new OkHttpClient() : clientBuilder.build();
   }
 
+  /**
+   * Constructeur avec une instance OkHttpClient préexistante.
+   *
+   * @param client L'instance OkHttp.
+   */
   public OkHttpHttpClient(final OkHttpClient client) {
     this.client = client;
   }

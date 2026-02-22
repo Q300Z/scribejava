@@ -27,6 +27,7 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 import com.github.scribejava.oauth1.builder.api.OAuth1SignatureType;
 
+/** API OAuth 1.0a pour FreelancerApi. */
 public class FreelancerApi extends DefaultApi10a {
 
   private static final String AUTHORIZATION_URL =

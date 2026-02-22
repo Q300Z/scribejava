@@ -23,7 +23,7 @@
  */
 package com.github.scribejava.core.model;
 
-/** An enumeration containing the most common HTTP Verbs. */
+/** Énumération contenant les verbes HTTP les plus courants. */
 public enum Verb {
   GET(false),
   POST(true),
@@ -49,10 +49,12 @@ public enum Verb {
     this.permitBody = permitBody;
   }
 
+  /** @return true si le verbe nécessite obligatoirement un corps de requête. */
   public boolean isRequiresBody() {
     return requiresBody;
   }
 
+  /** @return true si le verbe autorise un corps de requête. */
   public boolean isPermitBody() {
     return permitBody;
   }

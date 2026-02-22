@@ -25,12 +25,19 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/** API OAuth 1.0a pour Yahoo. */
 public class YahooApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://api.login.yahoo.com/oauth/v2/request_auth";
 
+  /** Constructeur protégé. */
   protected YahooApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Yahoo.
+   *
+   * @return L'instance de {@link YahooApi}.
+   */
   public static YahooApi instance() {
     return InstanceHolder.INSTANCE;
   }

@@ -28,6 +28,7 @@ import com.github.scribejava.core.utils.Preconditions;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/** Représente une liste de paramètres HTTP (QueryString ou corps de formulaire). */
 public class ParameterList {
 
   private static final char QUERY_STRING_SEPARATOR = '?';
@@ -37,14 +38,25 @@ public class ParameterList {
 
   private final List<Parameter> params;
 
+  /** Constructeur par défaut. */
   public ParameterList() {
     params = new ArrayList<>();
   }
 
+  /**
+   * Constructeur interne.
+   *
+   * @param params Liste initiale de paramètres.
+   */
   ParameterList(List<Parameter> params) {
     this.params = new ArrayList<>(params);
   }
 
+  /**
+   * Constructeur à partir d'une map.
+   *
+   * @param map Dictionnaire de paramètres.
+   */
   public ParameterList(Map<String, String> map) {
     this();
     if (map != null && !map.isEmpty()) {
@@ -52,10 +64,22 @@ public class ParameterList {
     }
   }
 
+  /**
+   * Ajoute un nouveau paramètre.
+   *
+   * @param key La clé.
+   * @param value La valeur.
+   */
   public void add(String key, String value) {
     params.add(new Parameter(key, value));
   }
 
+  /**
+   * Ajoute les paramètres à une URL existante.
+   *
+   * @param url L'URL de base.
+   * @return L'URL avec la QueryString ajoutée.
+   */
   public String appendTo(String url) {
     Preconditions.checkNotNull(url, "Cannot append to null URL");
     final String queryString = asFormUrlEncodedString();

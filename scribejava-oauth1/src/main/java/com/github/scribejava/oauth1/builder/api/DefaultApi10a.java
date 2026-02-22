@@ -41,118 +41,119 @@ import com.github.scribejava.oauth1.services.HMACSha1SignatureService;
 import java.io.OutputStream;
 
 /**
- * Default implementation of the OAuth protocol, version 1.0a
+ * Implémentation par défaut du protocole OAuth, version 1.0a.
  *
- * <p>This class is meant to be extended by concrete implementations of the API, providing the
- * endpoints and endpoint-http-verbs.
+ * <p>Cette classe doit être étendue par les implémentations concrètes d'API, fournissant les points
+ * de terminaison et les verbes HTTP correspondants. Elle définit également les extracteurs et
+ * services de signature par défaut.
  *
- * <p>If your Api adheres to the 1.0a protocol correctly, you just need to extend this class and
- * define the getters for your endpoints.
- *
- * <p>If your Api does something a bit different, you can override the different extractors or
- * services, in order to fine-tune the process. Please read the javadocs of the interfaces to get an
- * idea of what to do.
+ * @see <a href="https://tools.ietf.org/html/rfc5849">RFC 5849 (The OAuth 1.0 Protocol)</a>
  */
 public abstract class DefaultApi10a {
 
   /**
-   * Returns the access token extractor.
+   * Retourne l'extracteur de jeton d'accès (Access Token).
    *
-   * @return access token extractor
+   * @return L'instance de {@link TokenExtractor} pour {@link OAuth1AccessToken}.
    */
   public TokenExtractor<OAuth1AccessToken> getAccessTokenExtractor() {
     return OAuth1AccessTokenExtractor.instance();
   }
 
   /**
-   * Returns the base string extractor.
+   * Retourne l'extracteur de chaîne de base pour la signature.
    *
-   * @return base string extractor
+   * @return L'instance de {@link BaseStringExtractor}.
    */
   public BaseStringExtractor getBaseStringExtractor() {
     return new BaseStringExtractorImpl();
   }
 
   /**
-   * Returns the header extractor.
+   * Retourne l'extracteur d'en-tête d'autorisation.
    *
-   * @return header extractor
+   * @return L'instance de {@link HeaderExtractor}.
    */
   public HeaderExtractor getHeaderExtractor() {
     return new HeaderExtractorImpl();
   }
 
   /**
-   * Returns the request token extractor.
+   * Retourne l'extracteur de jeton de requête (Request Token).
    *
-   * @return request token extractor
+   * @return L'instance de {@link TokenExtractor} pour {@link OAuth1RequestToken}.
    */
   public TokenExtractor<OAuth1RequestToken> getRequestTokenExtractor() {
     return OAuth1RequestTokenExtractor.instance();
   }
 
   /**
-   * Returns the signature service.
+   * Retourne le service de signature (HMAC-SHA1 par défaut).
    *
-   * @return signature service
+   * @return L'instance de {@link SignatureService}.
    */
   public SignatureService getSignatureService() {
     return new HMACSha1SignatureService();
   }
 
-  /** @return the signature type, choose between header, querystring, etc. Defaults to Header */
+  /**
+   * Retourne le type de signature utilisé (En-tête par défaut).
+   *
+   * @return Le {@link OAuth1SignatureType} souhaité.
+   */
   public OAuth1SignatureType getSignatureType() {
     return OAuth1SignatureType.HEADER;
   }
 
   /**
-   * Returns the timestamp service.
+   * Retourne le service de marquage temporel (Timestamp).
    *
-   * @return timestamp service
+   * @return L'instance de {@link TimestampService}.
    */
   public TimestampService getTimestampService() {
     return new TimestampServiceImpl();
   }
 
   /**
-   * Returns the verb for the access token endpoint (defaults to POST)
+   * Retourne le verbe HTTP pour le point de terminaison de jeton d'accès (POST par défaut).
    *
-   * @return access token endpoint verb
+   * @return Le verbe {@link Verb}.
    */
   public Verb getAccessTokenVerb() {
     return Verb.POST;
   }
 
   /**
-   * Returns the verb for the request token endpoint (defaults to POST)
+   * Retourne le verbe HTTP pour le point de terminaison de jeton de requête (POST par défaut).
    *
-   * @return request token endpoint verb
+   * @return Le verbe {@link Verb}.
    */
   public Verb getRequestTokenVerb() {
     return Verb.POST;
   }
 
   /**
-   * Returns the URL that receives the request token requests.
+   * Retourne l'URL pour l'obtention du jeton de requête (Request Token).
    *
-   * @return request token URL
+   * @return L'URL du point de terminaison.
    */
   public abstract String getRequestTokenEndpoint();
 
   /**
-   * Returns the URL that receives the access token requests.
+   * Retourne l'URL pour l'obtention du jeton d'accès (Access Token).
    *
-   * @return access token URL
+   * @return L'URL du point de terminaison.
    */
   public abstract String getAccessTokenEndpoint();
 
+  /** @return L'URL de base pour l'autorisation de l'utilisateur. */
   protected abstract String getAuthorizationBaseUrl();
 
   /**
-   * Returns the URL where you should redirect your users to authenticate your application.
+   * Retourne l'URL vers laquelle rediriger l'utilisateur pour autoriser l'application.
    *
-   * @param requestToken the request token you need to authorize
-   * @return the URL where you should redirect your users
+   * @param requestToken Le jeton de requête à autoriser.
+   * @return L'URL d'autorisation complète.
    */
   public String getAuthorizationUrl(OAuth1RequestToken requestToken) {
     final ParameterList parameters = new ParameterList();
@@ -160,6 +161,19 @@ public abstract class DefaultApi10a {
     return parameters.appendTo(getAuthorizationBaseUrl());
   }
 
+  /**
+   * Crée l'instance de service OAuth 1.0a.
+   *
+   * @param apiKey Clé API.
+   * @param apiSecret Secret API.
+   * @param callback URL de rappel.
+   * @param scope Portée optionnelle.
+   * @param debugStream Flux de débogage.
+   * @param userAgent User-Agent.
+   * @param httpClientConfig Configuration HTTP.
+   * @param httpClient Client HTTP.
+   * @return Une instance de {@link OAuth10aService}.
+   */
   public OAuth10aService createService(
       String apiKey,
       String apiSecret,
@@ -182,10 +196,13 @@ public abstract class DefaultApi10a {
   }
 
   /**
-   * http://tools.ietf.org/html/rfc5849 says that "The client MAY omit the empty "oauth_token"
-   * protocol parameter from the request", but not all oauth servers are good boys.
+   * Indique si le paramètre "oauth_token" vide est obligatoire dans la requête.
    *
-   * @return whether to inlcude empty oauth_token param to the request
+   * <p>La RFC 5849 indique que ce paramètre peut être omis s'il est vide, mais certains serveurs
+   * l'exigent.
+   *
+   * @return true si le paramètre doit être inclus même s'il est vide.
+   * @see <a href="https://tools.ietf.org/html/rfc5849#section-3.5">RFC 5849, Section 3.5</a>
    */
   public boolean isEmptyOAuthTokenParamIsRequired() {
     return false;

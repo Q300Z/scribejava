@@ -25,14 +25,21 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/** API OAuth 1.0a pour Twitter. */
 public class TwitterApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://api.twitter.com/oauth/authorize";
   private static final String REQUEST_TOKEN_RESOURCE = "api.twitter.com/oauth/request_token";
   private static final String ACCESS_TOKEN_RESOURCE = "api.twitter.com/oauth/access_token";
 
+  /** Constructeur protégé. */
   protected TwitterApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Twitter.
+   *
+   * @return L'instance de {@link TwitterApi}.
+   */
   public static TwitterApi instance() {
     return InstanceHolder.INSTANCE;
   }
@@ -57,9 +64,9 @@ public class TwitterApi extends DefaultApi10a {
   }
 
   /**
-   * Twitter 'friendlier' authorization endpoint for OAuth.
+   * Point de terminaison d'autorisation Twitter "plus convivial" pour OAuth.
    *
-   * <p>Uses SSL.
+   * <p>Utilise SSL et permet une expérience utilisateur plus fluide.
    */
   public static class Authenticate extends TwitterApi {
 
@@ -67,6 +74,11 @@ public class TwitterApi extends DefaultApi10a {
 
     private Authenticate() {}
 
+    /**
+     * Retourne l'instance unique (singleton) de ce point de terminaison.
+     *
+     * @return L'instance de {@link Authenticate}.
+     */
     public static Authenticate instance() {
       return InstanceHolder.INSTANCE;
     }
