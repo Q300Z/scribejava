@@ -78,10 +78,11 @@ public class JDKHttpClient implements HttpClient {
       throws IOException {
     final int contentLength = content.length;
     if (requiresBody || contentLength > 0) {
-      final OutputStream outputStream =
-          prepareConnectionForBodyAndGetOutputStream(connection, contentLength);
-      if (contentLength > 0) {
-        outputStream.write(content);
+      try (OutputStream outputStream =
+          prepareConnectionForBodyAndGetOutputStream(connection, contentLength)) {
+        if (contentLength > 0) {
+          outputStream.write(content);
+        }
       }
     }
   }
@@ -97,10 +98,11 @@ public class JDKHttpClient implements HttpClient {
     if (requiresBody) {
       final ByteArrayOutputStream os = MultipartUtils.getPayload(multipartPayload);
       final int contentLength = os.size();
-      final OutputStream outputStream =
-          prepareConnectionForBodyAndGetOutputStream(connection, contentLength);
-      if (contentLength > 0) {
-        os.writeTo(outputStream);
+      try (OutputStream outputStream =
+          prepareConnectionForBodyAndGetOutputStream(connection, contentLength)) {
+        if (contentLength > 0) {
+          os.writeTo(outputStream);
+        }
       }
     }
   }
@@ -285,12 +287,23 @@ public class JDKHttpClient implements HttpClient {
       connection = (HttpURLConnection) url.openConnection(config.getProxy());
     }
     connection.setInstanceFollowRedirects(config.isFollowRedirects());
-    if (connection instanceof javax.net.ssl.HttpsURLConnection
-        && config.getSslSocketFactory() != null) {
-      ((javax.net.ssl.HttpsURLConnection) connection)
-          .setSSLSocketFactory(config.getSslSocketFactory());
+    if (connection instanceof javax.net.ssl.HttpsURLConnection) {
+      if (config.getSslSocketFactory() != null) {
+        ((javax.net.ssl.HttpsURLConnection) connection)
+            .setSSLSocketFactory(config.getSslSocketFactory());
+      }
+      if (config.getHostnameVerifier() != null) {
+        ((javax.net.ssl.HttpsURLConnection) connection)
+            .setHostnameVerifier(config.getHostnameVerifier());
+      }
     }
-    connection.setRequestMethod(httpVerb.name());
+
+    if (httpVerb == Verb.PATCH) {
+      connection.setRequestMethod(Verb.POST.name());
+      connection.setRequestProperty("X-HTTP-Method-Override", Verb.PATCH.name());
+    } else {
+      connection.setRequestMethod(httpVerb.name());
+    }
     if (config.getConnectTimeout() != null) {
       connection.setConnectTimeout(config.getConnectTimeout());
     }
@@ -313,7 +326,11 @@ public class JDKHttpClient implements HttpClient {
               ? connection.getInputStream()
               : connection.getErrorStream());
     } catch (UnknownHostException e) {
+      connection.disconnect();
       throw new OAuthException("The IP address of a host could not be determined.", e);
+    } catch (IOException e) {
+      connection.disconnect();
+      throw e;
     }
   }
 

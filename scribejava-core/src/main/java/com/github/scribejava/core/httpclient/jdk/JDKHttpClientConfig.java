@@ -33,6 +33,7 @@ public class JDKHttpClientConfig implements HttpClientConfig {
   private boolean followRedirects = true;
   private Proxy proxy;
   private javax.net.ssl.SSLSocketFactory sslSocketFactory;
+  private javax.net.ssl.HostnameVerifier hostnameVerifier;
 
   public static JDKHttpClientConfig defaultConfig() {
     return new JDKHttpClientConfig();
@@ -53,6 +54,19 @@ public class JDKHttpClientConfig implements HttpClientConfig {
 
   public JDKHttpClientConfig withSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
     this.sslSocketFactory = sslSocketFactory;
+    return this;
+  }
+
+  public javax.net.ssl.HostnameVerifier getHostnameVerifier() {
+    return hostnameVerifier;
+  }
+
+  public void setHostnameVerifier(javax.net.ssl.HostnameVerifier hostnameVerifier) {
+    this.hostnameVerifier = hostnameVerifier;
+  }
+
+  public JDKHttpClientConfig withHostnameVerifier(javax.net.ssl.HostnameVerifier hostnameVerifier) {
+    this.hostnameVerifier = hostnameVerifier;
     return this;
   }
 
