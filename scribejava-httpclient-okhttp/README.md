@@ -26,5 +26,18 @@ future.thenAccept(token -> {
 });
 ```
 
+## 📎 Support Multipart
+Le client OkHttp supporte désormais l'envoi de fichiers et de charges utiles complexes via le format `multipart/form-data`.
+
+```java
+MultipartPayload payload = new MultipartPayload();
+payload.addBodyPart(new ByteArrayBodyPartPayload(fileBytes, "image/jpeg"));
+payload.addBodyPart(new ByteArrayBodyPartPayload("metadata".getBytes(), "application/json"));
+
+OAuthRequest request = new OAuthRequest(Verb.POST, url);
+request.setPayload(payload);
+service.execute(request);
+```
+
 ---
 [🏠 Accueil](../README.md) | [🔌 APIs](../scribejava-apis/README.md) | [🔐 OIDC](../scribejava-oidc/README.md) | [🛡️ Sécurité](../ADVANCED_SECURITY.md)

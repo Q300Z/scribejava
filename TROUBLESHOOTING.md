@@ -23,9 +23,16 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 ## 2. Problèmes de Build (Maven)
 
 ### ❌ Échec du lintage (Checkstyle/PMD)
-*   **Erreur** : `Annotation 'Mock' should be alone on line`.
-*   **Cause** : Conflit entre les règles strictes de Checkstyle et le formatage automatique Spotless.
-*   **Solution** : Lancez `make format` (ou `mvn spotless:apply`) avant de relancer le build. Nous avons désactivé certaines règles conflictuelles dans `checkstyle.xml` pour la v9.
+*   **Erreur** : `Annotation 'Mock' should be alone on line` ou `Block tags have to appear in the order... [AtclauseOrder]`.
+*   **Cause** : Conflit entre les règles strictes de Checkstyle et le formatage automatique Spotless, ou mauvais ordre des balises `@param`, `@return`, `@deprecated` dans la Javadoc.
+*   **Solution** : 
+    *   Lancez `make format` (ou `mvn spotless:apply`) pour le style.
+    *   Respectez l'ordre OIDC/Javadoc : `@param` -> `@return` -> `@throws` -> `@see` -> `@deprecated`.
+
+### ❌ Avertissements de Build (Duplicate Plugin Declaration)
+*   **Avertissement** : `'build.pluginManagement.plugins.plugin.(groupId:artifactId)' must be unique`.
+*   **Cause** : Le plugin `maven-surefire-plugin` est déclaré deux fois avec des versions différentes dans le `pom.xml`.
+*   **Solution** : Supprimez la version obsolète (ex: 2.22.2) pour ne conserver que la version stable (ex: 3.0.0-M7) dans la section `pluginManagement`.
 
 ---
 
