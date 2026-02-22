@@ -98,6 +98,8 @@ Puis ajoutez la dépendance :
 </dependency>
 ```
 
+> 🛠️ **Un problème lors de l'installation ou du build ?** Consultez le **[Guide de Dépannage](./TROUBLESHOOTING.md)**.
+
 ### Gradle (Android & JVM)
 ```gradle
 dependencies {

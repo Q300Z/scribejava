@@ -13,6 +13,35 @@ Ce module fournit une implémentation complète et sécurisée du protocole Open
 
 ---
 
+## 🚀 Exemple de Flux Complet
+
+Voici comment implémenter un flux OIDC standard (Discovery + Auth + Validation) :
+
+```java
+// 1. Initialisation avec Auto-découverte (Google par exemple)
+OidcDiscoveryService discovery = new OidcDiscoveryService();
+OidcProviderMetadata metadata = discovery.discover("https://accounts.google.com");
+
+OidcService service = new OidcServiceBuilder(clientId)
+    .apiSecret(clientSecret)
+    .callback(callbackUrl)
+    .defaultScope("openid profile email")
+    .build(new DefaultOidcApi20(metadata));
+
+// 2. Génération de l'URL d'autorisation
+String authUrl = service.getAuthorizationUrl();
+
+// 3. Échange du code contre des jetons
+OpenIdOAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
+
+// 4. Validation de l'ID Token (Signature + Claims)
+IdTokenValidator validator = new IdTokenValidator(metadata.getIssuer(), clientId);
+IdToken idToken = service.extractIdToken(token);
+validator.validate(idToken, nonce, System.currentTimeMillis());
+
+System.out.println("Utilisateur authentifié : " + idToken.getSubject());
+```
+
 ## 🛡️ Sécurité & OIDC
 L'utilisation d'OpenID Connect nécessite souvent une sécurité renforcée :
 *   Consultez le guide **[Sécurité Avancée (DPoP/PAR)](../ADVANCED_SECURITY.md)** pour protéger vos jetons OIDC.

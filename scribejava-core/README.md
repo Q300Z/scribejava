@@ -2,6 +2,28 @@
 
 Le cœur du moteur OAuth. Ce module contient toute la logique de construction de requêtes, de signature et de gestion des flux (Grants).
 
+## 🚀 Utilisation Standard (v9)
+
+Exemple d'initialisation avec PKCE (recommandé) et révocation de jeton :
+
+```java
+// 1. Configuration avec PKCE activé
+OAuth20Service service = new ServiceBuilder(clientId)
+    .apiSecret(secret)
+    .defaultScope("read_user")
+    .build(GitHubApi.instance());
+
+// 2. Flux Authorization Code avec PKCE
+PKCE pkce = service.generatePKCE();
+String authUrl = service.getAuthorizationUrl(pkce, state);
+
+// 3. Obtention du token
+OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code, pkce));
+
+// 4. Révocation du Refresh Token (RFC 7009)
+service.revokeToken(token.getRefreshToken(), TokenTypeHint.REFRESH_TOKEN);
+```
+
 ---
 
 ## 🏗️ Architecture Extensible
