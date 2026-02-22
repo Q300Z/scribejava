@@ -46,12 +46,32 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
 
   private HttpClientConfig httpClientConfig;
   private HttpClient httpClient;
+  private com.github.scribejava.core.dpop.DPoPProofCreator dpopProofCreator;
+  private com.github.scribejava.core.oauth.AuthorizationRequestConverter
+      authorizationRequestConverter;
 
   private String discoveryIssuer;
   private com.github.scribejava.core.oauth.DiscoveryService discoveryService;
 
   public ServiceBuilder(String apiKey) {
     apiKey(apiKey);
+  }
+
+  public String getApiKey() {
+    return apiKey;
+  }
+
+  public ServiceBuilder authorizationRequestConverter(
+      com.github.scribejava.core.oauth.AuthorizationRequestConverter
+          authorizationRequestConverter) {
+    this.authorizationRequestConverter = authorizationRequestConverter;
+    return this;
+  }
+
+  public ServiceBuilder dpopProofCreator(
+      com.github.scribejava.core.dpop.DPoPProofCreator dpopProofCreator) {
+    this.dpopProofCreator = dpopProofCreator;
+    return this;
   }
 
   public ServiceBuilder discoverFromIssuer(
@@ -165,15 +185,37 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
             "Failed to discover endpoints", e);
       }
     }
-    return apiToUse.createService(
-        apiKey,
-        apiSecret,
-        callback,
-        scope,
-        responseType,
-        debugStream,
-        userAgent,
-        httpClientConfig,
-        httpClient);
+    final OAuth20Service service;
+    if (dpopProofCreator == null) {
+      service =
+          apiToUse.createService(
+              apiKey,
+              apiSecret,
+              callback,
+              scope,
+              responseType,
+              debugStream,
+              userAgent,
+              httpClientConfig,
+              httpClient);
+    } else {
+      service =
+          apiToUse.createService(
+              apiKey,
+              apiSecret,
+              callback,
+              scope,
+              responseType,
+              debugStream,
+              userAgent,
+              httpClientConfig,
+              httpClient,
+              dpopProofCreator);
+    }
+
+    if (authorizationRequestConverter != null) {
+      service.setAuthorizationRequestConverter(authorizationRequestConverter);
+    }
+    return service;
   }
 }

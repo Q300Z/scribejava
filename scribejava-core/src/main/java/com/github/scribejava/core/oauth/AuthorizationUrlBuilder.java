@@ -118,15 +118,33 @@ public class AuthorizationUrlBuilder {
         throw new OAuthException("Failed to push authorization request", e);
       }
     } else {
-      return oauth20Service
-          .getApi()
-          .getAuthorizationUrl(
-              oauth20Service.getResponseType(),
-              oauth20Service.getApiKey(),
-              oauth20Service.getCallback(),
-              scope == null ? oauth20Service.getDefaultScope() : scope,
-              state,
-              authorizationParams);
+      // 1. Collect all parameters
+      final ParameterList parameters = new ParameterList(authorizationParams);
+      parameters.add(OAuthConstants.RESPONSE_TYPE, oauth20Service.getResponseType());
+      parameters.add(OAuthConstants.CLIENT_ID, oauth20Service.getApiKey());
+
+      final String callback = oauth20Service.getCallback();
+      if (callback != null) {
+        parameters.add(OAuthConstants.REDIRECT_URI, callback);
+      }
+
+      final String effectiveScope = scope == null ? oauth20Service.getDefaultScope() : scope;
+      if (effectiveScope != null) {
+        parameters.add(OAuthConstants.SCOPE, effectiveScope);
+      }
+
+      if (state != null) {
+        parameters.add(OAuthConstants.STATE, state);
+      }
+
+      // 2. Apply strategy (JAR, etc.)
+      final Map<String, String> convertedParams =
+          oauth20Service.getAuthorizationRequestConverter().convert(parameters.asMap());
+
+      // 3. Rebuild ParameterList
+      final ParameterList finalParameters = new ParameterList(convertedParams);
+
+      return finalParameters.appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
     }
   }
 }

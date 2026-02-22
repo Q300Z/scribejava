@@ -48,6 +48,7 @@ public class OAuth20Service extends OAuthService {
   private final OAuth20RevocationHandler revocationHandler;
   private final OAuth20DeviceFlowHandler deviceFlowHandler;
   private final OAuth20PushedAuthHandler pushedAuthHandler;
+  private AuthorizationRequestConverter authorizationRequestConverter = params -> params;
 
   public OAuth20Service(
       DefaultApi20 api,
@@ -94,6 +95,15 @@ public class OAuth20Service extends OAuthService {
     this.revocationHandler = new OAuth20RevocationHandler(this);
     this.deviceFlowHandler = new OAuth20DeviceFlowHandler(this);
     this.pushedAuthHandler = new OAuth20PushedAuthHandler(this);
+  }
+
+  public void setAuthorizationRequestConverter(
+      AuthorizationRequestConverter authorizationRequestConverter) {
+    this.authorizationRequestConverter = authorizationRequestConverter;
+  }
+
+  public AuthorizationRequestConverter getAuthorizationRequestConverter() {
+    return authorizationRequestConverter;
   }
 
   // ===== common OAuth methods =====

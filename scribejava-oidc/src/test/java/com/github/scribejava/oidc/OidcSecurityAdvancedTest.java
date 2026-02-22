@@ -40,9 +40,8 @@ public class OidcSecurityAdvancedTest {
 
   @Test
   public void shouldThrowWhenAzpIsMissingWithMultipleAudiences() {
-    final IdTokenValidator validator =
-        new IdTokenValidator(
-            "https://issuer", new ClientID("client"), JWSAlgorithm.RS256, new JWKSet());
+    new IdTokenValidator(
+        "https://issuer", new ClientID("client"), JWSAlgorithm.RS256, new JWKSet());
     // Validation logic tested via other scenarios
   }
 

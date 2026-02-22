@@ -112,4 +112,12 @@ public class ParameterList {
     Collections.sort(sorted.getParams());
     return sorted;
   }
+
+  public Map<String, String> asMap() {
+    final Map<String, String> map = new LinkedHashMap<>();
+    for (Parameter param : params) {
+      map.put(param.getKey(), param.getValue());
+    }
+    return map;
+  }
 }

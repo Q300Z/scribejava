@@ -31,15 +31,34 @@ import com.github.scribejava.core.model.PushedAuthorizationResponse;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /** Handles OAuth 2.0 Pushed Authorization Requests (PAR). */
 public class OAuth20PushedAuthHandler {
 
   private final OAuth20Service service;
+  // Cache key: Hash of sorted parameters. Value: Cached response with expiration.
+  private final Map<Integer, CachedResponse> cache = new ConcurrentHashMap<>();
 
   public OAuth20PushedAuthHandler(OAuth20Service service) {
     this.service = service;
+  }
+
+  private static class CachedResponse {
+    final PushedAuthorizationResponse response;
+    final long expirationTime;
+
+    CachedResponse(PushedAuthorizationResponse response) {
+      this.response = response;
+      // Expires in seconds. Convert to millis. Safety margin: 5 seconds.
+      this.expirationTime = System.currentTimeMillis() + (response.getExpiresIn() - 5) * 1000;
+    }
+
+    boolean isValid() {
+      return System.currentTimeMillis() < expirationTime;
+    }
   }
 
   public OAuthRequest createPushedAuthorizationRequest(
@@ -51,20 +70,29 @@ public class OAuth20PushedAuthHandler {
       Map<String, String> additionalParams) {
     final OAuthRequest request =
         new OAuthRequest(Verb.POST, service.getApi().getPushedAuthorizationRequestEndpoint());
-    request.addParameter(OAuthConstants.RESPONSE_TYPE, responseType);
-    request.addParameter(OAuthConstants.CLIENT_ID, apiKey);
+
+    // 1. Collect all parameters in a map
+    final com.github.scribejava.core.model.ParameterList parameters =
+        new com.github.scribejava.core.model.ParameterList(additionalParams);
+    parameters.add(OAuthConstants.RESPONSE_TYPE, responseType);
+    parameters.add(OAuthConstants.CLIENT_ID, apiKey);
     if (callback != null) {
-      request.addParameter(OAuthConstants.REDIRECT_URI, callback);
+      parameters.add(OAuthConstants.REDIRECT_URI, callback);
     }
     if (scope != null) {
-      request.addParameter(OAuthConstants.SCOPE, scope);
+      parameters.add(OAuthConstants.SCOPE, scope);
     }
     if (state != null) {
-      request.addParameter(OAuthConstants.STATE, state);
+      parameters.add(OAuthConstants.STATE, state);
     }
-    if (additionalParams != null) {
-      additionalParams.forEach(request::addParameter);
-    }
+
+    // 2. Apply strategy (JAR, etc.)
+    final Map<String, String> convertedParams =
+        service.getAuthorizationRequestConverter().convert(parameters.asMap());
+
+    // 3. Add to request
+    convertedParams.forEach(request::addParameter);
+
     service
         .getApi()
         .getClientAuthentication()
@@ -93,6 +121,19 @@ public class OAuth20PushedAuthHandler {
         createPushedAuthorizationRequest(
             responseType, apiKey, callback, scope, state, additionalParams);
 
+    // Calculate cache key based on request parameters
+    final int cacheKey =
+        Objects.hash(
+            request.getQueryStringParams().asFormUrlEncodedString(),
+            request.getBodyParams().asFormUrlEncodedString());
+
+    final CachedResponse cached = cache.get(cacheKey);
+    if (cached != null && cached.isValid()) {
+      if (callbackConsumer != null) {
+        callbackConsumer.onCompleted(cached.response);
+      }
+      return CompletableFuture.completedFuture(cached.response);
+    }
     return service.execute(
         request,
         callbackConsumer,
@@ -105,7 +146,10 @@ public class OAuth20PushedAuthHandler {
                       + ", Body: "
                       + resp.getBody());
             }
-            return PushedAuthorizationResponse.parse(resp.getBody());
+            final PushedAuthorizationResponse parResponse =
+                PushedAuthorizationResponse.parse(resp.getBody());
+            cache.put(cacheKey, new CachedResponse(parResponse));
+            return parResponse;
           }
         });
   }

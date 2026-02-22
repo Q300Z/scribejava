@@ -38,6 +38,7 @@ import com.nimbusds.jwt.SignedJWT;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Service to create Signed Request Objects.
@@ -56,22 +57,43 @@ public class RequestObjectService {
 
   private final String clientId;
   private final String audience;
-  private final JWK signingJWK;
+  private final Supplier<JWK> signingJWKSupplier;
   private final JWSAlgorithm jwsAlgorithm;
+  private final JWK encryptionJWK;
+  private final com.nimbusds.jose.JWEAlgorithm jweAlgorithm;
+  private final com.nimbusds.jose.EncryptionMethod encryptionMethod;
 
   public RequestObjectService(
       String clientId, String audience, JWK signingJWK, JWSAlgorithm jwsAlgorithm) {
+    this(clientId, audience, () -> signingJWK, jwsAlgorithm, null, null, null);
+  }
+
+  public RequestObjectService(
+      String clientId,
+      String audience,
+      Supplier<JWK> signingJWKSupplier,
+      JWSAlgorithm jwsAlgorithm,
+      JWK encryptionJWK,
+      com.nimbusds.jose.JWEAlgorithm jweAlgorithm,
+      com.nimbusds.jose.EncryptionMethod encryptionMethod) {
     this.clientId = clientId;
     this.audience = audience;
-    this.signingJWK = signingJWK;
+    this.signingJWKSupplier = signingJWKSupplier;
     this.jwsAlgorithm = jwsAlgorithm;
-
-    if (!signingJWK.isPrivate()) {
-      throw new IllegalArgumentException("JWK must contain a private key for signing.");
-    }
+    this.encryptionJWK = encryptionJWK;
+    this.jweAlgorithm = jweAlgorithm;
+    this.encryptionMethod = encryptionMethod;
   }
 
   public String createRequestObject(Map<String, String> authorizationParams) {
+    final JWK signingJWK = signingJWKSupplier.get();
+    if (signingJWK == null) {
+      throw new OAuthException("Signing JWK supplier returned null");
+    }
+    if (!signingJWK.isPrivate()) {
+      throw new IllegalArgumentException("JWK must contain a private key for signing.");
+    }
+
     final JWSHeader header =
         new JWSHeader.Builder(jwsAlgorithm)
             .keyID(signingJWK.getKeyID())
@@ -109,6 +131,38 @@ public class RequestObjectService {
       throw new OAuthException("Error signing Request Object JWT", e);
     }
 
+    if (encryptionJWK != null && jweAlgorithm != null && encryptionMethod != null) {
+      return encrypt(signedJWT);
+    }
+
     return signedJWT.serialize();
+  }
+
+  private String encrypt(SignedJWT signedJWT) {
+    try {
+      final com.nimbusds.jose.JWEHeader jweHeader =
+          new com.nimbusds.jose.JWEHeader.Builder(jweAlgorithm, encryptionMethod)
+              .contentType("JWT") // Nested JWT
+              .keyID(encryptionJWK.getKeyID())
+              .build();
+
+      final com.nimbusds.jose.JWEObject jweObject =
+          new com.nimbusds.jose.JWEObject(jweHeader, new com.nimbusds.jose.Payload(signedJWT));
+
+      final com.nimbusds.jose.JWEEncrypter encrypter;
+      if (encryptionJWK instanceof RSAKey) {
+        encrypter = new com.nimbusds.jose.crypto.RSAEncrypter((RSAKey) encryptionJWK);
+      } else if (encryptionJWK instanceof ECKey) {
+        encrypter = new com.nimbusds.jose.crypto.ECDHEncrypter((ECKey) encryptionJWK);
+      } else {
+        throw new OAuthException(
+            "Unsupported Encryption JWK type: " + encryptionJWK.getClass().getName());
+      }
+
+      jweObject.encrypt(encrypter);
+      return jweObject.serialize();
+    } catch (JOSEException e) {
+      throw new OAuthException("Error encrypting Request Object JWT", e);
+    }
   }
 }

@@ -54,5 +54,47 @@ Avant de déployer votre intégration, vérifiez ces 5 points :
 4.  [ ] **Validation ID Token** : Si vous utilisez OIDC, validez-vous systématiquement le jeton (Signature + `iss` + `aud`) ?
 5.  [ ] **DPoP (Si sensible)** : Pour les APIs critiques (paiement, santé), avez-vous activé le DPoP pour lier le jeton à votre client ?
 
+## 4. JWT Secured Authorization Request (JAR) - RFC 9101
+
+Pour empêcher l'altération des paramètres de la requête d'autorisation (ex: injection de `redirect_uri` malveillant), vous pouvez signer la requête.
+
+### Activation
+Utilisez `JarAuthorizationRequestConverter` (du module `scribejava-oidc`) dans le builder.
+
+```java
+// Clé privée pour signer le JWT
+JWK signingKey = JWK.parse("{\"kty\":\"RSA\", ...}");
+
+OAuth20Service service = new ServiceBuilder("client-id")
+    .apiSecret("secret")
+    .callback("https://callback.com")
+    // Active JAR : Convertit les params en JWT signé
+    .authorizationRequestConverter(
+        new JarAuthorizationRequestConverter(
+            "client-id", // issuer
+            "https://issuer.com", // audience (l'IDP)
+            signingKey,
+            JWSAlgorithm.RS256
+        )
+    )
+    .build(OidcGoogleApi20.instance());
+
+// L'URL générée contiendra ?client_id=...&request=eyJ...
+String url = service.getAuthorizationUrl();
+```
+
+### Combinaison avec PAR (Pushed Authorization Requests)
+Si vous activez à la fois JAR et PAR, ScribeJava enverra le JWT signé (`request`) directement au serveur via l'appel API PAR (`POST /par`). C'est la configuration **la plus sécurisée** possible.
+
+```java
+// JAR + PAR = Sécurité Maximale
+OAuth20Service service = new ServiceBuilder("client-id")
+    .authorizationRequestConverter(new JarAuthorizationRequestConverter(...)) // JAR
+    .build(GoogleApi20.instance());
+
+// Pousse le JWT signé au serveur
+PushedAuthorizationResponse response = service.pushAuthorizationRequestAsync(...).get();
+```
+
 ---
 [⬅️ Retour à l'accueil](./README.md)

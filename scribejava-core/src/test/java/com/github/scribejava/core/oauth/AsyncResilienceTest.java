@@ -31,7 +31,6 @@ import static org.mockito.Mockito.verify;
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -52,10 +51,6 @@ public class AsyncResilienceTest {
 
   @Test
   public void shouldPropagateConverterExceptionsToFuture() {
-
-    final OAuth20Service service =
-        mock(OAuth20Service.class, org.mockito.Mockito.CALLS_REAL_METHODS);
-    final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
     final Response response = mock(Response.class);
 
     final OAuthRequest.ResponseConverter<String> failingConverter =
