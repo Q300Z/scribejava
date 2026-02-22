@@ -25,10 +25,17 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
+/** API OAuth 2.0 pour Asana. */
 public class Asana20Api extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected Asana20Api() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Asana.
+   *
+   * @return L'instance de {@link Asana20Api}.
+   */
   public static Asana20Api instance() {
     return InstanceHolder.INSTANCE;
   }

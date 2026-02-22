@@ -38,6 +38,11 @@ public class HttpBasicAuthenticationScheme implements ClientAuthentication {
 
   protected HttpBasicAuthenticationScheme() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de ce type d'authentification.
+   *
+   * @return L'instance de {@link HttpBasicAuthenticationScheme}.
+   */
   public static HttpBasicAuthenticationScheme instance() {
     return InstanceHolder.INSTANCE;
   }

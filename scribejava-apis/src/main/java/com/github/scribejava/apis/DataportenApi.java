@@ -25,10 +25,17 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
+/** API OAuth 2.0 pour Dataporten. */
 public class DataportenApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected DataportenApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Dataporten.
+   *
+   * @return L'instance de {@link DataportenApi}.
+   */
   public static DataportenApi instance() {
     return InstanceHolder.INSTANCE;
   }

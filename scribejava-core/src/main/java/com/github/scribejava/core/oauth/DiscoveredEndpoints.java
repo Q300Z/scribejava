@@ -23,19 +23,28 @@
  */
 package com.github.scribejava.core.oauth;
 
+/** Représente les points de terminaison (endpoints) découverts via un service de découverte. */
 public class DiscoveredEndpoints {
   private final String authorizationEndpoint;
   private final String tokenEndpoint;
 
+  /**
+   * Constructeur.
+   *
+   * @param authorizationEndpoint L'URL du point de terminaison d'autorisation.
+   * @param tokenEndpoint L'URL du point de terminaison de jeton.
+   */
   public DiscoveredEndpoints(String authorizationEndpoint, String tokenEndpoint) {
     this.authorizationEndpoint = authorizationEndpoint;
     this.tokenEndpoint = tokenEndpoint;
   }
 
+  /** @return L'URL du point de terminaison d'autorisation. */
   public String getAuthorizationEndpoint() {
     return authorizationEndpoint;
   }
 
+  /** @return L'URL du point de terminaison de jeton. */
   public String getTokenEndpoint() {
     return tokenEndpoint;
   }

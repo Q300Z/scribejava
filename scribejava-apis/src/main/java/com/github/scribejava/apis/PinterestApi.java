@@ -27,10 +27,17 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
+/** API OAuth 2.0 pour Pinterest. */
 public class PinterestApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected PinterestApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Pinterest.
+   *
+   * @return L'instance de {@link PinterestApi}.
+   */
   public static PinterestApi instance() {
     return InstanceHolder.INSTANCE;
   }

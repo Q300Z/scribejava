@@ -26,10 +26,17 @@ package com.github.scribejava.apis.slack;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
 
+/** Extracteur JSON pour les jetons Slack. */
 public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
+  /** Constructeur protégé. */
   protected SlackJsonTokenExtractor() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link SlackJsonTokenExtractor}.
+   */
   public static SlackJsonTokenExtractor instance() {
     return SlackJsonTokenExtractor.InstanceHolder.INSTANCE;
   }

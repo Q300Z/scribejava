@@ -20,10 +20,18 @@
         <module name="JavadocType">
             <property name="scope" value="public"/>
         </module>
+        <module name="MissingJavadocType">
+            <property name="scope" value="public"/>
+            <property name="severity" value="warning"/>
+        </module>
         <module name="JavadocMethod">
             <property name="accessModifiers" value="public"/>
             <property name="allowedAnnotations" value="Override, Test, BeforeEach, AfterEach, BeforeAll, AfterAll"/>
             <property name="tokens" value="METHOD_DEF, ANNOTATION_FIELD_DEF"/>
+        </module>
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="severity" value="warning"/>
         </module>
         <module name="AvoidNestedBlocks">
             <property name="allowInSwitchCase" value="true"/>

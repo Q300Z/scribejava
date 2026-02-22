@@ -29,46 +29,86 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * OAuth2.0 Scope Builder. It allows specifying multiple scopes one by one. It will combine them in
- * the single space-delimited string. OAuth 2.0 standard specifies space as a delimiter for scopes
- * (https://tools.ietf.org/html/rfc6749#section-3.3). If you found API, that do not support spaces,
- * but support something else, let ScribeJava know (submit the issue here
- * https://github.com/scribejava/scribejava/issues) and use your own concatenated string as a
- * temporary workaround.
+ * Constructeur de portée (Scope Builder) pour OAuth 2.0.
+ *
+ * <p>Permet de spécifier plusieurs portées une par une et de les combiner en une seule chaîne
+ * délimitée par des espaces, conformément au standard OAuth 2.0.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-3.3">RFC 6749, Section 3.3 (Access
+ *     Token Scope)</a>
  */
 public class ScopeBuilder {
 
   private final Set<String> scopes = new HashSet<>();
 
+  /** Constructeur par défaut. */
   public ScopeBuilder() {}
 
+  /**
+   * Constructeur avec une portée initiale.
+   *
+   * @param scope La portée initiale.
+   */
   public ScopeBuilder(String scope) {
     withScope(scope);
   }
 
+  /**
+   * Constructeur avec plusieurs portées initiales.
+   *
+   * @param scopes Tableau de portées.
+   */
   public ScopeBuilder(String... scopes) {
     withScopes(scopes);
   }
 
+  /**
+   * Constructeur avec une collection de portées initiales.
+   *
+   * @param scopes Collection de portées.
+   */
   public ScopeBuilder(Collection<String> scopes) {
     withScopes(scopes);
   }
 
+  /**
+   * Ajoute une portée individuelle.
+   *
+   * @param scope La portée à ajouter.
+   * @return L'instance actuelle.
+   */
   public final ScopeBuilder withScope(String scope) {
     scopes.add(scope);
     return this;
   }
 
+  /**
+   * Ajoute plusieurs portées.
+   *
+   * @param scopes Tableau de portées.
+   * @return L'instance actuelle.
+   */
   public final ScopeBuilder withScopes(String... scopes) {
     this.scopes.addAll(Arrays.asList(scopes));
     return this;
   }
 
+  /**
+   * Ajoute une collection de portées.
+   *
+   * @param scopes Collection de portées.
+   * @return L'instance actuelle.
+   */
   public final ScopeBuilder withScopes(Collection<String> scopes) {
     this.scopes.addAll(scopes);
     return this;
   }
 
+  /**
+   * Construit la chaîne de portée finale.
+   *
+   * @return Une chaîne de caractères contenant toutes les portées séparées par des espaces.
+   */
   public String build() {
     final StringBuilder scopeBuilder = new StringBuilder();
     for (String scope : scopes) {

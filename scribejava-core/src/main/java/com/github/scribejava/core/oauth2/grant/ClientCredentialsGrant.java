@@ -27,14 +27,32 @@ import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
+/**
+ * Représente la concession de type "Client Credentials" (identifiants du client).
+ *
+ * <p>Ce type de concession est utilisé typiquement lorsque le client agit en son propre nom (le
+ * client est aussi le propriétaire de la ressource) ou demande l'accès à des ressources protégées
+ * sur la base d'une autorisation préalablement arrangée avec le serveur d'autorisation.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.4">RFC 6749, Section 1.3.4 (Client
+ *     Credentials)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.4">RFC 6749, Section 4.4 (Client
+ *     Credentials Grant)</a>
+ */
 public class ClientCredentialsGrant implements OAuth20Grant {
 
   private final String scope;
 
+  /** Constructeur par défaut. */
   public ClientCredentialsGrant() {
     this(null);
   }
 
+  /**
+   * Constructeur avec une portée (scope) spécifique.
+   *
+   * @param scope La portée de la demande d'accès.
+   */
   public ClientCredentialsGrant(String scope) {
     this.scope = scope;
   }

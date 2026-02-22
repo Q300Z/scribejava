@@ -27,64 +27,74 @@ import com.github.scribejava.core.utils.Preconditions;
 import java.util.Objects;
 
 /**
- * Represents an OAuth 2 Access token. http://tools.ietf.org/html/rfc6749#section-5.1
+ * Représente un jeton d'accès (Access Token) OAuth 2.0.
  *
- * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.4">OAuth 2 Access Token
- *     Specification</a>
+ * @see <a href="http://tools.ietf.org/html/rfc6749#section-5.1">RFC 6749, Section 5.1 (Successful
+ *     Response)</a>
  */
 public class OAuth2AccessToken extends Token {
 
   private static final long serialVersionUID = 8901381135476613449L;
 
-  /**
-   * access_token
-   *
-   * <p>REQUIRED. The access token issued by the authorization server.
-   */
+  /** Le jeton d'accès délivré par le serveur d'autorisation. */
   private String accessToken;
 
   /**
-   * token_type
+   * Le type de jeton (ex: Bearer).
    *
-   * <p>REQUIRED. The type of the token issued as described in
-   * http://tools.ietf.org/html/rfc6749#section-7.1 Value is case insensitive.
+   * @see <a href="http://tools.ietf.org/html/rfc6749#section-7.1">RFC 6749, Section 7.1 (Access
+   *     Token Types)</a>
    */
   private String tokenType;
 
-  /**
-   * expires_in
-   *
-   * <p>RECOMMENDED. The lifetime in seconds of the access token. For example, the value "3600"
-   * denotes that the access token will expire in one hour from the time the response was generated.
-   * If omitted, the authorization server SHOULD provide the expiration time via other means or
-   * document the default value.
-   */
+  /** La durée de vie en secondes du jeton d'accès. */
   private Integer expiresIn;
 
   /**
-   * refresh_token
+   * Le jeton de renouvellement (Refresh Token).
    *
-   * <p>OPTIONAL. The refresh token, which can be used to obtain new access tokens using the same
-   * authorization grant as described in http://tools.ietf.org/html/rfc6749#section-6
+   * @see <a href="http://tools.ietf.org/html/rfc6749#section-6">RFC 6749, Section 6 (Refreshing an
+   *     Access Token)</a>
    */
   private String refreshToken;
 
   /**
-   * scope
+   * La portée (scope) du jeton d'accès.
    *
-   * <p>OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED. The scope
-   * of the access token as described by http://tools.ietf.org/html/rfc6749#section-3.3
+   * @see <a href="http://tools.ietf.org/html/rfc6749#section-3.3">RFC 6749, Section 3.3 (Access
+   *     Token Scope)</a>
    */
   private String scope;
 
+  /**
+   * Constructeur simple.
+   *
+   * @param accessToken Le jeton d'accès.
+   */
   public OAuth2AccessToken(String accessToken) {
     this(accessToken, null);
   }
 
+  /**
+   * Constructeur avec réponse brute.
+   *
+   * @param accessToken Le jeton d'accès.
+   * @param rawResponse La réponse HTTP brute du serveur.
+   */
   public OAuth2AccessToken(String accessToken, String rawResponse) {
     this(accessToken, null, null, null, null, rawResponse);
   }
 
+  /**
+   * Constructeur complet.
+   *
+   * @param accessToken Le jeton d'accès.
+   * @param tokenType Le type de jeton.
+   * @param expiresIn Durée de validité.
+   * @param refreshToken Jeton de renouvellement.
+   * @param scope Portée.
+   * @param rawResponse Réponse brute.
+   */
   public OAuth2AccessToken(
       String accessToken,
       String tokenType,
@@ -101,22 +111,27 @@ public class OAuth2AccessToken extends Token {
     this.scope = scope;
   }
 
+  /** @return Le jeton d'accès. */
   public String getAccessToken() {
     return accessToken;
   }
 
+  /** @return Le type de jeton. */
   public String getTokenType() {
     return tokenType;
   }
 
+  /** @return La durée de validité en secondes. */
   public Integer getExpiresIn() {
     return expiresIn;
   }
 
+  /** @return Le jeton de renouvellement. */
   public String getRefreshToken() {
     return refreshToken;
   }
 
+  /** @return La portée du jeton. */
   public String getScope() {
     return scope;
   }

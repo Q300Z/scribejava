@@ -41,17 +41,16 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
- * Service to create Signed Request Objects.
+ * Service de création d'objets de requête signés (Request Objects).
  *
- * <p>Implements JWT-Secured Authorization Request (JAR) as defined in:
+ * <p>Implémente le mécanisme JAR (JWT-Secured Authorization Request) permettant de garantir
+ * l'intégrité et l'authenticité des paramètres d'autorisation.
  *
  * <ul>
  *   <li><b>RFC 9101:</b> The OAuth 2.0 Authorization Framework: JWT-Secured Authorization Request
  *       (JAR)
  *   <li><b>OpenID Connect Core 1.0:</b> Section 6 (Passing Request Parameters as JWTs)
  * </ul>
- *
- * Signing the request object ensures integrity and authenticity of the authorization parameters.
  */
 public class RequestObjectService {
 
@@ -63,11 +62,30 @@ public class RequestObjectService {
   private final com.nimbusds.jose.JWEAlgorithm jweAlgorithm;
   private final com.nimbusds.jose.EncryptionMethod encryptionMethod;
 
+  /**
+   * Constructeur simple pour la signature seule.
+   *
+   * @param clientId L'identifiant du client (iss).
+   * @param audience L'audience du serveur d'autorisation (aud).
+   * @param signingJWK La clé de signature au format JWK.
+   * @param jwsAlgorithm L'algorithme de signature.
+   */
   public RequestObjectService(
       String clientId, String audience, JWK signingJWK, JWSAlgorithm jwsAlgorithm) {
     this(clientId, audience, () -> signingJWK, jwsAlgorithm, null, null, null);
   }
 
+  /**
+   * Constructeur complet supportant la signature et le chiffrement.
+   *
+   * @param clientId L'identifiant du client.
+   * @param audience L'audience attendue.
+   * @param signingJWKSupplier Fournisseur de la clé de signature.
+   * @param jwsAlgorithm L'algorithme de signature.
+   * @param encryptionJWK La clé de chiffrement du serveur.
+   * @param jweAlgorithm L'algorithme de chiffrement JWE.
+   * @param encryptionMethod La méthode de chiffrement du contenu.
+   */
   public RequestObjectService(
       String clientId,
       String audience,
@@ -85,6 +103,13 @@ public class RequestObjectService {
     this.encryptionMethod = encryptionMethod;
   }
 
+  /**
+   * Crée un objet de requête JWT (Request Object) à partir des paramètres d'autorisation fournis.
+   *
+   * @param authorizationParams Le dictionnaire des paramètres d'autorisation classiques.
+   * @return Le jeton JWT sérialisé (signé et optionnellement chiffré).
+   * @throws OAuthException en cas d'erreur lors de la signature ou du chiffrement.
+   */
   public String createRequestObject(Map<String, String> authorizationParams) {
     final JWK signingJWK = signingJWKSupplier.get();
     if (signingJWK == null) {

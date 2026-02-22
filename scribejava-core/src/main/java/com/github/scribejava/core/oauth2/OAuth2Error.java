@@ -26,6 +26,12 @@ package com.github.scribejava.core.oauth2;
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * Énumération des codes d'erreur OAuth 2.0 standards.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, Section 5.2 (Error
+ *     Response)</a>
+ */
 public enum OAuth2Error {
   /**
    * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
@@ -134,6 +140,13 @@ public enum OAuth2Error {
     this.errorString = errorString;
   }
 
+  /**
+   * Analyse la chaîne de caractères fournie pour retourner l'erreur OAuth 2.0 correspondante.
+   *
+   * @param errorString La chaîne de caractères représentant le code d'erreur.
+   * @return L'instance de {@link OAuth2Error} associée.
+   * @throws IllegalArgumentException si le code d'erreur n'est pas reconnu.
+   */
   public static OAuth2Error parseFrom(String errorString) {
     for (OAuth2Error error : VALUES) {
       if (error.errorString.equals(errorString)) {
@@ -143,6 +156,11 @@ public enum OAuth2Error {
     throw new IllegalArgumentException("there is no knowlege about '" + errorString + "' Error");
   }
 
+  /**
+   * Retourne la représentation textuelle du code d'erreur.
+   *
+   * @return Le code d'erreur sous forme de chaîne de caractères.
+   */
   public String getErrorString() {
     return errorString;
   }

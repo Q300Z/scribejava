@@ -25,10 +25,17 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
+/** API OAuth 2.0 pour Doktornarabote. */
 public class DoktornaraboteApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected DoktornaraboteApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Doktornarabote.
+   *
+   * @return L'instance de {@link DoktornaraboteApi}.
+   */
   public static DoktornaraboteApi instance() {
     return InstanceHolder.INSTANCE;
   }

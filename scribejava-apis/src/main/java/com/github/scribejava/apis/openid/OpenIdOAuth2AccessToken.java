@@ -26,25 +26,39 @@ package com.github.scribejava.apis.openid;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import java.util.Objects;
 
+/** Jeton d'accès OAuth 2.0 incluant un ID Token OpenID Connect. */
 public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
 
   private static final long serialVersionUID = -4534058186528117610L;
 
   /**
-   * Id_token is part of OpenID Connect specification. It can hold user information that you can
-   * directly extract without additional request to provider.
-   *
-   * <p>See http://openid.net/specs/openid-connect-core-1_0.html#id_token-tokenExample and
-   * https://bitbucket.org/nimbusds/nimbus-jose-jwt/wiki/Home
-   *
-   * <p>Here will be encoded and signed id token in JWT format or null, if not defined.
+   * Le jeton d'identité (ID Token) fait partie de la spécification OpenID Connect. Il peut contenir
+   * des informations utilisateur que vous pouvez extraire directement.
    */
   private final String openIdToken;
 
+  /**
+   * Constructeur simple.
+   *
+   * @param accessToken Le jeton d'accès.
+   * @param openIdToken Le jeton d'identité (ID Token).
+   * @param rawResponse La réponse brute.
+   */
   public OpenIdOAuth2AccessToken(String accessToken, String openIdToken, String rawResponse) {
     this(accessToken, null, null, null, null, openIdToken, rawResponse);
   }
 
+  /**
+   * Constructeur complet.
+   *
+   * @param accessToken Le jeton d'accès.
+   * @param tokenType Le type de jeton.
+   * @param expiresIn Durée de validité.
+   * @param refreshToken Jeton de renouvellement.
+   * @param scope Portée.
+   * @param openIdToken Le jeton d'identité.
+   * @param rawResponse La réponse brute.
+   */
   public OpenIdOAuth2AccessToken(
       String accessToken,
       String tokenType,
@@ -57,6 +71,7 @@ public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
     this.openIdToken = openIdToken;
   }
 
+  /** @return Le jeton d'identité (ID Token). */
   public String getOpenIdToken() {
     return openIdToken;
   }

@@ -34,6 +34,11 @@ public class BearerSignatureAuthorizationRequestHeaderField implements BearerSig
 
   protected BearerSignatureAuthorizationRequestHeaderField() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de ce type de signature.
+   *
+   * @return L'instance de {@link BearerSignatureAuthorizationRequestHeaderField}.
+   */
   public static BearerSignatureAuthorizationRequestHeaderField instance() {
     return InstanceHolder.INSTANCE;
   }

@@ -41,43 +41,52 @@ import com.github.scribejava.core.oauth2.clientauthentication.HttpBasicAuthentic
 import java.io.OutputStream;
 import java.util.Map;
 
-/** Default implementation of the OAuth protocol, version 2.0 */
+/**
+ * Implémentation par défaut du protocole OAuth, version 2.0.
+ *
+ * <p>Cette classe abstraite définit la structure de base pour toutes les APIs OAuth 2.0, incluant
+ * les points de terminaison, les extracteurs de jetons et les méthodes de signature.
+ */
 public abstract class DefaultApi20 {
 
   /**
-   * Returns the access token extractor.
+   * Retourne l'extracteur de jeton d'accès.
    *
-   * @return access token extractor
+   * @return L'instance de {@link TokenExtractor} pour {@link OAuth2AccessToken}.
    */
   public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
     return OAuth2AccessTokenJsonExtractor.instance();
   }
 
   /**
-   * Returns the verb for the access token endpoint (defaults to POST)
+   * Retourne le verbe HTTP pour le point de terminaison de jeton d'accès (POST par défaut).
    *
-   * @return access token endpoint verb
+   * @return Le verbe {@link Verb}.
    */
   public Verb getAccessTokenVerb() {
     return Verb.POST;
   }
 
   /**
-   * Returns the URL that receives the access token requests.
+   * Retourne l'URL qui reçoit les requêtes de jeton d'accès.
    *
-   * @return access token URL
+   * @return L'URL du point de terminaison de jeton.
    */
   public abstract String getAccessTokenEndpoint();
 
+  /**
+   * Retourne l'URL pour le renouvellement de jeton (identique au jeton d'accès par défaut).
+   *
+   * @return L'URL du point de terminaison de renouvellement.
+   */
   public String getRefreshTokenEndpoint() {
     return getAccessTokenEndpoint();
   }
 
   /**
-   * As stated in RFC 7009 OAuth 2.0 Token Revocation
+   * Retourne le point de terminaison de révocation de jeton (RFC 7009).
    *
-   * @return endpoint, which allows clients to notify the authorization server that a previously
-   *     obtained refresh or access token is no longer needed.
+   * @return L'URL de révocation.
    * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009</a>
    */
   public String getRevokeTokenEndpoint() {
@@ -86,28 +95,32 @@ public abstract class DefaultApi20 {
   }
 
   /**
-   * As stated in RFC 9126 OAuth 2.0 Pushed Authorization Requests
+   * Retourne le point de terminaison PAR (RFC 9126).
    *
-   * @return endpoint, which allows clients to push the authorization request parameters to the
-   *     authorization server.
+   * @return L'URL PAR ou null si non supporté.
    * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126</a>
    */
   public String getPushedAuthorizationRequestEndpoint() {
     return null;
   }
 
+  /**
+   * Retourne l'URL de base pour l'autorisation.
+   *
+   * @return L'URL d'autorisation.
+   */
   public abstract String getAuthorizationBaseUrl();
 
   /**
-   * Returns the URL where you should redirect your users to authenticate your application.
+   * Génère l'URL d'autorisation complète.
    *
-   * @param responseType responseType
-   * @param apiKey apiKey
-   * @param callback callback
-   * @param scope scope
-   * @param state state
-   * @param additionalParams additionalParams
-   * @return authorization URL
+   * @param responseType Le type de réponse.
+   * @param apiKey Le Client ID.
+   * @param callback L'URI de redirection.
+   * @param scope La portée demandée.
+   * @param state L'état opaque.
+   * @param additionalParams Paramètres additionnels.
+   * @return L'URL d'autorisation.
    */
   public String getAuthorizationUrl(
       String responseType,
@@ -136,16 +149,18 @@ public abstract class DefaultApi20 {
   }
 
   /**
-   * @param apiKey apiKey
-   * @param apiSecret apiSecret
-   * @param callback callback
-   * @param defaultScope defaultScope
-   * @param responseType responseType
-   * @param debugStream debugStream
-   * @param userAgent userAgent
-   * @param httpClientConfig httpClientConfig
-   * @param httpClient httpClient
-   * @return OAuth20Service
+   * Crée l'instance de service OAuth 2.0.
+   *
+   * @param apiKey Client ID.
+   * @param apiSecret Client Secret.
+   * @param callback Redirect URI.
+   * @param defaultScope Portée par défaut.
+   * @param responseType Type de réponse.
+   * @param debugStream Flux de débogage.
+   * @param userAgent User-Agent.
+   * @param httpClientConfig Configuration HTTP.
+   * @param httpClient Client HTTP.
+   * @return Une instance de {@link OAuth20Service}.
    */
   public OAuth20Service createService(
       String apiKey,
@@ -171,17 +186,19 @@ public abstract class DefaultApi20 {
   }
 
   /**
-   * @param apiKey apiKey
-   * @param apiSecret apiSecret
-   * @param callback callback
-   * @param defaultScope defaultScope
-   * @param responseType responseType
-   * @param debugStream debugStream
-   * @param userAgent userAgent
-   * @param httpClientConfig httpClientConfig
-   * @param httpClient httpClient
-   * @param dpopProofCreator dpopProofCreator
-   * @return OAuth20Service
+   * Crée l'instance de service OAuth 2.0 supportant DPoP.
+   *
+   * @param apiKey Client ID.
+   * @param apiSecret Client Secret.
+   * @param callback Redirect URI.
+   * @param defaultScope Portée par défaut.
+   * @param responseType Type de réponse.
+   * @param debugStream Flux de débogage.
+   * @param userAgent User-Agent.
+   * @param httpClientConfig Configuration HTTP.
+   * @param httpClient Client HTTP.
+   * @param dpopProofCreator Créateur de preuves DPoP.
+   * @return Une instance de {@link OAuth20Service}.
    */
   public OAuth20Service createService(
       String apiKey,
@@ -208,18 +225,28 @@ public abstract class DefaultApi20 {
         dpopProofCreator);
   }
 
+  /**
+   * Retourne le mécanisme de signature Bearer (RFC 6750).
+   *
+   * @return L'instance de {@link BearerSignature}.
+   */
   public BearerSignature getBearerSignature() {
     return BearerSignatureAuthorizationRequestHeaderField.instance();
   }
 
+  /**
+   * Retourne le mécanisme d'authentification du client (RFC 6749).
+   *
+   * @return L'instance de {@link ClientAuthentication}.
+   */
   public ClientAuthentication getClientAuthentication() {
     return HttpBasicAuthenticationScheme.instance();
   }
 
   /**
-   * RFC 8628 OAuth 2.0 Device Authorization Grant
+   * Retourne le point de terminaison pour l'autorisation d'appareil (RFC 8628).
    *
-   * @return the device authorization endpoint
+   * @return L'URL du point de terminaison.
    * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628</a>
    */
   public String getDeviceAuthorizationEndpoint() {
@@ -227,6 +254,11 @@ public abstract class DefaultApi20 {
         "This API doesn't support Device Authorization Grant or we have no info about this");
   }
 
+  /**
+   * Retourne l'extracteur pour l'autorisation d'appareil.
+   *
+   * @return L'instance de {@link DeviceAuthorizationJsonExtractor}.
+   */
   public DeviceAuthorizationJsonExtractor getDeviceAuthorizationExtractor() {
     return DeviceAuthorizationJsonExtractor.instance();
   }

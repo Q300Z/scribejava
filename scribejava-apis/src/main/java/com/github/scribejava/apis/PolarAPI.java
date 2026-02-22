@@ -33,13 +33,21 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import java.io.OutputStream;
 
 /**
- * Polar's OAuth2 client's implementation source:
- * https://www.polar.com/accesslink-api/#authentication
+ * API OAuth 2.0 pour Polar.
+ *
+ * @see <a href="https://www.polar.com/accesslink-api/#authentication">Polar Accesslink API
+ *     Documentation</a>
  */
 public class PolarAPI extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected PolarAPI() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Polar.
+   *
+   * @return L'instance de {@link PolarAPI}.
+   */
   public static PolarAPI instance() {
     return PolarAPI.InstanceHolder.INSTANCE;
   }

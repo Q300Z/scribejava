@@ -33,6 +33,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Constructeur fluide pour les URLs d'autorisation OAuth 2.0.
+ *
+ * <p>Permet de configurer les différents paramètres de la requête d'autorisation (state, scope,
+ * PKCE, PAR) de manière chaînée avant de générer l'URL finale.
+ */
 public class AuthorizationUrlBuilder {
 
   private final OAuth20Service oauth20Service;
@@ -43,44 +49,96 @@ public class AuthorizationUrlBuilder {
   private String scope;
   private boolean usePushedAuthorizationRequests;
 
+  /**
+   * Constructeur.
+   *
+   * @param oauth20Service Le service OAuth 2.0 associé.
+   */
   public AuthorizationUrlBuilder(OAuth20Service oauth20Service) {
     this.oauth20Service = oauth20Service;
   }
 
+  /**
+   * Définit le paramètre d'état (state).
+   *
+   * @param state Valeur opaque pour la protection CSRF.
+   * @return L'instance actuelle du builder.
+   */
   public AuthorizationUrlBuilder state(String state) {
     this.state = state;
     return this;
   }
 
+  /**
+   * Ajoute des paramètres supplémentaires à la requête.
+   *
+   * @param additionalParams Dictionnaire de paramètres additionnels.
+   * @return L'instance actuelle du builder.
+   */
   public AuthorizationUrlBuilder additionalParams(Map<String, String> additionalParams) {
     this.additionalParams = additionalParams;
     return this;
   }
 
+  /**
+   * Définit l'objet PKCE à utiliser.
+   *
+   * @param pkce L'instance {@link PKCE}.
+   * @return L'instance actuelle du builder.
+   * @see <a href="https://tools.ietf.org/html/rfc7636">RFC 7636 (PKCE)</a>
+   */
   public AuthorizationUrlBuilder pkce(PKCE pkce) {
     this.pkce = pkce;
     return this;
   }
 
+  /**
+   * Génère automatiquement une nouvelle paire de clés PKCE.
+   *
+   * @return L'instance actuelle du builder.
+   */
   public AuthorizationUrlBuilder initPKCE() {
     this.pkce = PKCEService.defaultInstance().generatePKCE();
     return this;
   }
 
+  /**
+   * Définit la portée (scope) pour cette requête spécifique.
+   *
+   * @param scope La portée demandée.
+   * @return L'instance actuelle du builder.
+   */
   public AuthorizationUrlBuilder scope(String scope) {
     this.scope = scope;
     return this;
   }
 
+  /**
+   * Active l'utilisation des requêtes d'autorisation poussées (PAR).
+   *
+   * @return L'instance actuelle du builder.
+   * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126 (PAR)</a>
+   */
   public AuthorizationUrlBuilder usePushedAuthorizationRequests() {
     this.usePushedAuthorizationRequests = true;
     return this;
   }
 
+  /** @return L'objet PKCE configuré, ou null. */
   public PKCE getPkce() {
     return pkce;
   }
 
+  /**
+   * Construit l'URL d'autorisation finale.
+   *
+   * <p>Si PAR est activé, une requête POST est envoyée au serveur et l'URL contiendra un {@code
+   * request_uri}. Sinon, l'URL contiendra tous les paramètres en clair (ou transformés par JAR si
+   * configuré).
+   *
+   * @return L'URL d'autorisation prête à être utilisée pour la redirection.
+   * @throws OAuthException en cas d'erreur lors de l'appel PAR.
+   */
   public String build() {
     if (pkce == null) {
       initPKCE();

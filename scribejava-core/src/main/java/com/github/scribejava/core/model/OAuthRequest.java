@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-/** The representation of an OAuth HttpRequest. */
+/** Représentation d'une requête HTTP OAuth. */
 public class OAuthRequest {
 
   private static final String OAUTH_PREFIX = "oauth_";
@@ -55,10 +55,10 @@ public class OAuthRequest {
   private String realm;
 
   /**
-   * Default constructor.
+   * Constructeur par défaut.
    *
-   * @param verb Http verb/method
-   * @param url resource URL
+   * @param verb Le verbe HTTP (GET, POST, etc.).
+   * @param url L'URL de la ressource.
    */
   public OAuthRequest(Verb verb, String url) {
     this.verb = verb;
@@ -66,11 +66,11 @@ public class OAuthRequest {
   }
 
   /**
-   * Adds an OAuth parameter.
+   * Ajoute un paramètre OAuth.
    *
-   * @param key name of the parameter
-   * @param value value of the parameter
-   * @throws IllegalArgumentException if the parameter is not an OAuth parameter
+   * @param key Le nom du paramètre (doit commencer par 'oauth_', ou être 'scope' ou 'realm').
+   * @param value La valeur du paramètre.
+   * @throws IllegalArgumentException si le paramètre n'est pas un paramètre OAuth valide.
    */
   public void addOAuthParameter(String key, String value) {
     oauthParameters.put(checkKey(key), value);
@@ -89,57 +89,66 @@ public class OAuthRequest {
     }
   }
 
+  /** @return Le dictionnaire des paramètres OAuth. */
   public Map<String, String> getOauthParameters() {
     return oauthParameters;
   }
 
+  /** @return Le royaume (realm) d'authentification. */
   public String getRealm() {
     return realm;
   }
 
+  /** @param realm Le royaume d'authentification à définir. */
   public void setRealm(String realm) {
     this.realm = realm;
   }
 
   /**
-   * Returns the complete url (host + resource + encoded querystring parameters).
+   * Retourne l'URL complète (hôte + ressource + paramètres de requête encodés).
    *
-   * @return the complete url.
+   * @return L'URL complète.
    */
   public String getCompleteUrl() {
     return querystringParams.appendTo(url);
   }
 
   /**
-   * Add an HTTP Header to the Request
+   * Ajoute un en-tête HTTP à la requête.
    *
-   * @param key the header name
-   * @param value the header value
+   * @param key Le nom de l'en-tête.
+   * @param value La valeur de l'en-tête.
    */
   public void addHeader(String key, String value) {
     headers.put(key, value);
   }
 
   /**
-   * Add a body Parameter (for POST/ PUT Requests)
+   * Ajoute un paramètre au corps de la requête (pour POST/PUT).
    *
-   * @param key the parameter name
-   * @param value the parameter value
+   * @param key Le nom du paramètre.
+   * @param value La valeur du paramètre.
    */
   public void addBodyParameter(String key, String value) {
     bodyParams.add(key, value);
   }
 
   /**
-   * Add a QueryString parameter
+   * Ajoute un paramètre à la chaîne de requête (QueryString).
    *
-   * @param key the parameter name
-   * @param value the parameter value
+   * @param key Le nom du paramètre.
+   * @param value La valeur du paramètre.
    */
   public void addQuerystringParameter(String key, String value) {
     querystringParams.add(key, value);
   }
 
+  /**
+   * Ajoute un paramètre de manière intelligente selon le verbe HTTP.
+   *
+   * @param key Le nom du paramètre.
+   * @param value La valeur du paramètre.
+   */
   public void addParameter(String key, String value) {
     if (verb.isPermitBody()) {
       bodyParams.add(key, value);
@@ -148,14 +157,21 @@ public class OAuthRequest {
     }
   }
 
+  /** @return La charge utile multipart, ou null. */
   public MultipartPayload getMultipartPayload() {
     return multipartPayload;
   }
 
+  /** @param multipartPayload La charge utile multipart à définir. */
   public void setMultipartPayload(MultipartPayload multipartPayload) {
     this.multipartPayload = multipartPayload;
   }
 
+  /**
+   * Ajoute une partie à la charge utile multipart.
+   *
+   * @param bodyPartPayload La partie à ajouter.
+   */
   public void addBodyPartPayloadInMultipartPayload(BodyPartPayload bodyPartPayload) {
     if (multipartPayload == null) {
       multipartPayload = new MultipartPayload();
@@ -164,10 +180,9 @@ public class OAuthRequest {
   }
 
   /**
-   * Set body payload. This method is used when the HTTP body is not a form-url-encoded string, but
-   * another thing. Like for example XML. Note: The contents are not part of the OAuth signature
+   * Définit la charge utile sous forme de chaîne (ex: JSON, XML).
    *
-   * @param payload the body of the request
+   * @param payload Le contenu du corps.
    */
   public void setPayload(String payload) {
     resetPayload();
@@ -175,9 +190,9 @@ public class OAuthRequest {
   }
 
   /**
-   * Overloaded version for byte arrays
+   * Définit la charge utile sous forme de tableau d'octets.
    *
-   * @param payload byte[]
+   * @param payload Le contenu binaire.
    */
   public void setPayload(byte[] payload) {
     resetPayload();
@@ -185,9 +200,9 @@ public class OAuthRequest {
   }
 
   /**
-   * Overloaded version for File
+   * Définit la charge utile sous forme de fichier.
    *
-   * @param payload File
+   * @param payload Le fichier à envoyer.
    */
   public void setPayload(File payload) {
     resetPayload();
@@ -202,10 +217,10 @@ public class OAuthRequest {
   }
 
   /**
-   * Get a {@link ParameterList} with the query string parameters.
+   * Récupère la liste des paramètres de la chaîne de requête.
    *
-   * @return a {@link ParameterList} containing the query string parameters.
-   * @throws OAuthException if the request URL is not valid.
+   * @return Un {@link ParameterList} contenant les paramètres.
+   * @throws OAuthException si l'URL est malformée.
    */
   public ParameterList getQueryStringParams() {
     try {
@@ -220,27 +235,23 @@ public class OAuthRequest {
   }
 
   /**
-   * Obtains a {@link ParameterList} of the body parameters.
+   * Récupère la liste des paramètres du corps de la requête.
    *
-   * @return a {@link ParameterList}containing the body parameters.
+   * @return Un {@link ParameterList} contenant les paramètres du corps.
    */
   public ParameterList getBodyParams() {
     return bodyParams;
   }
 
-  /**
-   * Obtains the URL of the HTTP Request.
-   *
-   * @return the original URL of the HTTP Request
-   */
+  /** @return L'URL d'origine de la requête. */
   public String getUrl() {
     return url;
   }
 
   /**
-   * Returns the URL without the port and the query string part.
+   * Retourne l'URL nettoyée (sans port standard ni chaîne de requête).
    *
-   * @return the OAuth-sanitized URL
+   * @return L'URL pour la signature OAuth.
    */
   public String getSanitizedUrl() {
     if (url.startsWith("http://") && (url.endsWith(":80") || url.contains(":80/"))) {
@@ -252,19 +263,12 @@ public class OAuthRequest {
     }
   }
 
-  /**
-   * Returns the body of the request (set in {@link #setPayload(java.lang.String)})
-   *
-   * @return form encoded string
-   */
+  /** @return La charge utile sous forme de chaîne. */
   public String getStringPayload() {
     return stringPayload;
   }
 
-  /**
-   * @return the body of the request (set in {@link #setPayload(byte[])} or in {@link
-   *     #addBodyParameter(java.lang.String, java.lang.String)} )
-   */
+  /** @return La charge utile sous forme de tableau d'octets. */
   public byte[] getByteArrayPayload() {
     if (byteArrayPayload != null) {
       return byteArrayPayload;
@@ -277,6 +281,7 @@ public class OAuthRequest {
     }
   }
 
+  /** @return La charge utile sous forme de fichier. */
   public File getFilePayload() {
     return filePayload;
   }
@@ -286,49 +291,53 @@ public class OAuthRequest {
     return String.format("@Request(%s %s)", getVerb(), getUrl());
   }
 
+  /** @return Le verbe HTTP. */
   public Verb getVerb() {
     return verb;
   }
 
+  /** @return Le dictionnaire des en-têtes HTTP. */
   public Map<String, String> getHeaders() {
     return headers;
   }
 
+  /** @return L'encodage de caractères utilisé (UTF-8 par défaut). */
   public String getCharset() {
     return charset == null ? Charset.defaultCharset().name() : charset;
   }
 
-  /**
-   * Set the charset of the body of the request
-   *
-   * @param charsetName name of the charset of the request
-   */
+  /** @param charsetName Le nom du charset à utiliser. */
   public void setCharset(String charsetName) {
     charset = charsetName;
   }
 
   /**
-   * Set the DPoP header.
+   * Définit l'en-tête DPoP.
    *
-   * @param dpopProof the DPoP proof JWT as a string
+   * @param dpopProof Le jeton JWT de preuve DPoP.
+   * @see <a href="https://tools.ietf.org/html/rfc9449">RFC 9449 (DPoP)</a>
    */
   public void setDPoPProof(String dpopProof) {
     addHeader("DPoP", dpopProof);
   }
 
+  /**
+   * Interface pour convertir une réponse brute en un objet de type T.
+   *
+   * @param <T> Le type cible de la conversion.
+   */
   public interface ResponseConverter<T> {
 
     ResponseConverter<Response> IDENTITY = response -> response;
 
     /**
-     * Implementations of this method should close provided Response in case response is not
-     * included in the return Object of type &lt;T&gt; Then responsibility to close response is in
-     * on the {@link
-     * com.github.scribejava.core.model.OAuthAsyncRequestCallback#onCompleted(java.lang.Object) }
+     * Convertit la réponse HTTP.
      *
-     * @param response response
-     * @return T
-     * @throws IOException IOException
+     * <p>L'implémentation doit fermer la réponse si elle n'est pas incluse dans l'objet retourné.
+     *
+     * @param response La réponse HTTP brute.
+     * @return L'objet converti de type T.
+     * @throws IOException en cas d'erreur de lecture.
      */
     T convert(Response response) throws IOException;
   }

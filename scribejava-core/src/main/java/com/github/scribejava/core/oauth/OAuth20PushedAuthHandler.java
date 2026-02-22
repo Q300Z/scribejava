@@ -36,12 +36,22 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Handles OAuth 2.0 Pushed Authorization Requests (PAR). */
+/**
+ * Gère les requêtes d'autorisation poussées (PAR - Pushed Authorization Requests).
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126</a>
+ */
 public class OAuth20PushedAuthHandler {
 
   private final OAuth20Service service;
-  // Cache key: Hash of sorted parameters. Value: Cached response with expiration.
+  // Clé de cache : Hash des paramètres triés. Valeur : Réponse mise en cache avec expiration.
   private final Map<Integer, CachedResponse> cache = new ConcurrentHashMap<>();
 
+  /**
+   * Constructeur.
+   *
+   * @param service Le service OAuth 2.0 associé.
+   */
   public OAuth20PushedAuthHandler(OAuth20Service service) {
     this.service = service;
   }
@@ -52,8 +62,9 @@ public class OAuth20PushedAuthHandler {
 
     CachedResponse(PushedAuthorizationResponse response) {
       this.response = response;
-      // Expires in seconds. Convert to millis. Safety margin: 5 seconds.
-      this.expirationTime = System.currentTimeMillis() + (response.getExpiresIn() - 5) * 1000;
+      // Expire en secondes. Conversion en millis. Marge de sécurité : 5 secondes.
+      this.expirationTime =
+          System.currentTimeMillis() + (long) (response.getExpiresIn() - 5) * 1000;
     }
 
     boolean isValid() {
@@ -61,6 +72,17 @@ public class OAuth20PushedAuthHandler {
     }
   }
 
+  /**
+   * Crée la requête HTTP pour l'appel au point de terminaison PAR.
+   *
+   * @param responseType Le type de réponse.
+   * @param apiKey Le Client ID.
+   * @param callback L'URI de redirection.
+   * @param scope La portée demandée.
+   * @param state L'état opaque.
+   * @param additionalParams Paramètres additionnels.
+   * @return Une {@link OAuthRequest} configurée.
+   */
   public OAuthRequest createPushedAuthorizationRequest(
       String responseType,
       String apiKey,
@@ -100,6 +122,18 @@ public class OAuth20PushedAuthHandler {
     return request;
   }
 
+  /**
+   * Envoie la requête PAR de manière asynchrone avec gestion du cache.
+   *
+   * @param responseType Le type de réponse.
+   * @param apiKey Le Client ID.
+   * @param callback L'URI de redirection.
+   * @param scope La portée.
+   * @param state L'état.
+   * @param additionalParams Paramètres additionnels.
+   * @param callbackConsumer Rappel optionnel.
+   * @return Un futur résolvant vers {@link PushedAuthorizationResponse}.
+   */
   public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(
       String responseType,
       String apiKey,

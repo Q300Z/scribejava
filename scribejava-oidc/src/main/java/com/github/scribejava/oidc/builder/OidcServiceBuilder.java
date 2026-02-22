@@ -30,22 +30,32 @@ import com.nimbusds.jose.jwk.JWK;
 import java.util.function.Supplier;
 
 /**
- * Specialized ServiceBuilder for OpenID Connect extensions. Provides convenient methods for JAR
- * (RFC 9101) configuration.
+ * Constructeur de service (ServiceBuilder) spécialisé pour les extensions OpenID Connect.
+ *
+ * <p>Fournit des méthodes pratiques pour la configuration de JAR (RFC 9101).
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc9101">RFC 9101 (OAuth 2.0 JAR)</a>
  */
 public class OidcServiceBuilder extends ServiceBuilder {
 
+  /**
+   * Constructeur.
+   *
+   * @param apiKey La clé API du client (Client ID).
+   */
   public OidcServiceBuilder(String apiKey) {
     super(apiKey);
   }
 
   /**
-   * Enables JWT-Secured Authorization Request (JAR) - RFC 9101.
+   * Active les requêtes d'autorisation sécurisées par JWT (JAR) - RFC 9101.
    *
-   * @param audience The audience for the Request Object (usually the Issuer URL of the OP).
-   * @param signingKey The client's private key (JWK) used to sign the request.
-   * @param jwsAlgorithm The signing algorithm (e.g. RS256).
-   * @return this builder
+   * @param audience L'audience de l'objet de requête (généralement l'URL de l'émetteur du
+   *     fournisseur).
+   * @param signingKey La clé privée du client (JWK) utilisée pour signer la requête.
+   * @param jwsAlgorithm L'algorithme de signature (ex: RS256).
+   * @return L'instance actuelle du builder.
+   * @see <a href="https://tools.ietf.org/html/rfc9101">RFC 9101</a>
    */
   public OidcServiceBuilder jwtSecuredAuthorizationRequest(
       String audience, JWK signingKey, JWSAlgorithm jwsAlgorithm) {
@@ -56,12 +66,13 @@ public class OidcServiceBuilder extends ServiceBuilder {
   }
 
   /**
-   * Enables JWT-Secured Authorization Request (JAR) with Key Rollover support.
+   * Active les requêtes d'autorisation sécurisées par JWT (JAR) avec support du renouvellement des
+   * clés (Key Rollover).
    *
-   * @param audience The audience for the Request Object (usually the Issuer URL of the OP).
-   * @param signingKeySupplier A supplier that returns the current client private key (JWK).
-   * @param jwsAlgorithm The signing algorithm (e.g. RS256).
-   * @return this builder
+   * @param audience L'audience de l'objet de requête.
+   * @param signingKeySupplier Un fournisseur retournant la clé privée actuelle du client (JWK).
+   * @param jwsAlgorithm L'algorithme de signature.
+   * @return L'instance actuelle du builder.
    */
   public OidcServiceBuilder jwtSecuredAuthorizationRequest(
       String audience, Supplier<JWK> signingKeySupplier, JWSAlgorithm jwsAlgorithm) {

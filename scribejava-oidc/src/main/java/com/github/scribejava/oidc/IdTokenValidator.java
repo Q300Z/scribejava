@@ -41,7 +41,16 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 import java.util.Date;
 
-/** Validator for OpenID Connect ID Tokens and Logout Tokens. */
+/**
+ * Validateur pour les jetons d'identité (ID Tokens) et les jetons de déconnexion (Logout Tokens)
+ * OpenID Connect.
+ *
+ * <p>Cette classe assure la vérification de la signature, de l'émetteur, de l'audience, de
+ * l'expiration et de la fraîcheur de l'authentification (max_age).
+ *
+ * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">OpenID
+ *     Connect Core 1.0, Section 3.1.3.7 (ID Token Validation)</a>
+ */
 public class IdTokenValidator {
 
   private final IDTokenValidator validator;
@@ -49,11 +58,28 @@ public class IdTokenValidator {
   private final JWKSet jwkSet;
   private final JWK clientPrivateJWK;
 
+  /**
+   * Constructeur de base pour la validation asymétrique (RSA/EC).
+   *
+   * @param issuer L'identifiant de l'émetteur attendu.
+   * @param clientID L'identifiant du client (audience attendue).
+   * @param jwsAlgorithm L'algorithme de signature attendu.
+   * @param jwkSet L'ensemble de clés publiques du fournisseur pour vérifier la signature.
+   */
   public IdTokenValidator(
       String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet) {
     this(issuer, clientID, jwsAlgorithm, jwkSet, null, null);
   }
 
+  /**
+   * Constructeur supportant la validation symétrique (HMAC) via le secret client.
+   *
+   * @param issuer L'identifiant de l'émetteur attendu.
+   * @param clientID L'identifiant du client (audience attendue).
+   * @param jwsAlgorithm L'algorithme de signature attendu.
+   * @param jwkSet L'ensemble de clés publiques du fournisseur.
+   * @param clientSecret Le secret client pour les algorithmes HS256/384/512.
+   */
   public IdTokenValidator(
       String issuer,
       ClientID clientID,
@@ -63,6 +89,16 @@ public class IdTokenValidator {
     this(issuer, clientID, jwsAlgorithm, jwkSet, clientSecret, null);
   }
 
+  /**
+   * Constructeur complet supportant également le déchiffrement des jetons (JWE).
+   *
+   * @param issuer L'identifiant de l'émetteur attendu.
+   * @param clientID L'identifiant du client.
+   * @param jwsAlgorithm L'algorithme de signature attendu.
+   * @param jwkSet L'ensemble de clés publiques du fournisseur.
+   * @param clientSecret Le secret client.
+   * @param clientPrivateJWK La clé privée du client pour le déchiffrement.
+   */
   public IdTokenValidator(
       final String issuer,
       final ClientID clientID,
@@ -87,6 +123,15 @@ public class IdTokenValidator {
     }
   }
 
+  /**
+   * Valide un ID Token.
+   *
+   * @param idTokenString La chaîne brute du jeton (JWS ou JWE).
+   * @param expectedNonce La valeur de nonce attendue (pour contrer le rejeu).
+   * @param maxAuthAgeSeconds L'âge maximum autorisé de l'authentification (en secondes).
+   * @return L'instance de {@link IdToken} validée.
+   * @throws OAuthException si une règle de validation n'est pas respectée.
+   */
   public IdToken validate(String idTokenString, Nonce expectedNonce, long maxAuthAgeSeconds)
       throws OAuthException {
     try {
@@ -213,6 +258,15 @@ public class IdTokenValidator {
     }
   }
 
+  /**
+   * Valide un Logout Token reçu via le canal de retour (Back-Channel).
+   *
+   * @param logoutTokenString La chaîne brute du jeton de déconnexion.
+   * @throws OAuthException si le jeton est invalide.
+   * @see <a
+   *     href="https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutTokenValidation">OpenID
+   *     Connect Back-Channel Logout 1.0, Section 2.6</a>
+   */
   public void validateLogoutToken(String logoutTokenString) throws OAuthException {
     try {
       final String tokenToValidate = decryptIfEncrypted(logoutTokenString);
@@ -243,11 +297,17 @@ public class IdTokenValidator {
   }
 
   /**
-   * Validates that the access token is bound to the correct public key or certificate.
+   * Valide la liaison du jeton (Token Binding) à une clé publique ou un certificat spécifique.
    *
-   * @param idToken The validated ID Token.
-   * @param expectedJkt The expected JWK Thumbprint (for DPoP).
-   * @param expectedX5t The expected X.509 Certificate Thumbprint (for mTLS).
+   * <p>Supporte la vérification de l'empreinte de clé JWK (DPoP) et de l'empreinte de certificat
+   * X.509 (mTLS).
+   *
+   * @param idToken Le jeton d'identité validé.
+   * @param expectedJkt L'empreinte JWK Thumbprint attendue (RFC 9449).
+   * @param expectedX5t L'empreinte de certificat X.509 attendue (RFC 8705).
+   * @throws OAuthException en cas de non-concordance des empreintes.
+   * @see <a href="https://tools.ietf.org/html/rfc9449">RFC 9449 (DPoP)</a>
+   * @see <a href="https://tools.ietf.org/html/rfc8705">RFC 8705 (mTLS)</a>
    */
   public void validateTokenBinding(IdToken idToken, String expectedJkt, String expectedX5t)
       throws OAuthException {

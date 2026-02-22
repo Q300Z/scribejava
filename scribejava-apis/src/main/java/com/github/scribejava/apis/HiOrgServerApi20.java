@@ -26,26 +26,43 @@ package com.github.scribejava.apis;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
 /**
- * OAuth2 API for HiOrg-Server
+ * API OAuth 2.0 pour HiOrg-Server.
  *
- * @see <a href="https://wiki.hiorg-server.de/admin/oauth2">HiOrg-Server OAuth API documentation</a>
+ * @see <a href="https://wiki.hiorg-server.de/admin/oauth2">HiOrg-Server OAuth Documentation</a>
  */
 public class HiOrgServerApi20 extends DefaultApi20 {
 
   private final String version;
 
+  /** Constructeur utilisant la version par défaut ("v1"). */
   protected HiOrgServerApi20() {
     this("v1");
   }
 
+  /**
+   * Constructeur pour une version spécifique.
+   *
+   * @param version La version de l'API.
+   */
   protected HiOrgServerApi20(String version) {
     this.version = version;
   }
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API HiOrg-Server.
+   *
+   * @return L'instance de {@link HiOrgServerApi20}.
+   */
   public static HiOrgServerApi20 instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Crée une instance avec une version personnalisée.
+   *
+   * @param version La version de l'API.
+   * @return Une nouvelle instance de {@link HiOrgServerApi20}.
+   */
   public static HiOrgServerApi20 customVersion(String version) {
     return new HiOrgServerApi20(version);
   }

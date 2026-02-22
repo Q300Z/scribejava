@@ -33,6 +33,11 @@ import com.github.scribejava.core.model.OAuthRequest;
 public class BearerSignatureURIQueryParameter implements BearerSignature {
   protected BearerSignatureURIQueryParameter() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de ce type de signature.
+   *
+   * @return L'instance de {@link BearerSignatureURIQueryParameter}.
+   */
   public static BearerSignatureURIQueryParameter instance() {
     return InstanceHolder.INSTANCE;
   }

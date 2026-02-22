@@ -27,15 +27,39 @@ import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
+/**
+ * Représente la concession de type "Refresh Token" (jeton de renouvellement).
+ *
+ * <p>Les jetons de renouvellement sont des identifiants utilisés pour obtenir de nouveaux jetons
+ * d'accès lorsque le jeton d'accès actuel devient invalide ou expire, ou pour obtenir des jetons
+ * d'accès additionnels.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.5">RFC 6749, Section 1.5 (Refresh
+ *     Token)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC 6749, Section 6 (Refreshing an
+ *     Access Token)</a>
+ */
 public class RefreshTokenGrant implements OAuth20Grant {
 
   private final String refreshToken;
   private final String scope;
 
+  /**
+   * Constructeur simple.
+   *
+   * @param refreshToken Le jeton de renouvellement délivré au client.
+   */
   public RefreshTokenGrant(String refreshToken) {
     this(refreshToken, null);
   }
 
+  /**
+   * Constructeur avec portée (scope) spécifique.
+   *
+   * @param refreshToken Le jeton de renouvellement délivré au client.
+   * @param scope La portée de la demande d'accès (doit être identique ou plus restreinte que celle
+   *     d'origine).
+   */
   public RefreshTokenGrant(String refreshToken, String scope) {
     this.refreshToken = refreshToken;
     this.scope = scope;

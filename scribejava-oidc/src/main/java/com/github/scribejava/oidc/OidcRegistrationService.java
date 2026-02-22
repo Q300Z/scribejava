@@ -36,18 +36,45 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-/** Service for Dynamic Client Registration (RFC 7591 & OIDC Registration). */
+/**
+ * Service gérant l'enregistrement dynamique des clients (Dynamic Client Registration).
+ *
+ * <p>Permet à un client de s'enregistrer automatiquement auprès d'un fournisseur OpenID en
+ * fournissant ses métadonnées (URIs de redirection, nom, méthode d'authentification).
+ *
+ * @see <a href="http://openid.net/specs/openid-connect-registration-1_0.html">OpenID Connect
+ *     Dynamic Client Registration 1.0</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7591">RFC 7591 (OAuth 2.0 Dynamic Client
+ *     Registration Protocol)</a>
+ */
 public class OidcRegistrationService {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private final HttpClient httpClient;
   private final String userAgent;
 
+  /**
+   * Constructeur.
+   *
+   * @param httpClient Le client HTTP à utiliser.
+   * @param userAgent La chaîne User-Agent.
+   */
   public OidcRegistrationService(final HttpClient httpClient, final String userAgent) {
     this.httpClient = httpClient;
     this.userAgent = userAgent;
   }
 
+  /**
+   * Enregistre un client de manière asynchrone auprès du fournisseur.
+   *
+   * @param registrationEndpoint L'URL du point de terminaison d'enregistrement.
+   * @param redirectUris Liste des URIs de redirection autorisées pour ce client.
+   * @param clientName Nom convivial du client.
+   * @param tokenEndpointAuthMethod Méthode d'authentification souhaitée au point de terminaison de
+   *     jeton.
+   * @return Un {@link CompletableFuture} contenant la réponse du serveur sous forme de {@link
+   *     JsonNode}.
+   */
   public CompletableFuture<JsonNode> registerClientAsync(
       final String registrationEndpoint,
       final List<String> redirectUris,

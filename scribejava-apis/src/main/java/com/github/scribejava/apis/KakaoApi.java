@@ -27,10 +27,17 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
+/** API OAuth 2.0 pour Kakao. */
 public class KakaoApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected KakaoApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Kakao.
+   *
+   * @return L'instance de {@link KakaoApi}.
+   */
   public static KakaoApi instance() {
     return KakaoApi.InstanceHolder.INSTANCE;
   }

@@ -47,19 +47,27 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Default implementation of {@link DPoPProofCreator} using Nimbus JOSE+JWT library.
+ * Implémentation par défaut de {@link DPoPProofCreator} utilisant la bibliothèque Nimbus JOSE+JWT.
  *
- * <p>Implements <b>RFC 9449:</b> OAuth 2.0 Demonstrating Proof of Possession (DPoP).
+ * <p>Implémente la spécification <b>RFC 9449:</b> OAuth 2.0 Demonstrating Proof of Possession
+ * (DPoP).
  *
- * <p>This creator generates a DPoP proof JWT that includes claims like {@code htm} (HTTP method),
- * {@code htu} (HTTP target URI), and optionally {@code ath} (Access Token Hash) to bind the request
- * to a specific token.
+ * <p>Ce créateur génère un jeton JWT de preuve DPoP incluant les revendications {@code htm}
+ * (méthode HTTP), {@code htu} (URI cible HTTP) et optionnellement {@code ath} (empreinte du jeton
+ * d'accès) pour lier la requête à un jeton spécifique.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc9449">RFC 9449 (DPoP)</a>
  */
 public class DefaultDPoPProofCreator implements DPoPProofCreator {
 
   private final JWK dpopJWK;
   private final JWSAlgorithm jwsAlgorithm;
 
+  /**
+   * Constructeur par défaut générant une paire de clés RSA 2048 bits éphémère.
+   *
+   * @throws OAuthException si la génération de la clé échoue.
+   */
   public DefaultDPoPProofCreator() {
     try {
       final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -77,6 +85,13 @@ public class DefaultDPoPProofCreator implements DPoPProofCreator {
     }
   }
 
+  /**
+   * Constructeur utilisant une clé JWK existante.
+   *
+   * @param dpopJWK La clé privée à utiliser pour signer les preuves DPoP.
+   * @param jwsAlgorithm L'algorithme de signature à utiliser.
+   * @throws IllegalArgumentException si la clé fournie n'est pas une clé privée.
+   */
   public DefaultDPoPProofCreator(final JWK dpopJWK, final JWSAlgorithm jwsAlgorithm) {
     if (!dpopJWK.isPrivate()) {
       throw new IllegalArgumentException("DPoP JWK must contain a private key for signing.");
@@ -85,6 +100,14 @@ public class DefaultDPoPProofCreator implements DPoPProofCreator {
     this.jwsAlgorithm = jwsAlgorithm;
   }
 
+  /**
+   * Crée une preuve DPoP pour la requête donnée.
+   *
+   * @param request La requête HTTP à protéger.
+   * @param accessToken Le jeton d'accès associé (optionnel, utilisé pour la revendication {@code
+   *     ath}).
+   * @return Le jeton JWT de preuve DPoP sérialisé.
+   */
   @Override
   public String createDPoPProof(final OAuthRequest request, final String accessToken) {
     final JWSHeader header =

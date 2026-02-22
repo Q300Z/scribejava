@@ -37,20 +37,44 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
  *     Graph REST API v1.0 reference</a>
  * @see <a href="https://portal.azure.com">https://portal.azure.com</a>
  */
+/**
+ * API Microsoft Azure Active Directory v2.0.
+ *
+ * @see <a
+ *     href="https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code">
+ *     Azure AD OAuth 2.0 Documentation</a>
+ */
 public class MicrosoftAzureActiveDirectory20Api extends BaseMicrosoftAzureActiveDirectoryApi {
 
+  /** Constructeur utilisant le tenant par défaut. */
   protected MicrosoftAzureActiveDirectory20Api() {
     this(COMMON_TENANT);
   }
 
+  /**
+   * Constructeur pour un tenant spécifique.
+   *
+   * @param tenant L'identifiant du tenant.
+   */
   protected MicrosoftAzureActiveDirectory20Api(String tenant) {
     super(tenant);
   }
 
+  /**
+   * Retourne l'instance unique (singleton) pour le tenant par défaut.
+   *
+   * @return L'instance de {@link MicrosoftAzureActiveDirectory20Api}.
+   */
   public static MicrosoftAzureActiveDirectory20Api instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Crée une instance pour un tenant personnalisé.
+   *
+   * @param tenant L'identifiant du tenant.
+   * @return Une nouvelle instance de {@link MicrosoftAzureActiveDirectory20Api}.
+   */
   public static MicrosoftAzureActiveDirectory20Api custom(String tenant) {
     return new MicrosoftAzureActiveDirectory20Api(tenant);
   }

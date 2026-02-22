@@ -31,8 +31,8 @@ import com.github.scribejava.core.utils.Preconditions;
 import java.io.OutputStream;
 
 /**
- * Implementation of the Builder pattern, with a fluent interface that creates a {@link
- * OAuthService}
+ * Implémentation du patron de conception Builder, avec une interface fluide permettant de créer un
+ * service OAuth.
  */
 public class ServiceBuilder implements ServiceBuilderOAuth20 {
 
@@ -53,14 +53,26 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
   private String discoveryIssuer;
   private com.github.scribejava.core.oauth.DiscoveryService discoveryService;
 
+  /**
+   * Constructeur.
+   *
+   * @param apiKey La clé API du client (Client ID).
+   */
   public ServiceBuilder(String apiKey) {
     apiKey(apiKey);
   }
 
+  /** @return La clé API configurée. */
   public String getApiKey() {
     return apiKey;
   }
 
+  /**
+   * Définit le convertisseur de requête d'autorisation (ex: pour JAR ou PAR).
+   *
+   * @param authorizationRequestConverter L'instance du convertisseur.
+   * @return L'instance actuelle du builder.
+   */
   public ServiceBuilder authorizationRequestConverter(
       com.github.scribejava.core.oauth.AuthorizationRequestConverter
           authorizationRequestConverter) {
@@ -68,12 +80,25 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return this;
   }
 
+  /**
+   * Définit le créateur de preuves DPoP (RFC 9449).
+   *
+   * @param dpopProofCreator L'instance du créateur.
+   * @return L'instance actuelle du builder.
+   */
   public ServiceBuilder dpopProofCreator(
       com.github.scribejava.core.dpop.DPoPProofCreator dpopProofCreator) {
     this.dpopProofCreator = dpopProofCreator;
     return this;
   }
 
+  /**
+   * Configure la découverte automatique des points de terminaison à partir d'un émetteur (Issuer).
+   *
+   * @param issuer L'URL de l'émetteur (Issuer URL).
+   * @param service Le service de découverte à utiliser.
+   * @return L'instance actuelle du builder.
+   */
   public ServiceBuilder discoverFromIssuer(
       String issuer, com.github.scribejava.core.oauth.DiscoveryService service) {
     this.discoveryIssuer = issuer;
@@ -161,6 +186,15 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return debugStream(System.out);
   }
 
+  /**
+   * Construit l'instance finale du service OAuth 2.0.
+   *
+   * <p>Si la découverte automatique est configurée, elle sera exécutée de manière synchrone avant
+   * la construction.
+   *
+   * @param api L'implémentation de l'API à utiliser.
+   * @return Une instance de {@link OAuth20Service} prête à l'emploi.
+   */
   @Override
   public OAuth20Service build(final DefaultApi20 api) {
     DefaultApi20 apiToUse = api;

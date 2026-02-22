@@ -26,11 +26,17 @@ package com.github.scribejava.apis;
 import com.github.scribejava.apis.slack.SlackJsonTokenExtractor;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
-/** Slack.com API */
+/** API OAuth 2.0 pour Slack. */
 public class SlackApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected SlackApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Slack.
+   *
+   * @return L'instance de {@link SlackApi}.
+   */
   public static SlackApi instance() {
     return SlackApi.InstanceHolder.INSTANCE;
   }

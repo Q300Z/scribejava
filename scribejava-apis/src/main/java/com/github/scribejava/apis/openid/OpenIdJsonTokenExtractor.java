@@ -26,11 +26,21 @@ package com.github.scribejava.apis.openid;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
 
-/** additionally parses OpenID id_token */
+/**
+ * Extracteur JSON pour les jetons OpenID Connect.
+ *
+ * <p>Analyse également le paramètre {@code id_token} en plus des paramètres OAuth 2.0 standards.
+ */
 public class OpenIdJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
+  /** Constructeur protégé. */
   protected OpenIdJsonTokenExtractor() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link OpenIdJsonTokenExtractor}.
+   */
   public static OpenIdJsonTokenExtractor instance() {
     return InstanceHolder.INSTANCE;
   }

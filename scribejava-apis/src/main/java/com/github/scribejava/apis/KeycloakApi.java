@@ -30,20 +30,38 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/** API OAuth 2.0 pour Keycloak. */
 public class KeycloakApi extends DefaultApi20 {
 
   private static final ConcurrentMap<String, KeycloakApi> INSTANCES = new ConcurrentHashMap<>();
 
   private final String baseUrlWithRealm;
 
+  /**
+   * Constructeur protégé.
+   *
+   * @param baseUrlWithRealm L'URL de base incluant le chemin du royaume.
+   */
   protected KeycloakApi(String baseUrlWithRealm) {
     this.baseUrlWithRealm = baseUrlWithRealm;
   }
 
+  /**
+   * Retourne l'instance par défaut (localhost:8080, realm master).
+   *
+   * @return L'instance de {@link KeycloakApi}.
+   */
   public static KeycloakApi instance() {
     return instance("http://localhost:8080/", "master");
   }
 
+  /**
+   * Retourne une instance pour un serveur et un royaume spécifiques.
+   *
+   * @param baseUrl L'URL de base du serveur Keycloak.
+   * @param realm Le nom du royaume (realm).
+   * @return L'instance de {@link KeycloakApi}.
+   */
   public static KeycloakApi instance(String baseUrl, String realm) {
     final String defaultBaseUrlWithRealm = composeBaseUrlWithRealm(baseUrl, realm);
 

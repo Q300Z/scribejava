@@ -36,14 +36,30 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 /** Handles OAuth 2.0 Device Authorization Grant flow. */
+/**
+ * Gère le flux de concession d'autorisation pour les appareils (Device Authorization Grant).
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628</a>
+ */
 public class OAuth20DeviceFlowHandler {
 
   private final OAuth20Service service;
 
+  /**
+   * Constructeur.
+   *
+   * @param service Le service OAuth 2.0 associé.
+   */
   public OAuth20DeviceFlowHandler(OAuth20Service service) {
     this.service = service;
   }
 
+  /**
+   * Crée la requête pour obtenir les codes d'autorisation d'appareil.
+   *
+   * @param scope La portée demandée.
+   * @return Une {@link OAuthRequest} configurée.
+   */
   public OAuthRequest createDeviceAuthorizationCodesRequest(String scope) {
     final OAuthRequest request =
         new OAuthRequest(Verb.POST, service.getApi().getDeviceAuthorizationEndpoint());
@@ -56,6 +72,15 @@ public class OAuth20DeviceFlowHandler {
     return request;
   }
 
+  /**
+   * Récupère les codes d'autorisation d'appareil de manière synchrone.
+   *
+   * @param scope La portée demandée.
+   * @return Un objet {@link DeviceAuthorization}.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si la requête échoue.
+   * @throws IOException en cas d'erreur réseau.
+   */
   public DeviceAuthorization getDeviceAuthorizationCodes(String scope)
       throws InterruptedException, ExecutionException, IOException {
     final OAuthRequest request = createDeviceAuthorizationCodesRequest(scope);
@@ -70,6 +95,15 @@ public class OAuth20DeviceFlowHandler {
     }
   }
 
+  /**
+   * Interroge périodiquement le serveur pour obtenir le jeton d'accès (Polling).
+   *
+   * @param deviceAuthorization L'objet contenant le device_code.
+   * @return Le jeton d'accès {@link OAuth2AccessToken}.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si la requête échoue.
+   * @throws IOException en cas d'erreur réseau.
+   */
   public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(
       DeviceAuthorization deviceAuthorization)
       throws InterruptedException, ExecutionException, IOException {

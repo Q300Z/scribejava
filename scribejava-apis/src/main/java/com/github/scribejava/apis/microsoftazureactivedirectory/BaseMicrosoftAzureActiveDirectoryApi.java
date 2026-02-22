@@ -27,6 +27,7 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
+/** Classe de base pour les APIs Microsoft Azure Active Directory. */
 public abstract class BaseMicrosoftAzureActiveDirectoryApi extends DefaultApi20 {
 
   protected static final String COMMON_TENANT = "common";
@@ -35,10 +36,16 @@ public abstract class BaseMicrosoftAzureActiveDirectoryApi extends DefaultApi20 
   private static final String OAUTH_2 = "/oauth2";
   private final String tenant;
 
+  /** Constructeur utilisant le tenant par défaut. */
   protected BaseMicrosoftAzureActiveDirectoryApi() {
     this(COMMON_TENANT);
   }
 
+  /**
+   * Constructeur pour un tenant spécifique.
+   *
+   * @param tenant L'identifiant du tenant.
+   */
   protected BaseMicrosoftAzureActiveDirectoryApi(String tenant) {
     this.tenant = tenant == null || tenant.isEmpty() ? COMMON_TENANT : tenant;
   }

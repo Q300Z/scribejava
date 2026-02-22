@@ -24,22 +24,38 @@
 package com.github.scribejava.oidc;
 
 /**
- * Google OpenID Connect 1.0 API implementation.
+ * Implémentation de l'API Google OpenID Connect 1.0.
  *
- * <p>This class uses the DefaultOidcApi20 structure to support discovery and ID Token features.
+ * <p>Cette classe utilise la structure {@link DefaultOidcApi20} pour supporter la découverte
+ * dynamique et la validation des jetons d'identité (ID Tokens).
+ *
+ * @see <a href="https://developers.google.com/identity/protocols/oauth2/openid-connect">Google OIDC
+ *     Documentation</a>
+ * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
  */
 public class OidcGoogleApi20 extends DefaultOidcApi20 {
 
+  /** Constructeur protégé. */
   protected OidcGoogleApi20() {}
 
   private static class InstanceHolder {
     private static final OidcGoogleApi20 INSTANCE = new OidcGoogleApi20();
   }
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Google OIDC.
+   *
+   * @return L'instance de {@link OidcGoogleApi20}.
+   */
   public static OidcGoogleApi20 instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Retourne l'identifiant de l'émetteur (Issuer) officiel de Google.
+   *
+   * @return {@code https://accounts.google.com}
+   */
   @Override
   public String getIssuer() {
     return "https://accounts.google.com";

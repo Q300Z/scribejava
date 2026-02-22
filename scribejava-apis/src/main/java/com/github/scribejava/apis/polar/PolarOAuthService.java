@@ -33,8 +33,23 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.pkce.PKCE;
 import java.io.OutputStream;
 
+/** Service OAuth spécifique à Polar. */
 public class PolarOAuthService extends OAuth20Service {
 
+  /**
+   * Constructeur.
+   *
+   * @param api L'API associée.
+   * @param apiKey La clé API.
+   * @param apiSecret Le secret API.
+   * @param callback L'URL de rappel.
+   * @param defaultScope La portée par défaut.
+   * @param responseType Le type de réponse.
+   * @param debugStream Flux de débogage.
+   * @param userAgent Chaîne User-Agent.
+   * @param httpClientConfig Configuration HTTP.
+   * @param httpClient Le client HTTP.
+   */
   public PolarOAuthService(
       PolarAPI api,
       String apiKey,

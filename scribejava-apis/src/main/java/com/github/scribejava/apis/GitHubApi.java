@@ -29,10 +29,23 @@ import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.Verb;
 
+/**
+ * API OAuth 2.0 pour GitHub.
+ *
+ * @see <a
+ *     href="https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps">GitHub
+ *     OAuth Documentation</a>
+ */
 public class GitHubApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected GitHubApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API GitHub.
+   *
+   * @return L'instance de {@link GitHubApi}.
+   */
   public static GitHubApi instance() {
     return InstanceHolder.INSTANCE;
   }

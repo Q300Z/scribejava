@@ -41,17 +41,16 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Client Authentication using JSON Web Token (JWT) Bearer Token Profiles.
+ * Authentification du client via un jeton porteur JSON Web Token (JWT).
  *
- * <p>Implements {@code private_key_jwt} authentication method as defined in:
+ * <p>Implémente la méthode d'authentification {@code private_key_jwt} permettant une sécurité
+ * renforcée en prouvant la possession d'une clé privée au lieu d'utiliser un secret partagé.
  *
  * <ul>
  *   <li><b>RFC 7523:</b> JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication (Section
  *       2.2)
  *   <li><b>OpenID Connect Core 1.0:</b> Section 9 (Client Authentication)
  * </ul>
- *
- * This method is more secure than {@code client_secret} as it proves possession of a private key.
  */
 public class PrivateKeyJwtClientAuthentication implements ClientAuthentication {
 
@@ -61,6 +60,16 @@ public class PrivateKeyJwtClientAuthentication implements ClientAuthentication {
   private final JWK privateJWK;
   private final JWSAlgorithm jwsAlgorithm;
 
+  /**
+   * Constructeur.
+   *
+   * @param clientId L'identifiant du client (Client ID).
+   * @param audience L'audience attendue par le serveur (typiquement l'URL du point de terminaison
+   *     de jeton).
+   * @param privateJWK La clé privée du client au format JWK.
+   * @param jwsAlgorithm L'algorithme de signature à utiliser (ex: RS256, ES256).
+   * @throws IllegalArgumentException si la clé fournie n'est pas une clé privée.
+   */
   public PrivateKeyJwtClientAuthentication(
       final String clientId,
       final String audience,
@@ -82,6 +91,12 @@ public class PrivateKeyJwtClientAuthentication implements ClientAuthentication {
     addClientAuthentication(request);
   }
 
+  /**
+   * Ajoute l'assertion JWT d'authentification client à la requête.
+   *
+   * @param request La requête HTTP à laquelle ajouter les paramètres {@code client_assertion} et
+   *     {@code client_assertion_type}.
+   */
   public void addClientAuthentication(final OAuthRequest request) {
     final String assertion = createAssertion();
     request.addBodyParameter(

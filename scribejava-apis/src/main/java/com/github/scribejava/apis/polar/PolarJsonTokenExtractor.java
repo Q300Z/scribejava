@@ -31,11 +31,22 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth2.OAuth2Error;
 import java.io.IOException;
 
-/** Token related documentation: https://www.polar.com/accesslink-api/#token-endpoint */
+/**
+ * Extracteur JSON pour les jetons Polar.
+ *
+ * @see <a href="https://www.polar.com/accesslink-api/#token-endpoint">Polar Token Endpoint
+ *     Documentation</a>
+ */
 public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
+  /** Constructeur protégé. */
   protected PolarJsonTokenExtractor() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link PolarJsonTokenExtractor}.
+   */
   public static PolarJsonTokenExtractor instance() {
     return InstanceHolder.INSTANCE;
   }

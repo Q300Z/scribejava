@@ -25,10 +25,17 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
+/** API OAuth 2.0 pour The Things Network (V2 Preview). */
 public class TheThingsNetworkV2PreviewApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected TheThingsNetworkV2PreviewApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API TTN V2 Preview.
+   *
+   * @return L'instance de {@link TheThingsNetworkV2PreviewApi}.
+   */
   public static TheThingsNetworkV2PreviewApi instance() {
     return InstanceHolder.INSTANCE;
   }

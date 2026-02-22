@@ -27,10 +27,17 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureURIQueryParameter;
 
+/** API OAuth 2.0 pour Windows Live (Microsoft). */
 public class LiveApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected LiveApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Live.
+   *
+   * @return L'instance de {@link LiveApi}.
+   */
   public static LiveApi instance() {
     return InstanceHolder.INSTANCE;
   }

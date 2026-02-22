@@ -26,11 +26,17 @@ package com.github.scribejava.apis.microsoftazureactivedirectory;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureAuthorizationRequestHeaderField;
 
+/** Classe de base pour la signature Bearer spécifique à Microsoft Azure Active Directory. */
 public abstract class BaseMicrosoftAzureActiveDirectoryBearerSignature
     extends BearerSignatureAuthorizationRequestHeaderField {
 
   private final String acceptedFormat;
 
+  /**
+   * Constructeur.
+   *
+   * @param acceptedFormat Le format accepté (en-tête Accept).
+   */
   protected BaseMicrosoftAzureActiveDirectoryBearerSignature(String acceptedFormat) {
     this.acceptedFormat = acceptedFormat;
   }

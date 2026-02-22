@@ -27,15 +27,26 @@ import com.github.scribejava.apis.google.GoogleDeviceAuthorizationJsonExtractor;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.extractors.DeviceAuthorizationJsonExtractor;
 
-/** Google OAuth 2.0 API with OpenID Connect support. */
+/**
+ * API Google OAuth 2.0 avec support OpenID Connect.
+ *
+ * @see <a href="https://developers.google.com/identity/protocols/oauth2">Google OAuth 2.0
+ *     Documentation</a>
+ */
 public class GoogleApi20 extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected GoogleApi20() {}
 
   private static class InstanceHolder {
     private static final GoogleApi20 INSTANCE = new GoogleApi20();
   }
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Google.
+   *
+   * @return L'instance de {@link GoogleApi20}.
+   */
   public static GoogleApi20 instance() {
     return InstanceHolder.INSTANCE;
   }

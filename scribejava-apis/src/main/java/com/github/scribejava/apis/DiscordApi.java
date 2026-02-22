@@ -25,10 +25,16 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
+/** API OAuth 2.0 pour Discord. */
 public class DiscordApi extends DefaultApi20 {
 
   private DiscordApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Discord.
+   *
+   * @return L'instance de {@link DiscordApi}.
+   */
   public static DiscordApi instance() {
     return DiscordApi.InstanceHolder.INSTANCE;
   }

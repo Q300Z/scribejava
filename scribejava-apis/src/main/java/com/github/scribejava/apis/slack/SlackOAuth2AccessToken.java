@@ -26,12 +26,24 @@ package com.github.scribejava.apis.slack;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import java.util.Objects;
 
+/** Jeton d'accès OAuth 2.0 spécifique à Slack, incluant le jeton d'accès de l'utilisateur. */
 public class SlackOAuth2AccessToken extends OAuth2AccessToken {
 
   private static final long serialVersionUID = 1L;
 
   private final String userAccessToken;
 
+  /**
+   * Constructeur.
+   *
+   * @param accessToken Le jeton d'accès de l'application.
+   * @param tokenType Le type de jeton.
+   * @param expiresIn Durée de validité.
+   * @param refreshToken Jeton de renouvellement.
+   * @param scope Portée.
+   * @param userAccessToken Le jeton d'accès de l'utilisateur authentifié.
+   * @param rawResponse La réponse brute.
+   */
   public SlackOAuth2AccessToken(
       String accessToken,
       String tokenType,
@@ -44,6 +56,7 @@ public class SlackOAuth2AccessToken extends OAuth2AccessToken {
     this.userAccessToken = userAccessToken;
   }
 
+  /** @return Le jeton d'accès de l'utilisateur. */
   public String getUserAccessToken() {
     return userAccessToken;
   }

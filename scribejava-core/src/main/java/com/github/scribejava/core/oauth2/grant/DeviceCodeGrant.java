@@ -27,10 +27,25 @@ import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
+/**
+ * Représente la concession de type "Device Code" (code d'appareil).
+ *
+ * <p>Ce type de concession est une extension permettant aux appareils connectés à Internet, mais
+ * dépourvus de navigateur web ou ayant des capacités de saisie limitées, d'obtenir des jetons
+ * d'accès.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.5">RFC 6749, Section 4.5 (Extension
+ *     Grants)</a>
+ */
 public class DeviceCodeGrant implements OAuth20Grant {
 
   private final String deviceCode;
 
+  /**
+   * Constructeur.
+   *
+   * @param deviceCode Le code appareil obtenu lors de l'étape d'autorisation initiale.
+   */
   public DeviceCodeGrant(String deviceCode) {
     this.deviceCode = deviceCode;
   }

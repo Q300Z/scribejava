@@ -39,12 +39,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-/** Specialized OAuth20Service for OpenID Connect. */
+/**
+ * Service OAuth 2.0 spécialisé pour OpenID Connect 1.0.
+ *
+ * <p>Étend {@link OAuth20Service} pour ajouter des fonctionnalités spécifiques à OIDC telles que la
+ * validation de l'ID Token, la récupération des informations utilisateur (UserInfo), la déconnexion
+ * initiée par le client (RP-Initiated Logout) et le support du mode "form_post".
+ *
+ * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
+ */
 public class OidcService extends OAuth20Service {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private final IdTokenValidator idTokenValidator;
 
+  /**
+   * Constructeur complet.
+   *
+   * @param api L'instance de l'API OIDC.
+   * @param apiKey La clé API du client.
+   * @param apiSecret Le secret API du client.
+   * @param callback L'URI de redirection.
+   * @param defaultScope La portée par défaut.
+   * @param responseType Le type de réponse.
+   * @param debugStream Flux de débogage.
+   * @param userAgent Chaîne User-Agent.
+   * @param httpClientConfig Configuration du client HTTP.
+   * @param httpClient Le client HTTP.
+   * @param idTokenValidator Le validateur de jetons d'identité.
+   */
   public OidcService(
       final DefaultApi20 api,
       final String apiKey,
@@ -71,6 +94,15 @@ public class OidcService extends OAuth20Service {
     this.idTokenValidator = idTokenValidator;
   }
 
+  /**
+   * Valide l'ID Token contenu dans la réponse du point de terminaison de jeton.
+   *
+   * @param accessToken Le jeton d'accès contenant l'ID Token brut dans sa réponse.
+   * @param expectedNonce La valeur de nonce attendue.
+   * @return L'instance de {@link IdToken} validée.
+   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">OIDC
+   *     Core, Section 3.1.3.7</a>
+   */
   public IdToken validateIdToken(final OAuth2AccessToken accessToken, final Nonce expectedNonce) {
     try {
       final JsonNode node = OBJECT_MAPPER.readTree(accessToken.getRawResponse());
@@ -84,6 +116,17 @@ public class OidcService extends OAuth20Service {
     }
   }
 
+  /**
+   * Construit l'URL pour initier une déconnexion de l'utilisateur final.
+   *
+   * @param endSessionEndpoint L'URL du point de terminaison de fin de session du fournisseur.
+   * @param idTokenHint L'ID Token précédemment délivré (recommandé).
+   * @param postLogoutRedirectUri L'URI vers laquelle rediriger après la déconnexion.
+   * @param state Valeur d'état opaque pour maintenir l'état entre la requête et le rappel.
+   * @return L'URL de déconnexion configurée.
+   * @see <a href="https://openid.net/specs/openid-connect-rpinitiated-1_0.html#RPLogout">OIDC
+   *     RP-Initiated Logout 1.0, Section 2</a>
+   */
   public String getRpInitiatedLogoutUrl(
       final String endSessionEndpoint,
       final String idTokenHint,
@@ -102,6 +145,14 @@ public class OidcService extends OAuth20Service {
     return parameters.appendTo(endSessionEndpoint);
   }
 
+  /**
+   * Révoque un jeton (Access ou Refresh) de manière asynchrone.
+   *
+   * @param revocationEndpoint L'URL du point de terminaison de révocation.
+   * @param token Le jeton à révoquer.
+   * @return Un futur complété à la fin de l'opération.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (OAuth 2.0 Token Revocation)</a>
+   */
   public CompletableFuture<Void> revokeTokenAsync(
       final String revocationEndpoint, final String token) {
     final com.github.scribejava.core.model.OAuthRequest request =
@@ -129,6 +180,15 @@ public class OidcService extends OAuth20Service {
         });
   }
 
+  /**
+   * Retourne l'URL d'autorisation utilisant le mode de réponse "form_post".
+   *
+   * @param state La valeur d'état opaque.
+   * @param additionalParams Paramètres additionnels.
+   * @return L'URL d'autorisation.
+   * @see <a href="https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html">OIDC Form
+   *     Post Response Mode 1.0</a>
+   */
   public String getAuthorizationUrlFormPost(
       final String state, final Map<String, String> additionalParams) {
     final Map<String, String> params =
@@ -137,6 +197,14 @@ public class OidcService extends OAuth20Service {
     return createAuthorizationUrlBuilder().state(state).additionalParams(params).build();
   }
 
+  /**
+   * Valide la présence et la valeur du paramètre {@code iss} dans la réponse d'autorisation.
+   *
+   * @param issuerResponse La valeur du paramètre {@code iss} reçue.
+   * @param expectedIssuer L'identifiant de l'émetteur attendu.
+   * @see <a href="https://tools.ietf.org/html/rfc9207">RFC 9207 (OAuth 2.0 AS Issuer
+   *     Identification)</a>
+   */
   public void validateIssuerResponse(final String issuerResponse, final String expectedIssuer) {
     if (issuerResponse != null && !issuerResponse.equals(expectedIssuer)) {
       throw new com.github.scribejava.core.exceptions.OAuthException(
@@ -147,6 +215,14 @@ public class OidcService extends OAuth20Service {
     }
   }
 
+  /**
+   * Récupère les informations utilisateur (Claims) de manière asynchrone.
+   *
+   * @param accessToken Le jeton d'accès autorisé.
+   * @return Un {@link CompletableFuture} résolvant vers {@link StandardClaims}.
+   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">OIDC Core, Section
+   *     5.3 (UserInfo Endpoint)</a>
+   */
   public CompletableFuture<StandardClaims> getUserInfoAsync(final OAuth2AccessToken accessToken) {
     String userInfoEndpoint = null;
     if (getApi() instanceof DefaultOidcApi20) {

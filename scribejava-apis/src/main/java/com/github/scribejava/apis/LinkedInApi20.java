@@ -27,10 +27,23 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
+/**
+ * API OAuth 2.0 pour LinkedIn.
+ *
+ * @see <a
+ *     href="https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow">LinkedIn
+ *     OAuth Documentation</a>
+ */
 public class LinkedInApi20 extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected LinkedInApi20() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API LinkedIn.
+   *
+   * @return L'instance de {@link LinkedInApi20}.
+   */
   public static LinkedInApi20 instance() {
     return InstanceHolder.INSTANCE;
   }

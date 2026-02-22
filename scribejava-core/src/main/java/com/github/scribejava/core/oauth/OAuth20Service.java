@@ -38,6 +38,23 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Service principal pour le protocole OAuth 2.0.
+ *
+ * <p>Cette classe gère le flux d'autorisation, l'obtention et le renouvellement des jetons, ainsi
+ * que la signature des requêtes vers les ressources protégées. Elle supporte nativement plusieurs
+ * extensions de sécurité :
+ *
+ * <ul>
+ *   <li><b>PKCE (RFC 7636):</b> Protection contre l'interception de code d'autorisation.
+ *   <li><b>DPoP (RFC 9449):</b> Liaison cryptographique des jetons au client.
+ *   <li><b>PAR (RFC 9126):</b> Envoi sécurisé des paramètres d'autorisation côté serveur.
+ *   <li><b>Revocation (RFC 7009):</b> Invalidation des jetons d'accès et de renouvellement.
+ * </ul>
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749">RFC 6749 (The OAuth 2.0 Authorization
+ *     Framework)</a>
+ */
 public class OAuth20Service extends OAuthService {
 
   private static final String VERSION = "2.0";
@@ -50,6 +67,20 @@ public class OAuth20Service extends OAuthService {
   private final OAuth20PushedAuthHandler pushedAuthHandler;
   private AuthorizationRequestConverter authorizationRequestConverter = params -> params;
 
+  /**
+   * Constructeur simple.
+   *
+   * @param api L'instance de l'API OAuth 2.0.
+   * @param apiKey La clé API du client (Client ID).
+   * @param apiSecret Le secret API du client (Client Secret).
+   * @param callback L'URL de rappel (Redirect URI).
+   * @param defaultScope La portée par défaut.
+   * @param responseType Le type de réponse attendu (ex: "code").
+   * @param debugStream Flux pour les logs de débogage.
+   * @param userAgent Chaîne User-Agent pour les requêtes HTTP.
+   * @param httpClientConfig Configuration du client HTTP.
+   * @param httpClient L'implémentation du client HTTP.
+   */
   public OAuth20Service(
       DefaultApi20 api,
       String apiKey,
@@ -75,6 +106,21 @@ public class OAuth20Service extends OAuthService {
         null);
   }
 
+  /**
+   * Constructeur supportant DPoP.
+   *
+   * @param api L'instance de l'API OAuth 2.0.
+   * @param apiKey La clé API du client.
+   * @param apiSecret Le secret API du client.
+   * @param callback L'URL de rappel.
+   * @param defaultScope La portée par défaut.
+   * @param responseType Le type de réponse.
+   * @param debugStream Flux pour les logs de débogage.
+   * @param userAgent Chaîne User-Agent.
+   * @param httpClientConfig Configuration du client HTTP.
+   * @param httpClient L'implémentation du client HTTP.
+   * @param dpopProofCreator Créateur de preuves DPoP (RFC 9449).
+   */
   public OAuth20Service(
       DefaultApi20 api,
       String apiKey,
@@ -114,41 +160,79 @@ public class OAuth20Service extends OAuthService {
     return VERSION;
   }
 
+  /**
+   * Signe une requête en y ajoutant le jeton d'accès.
+   *
+   * <p>Cette méthode gère automatiquement l'ajout du jeton selon le schéma configuré (ex: Bearer)
+   * et génère une preuve DPoP si un créateur de preuves est configuré.
+   *
+   * @param accessToken Le jeton d'accès sous forme de chaîne.
+   * @param request La requête à signer.
+   * @see <a href="https://tools.ietf.org/html/rfc6750">RFC 6750 (Bearer Token)</a>
+   * @see <a href="https://tools.ietf.org/html/rfc9449">RFC 9449 (DPoP)</a>
+   */
   public void signRequest(String accessToken, OAuthRequest request) {
     requestSigner.signRequest(accessToken, request);
   }
 
+  /**
+   * Signe une requête en y ajoutant le jeton d'accès complexe.
+   *
+   * @param accessToken L'objet jeton d'accès OAuth 2.0.
+   * @param request La requête à signer.
+   */
   public void signRequest(OAuth2AccessToken accessToken, OAuthRequest request) {
     requestSigner.signRequest(accessToken, request);
   }
 
   /**
-   * Returns the URL where you should redirect your users to authenticate your application.
+   * Retourne l'URL vers laquelle vous devez rediriger vos utilisateurs pour authentifier votre
+   * application.
    *
-   * @return the URL where you should redirect your users
+   * @return L'URL d'autorisation complète.
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.1">RFC 6749, Section 4.1.1
+   *     (Authorization Request)</a>
    */
   public String getAuthorizationUrl() {
     return createAuthorizationUrlBuilder().build();
   }
 
+  /**
+   * Retourne l'URL d'autorisation avec un paramètre d'état (state).
+   *
+   * @param state Valeur opaque utilisée pour maintenir l'état entre la requête et le rappel (CSRF).
+   * @return L'URL d'autorisation.
+   */
   public String getAuthorizationUrl(String state) {
     return createAuthorizationUrlBuilder().state(state).build();
   }
 
   /**
-   * Returns the URL where you should redirect your users to authenticate your application.
+   * Retourne l'URL d'autorisation avec des paramètres supplémentaires.
    *
-   * @param additionalParams any additional GET params to add to the URL
-   * @return the URL where you should redirect your users
+   * @param additionalParams Paramètres GET additionnels à ajouter à l'URL.
+   * @return L'URL d'autorisation.
    */
   public String getAuthorizationUrl(Map<String, String> additionalParams) {
     return createAuthorizationUrlBuilder().additionalParams(additionalParams).build();
   }
 
+  /**
+   * Retourne l'URL d'autorisation configurée pour PKCE.
+   *
+   * @param pkce L'objet contenant le code_challenge et sa méthode.
+   * @return L'URL d'autorisation.
+   * @see <a href="https://tools.ietf.org/html/rfc7636">RFC 7636 (PKCE)</a>
+   */
   public String getAuthorizationUrl(PKCE pkce) {
     return createAuthorizationUrlBuilder().pkce(pkce).build();
   }
 
+  /**
+   * Crée un constructeur d'URL d'autorisation fluide.
+   *
+   * @return Une nouvelle instance de {@link AuthorizationUrlBuilder}.
+   */
   public AuthorizationUrlBuilder createAuthorizationUrlBuilder() {
     return new AuthorizationUrlBuilder(this);
   }
@@ -316,13 +400,17 @@ public class OAuth20Service extends OAuthService {
   }
 
   /**
-   * Unified method to get access token using any grant type strategy.
+   * Méthode unifiée pour obtenir un jeton d'accès en utilisant n'importe quelle stratégie de
+   * concession (grant).
    *
-   * @param grant the grant strategy to use
-   * @return OAuth2AccessToken
-   * @throws IOException IOException
-   * @throws InterruptedException InterruptedException
-   * @throws ExecutionException ExecutionException
+   * @param grant La stratégie de concession à utiliser (ex: AuthorizationCodeGrant,
+   *     ClientCredentialsGrant).
+   * @return L'objet {@link OAuth2AccessToken} contenant le jeton d'accès.
+   * @throws IOException en cas d'erreur réseau.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si l'exécution de la requête échoue.
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4">RFC 6749, Section 4 (Obtaining
+   *     Authorization)</a>
    */
   public OAuth2AccessToken getAccessToken(
       com.github.scribejava.core.oauth2.grant.OAuth20Grant grant)
@@ -382,10 +470,10 @@ public class OAuth20Service extends OAuthService {
   }
 
   /**
-   * Unified method to get access token using any grant type strategy.
+   * Version asynchrone de l'obtention de jeton d'accès utilisant une stratégie de concession.
    *
-   * @param grant the grant strategy to use
-   * @return CompletableFuture
+   * @param grant La stratégie de concession à utiliser.
+   * @return Un {@link CompletableFuture} résolvant vers {@link OAuth2AccessToken}.
    */
   public CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(
       com.github.scribejava.core.oauth2.grant.OAuth20Grant grant) {
@@ -758,6 +846,16 @@ public class OAuth20Service extends OAuthService {
     revokeToken(tokenToRevoke, (TokenTypeHint) null);
   }
 
+  /**
+   * Révoque un jeton de manière synchrone.
+   *
+   * @param tokenToRevoke Le jeton à invalider.
+   * @param tokenTypeHint Indice optionnel sur le type de jeton (access_token ou refresh_token).
+   * @throws IOException en cas d'erreur réseau.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si la requête échoue.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
   public void revokeToken(String tokenToRevoke, TokenTypeHint tokenTypeHint)
       throws IOException, InterruptedException, ExecutionException {
     revocationHandler.revokeToken(tokenToRevoke, tokenTypeHint);
@@ -809,14 +907,15 @@ public class OAuth20Service extends OAuthService {
   }
 
   /**
-   * Requests a set of verification codes from the authorization server
+   * Demande un ensemble de codes de vérification au serveur d'autorisation pour le flux appareil.
    *
-   * @param scope scope
-   * @return DeviceAuthorization
-   * @throws InterruptedException InterruptedException
-   * @throws ExecutionException ExecutionException
-   * @throws IOException IOException
-   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628</a>
+   * @param scope La portée de la demande.
+   * @return Un objet {@link DeviceAuthorization} contenant les codes utilisateur et appareil.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si la requête échoue.
+   * @throws IOException en cas d'erreur réseau.
+   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628, Section 3.1 (Device
+   *     Authorization Request)</a>
    */
   public DeviceAuthorization getDeviceAuthorizationCodes(String scope)
       throws InterruptedException, ExecutionException, IOException {
@@ -952,6 +1051,22 @@ public class OAuth20Service extends OAuthService {
         responseType, apiKey, callback, scope, state, additionalParams, null);
   }
 
+  /**
+   * Envoie une requête d'autorisation poussée (PAR) de manière asynchrone.
+   *
+   * <p>Permet de transmettre les paramètres d'autorisation directement au serveur avant la
+   * redirection du navigateur.
+   *
+   * @param responseType Le type de réponse (ex: "code").
+   * @param apiKey Le Client ID.
+   * @param callback L'URI de redirection.
+   * @param scope La portée demandée.
+   * @param state L'état opaque.
+   * @param additionalParams Paramètres additionnels.
+   * @param callbackConsumer Rappel optionnel pour le résultat.
+   * @return Un {@link CompletableFuture} résolvant vers {@link PushedAuthorizationResponse}.
+   * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126 (OAuth 2.0 PAR)</a>
+   */
   public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(
       String responseType,
       String apiKey,

@@ -35,15 +35,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Service to handle OpenID Connect Discovery and JWKS retrieval.
+ * Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS.
  *
- * <p>Implements the discovery mechanism defined in:
+ * <p>Implémente le mécanisme de découverte permettant de configurer automatiquement le client à
+ * partir de l'identifiant de l'émetteur (Issuer).
  *
  * <ul>
  *   <li><b>OpenID Connect Discovery 1.0:</b> Section 4 (Obtaining OpenID Provider Configuration
  *       Information)
  *   <li><b>RFC 8414:</b> OAuth 2.0 Authorization Server Metadata (Section 3)
- *   <li><b>RFC 7517:</b> JSON Web Key (JWK) for JWKS retrieval via {@code jwks_uri}
+ *   <li><b>RFC 7517:</b> JSON Web Key (JWK) pour la récupération via {@code jwks_uri}
  * </ul>
  */
 public class OidcDiscoveryService implements com.github.scribejava.core.oauth.DiscoveryService {
@@ -54,6 +55,13 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
   private final String issuerUri;
   private final String userAgent;
 
+  /**
+   * Constructeur.
+   *
+   * @param issuerUri L'URI de l'émetteur (base URL).
+   * @param httpClient Le client HTTP à utiliser pour les requêtes de découverte.
+   * @param userAgent La chaîne User-Agent à envoyer dans les en-têtes.
+   */
   public OidcDiscoveryService(
       final String issuerUri, final HttpClient httpClient, final String userAgent) {
     if (issuerUri == null || issuerUri.isEmpty()) {
@@ -67,6 +75,12 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
     this.userAgent = userAgent;
   }
 
+  /**
+   * Découvre les points de terminaison de manière asynchrone.
+   *
+   * @param issuer L'URI de l'émetteur.
+   * @return Un {@link CompletableFuture} contenant les points de terminaison découverts.
+   */
   @Override
   public CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> discoverAsync(
       String issuer) {
@@ -78,9 +92,9 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
   }
 
   /**
-   * Retrieves and parses the OpenID Provider Metadata.
+   * Récupère et analyse les métadonnées du fournisseur OpenID de manière asynchrone.
    *
-   * @return a CompletableFuture resolving to OidcProviderMetadata
+   * @return Un {@link CompletableFuture} résolvant vers {@link OidcProviderMetadata}.
    */
   public CompletableFuture<OidcProviderMetadata> getProviderMetadataAsync() {
     final String discoveryEndpoint = ensureTrailingSlash(issuerUri) + OIDC_DISCOVERY_PATH;
@@ -118,16 +132,25 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
         });
   }
 
+  /**
+   * Récupère les métadonnées du fournisseur de manière synchrone.
+   *
+   * @return Les métadonnées du fournisseur.
+   * @throws IOException en cas d'erreur réseau.
+   * @throws ExecutionException si la tâche asynchrone échoue.
+   * @throws InterruptedException si le thread est interrompu.
+   */
   public OidcProviderMetadata getProviderMetadata()
       throws IOException, ExecutionException, InterruptedException {
     return getProviderMetadataAsync().get();
   }
 
   /**
-   * Retrieves and parses the JWKS from the given URI.
+   * Récupère et analyse l'ensemble de clés JWKS à partir de l'URI donnée.
    *
-   * @param jwksUri the URI to fetch JWKS from
-   * @return a CompletableFuture resolving to JWKSet
+   * @param jwksUri L'URI du point de terminaison jwks_uri.
+   * @return Un {@link CompletableFuture} résolvant vers {@link JWKSet}.
+   * @see <a href="https://tools.ietf.org/html/rfc7517">RFC 7517 (JSON Web Key)</a>
    */
   public CompletableFuture<JWKSet> getJwksAsync(final String jwksUri) {
     if (jwksUri == null || jwksUri.isEmpty()) {
@@ -160,6 +183,15 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
         });
   }
 
+  /**
+   * Récupère l'ensemble de clés JWKS de manière synchrone.
+   *
+   * @param jwksUri L'URI du point de terminaison jwks_uri.
+   * @return L'instance de {@link JWKSet}.
+   * @throws IOException en cas d'erreur réseau.
+   * @throws ExecutionException si la tâche asynchrone échoue.
+   * @throws InterruptedException si le thread est interrompu.
+   */
   public JWKSet getJwks(final String jwksUri)
       throws IOException, ExecutionException, InterruptedException {
     return getJwksAsync(jwksUri).get();

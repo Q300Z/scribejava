@@ -27,16 +27,41 @@ import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuth20Service;
 
+/**
+ * Représente la concession de type "Resource Owner Password Credentials" (identifiants du
+ * propriétaire de la ressource).
+ *
+ * <p>Ce type de concession est utilisé lorsque le propriétaire de la ressource a un haut degré de
+ * confiance envers le client et que d'autres types de concessions ne sont pas disponibles.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.3">RFC 6749, Section 1.3.3
+ *     (Resource Owner Password Credentials)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.3">RFC 6749, Section 4.3 (Resource
+ *     Owner Password Credentials Grant)</a>
+ */
 public class PasswordGrant implements OAuth20Grant {
 
   private final String username;
   private final String password;
   private final String scope;
 
+  /**
+   * Constructeur simple.
+   *
+   * @param username Le nom d'utilisateur du propriétaire de la ressource.
+   * @param password Le mot de passe du propriétaire de la ressource.
+   */
   public PasswordGrant(String username, String password) {
     this(username, password, null);
   }
 
+  /**
+   * Constructeur avec portée (scope) spécifique.
+   *
+   * @param username Le nom d'utilisateur du propriétaire de la ressource.
+   * @param password Le mot de passe du propriétaire de la ressource.
+   * @param scope La portée de la demande d'accès.
+   */
   public PasswordGrant(String username, String password, String scope) {
     this.username = username;
     this.password = password;

@@ -31,10 +31,17 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureURIQueryParameter;
 
 /** Stack Exchange authentication via OAuth 2.0 (stackoverflow.com, askubuntu.com, etc.). */
+/** API OAuth 2.0 pour StackExchange. */
 public class StackExchangeApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected StackExchangeApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API StackExchange.
+   *
+   * @return L'instance de {@link StackExchangeApi}.
+   */
   public static StackExchangeApi instance() {
     return InstanceHolder.INSTANCE;
   }

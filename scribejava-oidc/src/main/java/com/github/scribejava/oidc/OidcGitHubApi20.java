@@ -24,23 +24,39 @@
 package com.github.scribejava.oidc;
 
 /**
- * GitHub OpenID Connect 1.0 API implementation (Actions).
+ * Implémentation de l'API GitHub OpenID Connect 1.0 (principalement pour GitHub Actions).
  *
- * <p>This class uses the DefaultOidcApi20 structure to support discovery and ID Token features for
- * GitHub Actions. Issuer: https://token.actions.githubusercontent.com
+ * <p>Cette classe utilise la structure {@link DefaultOidcApi20} pour supporter la découverte
+ * dynamique et la validation des jetons d'identité (ID Tokens).
+ *
+ * @see <a
+ *     href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect">GitHub
+ *     OIDC Documentation</a>
+ * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
  */
 public class OidcGitHubApi20 extends DefaultOidcApi20 {
 
+  /** Constructeur protégé. */
   protected OidcGitHubApi20() {}
 
   private static class InstanceHolder {
     private static final OidcGitHubApi20 INSTANCE = new OidcGitHubApi20();
   }
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API GitHub OIDC.
+   *
+   * @return L'instance de {@link OidcGitHubApi20}.
+   */
   public static OidcGitHubApi20 instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Retourne l'identifiant de l'émetteur (Issuer) officiel de GitHub Actions.
+   *
+   * @return {@code https://token.actions.githubusercontent.com}
+   */
   @Override
   public String getIssuer() {
     return "https://token.actions.githubusercontent.com";

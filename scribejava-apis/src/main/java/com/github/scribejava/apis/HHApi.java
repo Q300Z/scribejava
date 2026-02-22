@@ -27,10 +27,17 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
+/** API OAuth 2.0 pour HeadHunter (HH.ru). */
 public class HHApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected HHApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API HH.
+   *
+   * @return L'instance de {@link HHApi}.
+   */
   public static HHApi instance() {
     return InstanceHolder.INSTANCE;
   }

@@ -30,20 +30,48 @@ import com.github.scribejava.core.pkce.PKCE;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Représente la concession de type "Authorization Code" (code d'autorisation).
+ *
+ * <p>Le code d'autorisation est obtenu en utilisant un serveur d'autorisation comme intermédiaire
+ * entre le client et le propriétaire de la ressource.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">RFC 6749, Section 1.3.1
+ *     (Authorization Code)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1">RFC 6749, Section 4.1
+ *     (Authorization Code Grant)</a>
+ */
 public class AuthorizationCodeGrant implements OAuth20Grant {
 
   private final String code;
   private String pkceCodeVerifier;
   private final Map<String, String> extraParameters = new HashMap<>();
 
+  /**
+   * Constructeur.
+   *
+   * @param code Le code d'autorisation reçu du serveur d'autorisation.
+   */
   public AuthorizationCodeGrant(String code) {
     this.code = code;
   }
 
+  /**
+   * Définit le vérificateur de code PKCE (code_verifier).
+   *
+   * @param pkceCodeVerifier La valeur brute du code_verifier.
+   * @see <a href="https://tools.ietf.org/html/rfc7636">RFC 7636 (PKCE)</a>
+   */
   public void setPkceCodeVerifier(String pkceCodeVerifier) {
     this.pkceCodeVerifier = pkceCodeVerifier;
   }
 
+  /**
+   * Ajoute un paramètre supplémentaire à la requête d'échange de jeton.
+   *
+   * @param name Le nom du paramètre.
+   * @param value La valeur du paramètre.
+   */
   public void addExtraParameter(String name, String value) {
     extraParameters.put(name, value);
   }

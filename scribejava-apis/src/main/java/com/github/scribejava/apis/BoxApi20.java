@@ -28,10 +28,17 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureURIQueryParameter;
 
 /** Box.com Api */
+/** API OAuth 2.0 pour Box. */
 public class BoxApi20 extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected BoxApi20() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Box.
+   *
+   * @return L'instance de {@link BoxApi20}.
+   */
   public static BoxApi20 instance() {
     return InstanceHolder.INSTANCE;
   }

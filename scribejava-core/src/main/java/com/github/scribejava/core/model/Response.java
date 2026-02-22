@@ -30,11 +30,11 @@ import java.io.InputStream;
 import java.util.Map;
 
 /**
- * An HTTP response.
+ * Représente une réponse HTTP.
  *
- * <p>This response may contain a non-null body stream of the HttpUrlConnection. If so, this body
- * must be closed to avoid leaking resources. Use either {@link #getBody()} or {@link #close()} to
- * close the body.
+ * <p>Cette classe contient le code de statut, les en-têtes et le corps de la réponse. Elle
+ * implémente {@link Closeable} et doit être fermée pour libérer les ressources réseau (le flux du
+ * corps).
  */
 public class Response implements Closeable {
 
@@ -52,6 +52,15 @@ public class Response implements Closeable {
     this.headers = headers;
   }
 
+  /**
+   * Constructeur avec flux de données.
+   *
+   * @param code Le code de statut HTTP.
+   * @param message Le message de statut.
+   * @param headers Le dictionnaire des en-têtes.
+   * @param stream Le flux d'entrée du corps.
+   * @param closeables Objets à fermer lors de la fermeture de la réponse.
+   */
   public Response(
       int code,
       String message,
@@ -63,6 +72,14 @@ public class Response implements Closeable {
     this.closeables = closeables;
   }
 
+  /**
+   * Constructeur avec corps textuel déjà lu.
+   *
+   * @param code Le code de statut HTTP.
+   * @param message Le message de statut.
+   * @param headers Le dictionnaire des en-têtes.
+   * @param body Le contenu du corps sous forme de chaîne.
+   */
   public Response(int code, String message, Map<String, String> headers, String body) {
     this(code, message, headers);
     this.body = body;
@@ -80,63 +97,68 @@ public class Response implements Closeable {
     return body;
   }
 
+  /**
+   * Indique si la requête a réussi (code entre 200 et 399).
+   *
+   * @return true si le code de statut est un succès.
+   */
   public boolean isSuccessful() {
     return code >= 200 && code < 400;
   }
 
   /**
-   * Returns the response body as a string, closing the stream that backs it. Idempotent.
+   * Retourne le corps de la réponse sous forme de chaîne de caractères.
    *
-   * @return body as string
-   * @throws IOException IO Exception
+   * <p>Cette méthode ferme automatiquement le flux de données sous-jacent.
+   *
+   * @return Le contenu du corps.
+   * @throws IOException en cas d'erreur de lecture.
    */
   public String getBody() throws IOException {
     return body == null ? parseBodyContents() : body;
   }
 
   /**
-   * Obtains the meaningful stream of the HttpUrlConnection, either inputStream or errorInputStream,
-   * depending on the status code
+   * Retourne le flux de données brut de la réponse.
    *
-   * @return input stream / error stream
+   * @return L'{@link InputStream} du corps.
    */
   public InputStream getStream() {
     return stream;
   }
 
   /**
-   * Obtains the HTTP status code
+   * Retourne le code de statut HTTP.
    *
-   * @return the status code
+   * @return Le code (ex: 200, 404).
    */
   public int getCode() {
     return code;
   }
 
   /**
-   * Obtains the HTTP status message. Returns <code>null</code> if the message can not be discerned
-   * from the response (not valid HTTP)
+   * Retourne le message de statut HTTP.
    *
-   * @return the status message
+   * @return Le message textuel (ex: "OK", "Not Found").
    */
   public String getMessage() {
     return message;
   }
 
   /**
-   * Obtains a {@link Map} containing the HTTP Response Headers
+   * Retourne l'ensemble des en-têtes de la réponse.
    *
-   * @return headers
+   * @return Un dictionnaire des en-têtes HTTP.
    */
   public Map<String, String> getHeaders() {
     return headers;
   }
 
   /**
-   * Obtains a single HTTP Header value, or null if undefined
+   * Récupère la valeur d'un en-tête spécifique.
    *
-   * @param name the header name.
-   * @return header value or null.
+   * @param name Le nom de l'en-tête.
+   * @return La valeur de l'en-tête, ou null si absent.
    */
   public String getHeader(String name) {
     return headers.get(name);
@@ -158,6 +180,11 @@ public class Response implements Closeable {
         + '}';
   }
 
+  /**
+   * Ferme la réponse et libère les ressources associées (flux, connexions).
+   *
+   * @throws IOException en cas d'erreur lors de la fermeture.
+   */
   @Override
   public void close() throws IOException {
     if (closed) {

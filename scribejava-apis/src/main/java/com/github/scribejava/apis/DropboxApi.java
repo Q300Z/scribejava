@@ -26,10 +26,17 @@ package com.github.scribejava.apis;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
 /** Dropbox.com Api */
+/** API OAuth 2.0 pour Dropbox. */
 public class DropboxApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected DropboxApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Dropbox.
+   *
+   * @return L'instance de {@link DropboxApi}.
+   */
   public static DropboxApi instance() {
     return InstanceHolder.INSTANCE;
   }

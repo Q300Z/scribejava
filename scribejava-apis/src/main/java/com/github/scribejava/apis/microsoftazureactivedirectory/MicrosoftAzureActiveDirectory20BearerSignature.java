@@ -23,13 +23,20 @@
  */
 package com.github.scribejava.apis.microsoftazureactivedirectory;
 
+/** Signature Bearer pour Microsoft Azure Active Directory v2.0. */
 public class MicrosoftAzureActiveDirectory20BearerSignature
     extends BaseMicrosoftAzureActiveDirectoryBearerSignature {
 
+  /** Constructeur protégé. */
   protected MicrosoftAzureActiveDirectory20BearerSignature() {
     super("application/json");
   }
 
+  /**
+   * Retourne l'instance unique (singleton) de ce type de signature.
+   *
+   * @return L'instance de {@link MicrosoftAzureActiveDirectory20BearerSignature}.
+   */
   public static MicrosoftAzureActiveDirectory20BearerSignature instance() {
     return InstanceHolder.INSTANCE;
   }

@@ -36,6 +36,11 @@ public class RequestBodyAuthenticationScheme implements ClientAuthentication {
 
   protected RequestBodyAuthenticationScheme() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de ce type d'authentification.
+   *
+   * @return L'instance de {@link RequestBodyAuthenticationScheme}.
+   */
   public static RequestBodyAuthenticationScheme instance() {
     return InstanceHolder.INSTANCE;
   }

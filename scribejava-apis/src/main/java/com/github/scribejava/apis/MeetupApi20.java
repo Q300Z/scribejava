@@ -27,10 +27,17 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
+/** API OAuth 2.0 pour Meetup. */
 public class MeetupApi20 extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected MeetupApi20() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API Meetup.
+   *
+   * @return L'instance de {@link MeetupApi20}.
+   */
   public static MeetupApi20 instance() {
     return InstanceHolder.INSTANCE;
   }

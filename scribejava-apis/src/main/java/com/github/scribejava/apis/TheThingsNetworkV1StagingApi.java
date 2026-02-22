@@ -25,10 +25,17 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
+/** API OAuth 2.0 pour The Things Network (V1 Staging). */
 public class TheThingsNetworkV1StagingApi extends DefaultApi20 {
 
+  /** Constructeur protégé. */
   protected TheThingsNetworkV1StagingApi() {}
 
+  /**
+   * Retourne l'instance unique (singleton) de l'API TTN V1 Staging.
+   *
+   * @return L'instance de {@link TheThingsNetworkV1StagingApi}.
+   */
   public static TheThingsNetworkV1StagingApi instance() {
     return InstanceHolder.INSTANCE;
   }
