@@ -33,6 +33,12 @@ import com.github.scribejava.core.model.Verb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests unitaires pour l'implémentation par défaut de {@link BaseStringExtractor}.
+ *
+ * <p>Vérifie la génération correcte de la chaîne de base (Base String) utilisée pour la signature
+ * OAuth 1.0a.
+ */
 public class BaseStringExtractorTest {
 
   private BaseStringExtractorImpl extractor;
@@ -43,6 +49,7 @@ public class BaseStringExtractorTest {
   private OAuthRequest requestPort443;
   private OAuthRequest requestPort443v2;
 
+  /** Initialisation des requêtes de test avec différents ports et URLs. */
   @BeforeEach
   public void setUp() {
     request = ObjectMother.createSampleOAuthRequest();
@@ -54,6 +61,7 @@ public class BaseStringExtractorTest {
     extractor = new BaseStringExtractorImpl();
   }
 
+  /** Vérifie l'extraction standard de la chaîne de base depuis une requête OAuth. */
   @Test
   public void shouldExtractBaseStringFromOAuthRequest() {
     final String expected =
@@ -64,6 +72,7 @@ public class BaseStringExtractorTest {
     assertThat(baseString).isEqualTo(expected);
   }
 
+  /** Vérifie que le port 80 (HTTP par défaut) est bien exclu de l'URL normalisée. */
   @Test
   public void shouldExcludePort80() {
     final String expected =
@@ -74,6 +83,7 @@ public class BaseStringExtractorTest {
     assertThat(baseString).isEqualTo(expected);
   }
 
+  /** Vérifie l'exclusion du port 80 avec un chemin d'URL. */
   @Test
   public void shouldExcludePort80v2() {
     final String expected =
@@ -84,6 +94,7 @@ public class BaseStringExtractorTest {
     assertThat(baseString).isEqualTo(expected);
   }
 
+  /** Vérifie que les ports non standards (ex: 8080) sont bien inclus dans l'URL normalisée. */
   @Test
   public void shouldIncludePort8080() {
     final String expected =
@@ -94,6 +105,7 @@ public class BaseStringExtractorTest {
     assertThat(baseString).isEqualTo(expected);
   }
 
+  /** Vérifie que le port 443 (HTTPS par défaut) est bien exclu de l'URL normalisée. */
   @Test
   public void shouldExcludePort443() {
     final String expected =
@@ -104,6 +116,7 @@ public class BaseStringExtractorTest {
     assertThat(baseString).isEqualTo(expected);
   }
 
+  /** Vérifie l'exclusion du port 443 avec un chemin d'URL. */
   @Test
   public void shouldExcludePort443v2() {
     final String expected =
@@ -114,11 +127,13 @@ public class BaseStringExtractorTest {
     assertThat(baseString).isEqualTo(expected);
   }
 
+  /** Vérifie que le passage d'une requête nulle lève une exception. */
   @Test
   public void shouldThrowExceptionIfRequestIsNull() {
     assertThatThrownBy(() -> extractor.extract(null)).isInstanceOf(IllegalArgumentException.class);
   }
 
+  /** Vérifie le comportement si la requête ne contient aucun paramètre OAuth obligatoire. */
   @Test
   public void shouldThrowExceptionIfRequestHasNoOAuthParameters() {
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
@@ -126,6 +141,7 @@ public class BaseStringExtractorTest {
         .isInstanceOf(OAuthParametersMissingException.class);
   }
 
+  /** Vérifie l'encodage correct des espaces dans les paramètres. */
   @Test
   public void shouldProperlyEncodeSpaces() {
     final String expected =

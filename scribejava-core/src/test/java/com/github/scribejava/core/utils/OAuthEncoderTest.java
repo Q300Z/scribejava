@@ -28,8 +28,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests unitaires pour l'utilitaire d'encodage {@link OAuthEncoder}.
+ *
+ * <p>Vérifie que l'encodage et le décodage d'URL respectent strictement les exigences des
+ * protocoles OAuth.
+ */
 public class OAuthEncoderTest {
 
+  /** Vérifie l'encodage en pourcentage (percent-encoding) standard. */
   @Test
   public void shouldPercentEncodeString() {
     final String plain = "this is a test &^";
@@ -37,6 +44,7 @@ public class OAuthEncoderTest {
     assertThat(OAuthEncoder.encode(plain)).isEqualTo(encoded);
   }
 
+  /** Vérifie le décodage d'une chaîne encodée au format formulaire. */
   @Test
   public void shouldFormURLDecodeString() {
     final String encoded = "this+is+a+test+%26%5E";
@@ -44,6 +52,7 @@ public class OAuthEncoderTest {
     assertThat(OAuthEncoder.decode(encoded)).isEqualTo(plain);
   }
 
+  /** Vérifie l'encodage correct de tous les caractères spéciaux (RFC 3986). */
   @Test
   public void shouldPercentEncodeAllSpecialCharacters() {
     final String plain = "!*'();:@&=+$,/?#[]";
@@ -52,6 +61,7 @@ public class OAuthEncoderTest {
     assertThat(OAuthEncoder.decode(encoded)).isEqualTo(plain);
   }
 
+  /** Vérifie que les caractères réservés autorisés ne sont pas encodés. */
   @Test
   public void shouldNotPercentEncodeReservedCharacters() {
     final String plain = "abcde123456-._~";
@@ -59,18 +69,21 @@ public class OAuthEncoderTest {
     assertThat(OAuthEncoder.encode(plain)).isEqualTo(encoded);
   }
 
+  /** Vérifie le rejet d'une chaîne nulle à l'encodage. */
   @Test
   public void shouldThrowExceptionIfStringToEncodeIsNull() {
     assertThatThrownBy(() -> OAuthEncoder.encode(null))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
+  /** Vérifie le rejet d'une chaîne nulle au décodage. */
   @Test
   public void shouldThrowExceptionIfStringToDecodeIsNull() {
     assertThatThrownBy(() -> OAuthEncoder.decode(null))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
+  /** Vérifie la conformité avec les exemples d'implémentation fournis par Twitter. */
   @Test
   public void shouldPercentEncodeCorrectlyTwitterCodingExamples() {
     // These tests are part of the Twitter dev examples here

@@ -27,8 +27,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/** Tests unitaires pour la manipulation des requêtes HTTP {@link OAuthRequest}. */
 public class RequestTest {
 
+  /** Vérifie l'extraction correcte des paramètres de la QueryString. */
   @Test
   public void shouldGetQueryStringParameters() {
     final OAuthRequest postRequest = new OAuthRequest(Verb.POST, "http://example.com");
@@ -44,6 +46,7 @@ public class RequestTest {
     assertTrue(getRequest.getQueryStringParams().contains(new Parameter("qsparam", "value")));
   }
 
+  /** Vérifie la génération correcte du corps de requête encodé. */
   @Test
   public void shouldSetBodyParamsAndAddContentLength() {
     final OAuthRequest postRequest = new OAuthRequest(Verb.POST, "http://example.com");
@@ -55,6 +58,7 @@ public class RequestTest {
         new String(postRequest.getByteArrayPayload()));
   }
 
+  /** Vérifie que la charge utile (payload) écrase les paramètres de corps si définie. */
   @Test
   public void shouldSetPayloadAndHeaders() {
     final OAuthRequest postRequest = new OAuthRequest(Verb.POST, "http://example.com");
@@ -65,6 +69,7 @@ public class RequestTest {
     assertEquals("PAYLOAD", postRequest.getStringPayload());
   }
 
+  /** Vérifie l'ajout de paramètres de requête après l'instanciation. */
   @Test
   public void shouldAllowAddingQuerystringParametersAfterCreation() {
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com?one=val");
@@ -73,6 +78,7 @@ public class RequestTest {
     assertEquals(3, request.getQueryStringParams().size());
   }
 
+  /** Vérifie la construction de l'URL complète avec tous les paramètres encodés. */
   @Test
   public void shouldReturnTheCompleteUrl() {
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com?one=val");
@@ -82,6 +88,7 @@ public class RequestTest {
         "http://example.com?one=val&two=other%20val&more=params", request.getCompleteUrl());
   }
 
+  /** Vérifie le décodage correct des espaces encodés avec '+' dans les URLs. */
   @Test
   public void shouldHandleQueryStringSpaceEncodingProperly() {
     final OAuthRequest getRequest =
@@ -94,6 +101,7 @@ public class RequestTest {
             .contains(new Parameter("other param", "value with spaces")));
   }
 
+  /** Vérifie que la charge utile textuelle brute n'est pas ré-encodée. */
   @Test
   public void shouldNotEncodeInStringPayload() throws Exception {
     final String requestBody = "~/!@#$%^&*( )_+//\r\n%2F&amp;";
@@ -104,6 +112,7 @@ public class RequestTest {
     assertEquals(requestBody, postRequest.getStringPayload());
   }
 
+  /** Vérifie que la charge utile binaire brute n'est pas altérée. */
   @Test
   public void shouldNotEncodeInByteBodyPayload() throws Exception {
     final byte[] requestBody = "~/!@#$%^&*( )_+//\r\n%2F&amp;".getBytes();
@@ -114,6 +123,7 @@ public class RequestTest {
     assertArrayEquals(requestBody, postRequest.getByteArrayPayload());
   }
 
+  /** Vérifie l'encodage strict des caractères spéciaux dans les paramètres de corps. */
   @Test
   public void shouldEncodeInBodyParamsPayload() throws Exception {
     final String expectedRequestBodyParamName = "~/!@#$%^&*( )_+//\r\n%2F&amp;name";

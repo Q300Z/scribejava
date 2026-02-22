@@ -41,6 +41,12 @@ import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests de la matrice de compatibilité cryptographique pour OpenID Connect.
+ *
+ * <p>Vérifie le support des différents algorithmes de signature (JWS) et de chiffrement (JWE) pour
+ * la validation des ID Tokens.
+ */
 public class OidcCryptoMatrixTest {
 
   private static final String ISSUER = "https://issuer.example.com";
@@ -49,12 +55,14 @@ public class OidcCryptoMatrixTest {
   private RSAKey rsaKey;
   private ECKey ecKey;
 
+  /** Initialisation des paires de clés (RSA et EC) avant chaque test. */
   @BeforeEach
   public void setUp() throws Exception {
     rsaKey = new RSAKeyGenerator(2048).keyID("rsa-1").generate();
     ecKey = new ECKeyGenerator(Curve.P_256).keyID("ec-1").generate();
   }
 
+  /** Vérifie la validation réussie avec l'algorithme RS256 (RSA avec SHA-256). */
   @Test
   public void shouldValidateRS256() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.RS256);
@@ -64,6 +72,7 @@ public class OidcCryptoMatrixTest {
     assertThat(token).isNotNull();
   }
 
+  /** Vérifie la validation réussie avec l'algorithme ES256 (ECDSA avec P-256 et SHA-256). */
   @Test
   public void shouldValidateES256() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(ecKey, JWSAlgorithm.ES256);
@@ -73,6 +82,7 @@ public class OidcCryptoMatrixTest {
     assertThat(token).isNotNull();
   }
 
+  /** Vérifie la validation réussie avec l'algorithme symétrique HS256 (HMAC avec SHA-256). */
   @Test
   public void shouldValidateHS256() throws Exception {
     final JWTClaimsSet claimsSet = createClaims().build();
@@ -85,6 +95,7 @@ public class OidcCryptoMatrixTest {
     assertThat(token).isNotNull();
   }
 
+  /** Vérifie la validation d'un jeton chiffré (JWE) avec une clé RSA. */
   @Test
   public void shouldValidateEncryptedRSA() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.RS256);
@@ -101,6 +112,7 @@ public class OidcCryptoMatrixTest {
     assertThat(token).isNotNull();
   }
 
+  /** Vérifie la validation d'un jeton chiffré (JWE) avec une clé Elliptic Curve. */
   @Test
   public void shouldValidateEncryptedEC() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.RS256);
@@ -116,6 +128,7 @@ public class OidcCryptoMatrixTest {
     assertThat(token).isNotNull();
   }
 
+  /** Vérifie la validation réussie avec l'algorithme PS256 (RSASSA-PSS). */
   @Test
   public void shouldValidatePS256() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.PS256);
@@ -125,6 +138,7 @@ public class OidcCryptoMatrixTest {
     assertThat(token).isNotNull();
   }
 
+  /** Vérifie la validation d'un jeton chiffré utilisant AES-CBC et HMAC. */
   @Test
   public void shouldValidateEncryptedWithAesCbc() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.RS256);

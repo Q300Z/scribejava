@@ -35,6 +35,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+/**
+ * Tests unitaires pour {@link OAuth2AccessTokenExtractor}.
+ *
+ * <p>Vérifie l'extraction des jetons OAuth 2.0 à partir de réponses encodées (format non-JSON).
+ */
 public class OAuth2AccessTokenExtractorTest {
 
   private OAuth2AccessTokenExtractor extractor;
@@ -49,11 +54,13 @@ public class OAuth2AccessTokenExtractorTest {
         400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
   }
 
+  /** Initialisation de l'extracteur. */
   @Before
   public void setUp() {
     extractor = OAuth2AccessTokenExtractor.instance();
   }
 
+  /** Vérifie l'extraction du jeton depuis une réponse OAuth standard. */
   @Test
   public void shouldExtractTokenFromOAuthStandardResponse() throws IOException {
     final String responseBody =
@@ -68,6 +75,7 @@ public class OAuth2AccessTokenExtractorTest {
         extracted.getAccessToken());
   }
 
+  /** Vérifie l'extraction incluant le paramètre d'expiration. */
   @Test
   public void shouldExtractTokenFromResponseWithExpiresParam() throws IOException {
     final String responseBody =
@@ -83,6 +91,7 @@ public class OAuth2AccessTokenExtractorTest {
     assertEquals(Integer.valueOf(5108), extracted.getExpiresIn());
   }
 
+  /** Vérifie l'extraction avec expiration, type de jeton et jeton de renouvellement. */
   @Test
   public void shouldExtractTokenFromResponseWithExpiresAndRefreshParam() throws IOException {
     final String responseBody =
@@ -100,6 +109,7 @@ public class OAuth2AccessTokenExtractorTest {
     assertEquals("166942940015970", extracted.getRefreshToken());
   }
 
+  /** Vérifie l'extraction même en présence de nombreux paramètres inattendus. */
   @Test
   public void shouldExtractTokenFromResponseWithManyParameters() throws IOException {
     final String responseBody = "access_token=foo1234&other_stuff=yeah_we_have_this_too&number=42";
@@ -110,6 +120,8 @@ public class OAuth2AccessTokenExtractorTest {
     assertEquals("foo1234", extracted.getAccessToken());
   }
 
+  /** Vérifie la levée d'exception pour une réponse d'erreur HTTP. */
+  @Test
   public void shouldThrowExceptionIfErrorResponse() throws IOException {
     final String responseBody = "";
     try (Response response = error(responseBody)) {
@@ -124,6 +136,8 @@ public class OAuth2AccessTokenExtractorTest {
     }
   }
 
+  /** Vérifie la levée d'exception si le paramètre access_token est absent. */
+  @Test
   public void shouldThrowExceptionIfTokenIsAbsent() throws IOException {
     final String responseBody = "&expires=5108";
     try (Response response = ok(responseBody)) {
@@ -138,6 +152,8 @@ public class OAuth2AccessTokenExtractorTest {
     }
   }
 
+  /** Vérifie le rejet d'une réponse nulle. */
+  @Test
   public void shouldThrowExceptionIfResponseIsNull() throws IOException {
     try (Response response = ok(null)) {
       assertThrows(
@@ -151,6 +167,8 @@ public class OAuth2AccessTokenExtractorTest {
     }
   }
 
+  /** Vérifie le rejet d'une réponse contenant une chaîne vide. */
+  @Test
   public void shouldThrowExceptionIfResponseIsEmptyString() throws IOException {
     final String responseBody = "";
     try (Response response = ok(responseBody)) {

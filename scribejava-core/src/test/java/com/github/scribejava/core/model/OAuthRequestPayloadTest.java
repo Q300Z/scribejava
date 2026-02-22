@@ -29,8 +29,15 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests unitaires pour la gestion des différentes charges utiles (payloads) dans {@link
+ * OAuthRequest}.
+ *
+ * <p>Vérifie l'intégrité des données envoyées selon le type de contenu (chaîne, octets, fichier).
+ */
 public class OAuthRequestPayloadTest {
 
+  /** Vérifie la gestion correcte d'une charge utile sous forme de chaîne (ex: JSON). */
   @Test
   public void shouldHandleStringPayload() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
@@ -42,6 +49,7 @@ public class OAuthRequestPayloadTest {
     assertThat(request.getByteArrayPayload()).isEmpty();
   }
 
+  /** Vérifie le support des caractères spéciaux et de l'encodage UTF-8 dans les chaînes. */
   @Test
   public void shouldHandleSpecialCharactersInStringPayload() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
@@ -53,6 +61,7 @@ public class OAuthRequestPayloadTest {
     assertThat(request.getByteArrayPayload()).isEmpty();
   }
 
+  /** Vérifie la gestion d'une charge utile binaire brute. */
   @Test
   public void shouldHandleByteArrayPayload() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
@@ -63,6 +72,7 @@ public class OAuthRequestPayloadTest {
     assertThat(request.getByteArrayPayload()).isEqualTo(payload);
   }
 
+  /** Vérifie la gestion de l'envoi d'un fichier. */
   @Test
   public void shouldHandleFilePayload() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
@@ -77,6 +87,7 @@ public class OAuthRequestPayloadTest {
         .isEqualTo("key=value");
   }
 
+  /** Vérifie qu'une requête GET ne contient normalement pas de charge utile. */
   @Test
   public void shouldHandleNoPayloadForGet() {
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
@@ -84,6 +95,7 @@ public class OAuthRequestPayloadTest {
     assertThat(request.getByteArrayPayload()).isEmpty();
   }
 
+  /** Vérifie qu'une requête DELETE ne contient normalement pas de charge utile. */
   @Test
   public void shouldHandleNoPayloadForDelete() {
     final OAuthRequest request = new OAuthRequest(Verb.DELETE, "http://example.com");
@@ -91,6 +103,7 @@ public class OAuthRequestPayloadTest {
     assertThat(request.getByteArrayPayload()).isEmpty();
   }
 
+  /** Vérifie que la définition d'une nouvelle charge utile réinitialise les précédentes. */
   @Test
   public void shouldResetPayloadWhenNewOneIsSet() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
