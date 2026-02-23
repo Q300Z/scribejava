@@ -34,11 +34,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests d'intégration pour le client HTTP OkHttp. */
 public class OkHttpHttpClientIntegrationTest {
 
   private MockWebServer server;
   private OkHttpHttpClient client;
 
+  /**
+   * Initialisation du serveur et du client.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -46,11 +52,17 @@ public class OkHttpHttpClientIntegrationTest {
     client = new OkHttpHttpClient();
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'exécution asynchrone d'une requête. */
   @Test
   public void shouldExecuteAsync() throws Exception {
     server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
@@ -68,6 +80,7 @@ public class OkHttpHttpClientIntegrationTest {
     assertThat(result).isEqualTo("OK");
   }
 
+  /** Vérifie l'annulation d'une requête asynchrone. */
   @Test
   public void shouldCancelAsyncRequest() throws Exception {
     server.enqueue(

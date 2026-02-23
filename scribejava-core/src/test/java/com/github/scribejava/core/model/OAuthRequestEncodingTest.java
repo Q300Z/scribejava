@@ -29,8 +29,10 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
+/** Tests de l'encodage des requêtes OAuth. */
 public class OAuthRequestEncodingTest {
 
+  /** Vérifie la gestion correcte des paramètres UTF-8 avec caractères spéciaux. */
   @Test
   public void shouldHandleUtf8Parameters() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
@@ -44,6 +46,7 @@ public class OAuthRequestEncodingTest {
     assertThat(body).contains("name=ScribeJava%20%E2%9C%A8");
   }
 
+  /** Vérifie que les paramètres sont toujours encodés en UTF-8 même si le charset est différent. */
   @Test
   public void shouldHandleParametersAsUtf8EvenIfCharsetIsDifferent()
       throws UnsupportedEncodingException {
@@ -59,6 +62,7 @@ public class OAuthRequestEncodingTest {
     assertThat(body).contains("city=Montr%C3%A9al");
   }
 
+  /** Vérifie la normalisation (sanitization) des URLs. */
   @Test
   public void shouldSanitizeUrlsCorrectly() {
     assertThat(new OAuthRequest(Verb.GET, "http://example.com:80/path").getSanitizedUrl())
@@ -69,6 +73,7 @@ public class OAuthRequestEncodingTest {
         .isEqualTo("http://example.com/path");
   }
 
+  /** Vérifie la présence d'un charset par défaut. */
   @Test
   public void shouldRespectDefaultCharset() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");

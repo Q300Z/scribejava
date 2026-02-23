@@ -37,11 +37,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests des différents types de concession (grants) OAuth 2.0. */
 public class OAuth20ServiceGrantsTest {
 
   private MockWebServer server;
   private OAuth20Service service;
 
+  /**
+   * Initialisation du serveur et du service.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -74,11 +80,17 @@ public class OAuth20ServiceGrantsTest {
             new JDKHttpClient());
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'obtention d'un jeton via Client Credentials Grant. */
   @Test
   public void shouldGetAccessTokenClientCredentialsGrantAsync() throws Exception {
     server.enqueue(
@@ -87,6 +99,7 @@ public class OAuth20ServiceGrantsTest {
     assertThat(token.getAccessToken()).isEqualTo("cc-token");
   }
 
+  /** Vérifie l'obtention d'un jeton via Resource Owner Password Credentials Grant. */
   @Test
   public void shouldGetAccessTokenPasswordGrantAsync() throws Exception {
     server.enqueue(
@@ -95,6 +108,7 @@ public class OAuth20ServiceGrantsTest {
     assertThat(token.getAccessToken()).isEqualTo("pwd-token");
   }
 
+  /** Vérifie la gestion d'une réponse d'erreur OAuth standard (RFC 6749). */
   @Test
   public void shouldHandleOAuthErrorResponse() {
     final String errorJson = "{\"error\":\"invalid_grant\", \"error_description\":\"bad code\"}";
@@ -106,6 +120,7 @@ public class OAuth20ServiceGrantsTest {
     assertThat(oauthEx.getErrorDescription()).isEqualTo("bad code");
   }
 
+  /** Vérifie la gestion d'une réponse d'erreur vide. */
   @Test
   public void shouldHandleEmptyErrorResponse() {
     server.enqueue(new MockResponse().setResponseCode(401).setBody(""));

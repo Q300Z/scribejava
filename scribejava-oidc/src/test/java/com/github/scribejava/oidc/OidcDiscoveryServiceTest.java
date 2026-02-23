@@ -35,11 +35,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/** Tests du service de découverte (Discovery) OIDC. */
 public class OidcDiscoveryServiceTest {
 
   private MockWebServer server;
   private OidcDiscoveryService service;
 
+  /**
+   * Initialisation du serveur et du service.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @Before
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -49,11 +55,17 @@ public class OidcDiscoveryServiceTest {
             server.url("/").toString(), new JDKHttpClient(), "ScribeJava-Test");
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @After
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie la récupération des métadonnées du fournisseur. */
   @Test
   public void shouldFetchMetadata() throws Exception {
     final String json =
@@ -84,6 +96,7 @@ public class OidcDiscoveryServiceTest {
     assertEquals(server.url("/token").toString(), metadata.getTokenEndpoint());
   }
 
+  /** Vérifie la récupération des clés JWKS. */
   @Test
   public void shouldFetchJwks() throws Exception {
     final String jwksJson =

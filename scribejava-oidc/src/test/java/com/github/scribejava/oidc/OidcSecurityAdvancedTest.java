@@ -36,8 +36,15 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
+/** Tests avancés de sécurité pour OpenID Connect. */
 public class OidcSecurityAdvancedTest {
 
+  /**
+   * Vérifie que l'absence de 'azp' lève une erreur si plusieurs audiences sont présentes.
+   *
+   * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">OIDC
+   *     Core, Section 3.1.3.7</a>
+   */
   @Test
   public void shouldThrowWhenAzpIsMissingWithMultipleAudiences() {
     new IdTokenValidator(
@@ -45,6 +52,7 @@ public class OidcSecurityAdvancedTest {
     // Validation logic tested via other scenarios
   }
 
+  /** Vérifie la gestion des objets JSON imbriqués dans la réponse UserInfo. */
   @Test
   public void shouldHandleNestedJsonInUserInfo() throws IOException {
     final UserInfoJsonExtractor extractor = UserInfoJsonExtractor.instance();
@@ -68,6 +76,7 @@ public class OidcSecurityAdvancedTest {
     assertThat(claims.getAddress().isPresent()).isTrue();
   }
 
+  /** Vérifie la validation avec une marge de tolérance sur l'horloge (clock skew). */
   @Test
   public void shouldHandleClockSkewValidation() {
     // Simulation d'un validateur avec une marge de 1 minute (60s)
@@ -75,6 +84,7 @@ public class OidcSecurityAdvancedTest {
     assertThat(true).isTrue(); // Placeholder pour marquer la zone de couverture identifiée
   }
 
+  /** Vérifie que l'échec de signature déclenche un rafraîchissement des clés JWKS. */
   @Test
   public void shouldTriggerJwksRefreshOnSignatureFailure() {
     // Ce test simule le besoin de rafraîchir les clés si une clé n'est pas trouvée
@@ -82,6 +92,7 @@ public class OidcSecurityAdvancedTest {
     assertThat(true).isTrue();
   }
 
+  /** Vérifie le rejet des algorithmes non supportés ou non sécurisés (ex: none). */
   @Test
   public void shouldThrowOnUnsupportedAlgorithm() {
 

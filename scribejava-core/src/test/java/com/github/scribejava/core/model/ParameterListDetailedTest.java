@@ -30,8 +30,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
+/** Tests détaillés de la classe {@link ParameterList}. */
 public class ParameterListDetailedTest {
 
+  /** Vérifie que le tri des paramètres s'effectue correctement par clé puis par valeur. */
   @Test
   public void shouldSortParametersCorrectly() {
     final ParameterList list = new ParameterList();
@@ -49,6 +51,7 @@ public class ParameterListDetailedTest {
     assertThat(sorted.getParams().get(3).getKey()).isEqualTo("z");
   }
 
+  /** Vérifie la fusion de deux listes de paramètres. */
   @Test
   public void shouldAddAllFromAnotherList() {
     final ParameterList list1 = new ParameterList();
@@ -63,6 +66,7 @@ public class ParameterListDetailedTest {
     assertThat(list1.asFormUrlEncodedString()).contains("k1=v1").contains("k2=v2");
   }
 
+  /** Vérifie l'initialisation d'une liste à partir d'une {@link Map}. */
   @Test
   public void shouldInitializeFromMap() {
     final Map<String, String> map = new HashMap<>();
@@ -73,6 +77,7 @@ public class ParameterListDetailedTest {
     assertThat(list.size()).isEqualTo(2);
   }
 
+  /** Vérifie que l'ajout à une URL nulle lève une exception. */
   @Test
   public void shouldHandleNullUrlOnAppend() {
     final ParameterList list = new ParameterList();
@@ -81,6 +86,7 @@ public class ParameterListDetailedTest {
         .hasMessageContaining("Cannot append to null URL");
   }
 
+  /** Vérifie l'ajout correct de paramètres à une URL possédant déjà une QueryString. */
   @Test
   public void shouldCorrectelyAppendToUrlWithExistingQuery() {
     final ParameterList list = new ParameterList();

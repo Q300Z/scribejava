@@ -37,11 +37,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests des cas d'échec du protocole OAuth 2.0. */
 public class OAuth20ProtocolFailureTest {
 
   private MockWebServer server;
   private OAuth20Service service;
 
+  /**
+   * Initialisation du serveur et du service.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -78,11 +84,17 @@ public class OAuth20ProtocolFailureTest {
             new JDKHttpClient(config));
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'échec lors d'une réponse d'erreur OAuth standard. */
   @Test
   public void shouldFailOnOAuthErrorResponse() {
     server.enqueue(
@@ -92,6 +104,7 @@ public class OAuth20ProtocolFailureTest {
     assertThrows(OAuth2AccessTokenErrorResponse.class, () -> service.getAccessToken("some-code"));
   }
 
+  /** Vérifie l'échec avec un code d'autorisation vide ou nul. */
   @Test
   public void shouldFailOnEmptyCode() {
     // null code throws IllegalArgumentException from Preconditions
@@ -101,6 +114,7 @@ public class OAuth20ProtocolFailureTest {
     assertThrows(SocketTimeoutException.class, () -> service.getAccessToken(""));
   }
 
+  /** Vérifie l'échec avec un jeton de rafraîchissement vide ou nul. */
   @Test
   public void shouldFailOnEmptyRefreshToken() {
     assertThrows(IllegalArgumentException.class, () -> service.refreshAccessToken(null));

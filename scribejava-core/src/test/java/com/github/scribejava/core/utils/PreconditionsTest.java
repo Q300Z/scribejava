@@ -27,10 +27,13 @@ import static org.junit.Assert.assertThrows;
 
 import org.junit.function.ThrowingRunnable;
 
+/** Tests de la classe utilitaire {@link Preconditions}. */
 public class PreconditionsTest {
 
   private static final String ERROR_MSG = "";
 
+  /** Vérifie que le rejet des objets nuls. */
+  @Test
   public void shouldThrowExceptionForNullObjects() {
     assertThrows(
         IllegalArgumentException.class,
@@ -42,6 +45,8 @@ public class PreconditionsTest {
         });
   }
 
+  /** Vérifie que le rejet des chaînes nulles. */
+  @Test
   public void shouldThrowExceptionForNullStrings() {
     assertThrows(
         IllegalArgumentException.class,
@@ -53,6 +58,8 @@ public class PreconditionsTest {
         });
   }
 
+  /** Vérifie que le rejet des chaînes vides. */
+  @Test
   public void shouldThrowExceptionForEmptyStrings() {
     assertThrows(
         IllegalArgumentException.class,
@@ -64,6 +71,8 @@ public class PreconditionsTest {
         });
   }
 
+  /** Vérifie que le rejet des chaînes composées uniquement d'espaces. */
+  @Test
   public void shouldThrowExceptionForSpacesOnlyStrings() {
     assertThrows(
         IllegalArgumentException.class,

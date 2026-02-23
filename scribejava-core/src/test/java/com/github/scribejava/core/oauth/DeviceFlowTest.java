@@ -38,11 +38,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests du flux appareil (Device Flow - RFC 8628). */
 public class DeviceFlowTest {
 
   private MockWebServer server;
   private OAuth20Service service;
 
+  /**
+   * Initialisation du serveur et du service.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -80,11 +86,17 @@ public class DeviceFlowTest {
             new JDKHttpClient());
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'extraction des informations d'autorisation d'appareil. */
   @Test
   public void shouldExtractDeviceAuthorization() throws Exception {
     final String body =
@@ -99,6 +111,7 @@ public class DeviceFlowTest {
     assertThat(auth.getExpiresInSeconds()).isEqualTo(600);
   }
 
+  /** Vérifie le mécanisme de scrutation (polling) pour obtenir le jeton. */
   @Test
   public void shouldPollForToken() throws Exception {
     final DeviceAuthorization auth =
@@ -121,6 +134,7 @@ public class DeviceFlowTest {
     assertThat(server.getRequestCount()).isEqualTo(3);
   }
 
+  /** Vérifie qu'une erreur terminale arrête la scrutation. */
   @Test
   public void shouldThrowExceptionOnTerminalErrorDuringPolling() throws Exception {
     final DeviceAuthorization auth =

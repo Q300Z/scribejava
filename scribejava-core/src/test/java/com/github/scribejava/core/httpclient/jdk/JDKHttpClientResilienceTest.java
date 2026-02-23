@@ -41,21 +41,25 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests de résilience et de configuration du client HTTP JDK. */
 public class JDKHttpClientResilienceTest {
 
   private MockWebServer server;
 
+  /** Initialisation du serveur. */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
     server.start();
   }
 
+  /** Arrêt du serveur. */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie la gestion du dépassement de délai de lecture (read timeout). */
   @Test
   public void shouldHandleReadTimeout() {
     server.enqueue(new MockResponse().setBody("too late").setBodyDelay(1, TimeUnit.SECONDS));
@@ -80,6 +84,7 @@ public class JDKHttpClientResilienceTest {
     assertThat(exceptionThrown).isTrue();
   }
 
+  /** Vérifie la gestion d'un hôte inconnu. */
   @Test
   public void shouldHandleUnknownHost()
       throws InterruptedException, java.util.concurrent.ExecutionException {
@@ -96,6 +101,7 @@ public class JDKHttpClientResilienceTest {
         .hasMessageContaining("The IP address of a host could not be determined.");
   }
 
+  /** Vérifie que la configuration du proxy est prise en compte. */
   @Test
   public void shouldWorkWithProxyConfiguration()
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
@@ -111,6 +117,7 @@ public class JDKHttpClientResilienceTest {
         .isInstanceOf(IOException.class);
   }
 
+  /** Vérifie le support du suivi des redirections. */
   @Test
   public void shouldSupportRedirectConfiguration()
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
@@ -129,6 +136,7 @@ public class JDKHttpClientResilienceTest {
     assertThat(response.getBody()).isEqualTo("Final Destination");
   }
 
+  /** Vérifie la récupération correcte du flux d'erreur lors d'une réponse HTTP >= 400. */
   @Test
   public void shouldHandleErrorStreamWhenResponseCodeIsHigh()
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {

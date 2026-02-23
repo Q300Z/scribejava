@@ -35,12 +35,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests du flux de découverte dynamique OpenID Connect. */
 public class OidcDynamicFlowTest {
 
   private MockWebServer server;
   private OidcDiscoveryService discoveryService;
   private String issuer;
 
+  /**
+   * Initialisation du serveur de simulation.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -49,11 +55,17 @@ public class OidcDynamicFlowTest {
     discoveryService = new OidcDiscoveryService(issuer, new JDKHttpClient(), "UA");
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie la découverte correcte des métadonnées du fournisseur. */
   @Test
   public void shouldDiscoverMetadata() throws Exception {
     final String json =
@@ -75,18 +87,21 @@ public class OidcDynamicFlowTest {
     assertThat(metadata.getTokenEndpoint()).isEqualTo(issuer + "token");
   }
 
+  /** Vérifie la gestion d'une réponse de découverte malformée. */
   @Test
   public void shouldHandleMalformedDiscoveryResponse() {
     server.enqueue(new MockResponse().setBody("not-json").setResponseCode(200));
     assertThrows(Exception.class, () -> discoveryService.getProviderMetadata());
   }
 
+  /** Vérifie la gestion d'une erreur HTTP lors de la découverte. */
   @Test
   public void shouldHandleDiscoveryHttpError() {
     server.enqueue(new MockResponse().setResponseCode(404));
     assertThrows(Exception.class, () -> discoveryService.getProviderMetadata());
   }
 
+  /** Vérifie que la différence entre l'émetteur attendu et reçu lève une erreur. */
   @Test
   public void shouldHandleIssuerMismatch() {
     final String json =

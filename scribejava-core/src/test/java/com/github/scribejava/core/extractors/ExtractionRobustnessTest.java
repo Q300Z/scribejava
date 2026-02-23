@@ -32,8 +32,10 @@ import com.github.scribejava.core.model.Response;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
+/** Tests de robustesse des extracteurs face à des réponses invalides ou malformées. */
 public class ExtractionRobustnessTest {
 
+  /** Vérifie que le rejet d'un JSON malformé lève une exception d'erreur OAuth 2.0. */
   @Test
   public void shouldThrowErrorResponseOnMalformedJson() throws IOException {
     final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
@@ -45,6 +47,7 @@ public class ExtractionRobustnessTest {
         .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
   }
 
+  /** Vérifie le rejet d'une réponse JSON valide mais dépourvue de champs obligatoires. */
   @Test
   public void shouldThrowErrorResponseOnMissingRequiredField() throws IOException {
     final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
@@ -55,6 +58,7 @@ public class ExtractionRobustnessTest {
         .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
   }
 
+  /** Vérifie que le rejet d'une réponse vide par les préconditions. */
   @Test
   public void shouldThrowIllegalArgumentExceptionOnEmptyResponse() throws IOException {
     final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
@@ -68,6 +72,7 @@ public class ExtractionRobustnessTest {
             "Response body is incorrect. Can't extract a token from an empty string");
   }
 
+  /** Vérifie la robustesse de l'extracteur d'autorisation d'appareil (Device Auth). */
   @Test
   public void shouldHandleDeviceAuthMalformedJson() throws IOException {
     final DeviceAuthorizationJsonExtractor extractor = DeviceAuthorizationJsonExtractor.instance();

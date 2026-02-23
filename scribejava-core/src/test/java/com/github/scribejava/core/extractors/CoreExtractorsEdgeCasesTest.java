@@ -34,14 +34,17 @@ import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
 
+/** Tests des cas limites pour les extracteurs de jetons cœur (Core). */
 public class CoreExtractorsEdgeCasesTest {
 
+  /** Vérifie que le rejet d'une réponse vide par l'extracteur de jeton d'accès. */
   @Test(expected = IllegalArgumentException.class)
   public void shouldRejectEmptyResponseInAccessTokenExtractor() throws IOException {
     final Response response = new Response(200, "OK", Collections.emptyMap(), "");
     OAuth2AccessTokenJsonExtractor.instance().extract(response);
   }
 
+  /** Vérifie l'extraction d'un jeton d'accès quand des paramètres optionnels manquent. */
   @Test
   public void shouldExtractAccessTokenWithMissingOptionalParams() throws IOException {
     final String json = "{\"access_token\":\"token123\"}";
@@ -51,6 +54,7 @@ public class CoreExtractorsEdgeCasesTest {
     assertNull(token.getExpiresIn());
   }
 
+  /** Vérifie la gestion d'une réponse d'erreur OAuth 2.0. */
   @Test(expected = OAuth2AccessTokenErrorResponse.class)
   public void shouldHandleOAuth2ErrorResponse() throws IOException {
     final String json = "{\"error\":\"invalid_request\", \"error_description\":\"bad stuff\"}";
@@ -58,6 +62,7 @@ public class CoreExtractorsEdgeCasesTest {
     OAuth2AccessTokenJsonExtractor.instance().extract(response);
   }
 
+  /** Vérifie l'extraction correcte d'une autorisation d'appareil. */
   @Test
   public void shouldExtractDeviceAuthorization() throws IOException {
     final String json =
@@ -74,6 +79,7 @@ public class CoreExtractorsEdgeCasesTest {
     assertEquals(5, auth.getIntervalSeconds());
   }
 
+  /** Vérifie que l'absence de paramètres obligatoires dans l'autorisation appareil lève une erreur. */
   @Test(expected = com.github.scribejava.core.exceptions.OAuthException.class)
   public void shouldThrowExceptionWhenRequiredParamMissingInDeviceAuth() throws IOException {
     final String json = "{\"device_code\":\"dc123\"}";

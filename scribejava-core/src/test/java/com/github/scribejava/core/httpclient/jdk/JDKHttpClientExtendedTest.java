@@ -38,11 +38,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests étendus pour le client HTTP JDK, incluant les payloads chaîne et multipart. */
 public class JDKHttpClientExtendedTest {
 
   private MockWebServer server;
   private JDKHttpClient client;
 
+  /**
+   * Initialisation du serveur et du client.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -50,11 +56,17 @@ public class JDKHttpClientExtendedTest {
     client = new JDKHttpClient();
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'exécution d'une requête avec un corps de message sous forme de chaîne. */
   @Test
   public void shouldExecuteWithPayloadAsString() throws Exception {
     server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
@@ -65,6 +77,7 @@ public class JDKHttpClientExtendedTest {
     assertThat(server.takeRequest().getBody().readUtf8()).isEqualTo("payload-string");
   }
 
+  /** Vérifie l'exécution asynchrone d'une requête avec un corps de message sous forme de chaîne. */
   @Test
   public void shouldExecuteAsyncWithPayloadAsString() throws Exception {
     server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
@@ -82,6 +95,7 @@ public class JDKHttpClientExtendedTest {
     assertThat(result).isEqualTo("OK");
   }
 
+  /** Vérifie l'exécution d'une requête Multipart. */
   @Test
   public void shouldExecuteWithMultipartPayload() throws Exception {
     server.enqueue(new MockResponse().setResponseCode(200));
@@ -94,6 +108,7 @@ public class JDKHttpClientExtendedTest {
     assertThat(resp.getCode()).isEqualTo(200);
   }
 
+  /** Vérifie que l'envoi de fichiers n'est pas encore supporté en synchrone. */
   @Test
   public void shouldThrowExceptionOnFileSync() {
     assertThrows(
@@ -107,6 +122,7 @@ public class JDKHttpClientExtendedTest {
                 new java.io.File("dummy")));
   }
 
+  /** Vérifie que l'envoi de fichiers n'est pas encore supporté en asynchrone. */
   @Test
   public void shouldThrowExceptionOnFileAsync() {
     assertThrows(

@@ -30,8 +30,10 @@ import com.github.scribejava.core.exceptions.OAuthException;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 
+/** Tests des cas limites pour PKCE et PAR. */
 public class PkceParEdgeCasesTest {
 
+  /** Vérifie l'analyse d'une réponse PAR (Pushed Authorization Response) valide. */
   @Test
   public void shouldParseValidParResponse() throws IOException {
     final String json = "{\"request_uri\":\"urn:par:123\", \"expires_in\":3600}";
@@ -40,6 +42,7 @@ public class PkceParEdgeCasesTest {
     assertThat(resp.getExpiresIn()).isEqualTo(3600L);
   }
 
+  /** Vérifie l'analyse d'une réponse PAR où le champ expires_in est manquant. */
   @Test
   public void shouldParseParResponseWithMissingExpiresIn() throws IOException {
     final String json = "{\"request_uri\":\"urn:par:123\"}";
@@ -48,22 +51,26 @@ public class PkceParEdgeCasesTest {
     assertThat(resp.getExpiresIn()).isNull();
   }
 
+  /** Vérifie que l'absence de request_uri lève une exception. */
   @Test
   public void shouldHandleMissingRequestUri() {
     final String json = "{\"expires_in\":3600}";
     assertThrows(OAuthException.class, () -> PushedAuthorizationResponse.parse(json));
   }
 
+  /** Vérifie que l'analyse d'une réponse vide lève une exception. */
   @Test
   public void shouldHandleEmptyParResponse() {
     assertThrows(IllegalArgumentException.class, () -> PushedAuthorizationResponse.parse(""));
   }
 
+  /** Vérifie que l'analyse d'un JSON invalide lève une exception. */
   @Test
   public void shouldHandleInvalidJsonInParResponse() {
     assertThrows(IOException.class, () -> PushedAuthorizationResponse.parse("{invalid}"));
   }
 
+  /** Vérifie la gestion d'un délai d'expiration immédiat (0). */
   @Test
   public void shouldHandleImmediateExpiration() throws IOException {
     final String json = "{\"request_uri\":\"urn:par:123\", \"expires_in\":0}";

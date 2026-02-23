@@ -42,8 +42,10 @@ import com.github.scribejava.core.pkce.PKCEService;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import org.junit.jupiter.api.Test;
 
+/** Tests de résilience et de sécurité pour OAuth 2.0 (PKCE, DPoP, Révocation). */
 public class OAuth20SecurityResilienceTest {
 
+  /** Vérifie que PKCE utilise S256 par défaut. */
   @Test
   public void shouldFallbackToPlainPKCEWhenS256NotAvailable() {
     final PKCEService pkceService = new PKCEService();
@@ -53,6 +55,11 @@ public class OAuth20SecurityResilienceTest {
     assertThat(pkce.getCodeChallenge()).isNotNull();
   }
 
+  /**
+   * Vérifie l'ajout de l'en-tête DPoP lorsqu'un créateur est présent.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc9449">RFC 9449 (DPoP)</a>
+   */
   @Test
   public void shouldAddDPoPHeaderWhenCreatorIsPresent() {
     final DPoPProofCreator mockCreator = mock(DPoPProofCreator.class);
@@ -77,6 +84,11 @@ public class OAuth20SecurityResilienceTest {
     assertThat(request.getHeaders().get("DPoP")).isEqualTo("mock-dpop-jwt");
   }
 
+  /**
+   * Vérifie la gestion de la révocation avec des indices de type de jeton.
+   *
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
   @Test
   public void shouldHandleRevocationWithHints() {
     final DefaultApi20 api = mock(DefaultApi20.class);
@@ -99,6 +111,7 @@ public class OAuth20SecurityResilienceTest {
         .contains("token_type_hint=refresh_token");
   }
 
+  /** Vérifie le support de paramètres personnalisés dans les requêtes de concession (grant). */
   @Test
   public void shouldSupportCustomGrantParameters() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com/token");

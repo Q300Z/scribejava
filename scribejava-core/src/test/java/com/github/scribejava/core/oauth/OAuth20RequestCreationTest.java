@@ -31,10 +31,12 @@ import com.github.scribejava.core.revoke.TokenTypeHint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests de la création des requêtes OAuth 2.0 par {@link OAuth20Service}. */
 public class OAuth20RequestCreationTest {
 
   private OAuth20Service service;
 
+  /** Initialisation du service. */
   @BeforeEach
   public void setUp() {
     final DefaultApi20 api =
@@ -68,6 +70,7 @@ public class OAuth20RequestCreationTest {
             null);
   }
 
+  /** Vérifie la création d'une requête de rafraîchissement de jeton. */
   @Test
   public void shouldCreateRefreshTokenRequest() {
     final OAuthRequest request = service.createRefreshTokenRequest("rt123", "custom-scope");
@@ -77,12 +80,14 @@ public class OAuth20RequestCreationTest {
         .contains("grant_type=refresh_token");
   }
 
+  /** Vérifie l'utilisation de la portée par défaut dans la requête de rafraîchissement. */
   @Test
   public void shouldCreateRefreshTokenRequestWithDefaultScope() {
     final OAuthRequest request = service.createRefreshTokenRequest("rt123", null);
     assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("scope=default-scope");
   }
 
+  /** Vérifie la création d'une requête Password Grant. */
   @Test
   public void shouldCreatePasswordGrantRequest() {
     final OAuthRequest request =
@@ -92,6 +97,7 @@ public class OAuth20RequestCreationTest {
     assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("grant_type=password");
   }
 
+  /** Vérifie la création d'une requête Client Credentials Grant. */
   @Test
   public void shouldCreateClientCredentialsGrantRequest() {
     final OAuthRequest request = service.createAccessTokenClientCredentialsGrantRequest("scope2");
@@ -100,6 +106,7 @@ public class OAuth20RequestCreationTest {
     assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("scope=scope2");
   }
 
+  /** Vérifie la création d'une requête de révocation de jeton. */
   @Test
   public void shouldCreateRevokeTokenRequest() {
     final OAuthRequest request =

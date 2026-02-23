@@ -36,21 +36,40 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests de sécurité pour le service de découverte OIDC. */
 public class OidcDiscoveryServiceSecurityTest {
 
   private MockWebServer server;
 
+  /**
+   * Initialisation du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
     server.start();
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /**
+   * Vérifie que le service rejette les métadonnées si l'émetteur (issuer) ne correspond pas à l'URL
+   * demandée.
+   *
+   * @see <a
+   *     href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation">OpenID
+   *     Connect Discovery 1.0, Section 4.3</a>
+   */
   @Test
   public void shouldRejectMetadataWithMismatchingIssuer() {
     final String issuer = server.url("/").toString();
@@ -78,6 +97,7 @@ public class OidcDiscoveryServiceSecurityTest {
     assertThat(ex.getCause().getMessage()).contains("Issuer mismatch");
   }
 
+  /** Vérifie la validation manuelle de l'émetteur dans le service OIDC. */
   @Test
   public void shouldRejectIssuerMismatch() {
     final OidcService oidcService =

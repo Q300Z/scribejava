@@ -37,11 +37,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests asynchrones détaillés pour {@link OAuth20Service}. */
 public class OAuth20ServiceAsyncDetailedTest {
 
   private MockWebServer server;
   private OAuth20Service service;
 
+  /**
+   * Initialisation du serveur de simulation avec des délais d'attente configurés.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -83,11 +89,17 @@ public class OAuth20ServiceAsyncDetailedTest {
             new JDKHttpClient(config));
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'obtention asynchrone d'un jeton d'accès. */
   @Test
   public void shouldGetAccessTokenAsync() throws Exception {
     server.enqueue(new MockResponse().setBody("{\"access_token\":\"at123\"}"));
@@ -95,6 +107,7 @@ public class OAuth20ServiceAsyncDetailedTest {
     assertThat(token.getAccessToken()).isEqualTo("at123");
   }
 
+  /** Vérifie le rafraîchissement asynchrone d'un jeton. */
   @Test
   public void shouldRefreshAccessTokenAsync() throws Exception {
     server.enqueue(new MockResponse().setBody("{\"access_token\":\"at456\"}"));
@@ -102,6 +115,7 @@ public class OAuth20ServiceAsyncDetailedTest {
     assertThat(token.getAccessToken()).isEqualTo("at456");
   }
 
+  /** Vérifie l'obtention asynchrone des codes d'autorisation appareil. */
   @Test
   public void shouldGetDeviceAuthorizationCodesAsync() throws Exception {
     server.enqueue(

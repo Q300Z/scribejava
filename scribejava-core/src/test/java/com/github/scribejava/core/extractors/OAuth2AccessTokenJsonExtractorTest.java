@@ -35,6 +35,7 @@ import java.util.Collections;
 import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
+/** Tests de l'extracteur JSON des jetons d'accès OAuth 2.0. */
 public class OAuth2AccessTokenJsonExtractorTest {
 
   private final OAuth2AccessTokenJsonExtractor extractor =
@@ -50,6 +51,7 @@ public class OAuth2AccessTokenJsonExtractorTest {
         400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
   }
 
+  /** Vérifie l'analyse correcte d'une réponse JSON simple. */
   @Test
   public void shouldParseResponse() throws IOException {
     final String responseBody =
@@ -62,6 +64,7 @@ public class OAuth2AccessTokenJsonExtractorTest {
     assertEquals("I0122HHJKLEM21F3WLPYHDKGKZULAUO4SGMV3ABKFTDT3T3X", token.getAccessToken());
   }
 
+  /** Vérifie l'analyse de la portée (scope) et du jeton de rafraîchissement. */
   @Test
   public void shouldParseScopeFromResponse() throws IOException {
     final String responseBody =
@@ -100,6 +103,8 @@ public class OAuth2AccessTokenJsonExtractorTest {
     assertEquals("refresh_token1", token3.getRefreshToken());
   }
 
+  /** Vérifie que le passage de paramètres nuls lève une exception. */
+  @Test
   public void shouldThrowExceptionIfForNullParameters() throws IOException {
     try (Response response = ok(null)) {
       assertThrows(
@@ -113,6 +118,8 @@ public class OAuth2AccessTokenJsonExtractorTest {
     }
   }
 
+  /** Vérifie que le passage d'une chaîne vide lève une exception. */
+  @Test
   public void shouldThrowExceptionIfForEmptyStrings() throws IOException {
     final String responseBody = "";
     try (Response response = ok(responseBody)) {
@@ -127,6 +134,7 @@ public class OAuth2AccessTokenJsonExtractorTest {
     }
   }
 
+  /** Vérifie la gestion d'une réponse d'erreur JSON standard. */
   @Test
   public void shouldThrowExceptionIfResponseIsError() throws IOException {
     final String responseBody =
@@ -149,6 +157,7 @@ public class OAuth2AccessTokenJsonExtractorTest {
     }
   }
 
+  /** Vérifie la gestion des caractères échappés en JSON. */
   @Test
   public void testEscapedJsonInResponse() throws IOException {
     final String responseBody =

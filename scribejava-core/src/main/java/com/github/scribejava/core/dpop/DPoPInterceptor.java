@@ -26,20 +26,35 @@ package com.github.scribejava.core.dpop;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuthRequestInterceptor;
 
-/** Interceptor that adds DPoP headers to requests. */
+/**
+ * Intercepteur ajoutant les en-têtes DPoP aux requêtes.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc9449">RFC 9449 (OAuth 2.0 DPoP)</a>
+ */
 public class DPoPInterceptor implements OAuthRequestInterceptor {
 
   private final DPoPProofCreator proofCreator;
   private String accessToken; // Can be set if we want to include 'ath' claim
 
+  /**
+   * Constructeur.
+   *
+   * @param proofCreator Le créateur de preuves DPoP.
+   */
   public DPoPInterceptor(DPoPProofCreator proofCreator) {
     this.proofCreator = proofCreator;
   }
 
+  /**
+   * Définit le jeton d'accès pour inclure la réclamation 'ath' (Access Token Hash) dans la preuve.
+   *
+   * @param accessToken Le jeton d'accès.
+   */
   public void setAccessToken(String accessToken) {
     this.accessToken = accessToken;
   }
 
+  /** {@inheritDoc} */
   @Override
   public void intercept(OAuthRequest request) {
     request.setDPoPProof(proofCreator.createDPoPProof(request, accessToken));

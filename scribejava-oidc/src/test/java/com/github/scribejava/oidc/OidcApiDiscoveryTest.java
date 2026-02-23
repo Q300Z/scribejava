@@ -33,21 +33,33 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests de la configuration automatique des points de terminaison via Discovery. */
 public class OidcApiDiscoveryTest {
 
   private MockWebServer server;
 
+  /**
+   * Initialisation du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
     server.start();
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie que les points de terminaison sont correctement configurés à partir du JSON. */
   @Test
   public void shouldConfigureEndpointsAutomatically() throws Exception {
     final String issuer = server.url("/").toString();
@@ -79,9 +91,15 @@ public class OidcApiDiscoveryTest {
     assertThat(api.getJwksUri()).isEqualTo(issuer + "keys");
   }
 
+  /** Classe d'API OIDC factice pour les tests. */
   public static class TestOidcApi extends DefaultOidcApi20 {
     private final String issuer;
 
+    /**
+     * Constructeur.
+     *
+     * @param issuer L'émetteur.
+     */
     public TestOidcApi(final String issuer) {
       this.issuer = issuer;
     }

@@ -33,10 +33,12 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests du constructeur d'URL d'autorisation {@link AuthorizationUrlBuilder}. */
 public class AuthorizationUrlBuilderTest {
 
   private OAuth20Service service;
 
+  /** Initialisation du service. */
   @BeforeEach
   public void setUp() {
     final DefaultApi20 api =
@@ -65,6 +67,7 @@ public class AuthorizationUrlBuilderTest {
             null);
   }
 
+  /** Vérifie la construction d'une URL d'autorisation simple. */
   @Test
   public void shouldBuildSimpleAuthorizationUrl() {
     final String url = service.createAuthorizationUrlBuilder().build();
@@ -74,6 +77,7 @@ public class AuthorizationUrlBuilderTest {
     assertThat(url).contains("scope=default-scope");
   }
 
+  /** Vérifie la surcharge de la portée (scope) et de l'état (state). */
   @Test
   public void shouldOverrideScopeAndState() {
     final String url =
@@ -82,6 +86,7 @@ public class AuthorizationUrlBuilderTest {
     assertThat(url).contains("state=custom-state");
   }
 
+  /** Vérifie l'ajout de paramètres supplémentaires à l'URL. */
   @Test
   public void shouldAddAdditionalParameters() {
     final Map<String, String> params = new HashMap<>();
@@ -93,6 +98,7 @@ public class AuthorizationUrlBuilderTest {
     assertThat(url).contains("prompt=login");
   }
 
+  /** Vérifie le support de PKCE (RFC 7636). */
   @Test
   public void shouldSupportPKCE() {
     final PKCE pkce = new PKCE();
@@ -105,6 +111,7 @@ public class AuthorizationUrlBuilderTest {
     assertThat(url).contains("code_challenge_method=S256");
   }
 
+  /** Vérifie l'initialisation automatique de PKCE. */
   @Test
   public void shouldInitPKCEAutomatically() {
     final AuthorizationUrlBuilder builder = service.createAuthorizationUrlBuilder().initPKCE();

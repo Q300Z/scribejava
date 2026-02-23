@@ -45,6 +45,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/** Tests de la gestion des erreurs asynchrones. */
 @ExtendWith(MockitoExtension.class)
 public class AsyncErrorHandlingTest {
 
@@ -53,6 +54,7 @@ public class AsyncErrorHandlingTest {
 
   private OAuth20Service service;
 
+  /** Initialisation des mocks. */
   @BeforeEach
   public void setUp() {
     when(api.getAccessTokenVerb()).thenReturn(Verb.POST);
@@ -72,6 +74,7 @@ public class AsyncErrorHandlingTest {
             httpClient);
   }
 
+  /** Vérifie la gestion d'une exception d'E/S réseau lors d'un appel asynchrone. */
   @Test
   public void shouldHandleNetworkIOExceptionAsync() {
     final IOException networkError = new IOException("Connection Reset");
@@ -96,6 +99,7 @@ public class AsyncErrorHandlingTest {
     assertThat(ex.getCause()).isSameAs(networkError);
   }
 
+  /** Vérifie la propagation des exceptions dans le bloc 'exceptionally' du futur. */
   @Test
   public void shouldPropagateExceptionInExceptionallyBlock() {
     final IOException networkError = new IOException("Timeout");
@@ -127,6 +131,7 @@ public class AsyncErrorHandlingTest {
     assertThat(handledFuture.join()).isEqualTo("error-handled");
   }
 
+  /** Vérifie la gestion d'une erreur d'extraction lors d'un appel asynchrone. */
   @Test
   public void shouldHandleExtractorErrorAsync() throws IOException {
     final IOException extractorError = new IOException("Invalid Token");

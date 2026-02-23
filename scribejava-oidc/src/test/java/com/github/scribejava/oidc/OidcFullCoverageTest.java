@@ -30,8 +30,15 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
+/** Tests de couverture complète pour les modèles de données OIDC. */
 public class OidcFullCoverageTest {
 
+  /**
+   * Vérifie que toutes les réclamations standards (Standard Claims) sont correctement gérées.
+   *
+   * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">OIDC Core,
+   *     Section 5.1</a>
+   */
   @Test
   public void testStandardClaimsFullCoverage() {
     final Map<String, Object> map = new HashMap<>();
@@ -79,6 +86,7 @@ public class OidcFullCoverageTest {
     assertThat(claims.getUpdatedAt()).contains(123456789L);
   }
 
+  /** Vérifie que la classe de base DefaultOidcApi20 expose correctement les métadonnées. */
   @Test
   public void testDefaultOidcApi20FullCoverage() {
     final DefaultOidcApi20 api =

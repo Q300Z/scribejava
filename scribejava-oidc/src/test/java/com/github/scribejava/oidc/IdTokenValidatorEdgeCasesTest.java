@@ -32,10 +32,12 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests des cas limites du validateur de jeton ID (IdTokenValidator). */
 public class IdTokenValidatorEdgeCasesTest {
 
   private IdTokenValidator validator;
 
+  /** Initialisation du validateur. */
   @BeforeEach
   public void setUp() {
     validator =
@@ -43,6 +45,12 @@ public class IdTokenValidatorEdgeCasesTest {
             "https://idp.com", new ClientID("client-1"), JWSAlgorithm.RS256, new JWKSet());
   }
 
+  /**
+   * Vérifie que le rejet d'un jeton chiffré (JWE) sans clé de déchiffrement.
+   *
+   * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">OIDC
+   *     Core, Section 3.1.3.7</a>
+   */
   @Test
   public void shouldRejectEncryptedTokenIfNoKeyProvided() {
     // A JWE has 5 parts
@@ -50,11 +58,13 @@ public class IdTokenValidatorEdgeCasesTest {
     assertThrows(OAuthException.class, () -> validator.validate(jwe, null, 0));
   }
 
+  /** Vérifie le rejet d'un jeton malformé. */
   @Test
   public void shouldRejectMalformedToken() {
     assertThrows(OAuthException.class, () -> validator.validate("not.a.jwt", null, 0));
   }
 
+  /** Vérifie que les jetons de déconnexion (Logout Token) ne doivent pas contenir de 'nonce'. */
   @Test
   public void shouldRejectLogoutTokenWithNonce() {
     // Simple mock of a logout token with a nonce (which is forbidden)

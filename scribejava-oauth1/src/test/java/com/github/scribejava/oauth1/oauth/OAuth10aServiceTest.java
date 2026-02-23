@@ -36,11 +36,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests du service OAuth 1.0a {@link OAuth10aService}. */
 public class OAuth10aServiceTest {
 
   private MockWebServer server;
   private OAuth10aService service;
 
+  /**
+   * Initialisation du serveur et du service.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
@@ -74,11 +80,17 @@ public class OAuth10aServiceTest {
             api, "key", "secret", "cb", null, null, null, null, new JDKHttpClient());
   }
 
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
   @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
+  /** Vérifie l'obtention asynchrone du jeton de requête (Request Token). */
   @Test
   public void shouldGetRequestTokenAsync() throws Exception {
     server.enqueue(
@@ -90,6 +102,7 @@ public class OAuth10aServiceTest {
     assertThat(token.getTokenSecret()).isEqualTo("rs123");
   }
 
+  /** Vérifie l'obtention asynchrone du jeton d'accès (Access Token). */
   @Test
   public void shouldGetAccessTokenAsync() throws Exception {
     server.enqueue(

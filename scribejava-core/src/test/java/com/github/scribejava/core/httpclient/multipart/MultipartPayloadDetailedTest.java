@@ -33,8 +33,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
+/** Tests détaillés pour la gestion des payloads Multipart complexes. */
 public class MultipartPayloadDetailedTest {
 
+  /** Vérifie la génération correcte d'un corps Multipart contenant une partie Multipart imbriquée. */
   @Test
   public void shouldHandleNestedMultipart() throws IOException {
     final String outerBoundary = "outer-boundary";
@@ -60,6 +62,9 @@ public class MultipartPayloadDetailedTest {
     assertThat(result).contains("outer-epilogue");
   }
 
+  /**
+   * Vérifie que l'utilisation du même séparateur pour le parent et l'enfant lève une exception.
+   */
   @Test
   public void shouldThrowWhenBoundariesAreSame() {
     final String boundary = "same-boundary";
@@ -71,6 +76,7 @@ public class MultipartPayloadDetailedTest {
         .hasMessageContaining("is the same for parent MultipartPayload and child");
   }
 
+  /** Vérifie la composition correcte des en-têtes Content-Type. */
   @Test
   public void shouldComposeHeadersCorrectively() {
     final Map<String, String> customHeaders = new HashMap<>();
@@ -83,6 +89,7 @@ public class MultipartPayloadDetailedTest {
     assertThat(payload.getHeaders().get("X-Custom")).isEqualTo("Value");
   }
 
+  /** Vérifie le rejet des séparateurs conflictuels entre le constructeur et les en-têtes. */
   @Test
   public void shouldThrowWhenConflictingBoundariesInHeaders() {
     final Map<String, String> headers = new HashMap<>();
@@ -93,6 +100,7 @@ public class MultipartPayloadDetailedTest {
         .hasMessageContaining("Different boundaries was passed in constructors");
   }
 
+  /** Vérifie l'extraction automatique du séparateur depuis l'en-tête Content-Type. */
   @Test
   public void shouldParseBoundaryFromHeader() {
     final Map<String, String> headers = new HashMap<>();
@@ -102,6 +110,7 @@ public class MultipartPayloadDetailedTest {
     assertThat(payload.getBoundary()).isEqualTo("parsed-boundary");
   }
 
+  /** Vérifie le rejet d'un séparateur ayant une syntaxe invalide. */
   @Test
   public void shouldHandleInvalidBoundarySyntax() {
     assertThatThrownBy(() -> new MultipartPayload("invalid boundary with spaces at end "))
