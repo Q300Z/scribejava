@@ -33,135 +33,142 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Constructeur fluide pour les URLs d'autorisation OAuth 2.0.
- */
+/** Constructeur fluide pour les URLs d'autorisation OAuth 2.0. */
 public class AuthorizationUrlBuilder {
 
-    private final OAuth20Service oauth20Service;
+  private final OAuth20Service oauth20Service;
 
-    private String state;
-    private Map<String, String> additionalParams;
-    private PKCE pkce;
-    private String scope;
-    private boolean usePushedAuthorizationRequests;
+  private String state;
+  private Map<String, String> additionalParams;
+  private PKCE pkce;
+  private String scope;
+  private boolean usePushedAuthorizationRequests;
 
-    /**
-     * @param oauth20Service oauth20Service
-     */
-    public AuthorizationUrlBuilder(OAuth20Service oauth20Service) {
-        this.oauth20Service = oauth20Service;
+  /**
+   * @param oauth20Service oauth20Service
+   */
+  public AuthorizationUrlBuilder(OAuth20Service oauth20Service) {
+    this.oauth20Service = oauth20Service;
+  }
+
+  /**
+   * @param state state
+   * @return builder
+   */
+  public AuthorizationUrlBuilder state(String state) {
+    this.state = state;
+    return this;
+  }
+
+  /**
+   * @param additionalParams additionalParams
+   * @return builder
+   */
+  public AuthorizationUrlBuilder additionalParams(Map<String, String> additionalParams) {
+    this.additionalParams = additionalParams;
+    return this;
+  }
+
+  /**
+   * @param pkce pkce
+   * @return builder
+   */
+  public AuthorizationUrlBuilder pkce(PKCE pkce) {
+    this.pkce = pkce;
+    return this;
+  }
+
+  /**
+   * @return builder
+   */
+  public AuthorizationUrlBuilder initPKCE() {
+    this.pkce = PKCEService.defaultInstance().generatePKCE();
+    return this;
+  }
+
+  /**
+   * @param scope scope
+   * @return builder
+   */
+  public AuthorizationUrlBuilder scope(String scope) {
+    this.scope = scope;
+    return this;
+  }
+
+  /**
+   * @return builder
+   */
+  public AuthorizationUrlBuilder usePushedAuthorizationRequests() {
+    this.usePushedAuthorizationRequests = true;
+    return this;
+  }
+
+  /**
+   * @return pkce
+   */
+  public PKCE getPkce() {
+    return pkce;
+  }
+
+  /**
+   * @return url
+   */
+  public String build() {
+    final Map<String, String> params =
+        additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
+
+    oauth20Service.getAuthorizationRequestInterceptors().forEach(i -> i.intercept(params));
+
+    if (pkce != null) {
+      params.putAll(pkce.getAuthorizationUrlParams());
     }
 
-    /**
-     * @param state state
-     * @return builder
-     */
-    public AuthorizationUrlBuilder state(String state) {
-        this.state = state;
-        return this;
-    }
+    if (usePushedAuthorizationRequests) {
+      try {
+        final PushedAuthorizationResponse parResponse =
+            oauth20Service
+                .pushAuthorizationRequestAsync(
+                    oauth20Service.getResponseType(),
+                    oauth20Service.getApiKey(),
+                    oauth20Service.getCallback(),
+                    scope == null ? oauth20Service.getDefaultScope() : scope,
+                    state,
+                    params)
+                .get();
 
-    /**
-     * @param additionalParams additionalParams
-     * @return builder
-     */
-    public AuthorizationUrlBuilder additionalParams(Map<String, String> additionalParams) {
-        this.additionalParams = additionalParams;
-        return this;
-    }
-
-    /**
-     * @param pkce pkce
-     * @return builder
-     */
-    public AuthorizationUrlBuilder pkce(PKCE pkce) {
-        this.pkce = pkce;
-        return this;
-    }
-
-    /**
-     * @return builder
-     */
-    public AuthorizationUrlBuilder initPKCE() {
-        this.pkce = PKCEService.defaultInstance().generatePKCE();
-        return this;
-    }
-
-    /**
-     * @param scope scope
-     * @return builder
-     */
-    public AuthorizationUrlBuilder scope(String scope) {
-        this.scope = scope;
-        return this;
-    }
-
-    /**
-     * @return builder
-     */
-    public AuthorizationUrlBuilder usePushedAuthorizationRequests() {
-        this.usePushedAuthorizationRequests = true;
-        return this;
-    }
-
-    /**
-     * @return pkce
-     */
-    public PKCE getPkce() {
-        return pkce;
-    }
-
-    /**
-     * @return url
-     */
-    public String build() {
-        final Map<String, String> params = additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
-
-        oauth20Service.getAuthorizationRequestInterceptors().forEach(i -> i.intercept(params));
-
-        if (pkce != null) {
-            params.putAll(pkce.getAuthorizationUrlParams());
+        final ParameterList parameters = new ParameterList();
+        parameters.add("request_uri", parResponse.getRequestUri());
+        parameters.add(OAuthConstants.CLIENT_ID, oauth20Service.getApiKey());
+        if (state != null) {
+          parameters.add(OAuthConstants.STATE, state);
         }
+        return parameters.appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
+      } catch (InterruptedException | ExecutionException e) {
+        throw new OAuthException("Failed to push authorization request", e);
+      }
+    } else {
+      final ParameterList parameters = new ParameterList(params);
+      parameters.add(OAuthConstants.RESPONSE_TYPE, oauth20Service.getResponseType());
+      parameters.add(OAuthConstants.CLIENT_ID, oauth20Service.getApiKey());
 
-        if (usePushedAuthorizationRequests) {
-            try {
-                final PushedAuthorizationResponse parResponse = oauth20Service.pushAuthorizationRequestAsync(
-                        oauth20Service.getResponseType(), oauth20Service.getApiKey(), oauth20Service.getCallback(),
-                        scope == null ? oauth20Service.getDefaultScope() : scope, state, params).get();
+      final String callback = oauth20Service.getCallback();
+      if (callback != null) {
+        parameters.add(OAuthConstants.REDIRECT_URI, callback);
+      }
 
-                final ParameterList parameters = new ParameterList();
-                parameters.add("request_uri", parResponse.getRequestUri());
-                parameters.add(OAuthConstants.CLIENT_ID, oauth20Service.getApiKey());
-                if (state != null) {
-                    parameters.add(OAuthConstants.STATE, state);
-                }
-                return parameters.appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
-            } catch (InterruptedException | ExecutionException e) {
-                throw new OAuthException("Failed to push authorization request", e);
-            }
-        } else {
-            final ParameterList parameters = new ParameterList(params);
-            parameters.add(OAuthConstants.RESPONSE_TYPE, oauth20Service.getResponseType());
-            parameters.add(OAuthConstants.CLIENT_ID, oauth20Service.getApiKey());
+      final String effectiveScope = scope == null ? oauth20Service.getDefaultScope() : scope;
+      if (effectiveScope != null) {
+        parameters.add(OAuthConstants.SCOPE, effectiveScope);
+      }
 
-            final String callback = oauth20Service.getCallback();
-            if (callback != null) {
-                parameters.add(OAuthConstants.REDIRECT_URI, callback);
-            }
+      if (state != null) {
+        parameters.add(OAuthConstants.STATE, state);
+      }
 
-            final String effectiveScope = scope == null ? oauth20Service.getDefaultScope() : scope;
-            if (effectiveScope != null) {
-                parameters.add(OAuthConstants.SCOPE, effectiveScope);
-            }
-
-            if (state != null) {
-                parameters.add(OAuthConstants.STATE, state);
-            }
-
-            final Map<String, String> convertedParams = oauth20Service.getAuthorizationRequestConverter()
-                    .convert(parameters.asMap());
-            return new ParameterList(convertedParams).appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
-        }
+      final Map<String, String> convertedParams =
+          oauth20Service.getAuthorizationRequestConverter().convert(parameters.asMap());
+      return new ParameterList(convertedParams)
+          .appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
     }
+  }
 }

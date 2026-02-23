@@ -65,7 +65,9 @@ public abstract class AbstractClientTest {
     oAuthService.close();
   }
 
-  /** @return Une nouvelle instance du client HTTP à tester. */
+  /**
+   * @return Une nouvelle instance du client HTTP à tester.
+   */
   protected abstract HttpClient createNewClient();
 
   /** Vérifie l'envoi correct d'une requête GET. */

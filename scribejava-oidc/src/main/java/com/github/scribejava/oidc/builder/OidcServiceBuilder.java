@@ -83,7 +83,8 @@ public class OidcServiceBuilder extends ServiceBuilder {
   }
 
   @Override
-  public com.github.scribejava.core.oauth.AuthorizationRequestConverter getAuthorizationRequestConverter() {
+  public com.github.scribejava.core.oauth.AuthorizationRequestConverter
+      getAuthorizationRequestConverter() {
     return super.getAuthorizationRequestConverter();
   }
 }

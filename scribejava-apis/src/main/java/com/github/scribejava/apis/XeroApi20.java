@@ -26,6 +26,7 @@ package com.github.scribejava.apis;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
 /** Xero.com Api */
+
 /** API OAuth 2.0 pour Xero. */
 public class XeroApi20 extends DefaultApi20 {
 

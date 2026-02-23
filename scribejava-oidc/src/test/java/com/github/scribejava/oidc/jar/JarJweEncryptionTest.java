@@ -25,11 +25,15 @@ package com.github.scribejava.oidc.jar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.*;
-import com.nimbusds.jose.jwk.*;
-import com.nimbusds.jose.jwk.gen.*;
-import com.nimbusds.jwt.*;
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.crypto.RSADecrypter;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jwt.EncryptedJWT;
+import com.nimbusds.jwt.SignedJWT;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

@@ -35,37 +35,43 @@ import org.junit.jupiter.api.Test;
 /** Tests pour {@link JarAuthorizationRequestConverter}. */
 public class JarAuthorizationRequestConverterTest {
 
-    /**
-     * @throws Exception Exception
-     */
-    @Test
-    public void shouldConvertParamsToJwt() throws Exception {
-        final RSAKey rsaJWK = new RSAKeyGenerator(2048).generate();
-        final JarAuthorizationRequestConverter converter = new JarAuthorizationRequestConverter(
-                "client-id", "https://idp.com", rsaJWK, JWSAlgorithm.RS256);
+  /**
+   * @throws Exception Exception
+   */
+  @Test
+  public void shouldConvertParamsToJwt() throws Exception {
+    final RSAKey rsaJWK = new RSAKeyGenerator(2048).generate();
+    final JarAuthorizationRequestConverter converter =
+        new JarAuthorizationRequestConverter(
+            "client-id", "https://idp.com", rsaJWK, JWSAlgorithm.RS256);
 
-        final Map<String, String> params = new HashMap<>();
-        params.put("scope", "openid profile");
-        params.put("client_id", "client-id");
+    final Map<String, String> params = new HashMap<>();
+    params.put("scope", "openid profile");
+    params.put("client_id", "client-id");
 
-        final Map<String, String> result = converter.convert(params);
-        assertThat(result).containsKey("request");
-        assertThat(result.get("client_id")).isEqualTo("client-id");
-    }
+    final Map<String, String> result = converter.convert(params);
+    assertThat(result).containsKey("request");
+    assertThat(result.get("client_id")).isEqualTo("client-id");
+  }
 
-    /**
-     * @throws Exception Exception
-     */
-    @Test
-    public void shouldSupportFullConstructor() throws Exception {
-        final RSAKey signingKey = new RSAKeyGenerator(2048).keyID("sig").generate();
-        final RSAKey encryptionKey = new RSAKeyGenerator(2048).keyID("enc").generate().toPublicJWK();
+  /**
+   * @throws Exception Exception
+   */
+  @Test
+  public void shouldSupportFullConstructor() throws Exception {
+    final RSAKey signingKey = new RSAKeyGenerator(2048).keyID("sig").generate();
+    final RSAKey encryptionKey = new RSAKeyGenerator(2048).keyID("enc").generate().toPublicJWK();
 
-        final JarAuthorizationRequestConverter converter = new JarAuthorizationRequestConverter(
-                "client-id", "https://idp.com", signingKey, JWSAlgorithm.RS256,
-                encryptionKey, com.nimbusds.jose.JWEAlgorithm.RSA_OAEP_256,
-                com.nimbusds.jose.EncryptionMethod.A128GCM);
+    final JarAuthorizationRequestConverter converter =
+        new JarAuthorizationRequestConverter(
+            "client-id",
+            "https://idp.com",
+            signingKey,
+            JWSAlgorithm.RS256,
+            encryptionKey,
+            com.nimbusds.jose.JWEAlgorithm.RSA_OAEP_256,
+            com.nimbusds.jose.EncryptionMethod.A128GCM);
 
-        assertThat(converter).isNotNull();
-    }
+    assertThat(converter).isNotNull();
+  }
 }

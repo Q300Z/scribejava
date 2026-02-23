@@ -111,27 +111,37 @@ public class OAuth2AccessToken extends Token {
     this.scope = scope;
   }
 
-  /** @return Le jeton d'accès. */
+  /**
+   * @return Le jeton d'accès.
+   */
   public String getAccessToken() {
     return accessToken;
   }
 
-  /** @return Le type de jeton. */
+  /**
+   * @return Le type de jeton.
+   */
   public String getTokenType() {
     return tokenType;
   }
 
-  /** @return La durée de validité en secondes. */
+  /**
+   * @return La durée de validité en secondes.
+   */
   public Integer getExpiresIn() {
     return expiresIn;
   }
 
-  /** @return Le jeton de renouvellement. */
+  /**
+   * @return Le jeton de renouvellement.
+   */
   public String getRefreshToken() {
     return refreshToken;
   }
 
-  /** @return La portée du jeton. */
+  /**
+   * @return La portée du jeton.
+   */
   public String getScope() {
     return scope;
   }

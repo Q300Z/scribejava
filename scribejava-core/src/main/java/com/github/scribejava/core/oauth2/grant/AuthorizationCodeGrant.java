@@ -44,8 +44,8 @@ import java.util.Map;
 public class AuthorizationCodeGrant implements OAuth20Grant {
 
   private final String code;
-  private String pkceCodeVerifier;
   private final Map<String, String> extraParameters = new HashMap<>();
+  private String pkceCodeVerifier;
 
   /**
    * Constructeur.

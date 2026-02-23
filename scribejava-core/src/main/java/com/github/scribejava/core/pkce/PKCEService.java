@@ -35,6 +35,7 @@ import java.util.Base64;
 public class PKCEService {
 
   private static final SecureRandom RANDOM = new SecureRandom();
+
   /** Nombre d'octets à générer aléatoirement. */
   private final int numberOFOctets;
 
@@ -56,7 +57,9 @@ public class PKCEService {
     this(32);
   }
 
-  /** @return L'instance par défaut de {@link PKCEService}. */
+  /**
+   * @return L'instance par défaut de {@link PKCEService}.
+   */
   public static PKCEService defaultInstance() {
     return DefaultInstanceHolder.INSTANCE;
   }

@@ -146,7 +146,9 @@ public abstract class DefaultApi10a {
    */
   public abstract String getAccessTokenEndpoint();
 
-  /** @return L'URL de base pour l'autorisation de l'utilisateur. */
+  /**
+   * @return L'URL de base pour l'autorisation de l'utilisateur.
+   */
   protected abstract String getAuthorizationBaseUrl();
 
   /**

@@ -33,36 +33,31 @@ import com.github.scribejava.core.model.Verb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Test de non-régression pour le refactor du DeviceFlowHandler.
- * (Phase 4 du refactoring SOLID).
- */
+/** Test de non-régression pour le refactor du DeviceFlowHandler. (Phase 4 du refactoring SOLID). */
 public class DeviceFlowRefactorTest {
 
-    private OAuth20Service service;
-    private DefaultApi20 api;
+  private OAuth20Service service;
+  private DefaultApi20 api;
 
-    @BeforeEach
-    public void setUp() {
-        api = mock(DefaultApi20.class);
-        when(api.getDeviceAuthorizationEndpoint()).thenReturn("http://example.com/device");
+  @BeforeEach
+  public void setUp() {
+    api = mock(DefaultApi20.class);
+    when(api.getDeviceAuthorizationEndpoint()).thenReturn("http://example.com/device");
 
-        service = mock(OAuth20Service.class);
-        when(service.getApi()).thenReturn(api);
-        when(service.getApiKey()).thenReturn("api-key");
-    }
+    service = mock(OAuth20Service.class);
+    when(service.getApi()).thenReturn(api);
+    when(service.getApiKey()).thenReturn("api-key");
+  }
 
-    /**
-     * Vérifie que la configuration est bien propagée à la requête.
-     */
-    @Test
-    public void shouldPropagateConfigurationToRequest() {
-        final OAuth20DeviceFlowHandler handler = new OAuth20DeviceFlowHandler(service);
-        final OAuthRequest request = handler.createDeviceAuthorizationCodesRequest("all");
+  /** Vérifie que la configuration est bien propagée à la requête. */
+  @Test
+  public void shouldPropagateConfigurationToRequest() {
+    final OAuth20DeviceFlowHandler handler = new OAuth20DeviceFlowHandler(service);
+    final OAuthRequest request = handler.createDeviceAuthorizationCodesRequest("all");
 
-        assertThat(request.getVerb()).isEqualTo(Verb.POST);
-        assertThat(request.getUrl()).isEqualTo("http://example.com/device");
-        assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("client_id=api-key");
-        assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("scope=all");
-    }
+    assertThat(request.getVerb()).isEqualTo(Verb.POST);
+    assertThat(request.getUrl()).isEqualTo("http://example.com/device");
+    assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("client_id=api-key");
+    assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("scope=all");
+  }
 }

@@ -125,7 +125,9 @@ public class AccessTokenRequestParams {
     return this;
   }
 
-  /** @return Le dictionnaire des paramètres supplémentaires. */
+  /**
+   * @return Le dictionnaire des paramètres supplémentaires.
+   */
   public Map<String, String> getExtraParameters() {
     return extraParameters;
   }
@@ -141,17 +143,23 @@ public class AccessTokenRequestParams {
     return this;
   }
 
-  /** @return Le code d'autorisation. */
+  /**
+   * @return Le code d'autorisation.
+   */
   public String getCode() {
     return code;
   }
 
-  /** @return Le vérificateur de code PKCE. */
+  /**
+   * @return Le vérificateur de code PKCE.
+   */
   public String getPkceCodeVerifier() {
     return pkceCodeVerifier;
   }
 
-  /** @return La portée configurée. */
+  /**
+   * @return La portée configurée.
+   */
   public String getScope() {
     return scope;
   }

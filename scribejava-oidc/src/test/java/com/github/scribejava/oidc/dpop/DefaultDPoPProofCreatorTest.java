@@ -41,55 +41,55 @@ import org.junit.jupiter.api.Test;
 /** Tests pour {@link DefaultDPoPProofCreator}. */
 public class DefaultDPoPProofCreatorTest {
 
-    /**
-     * @throws Exception Exception
-     */
-    @Test
-    public void shouldGenerateRSAProofWithAth() throws Exception {
-        final DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator();
-        final OAuthRequest request = new OAuthRequest(Verb.POST, "https://example.com/api");
-        final String accessToken = "my-access-token";
+  /**
+   * @throws Exception Exception
+   */
+  @Test
+  public void shouldGenerateRSAProofWithAth() throws Exception {
+    final DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator();
+    final OAuthRequest request = new OAuthRequest(Verb.POST, "https://example.com/api");
+    final String accessToken = "my-access-token";
 
-        final String proof = creator.createDPoPProof(request, accessToken);
-        assertThat(proof).isNotNull();
+    final String proof = creator.createDPoPProof(request, accessToken);
+    assertThat(proof).isNotNull();
 
-        final SignedJWT jwt = SignedJWT.parse(proof);
-        assertThat(jwt.getHeader().getAlgorithm()).isEqualTo(JWSAlgorithm.RS256);
-        assertThat(jwt.getJWTClaimsSet().getClaim("htm")).isEqualTo("POST");
-        assertThat(jwt.getJWTClaimsSet().getClaim("htu")).isEqualTo("https://example.com/api");
-        assertThat(jwt.getJWTClaimsSet().getClaim("ath")).isNotNull();
-    }
+    final SignedJWT jwt = SignedJWT.parse(proof);
+    assertThat(jwt.getHeader().getAlgorithm()).isEqualTo(JWSAlgorithm.RS256);
+    assertThat(jwt.getJWTClaimsSet().getClaim("htm")).isEqualTo("POST");
+    assertThat(jwt.getJWTClaimsSet().getClaim("htu")).isEqualTo("https://example.com/api");
+    assertThat(jwt.getJWTClaimsSet().getClaim("ath")).isNotNull();
+  }
 
-    /**
-     * @throws Exception Exception
-     */
-    @Test
-    public void shouldGenerateECProof() throws Exception {
-        final ECKey ecJWK = new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256)
-                .keyUse(KeyUse.SIGNATURE)
-                .generate();
-        final DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator(ecJWK, JWSAlgorithm.ES256);
-        final OAuthRequest request = new OAuthRequest(Verb.GET, "https://example.com/api");
+  /**
+   * @throws Exception Exception
+   */
+  @Test
+  public void shouldGenerateECProof() throws Exception {
+    final ECKey ecJWK =
+        new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256).keyUse(KeyUse.SIGNATURE).generate();
+    final DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator(ecJWK, JWSAlgorithm.ES256);
+    final OAuthRequest request = new OAuthRequest(Verb.GET, "https://example.com/api");
 
-        final String proof = creator.createDPoPProof(request, null);
+    final String proof = creator.createDPoPProof(request, null);
 
-        final SignedJWT jwt = SignedJWT.parse(proof);
-        assertThat(jwt.getHeader().getAlgorithm()).isEqualTo(JWSAlgorithm.ES256);
-        assertThat(jwt.getJWTClaimsSet().getClaim("htm")).isEqualTo("GET");
-    }
+    final SignedJWT jwt = SignedJWT.parse(proof);
+    assertThat(jwt.getHeader().getAlgorithm()).isEqualTo(JWSAlgorithm.ES256);
+    assertThat(jwt.getJWTClaimsSet().getClaim("htm")).isEqualTo("GET");
+  }
 
-    /**
-     * @throws Exception Exception
-     */
-    @Test
-    public void shouldThrowOnUnsupportedJWK() throws Exception {
-        final JWK mockJWK = mock(JWK.class);
-        when(mockJWK.isPrivate()).thenReturn(true);
-        final DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator(mockJWK, JWSAlgorithm.RS256);
+  /**
+   * @throws Exception Exception
+   */
+  @Test
+  public void shouldThrowOnUnsupportedJWK() throws Exception {
+    final JWK mockJWK = mock(JWK.class);
+    when(mockJWK.isPrivate()).thenReturn(true);
+    final DefaultDPoPProofCreator creator =
+        new DefaultDPoPProofCreator(mockJWK, JWSAlgorithm.RS256);
 
-        final OAuthRequest request = new OAuthRequest(Verb.GET, "https://idp.com");
-        assertThatThrownBy(() -> creator.createDPoPProof(request, null))
-                .isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class)
-                .hasMessageContaining("Unsupported JWK type");
-    }
+    final OAuthRequest request = new OAuthRequest(Verb.GET, "https://idp.com");
+    assertThatThrownBy(() -> creator.createDPoPProof(request, null))
+        .isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class)
+        .hasMessageContaining("Unsupported JWK type");
+  }
 }

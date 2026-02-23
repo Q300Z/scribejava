@@ -56,7 +56,9 @@ public class SlackOAuth2AccessToken extends OAuth2AccessToken {
     this.userAccessToken = userAccessToken;
   }
 
-  /** @return Le jeton d'accès de l'utilisateur. */
+  /**
+   * @return Le jeton d'accès de l'utilisateur.
+   */
   public String getUserAccessToken() {
     return userAccessToken;
   }

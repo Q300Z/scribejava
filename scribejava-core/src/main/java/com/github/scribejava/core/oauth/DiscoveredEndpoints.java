@@ -39,12 +39,16 @@ public class DiscoveredEndpoints {
     this.tokenEndpoint = tokenEndpoint;
   }
 
-  /** @return L'URL du point de terminaison d'autorisation. */
+  /**
+   * @return L'URL du point de terminaison d'autorisation.
+   */
   public String getAuthorizationEndpoint() {
     return authorizationEndpoint;
   }
 
-  /** @return L'URL du point de terminaison de jeton. */
+  /**
+   * @return L'URL du point de terminaison de jeton.
+   */
   public String getTokenEndpoint() {
     return tokenEndpoint;
   }

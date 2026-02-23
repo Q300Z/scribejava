@@ -37,6 +37,7 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
  *     Graph REST API v1.0 reference</a>
  * @see <a href="https://portal.azure.com">https://portal.azure.com</a>
  */
+
 /**
  * API Microsoft Azure Active Directory v2.0.
  *

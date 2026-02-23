@@ -39,10 +39,6 @@ public class OidcGitHubApi20 extends DefaultOidcApi20 {
   /** Constructeur protégé. */
   protected OidcGitHubApi20() {}
 
-  private static class InstanceHolder {
-    private static final OidcGitHubApi20 INSTANCE = new OidcGitHubApi20();
-  }
-
   /**
    * Retourne l'instance unique (singleton) de l'API GitHub OIDC.
    *
@@ -72,5 +68,9 @@ public class OidcGitHubApi20 extends DefaultOidcApi20 {
   public String getAuthorizationBaseUrl() {
     final String baseUrl = super.getAuthorizationBaseUrl();
     return baseUrl != null ? baseUrl : "https://github.com/login/oauth/authorize";
+  }
+
+  private static class InstanceHolder {
+    private static final OidcGitHubApi20 INSTANCE = new OidcGitHubApi20();
   }
 }

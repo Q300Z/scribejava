@@ -71,7 +71,9 @@ public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
     this.openIdToken = openIdToken;
   }
 
-  /** @return Le jeton d'identité (ID Token). */
+  /**
+   * @return Le jeton d'identité (ID Token).
+   */
   public String getOpenIdToken() {
     return openIdToken;
   }

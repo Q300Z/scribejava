@@ -164,82 +164,114 @@ public class OidcProviderMetadata {
     return Collections.unmodifiableList(list);
   }
 
-  /** @return L'identifiant de l'émetteur. */
+  /**
+   * @return L'identifiant de l'émetteur.
+   */
   public String getIssuer() {
     return issuer;
   }
 
-  /** @return L'URL du point de terminaison d'autorisation. */
+  /**
+   * @return L'URL du point de terminaison d'autorisation.
+   */
   public String getAuthorizationEndpoint() {
     return authorizationEndpoint;
   }
 
-  /** @return L'URL du point de terminaison de jeton. */
+  /**
+   * @return L'URL du point de terminaison de jeton.
+   */
   public String getTokenEndpoint() {
     return tokenEndpoint;
   }
 
-  /** @return L'URL du point de terminaison JWK Set. */
+  /**
+   * @return L'URL du point de terminaison JWK Set.
+   */
   public String getJwksUri() {
     return jwksUri;
   }
 
-  /** @return Liste des types de réponse supportés. */
+  /**
+   * @return Liste des types de réponse supportés.
+   */
   public List<String> getResponseTypesSupported() {
     return responseTypesSupported;
   }
 
-  /** @return Liste des types d'identifiant de sujet supportés (public, pairwise). */
+  /**
+   * @return Liste des types d'identifiant de sujet supportés (public, pairwise).
+   */
   public List<String> getSubjectTypesSupported() {
     return subjectTypesSupported;
   }
 
-  /** @return Liste des algorithmes de signature supportés pour l'ID Token. */
+  /**
+   * @return Liste des algorithmes de signature supportés pour l'ID Token.
+   */
   public List<String> getIdTokenSigningAlgValuesSupported() {
     return idTokenSigningAlgValuesSupported;
   }
 
-  /** @return L'URL du point de terminaison UserInfo. */
+  /**
+   * @return L'URL du point de terminaison UserInfo.
+   */
   public String getUserinfoEndpoint() {
     return userinfoEndpoint;
   }
 
-  /** @return L'URL du point de terminaison d'enregistrement dynamique. */
+  /**
+   * @return L'URL du point de terminaison d'enregistrement dynamique.
+   */
   public String getRegistrationEndpoint() {
     return registrationEndpoint;
   }
 
-  /** @return Liste des portées supportées. */
+  /**
+   * @return Liste des portées supportées.
+   */
   public List<String> getScopesSupported() {
     return scopesSupported;
   }
 
-  /** @return Liste des modes de réponse supportés. */
+  /**
+   * @return Liste des modes de réponse supportés.
+   */
   public List<String> getResponseModesSupported() {
     return responseModesSupported;
   }
 
-  /** @return Liste des types de concession supportés. */
+  /**
+   * @return Liste des types de concession supportés.
+   */
   public List<String> getGrantTypesSupported() {
     return grantTypesSupported;
   }
 
-  /** @return L'URL du point de terminaison de révocation. */
+  /**
+   * @return L'URL du point de terminaison de révocation.
+   */
   public String getRevocationEndpoint() {
     return revocationEndpoint;
   }
 
-  /** @return L'URL du point de terminaison d'introspection. */
+  /**
+   * @return L'URL du point de terminaison d'introspection.
+   */
   public String getIntrospectionEndpoint() {
     return introspectionEndpoint;
   }
 
-  /** @return L'URL du point de terminaison des requêtes d'autorisation poussées (PAR). */
+  /**
+   * @return L'URL du point de terminaison des requêtes d'autorisation poussées (PAR).
+   */
   public String getPushedAuthorizationRequestEndpoint() {
     return pushedAuthorizationRequestEndpoint;
   }
 
-  /** @return Liste des algorithmes supportés pour les preuves DPoP. */
+  /**
+   * @return Liste des algorithmes supportés pour les preuves DPoP.
+   */
   public List<String> getDpopSigningAlgValuesSupported() {
     return dpopSigningAlgValuesSupported;
   }

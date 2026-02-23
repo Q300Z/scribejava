@@ -38,44 +38,44 @@ import org.junit.jupiter.api.Test;
 /** Tests unitaires pour {@link PasswordGrant}. */
 public class PasswordGrantTest {
 
-    private OAuth20Service service;
-    private DefaultApi20 api;
+  private OAuth20Service service;
+  private DefaultApi20 api;
 
-    @BeforeEach
-    public void setUp() {
-        service = mock(OAuth20Service.class);
-        api = mock(DefaultApi20.class);
-        when(service.getApi()).thenReturn(api);
-        when(service.getApiKey()).thenReturn("api-key");
-        when(service.getApiSecret()).thenReturn("api-secret");
-        when(api.getAccessTokenVerb()).thenReturn(Verb.POST);
-        when(api.getAccessTokenEndpoint()).thenReturn("http://example.com/token");
-        when(api.getClientAuthentication()).thenReturn(HttpBasicAuthenticationScheme.instance());
-    }
+  @BeforeEach
+  public void setUp() {
+    service = mock(OAuth20Service.class);
+    api = mock(DefaultApi20.class);
+    when(service.getApi()).thenReturn(api);
+    when(service.getApiKey()).thenReturn("api-key");
+    when(service.getApiSecret()).thenReturn("api-secret");
+    when(api.getAccessTokenVerb()).thenReturn(Verb.POST);
+    when(api.getAccessTokenEndpoint()).thenReturn("http://example.com/token");
+    when(api.getClientAuthentication()).thenReturn(HttpBasicAuthenticationScheme.instance());
+  }
 
-    /** Test de création de requête. */
-    @Test
-    public void shouldCreateCorrectRequest() {
-        final PasswordGrant grant = new PasswordGrant("user", "pass", "all");
-        final OAuthRequest request = grant.createRequest(service);
+  /** Test de création de requête. */
+  @Test
+  public void shouldCreateCorrectRequest() {
+    final PasswordGrant grant = new PasswordGrant("user", "pass", "all");
+    final OAuthRequest request = grant.createRequest(service);
 
-        assertThat(request.getVerb()).isEqualTo(Verb.POST);
-        assertThat(request.getUrl()).isEqualTo("http://example.com/token");
+    assertThat(request.getVerb()).isEqualTo(Verb.POST);
+    assertThat(request.getUrl()).isEqualTo("http://example.com/token");
 
-        final String body = request.getBodyParams().asFormUrlEncodedString();
-        assertThat(body).contains("username=user");
-        assertThat(body).contains("password=pass");
-        assertThat(body).contains("scope=all");
-        assertThat(body).contains("grant_type=password");
-    }
+    final String body = request.getBodyParams().asFormUrlEncodedString();
+    assertThat(body).contains("username=user");
+    assertThat(body).contains("password=pass");
+    assertThat(body).contains("scope=all");
+    assertThat(body).contains("grant_type=password");
+  }
 
-    /** Test du scope par défaut. */
-    @Test
-    public void shouldFallbackToServiceDefaultScope() {
-        when(service.getDefaultScope()).thenReturn("default-scope");
-        final PasswordGrant grant = new PasswordGrant("user", "pass");
-        final OAuthRequest request = grant.createRequest(service);
+  /** Test du scope par défaut. */
+  @Test
+  public void shouldFallbackToServiceDefaultScope() {
+    when(service.getDefaultScope()).thenReturn("default-scope");
+    final PasswordGrant grant = new PasswordGrant("user", "pass");
+    final OAuthRequest request = grant.createRequest(service);
 
-        assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("scope=default-scope");
-    }
+    assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("scope=default-scope");
+  }
 }

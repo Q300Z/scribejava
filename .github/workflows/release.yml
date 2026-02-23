@@ -12,42 +12,42 @@ jobs:
       contents: write # Requis pour créer la release et uploader les assets
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Set up JDK 8
-      uses: actions/setup-java@v4
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-        cache: 'maven'
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: 'maven'
 
-    - name: Build with Maven
-      run: mvn clean package -DskipTests -Dmaven.javadoc.skip=true
+      - name: Build with Maven
+        run: mvn clean package -DskipTests -Dmaven.javadoc.skip=true
 
-    - name: Collect Artifacts
-      run: |
-        mkdir dist
-        find . -name "*.jar" -not -path "*/target/test-classes/*" -not -path "*/target/classes/*" -exec cp {} dist/ \;
-        rm -f dist/original-*.jar
+      - name: Collect Artifacts
+        run: |
+          mkdir dist
+          find . -name "*.jar" -not -path "*/target/test-classes/*" -not -path "*/target/classes/*" -exec cp {} dist/ \;
+          rm -f dist/original-*.jar
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: dist/*.jar
-        generate_release_notes: true
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.jar
+          generate_release_notes: true
 
-    - name: Generate Javadoc
-      run: mvn javadoc:aggregate -DskipTests
+      - name: Generate Javadoc
+        run: mvn javadoc:aggregate -DskipTests
 
-    - name: Deploy Javadoc to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./target/site/apidocs
-        destination_dir: docs
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy Javadoc to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/apidocs
+          destination_dir: docs
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -23,10 +23,10 @@
  */
 package com.github.scribejava.core.httpclient;
 
+import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;

@@ -24,18 +24,14 @@
 package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.PushedAuthorizationResponse;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.model.*;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** Handles OAuth 2.0 Pushed Authorization Requests (PAR). */
+
 /**
  * Gère les requêtes d'autorisation poussées (PAR - Pushed Authorization Requests).
  *
@@ -54,22 +50,6 @@ public class OAuth20PushedAuthHandler {
    */
   public OAuth20PushedAuthHandler(OAuth20Service service) {
     this.service = service;
-  }
-
-  private static class CachedResponse {
-    final PushedAuthorizationResponse response;
-    final long expirationTime;
-
-    CachedResponse(PushedAuthorizationResponse response) {
-      this.response = response;
-      // Expire en secondes. Conversion en millis. Marge de sécurité : 5 secondes.
-      this.expirationTime =
-          System.currentTimeMillis() + (long) (response.getExpiresIn() - 5) * 1000;
-    }
-
-    boolean isValid() {
-      return System.currentTimeMillis() < expirationTime;
-    }
   }
 
   /**
@@ -94,8 +74,7 @@ public class OAuth20PushedAuthHandler {
         new OAuthRequest(Verb.POST, service.getApi().getPushedAuthorizationRequestEndpoint());
 
     // 1. Collect all parameters in a map
-    final com.github.scribejava.core.model.ParameterList parameters =
-        new com.github.scribejava.core.model.ParameterList(additionalParams);
+    final ParameterList parameters = new ParameterList(additionalParams);
     parameters.add(OAuthConstants.RESPONSE_TYPE, responseType);
     parameters.add(OAuthConstants.CLIENT_ID, apiKey);
     if (callback != null) {
@@ -186,5 +165,21 @@ public class OAuth20PushedAuthHandler {
             return parResponse;
           }
         });
+  }
+
+  private static class CachedResponse {
+    final PushedAuthorizationResponse response;
+    final long expirationTime;
+
+    CachedResponse(PushedAuthorizationResponse response) {
+      this.response = response;
+      // Expire en secondes. Conversion en millis. Marge de sécurité : 5 secondes.
+      this.expirationTime =
+          System.currentTimeMillis() + (long) (response.getExpiresIn() - 5) * 1000;
+    }
+
+    boolean isValid() {
+      return System.currentTimeMillis() < expirationTime;
+    }
   }
 }

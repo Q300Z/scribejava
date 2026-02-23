@@ -25,9 +25,7 @@ package com.github.scribejava.core.oauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
@@ -35,29 +33,29 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test validant que le décorateur synchrone délègue correctement aux méthodes asynchrones.
- * (Phase 3 du refactoring SOLID).
+ * Test validant que le décorateur synchrone délègue correctement aux méthodes asynchrones. (Phase 3
+ * du refactoring SOLID).
  */
 public class OAuth20SyncDecoratorTest {
 
-    @Test
-    public void shouldDelegateAndBlock() throws Exception {
-        // Arrange
-        final OAuth20Service asyncService = mock(OAuth20Service.class);
-        final OAuth20Grant grant = mock(OAuth20Grant.class);
-        final OAuth2AccessToken expectedToken = new OAuth2AccessToken("token");
+  @Test
+  public void shouldDelegateAndBlock() throws Exception {
+    // Arrange
+    final OAuth20Service asyncService = mock(OAuth20Service.class);
+    final OAuth20Grant grant = mock(OAuth20Grant.class);
+    final OAuth2AccessToken expectedToken = new OAuth2AccessToken("token");
 
-        when(asyncService.getAccessTokenAsync(any(OAuth20Grant.class)))
-            .thenReturn(CompletableFuture.completedFuture(expectedToken));
+    when(asyncService.getAccessTokenAsync(any(OAuth20Grant.class)))
+        .thenReturn(CompletableFuture.completedFuture(expectedToken));
 
-        // Le décorateur qu'on veut tester
-        final OAuth20SyncService syncService = new OAuth20SyncService(asyncService);
+    // Le décorateur qu'on veut tester
+    final OAuth20SyncService syncService = new OAuth20SyncService(asyncService);
 
-        // Act
-        final OAuth2AccessToken actualToken = syncService.getAccessToken(grant);
+    // Act
+    final OAuth2AccessToken actualToken = syncService.getAccessToken(grant);
 
-        // Assert
-        assertThat(actualToken).isEqualTo(expectedToken);
-        verify(asyncService).getAccessTokenAsync(grant);
-    }
+    // Assert
+    assertThat(actualToken).isEqualTo(expectedToken);
+    verify(asyncService).getAccessTokenAsync(grant);
+  }
 }

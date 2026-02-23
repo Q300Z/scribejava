@@ -38,10 +38,6 @@ public class GoogleApi20 extends DefaultApi20 {
   /** Constructeur protégé. */
   protected GoogleApi20() {}
 
-  private static class InstanceHolder {
-    private static final GoogleApi20 INSTANCE = new GoogleApi20();
-  }
-
   /**
    * Retourne l'instance unique (singleton) de l'API Google.
    *
@@ -74,5 +70,9 @@ public class GoogleApi20 extends DefaultApi20 {
   @Override
   public String getDeviceAuthorizationEndpoint() {
     return "https://oauth2.googleapis.com/device/code";
+  }
+
+  private static class InstanceHolder {
+    private static final GoogleApi20 INSTANCE = new GoogleApi20();
   }
 }

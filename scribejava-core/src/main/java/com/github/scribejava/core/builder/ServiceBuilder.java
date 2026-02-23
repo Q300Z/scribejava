@@ -62,7 +62,9 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     apiKey(apiKey);
   }
 
-  /** @return La clé API configurée. */
+  /**
+   * @return La clé API configurée.
+   */
   public String getApiKey() {
     return apiKey;
   }
@@ -80,7 +82,8 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return this;
   }
 
-  protected com.github.scribejava.core.oauth.AuthorizationRequestConverter getAuthorizationRequestConverter() {
+  protected com.github.scribejava.core.oauth.AuthorizationRequestConverter
+      getAuthorizationRequestConverter() {
     return authorizationRequestConverter;
   }
 

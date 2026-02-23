@@ -28,32 +28,30 @@ import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Définit les opérations synchrones pour OAuth 2.0 (Interface Segregation Principle).
- */
+/** Définit les opérations synchrones pour OAuth 2.0 (Interface Segregation Principle). */
 public interface OAuth20Operations {
 
-    /**
-     * Récupère un jeton d'accès de manière synchrone.
-     *
-     * @param grant La concession (grant) à utiliser.
-     * @return Le jeton d'accès.
-     * @throws IOException Erreur réseau.
-     * @throws InterruptedException Interruption.
-     * @throws ExecutionException Échec de la requête.
-     */
-    OAuth2AccessToken getAccessToken(OAuth20Grant grant)
-        throws IOException, InterruptedException, ExecutionException;
+  /**
+   * Récupère un jeton d'accès de manière synchrone.
+   *
+   * @param grant La concession (grant) à utiliser.
+   * @return Le jeton d'accès.
+   * @throws IOException Erreur réseau.
+   * @throws InterruptedException Interruption.
+   * @throws ExecutionException Échec de la requête.
+   */
+  OAuth2AccessToken getAccessToken(OAuth20Grant grant)
+      throws IOException, InterruptedException, ExecutionException;
 
-    /**
-     * Rafraîchit un jeton d'accès de manière synchrone.
-     *
-     * @param refreshToken Le jeton de rafraîchissement.
-     * @return Le nouveau jeton d'accès.
-     * @throws IOException Erreur réseau.
-     * @throws InterruptedException Interruption.
-     * @throws ExecutionException Échec de la requête.
-     */
-    OAuth2AccessToken refreshAccessToken(String refreshToken)
-        throws IOException, InterruptedException, ExecutionException;
+  /**
+   * Rafraîchit un jeton d'accès de manière synchrone.
+   *
+   * @param refreshToken Le jeton de rafraîchissement.
+   * @return Le nouveau jeton d'accès.
+   * @throws IOException Erreur réseau.
+   * @throws InterruptedException Interruption.
+   * @throws ExecutionException Échec de la requête.
+   */
+  OAuth2AccessToken refreshAccessToken(String refreshToken)
+      throws IOException, InterruptedException, ExecutionException;
 }

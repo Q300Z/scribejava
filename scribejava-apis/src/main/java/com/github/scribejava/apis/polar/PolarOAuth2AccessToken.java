@@ -56,7 +56,9 @@ public class PolarOAuth2AccessToken extends OAuth2AccessToken {
     this.userId = userId;
   }
 
-  /** @return L'identifiant utilisateur Polar (x_user_id). */
+  /**
+   * @return L'identifiant utilisateur Polar (x_user_id).
+   */
   public String getUserId() {
     return userId;
   }

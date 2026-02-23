@@ -28,31 +28,29 @@ import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Décorateur transformant un service asynchrone en service synchrone (Decorator Pattern).
- */
+/** Décorateur transformant un service asynchrone en service synchrone (Decorator Pattern). */
 public class OAuth20SyncService implements OAuth20Operations {
 
-    private final OAuth20Service asyncService;
+  private final OAuth20Service asyncService;
 
-    /**
-     * Constructeur.
-     *
-     * @param asyncService Le service asynchrone à décorer.
-     */
-    public OAuth20SyncService(OAuth20Service asyncService) {
-        this.asyncService = asyncService;
-    }
+  /**
+   * Constructeur.
+   *
+   * @param asyncService Le service asynchrone à décorer.
+   */
+  public OAuth20SyncService(OAuth20Service asyncService) {
+    this.asyncService = asyncService;
+  }
 
-    @Override
-    public OAuth2AccessToken getAccessToken(OAuth20Grant grant)
-            throws IOException, InterruptedException, ExecutionException {
-        return asyncService.getAccessTokenAsync(grant).get();
-    }
+  @Override
+  public OAuth2AccessToken getAccessToken(OAuth20Grant grant)
+      throws IOException, InterruptedException, ExecutionException {
+    return asyncService.getAccessTokenAsync(grant).get();
+  }
 
-    @Override
-    public OAuth2AccessToken refreshAccessToken(String refreshToken)
-            throws IOException, InterruptedException, ExecutionException {
-        return asyncService.refreshAccessTokenAsync(refreshToken).get();
-    }
+  @Override
+  public OAuth2AccessToken refreshAccessToken(String refreshToken)
+      throws IOException, InterruptedException, ExecutionException {
+    return asyncService.refreshAccessTokenAsync(refreshToken).get();
+  }
 }

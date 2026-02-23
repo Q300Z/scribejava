@@ -36,38 +36,40 @@ import org.junit.jupiter.api.Test;
 /** Tests pour {@link OidcServiceBuilder}. */
 public class OidcServiceBuilderTest {
 
-    /**
-     * @throws Exception Exception
-     */
-    @Test
-    public void shouldConfigureJarConverter() throws Exception {
-        final RSAKey rsaJWK = new RSAKeyGenerator(2048).generate();
-        final OidcServiceBuilder builder = new OidcServiceBuilder("client-id");
+  /**
+   * @throws Exception Exception
+   */
+  @Test
+  public void shouldConfigureJarConverter() throws Exception {
+    final RSAKey rsaJWK = new RSAKeyGenerator(2048).generate();
+    final OidcServiceBuilder builder = new OidcServiceBuilder("client-id");
 
-        builder.jwtSecuredAuthorizationRequest("https://idp.com", rsaJWK, JWSAlgorithm.RS256);
+    builder.jwtSecuredAuthorizationRequest("https://idp.com", rsaJWK, JWSAlgorithm.RS256);
 
-        final JarAuthorizationRequestConverter converter = (JarAuthorizationRequestConverter) builder.getAuthorizationRequestConverter();
-        assertThat(converter).isNotNull();
+    final JarAuthorizationRequestConverter converter =
+        (JarAuthorizationRequestConverter) builder.getAuthorizationRequestConverter();
+    assertThat(converter).isNotNull();
 
-        final Map<String, String> params = new HashMap<>();
-        params.put("client_id", "client-id");
-        params.put("response_type", "code");
+    final Map<String, String> params = new HashMap<>();
+    params.put("client_id", "client-id");
+    params.put("response_type", "code");
 
-        final Map<String, String> converted = converter.convert(params);
-        assertThat(converted).containsKey("request");
-        assertThat(converted.get("client_id")).isEqualTo("client-id");
-    }
+    final Map<String, String> converted = converter.convert(params);
+    assertThat(converted).containsKey("request");
+    assertThat(converted.get("client_id")).isEqualTo("client-id");
+  }
 
-    /**
-     * @throws Exception Exception
-     */
-    @Test
-    public void shouldConfigureJarConverterWithSupplier() throws Exception {
-        final RSAKey rsaJWK = new RSAKeyGenerator(2048).generate();
-        final OidcServiceBuilder builder = new OidcServiceBuilder("client-id");
+  /**
+   * @throws Exception Exception
+   */
+  @Test
+  public void shouldConfigureJarConverterWithSupplier() throws Exception {
+    final RSAKey rsaJWK = new RSAKeyGenerator(2048).generate();
+    final OidcServiceBuilder builder = new OidcServiceBuilder("client-id");
 
-        builder.jwtSecuredAuthorizationRequest("https://idp.com", () -> rsaJWK, JWSAlgorithm.RS256);
+    builder.jwtSecuredAuthorizationRequest("https://idp.com", () -> rsaJWK, JWSAlgorithm.RS256);
 
-        assertThat(builder.getAuthorizationRequestConverter()).isInstanceOf(JarAuthorizationRequestConverter.class);
-    }
+    assertThat(builder.getAuthorizationRequestConverter())
+        .isInstanceOf(JarAuthorizationRequestConverter.class);
+  }
 }

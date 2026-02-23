@@ -42,6 +42,7 @@ public class OAuth2Authorization {
    * URI.
    */
   private String code;
+
   /**
    * REQUIRED if the "state" parameter was present in the client authorization request. The exact
    * value received from the client.

@@ -89,17 +89,23 @@ public class OAuthRequest {
     }
   }
 
-  /** @return Le dictionnaire des paramètres OAuth. */
+  /**
+   * @return Le dictionnaire des paramètres OAuth.
+   */
   public Map<String, String> getOauthParameters() {
     return oauthParameters;
   }
 
-  /** @return Le royaume (realm) d'authentification. */
+  /**
+   * @return Le royaume (realm) d'authentification.
+   */
   public String getRealm() {
     return realm;
   }
 
-  /** @param realm Le royaume d'authentification à définir. */
+  /**
+   * @param realm Le royaume d'authentification à définir.
+   */
   public void setRealm(String realm) {
     this.realm = realm;
   }
@@ -157,12 +163,16 @@ public class OAuthRequest {
     }
   }
 
-  /** @return La charge utile multipart, ou null. */
+  /**
+   * @return La charge utile multipart, ou null.
+   */
   public MultipartPayload getMultipartPayload() {
     return multipartPayload;
   }
 
-  /** @param multipartPayload La charge utile multipart à définir. */
+  /**
+   * @param multipartPayload La charge utile multipart à définir.
+   */
   public void setMultipartPayload(MultipartPayload multipartPayload) {
     this.multipartPayload = multipartPayload;
   }
@@ -243,7 +253,9 @@ public class OAuthRequest {
     return bodyParams;
   }
 
-  /** @return L'URL d'origine de la requête. */
+  /**
+   * @return L'URL d'origine de la requête.
+   */
   public String getUrl() {
     return url;
   }
@@ -263,12 +275,16 @@ public class OAuthRequest {
     }
   }
 
-  /** @return La charge utile sous forme de chaîne. */
+  /**
+   * @return La charge utile sous forme de chaîne.
+   */
   public String getStringPayload() {
     return stringPayload;
   }
 
-  /** @return La charge utile sous forme de tableau d'octets. */
+  /**
+   * @return La charge utile sous forme de tableau d'octets.
+   */
   public byte[] getByteArrayPayload() {
     if (byteArrayPayload != null) {
       return byteArrayPayload;
@@ -281,7 +297,9 @@ public class OAuthRequest {
     }
   }
 
-  /** @return La charge utile sous forme de fichier. */
+  /**
+   * @return La charge utile sous forme de fichier.
+   */
   public File getFilePayload() {
     return filePayload;
   }
@@ -291,22 +309,30 @@ public class OAuthRequest {
     return String.format("@Request(%s %s)", getVerb(), getUrl());
   }
 
-  /** @return Le verbe HTTP. */
+  /**
+   * @return Le verbe HTTP.
+   */
   public Verb getVerb() {
     return verb;
   }
 
-  /** @return Le dictionnaire des en-têtes HTTP. */
+  /**
+   * @return Le dictionnaire des en-têtes HTTP.
+   */
   public Map<String, String> getHeaders() {
     return headers;
   }
 
-  /** @return L'encodage de caractères utilisé (UTF-8 par défaut). */
+  /**
+   * @return L'encodage de caractères utilisé (UTF-8 par défaut).
+   */
   public String getCharset() {
     return charset == null ? Charset.defaultCharset().name() : charset;
   }
 
-  /** @param charsetName Le nom du charset à utiliser. */
+  /**
+   * @param charsetName Le nom du charset à utiliser.
+   */
   public void setCharset(String charsetName) {
     charset = charsetName;
   }

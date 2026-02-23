@@ -11,40 +11,40 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: 'maven'
+      - uses: actions/checkout@v4
 
-    - name: Static Analysis (Checkstyle, PMD, Spotless, License)
-      run: mvn checkstyle:check pmd:check spotless:check license:check
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Static Analysis (Checkstyle, PMD, Spotless, License)
+        run: mvn checkstyle:check pmd:check spotless:check license:check
 
   # Étape 2 : Compilation sous JDK 8 et packaging des tests
   build:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 8
-      uses: actions/setup-java@v4
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-        cache: 'maven'
+      - uses: actions/checkout@v4
 
-    - name: Build and Install
-      run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+          cache: 'maven'
 
-    - name: Upload compiled artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: compiled-jars
-        path: "**/target/*.jar"
+      - name: Build and Install
+        run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true
+
+      - name: Upload compiled artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-jars
+          path: "**/target/*.jar"
 
   # Étape 3 : Matrice de tests sur tous les JDK
   test:
@@ -56,24 +56,24 @@ jobs:
         java: [ '8', '11', '17', '21', '25' ]
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK ${{ matrix.java }}
-      uses: actions/setup-java@v4
-      with:
-        java-version: ${{ matrix.java }}
-        distribution: 'temurin'
-        cache: 'maven'
+      - uses: actions/checkout@v4
 
-    - name: Download compiled artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: compiled-jars
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
 
-    - name: Run Tests
-      # On relance mvn install pour être sûr que le repo local est peuplé avec les JARs téléchargés
-      run: mvn install -Dmaven.javadoc.skip=true
+      - name: Download compiled artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-jars
 
-    - name: Mutation Testing (PITest)
-      if: github.event_name == 'pull_request' && matrix.java == '17'
-      run: mvn pitest:mutationCoverage -pl scribejava-core,scribejava-oidc
+      - name: Run Tests
+        # On relance mvn install pour être sûr que le repo local est peuplé avec les JARs téléchargés
+        run: mvn install -Dmaven.javadoc.skip=true
+
+      - name: Mutation Testing (PITest)
+        if: github.event_name == 'pull_request' && matrix.java == '17'
+        run: mvn pitest:mutationCoverage -pl scribejava-core,scribejava-oidc

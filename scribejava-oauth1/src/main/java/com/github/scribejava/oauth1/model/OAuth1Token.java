@@ -45,12 +45,16 @@ public abstract class OAuth1Token extends Token {
     this.tokenSecret = tokenSecret;
   }
 
-  /** @return La valeur du jeton. */
+  /**
+   * @return La valeur du jeton.
+   */
   public String getToken() {
     return token;
   }
 
-  /** @return Le secret du jeton. */
+  /**
+   * @return Le secret du jeton.
+   */
   public String getTokenSecret() {
     return tokenSecret;
   }

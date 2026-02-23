@@ -67,12 +67,16 @@ public class Parameter implements Comparable<Parameter> {
     return otherParam.getKey().equals(key) && otherParam.getValue().equals(value);
   }
 
-  /** @return La clé du paramètre. */
+  /**
+   * @return La clé du paramètre.
+   */
   public String getKey() {
     return key;
   }
 
-  /** @return La valeur du paramètre. */
+  /**
+   * @return La valeur du paramètre.
+   */
   public String getValue() {
     return value;
   }

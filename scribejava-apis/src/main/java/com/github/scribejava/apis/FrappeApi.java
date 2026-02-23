@@ -56,7 +56,9 @@ public class FrappeApi extends DefaultApi20 {
     return new FrappeApi(serverUrl);
   }
 
-  /** @return L'URL du serveur configurée. */
+  /**
+   * @return L'URL du serveur configurée.
+   */
   public String getServerURL() {
     return serverURL;
   }

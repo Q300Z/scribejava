@@ -26,26 +26,24 @@ package com.github.scribejava.core.oauth;
 import com.github.scribejava.core.pkce.PKCE;
 import java.util.Map;
 
-/**
- * Intercepteur implémentant PKCE (RFC 7636).
- */
+/** Intercepteur implémentant PKCE (RFC 7636). */
 public class PKCEInterceptor implements AuthorizationRequestInterceptor {
 
-    private final PKCE pkce;
+  private final PKCE pkce;
 
-    /**
-     * Constructeur.
-     *
-     * @param pkce L'objet PKCE contenant les challenges.
-     */
-    public PKCEInterceptor(PKCE pkce) {
-        this.pkce = pkce;
-    }
+  /**
+   * Constructeur.
+   *
+   * @param pkce L'objet PKCE contenant les challenges.
+   */
+  public PKCEInterceptor(PKCE pkce) {
+    this.pkce = pkce;
+  }
 
-    @Override
-    public void intercept(Map<String, String> params) {
-        if (pkce != null) {
-            params.putAll(pkce.getAuthorizationUrlParams());
-        }
+  @Override
+  public void intercept(Map<String, String> params) {
+    if (pkce != null) {
+      params.putAll(pkce.getAuthorizationUrlParams());
     }
+  }
 }

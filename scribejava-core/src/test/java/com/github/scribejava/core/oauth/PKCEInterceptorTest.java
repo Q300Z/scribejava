@@ -34,25 +34,25 @@ import org.junit.jupiter.api.Test;
 /** Tests pour l'intercepteur PKCE (Phase 2 du refactoring SOLID). */
 public class PKCEInterceptorTest {
 
-    /**
-     * Vérifie que l'intercepteur ajoute les paramètres PKCE à la map des paramètres d'autorisation.
-     */
-    @Test
-    public void shouldAddPkceParameters() {
-        // Arrange
-        final PKCE pkce = new PKCE();
-        pkce.setCodeChallenge("challenge123");
-        pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.S256);
+  /**
+   * Vérifie que l'intercepteur ajoute les paramètres PKCE à la map des paramètres d'autorisation.
+   */
+  @Test
+  public void shouldAddPkceParameters() {
+    // Arrange
+    final PKCE pkce = new PKCE();
+    pkce.setCodeChallenge("challenge123");
+    pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.S256);
 
-        // Simulateur d'intercepteur (ce qu'on veut implémenter)
-        final AuthorizationRequestInterceptor interceptor = new PKCEInterceptor(pkce);
-        final Map<String, String> params = new HashMap<>();
+    // Simulateur d'intercepteur (ce qu'on veut implémenter)
+    final AuthorizationRequestInterceptor interceptor = new PKCEInterceptor(pkce);
+    final Map<String, String> params = new HashMap<>();
 
-        // Act
-        interceptor.intercept(params);
+    // Act
+    interceptor.intercept(params);
 
-        // Assert
-        assertThat(params).containsEntry("code_challenge", "challenge123");
-        assertThat(params).containsEntry("code_challenge_method", "S256");
-    }
+    // Assert
+    assertThat(params).containsEntry("code_challenge", "challenge123");
+    assertThat(params).containsEntry("code_challenge_method", "S256");
+  }
 }

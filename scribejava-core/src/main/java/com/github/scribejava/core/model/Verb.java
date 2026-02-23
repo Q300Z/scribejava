@@ -49,12 +49,16 @@ public enum Verb {
     this.permitBody = permitBody;
   }
 
-  /** @return true si le verbe nécessite obligatoirement un corps de requête. */
+  /**
+   * @return true si le verbe nécessite obligatoirement un corps de requête.
+   */
   public boolean isRequiresBody() {
     return requiresBody;
   }
 
-  /** @return true si le verbe autorise un corps de requête. */
+  /**
+   * @return true si le verbe autorise un corps de requête.
+   */
   public boolean isPermitBody() {
     return permitBody;
   }

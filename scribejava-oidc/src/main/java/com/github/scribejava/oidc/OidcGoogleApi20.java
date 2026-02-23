@@ -38,10 +38,6 @@ public class OidcGoogleApi20 extends DefaultOidcApi20 {
   /** Constructeur protégé. */
   protected OidcGoogleApi20() {}
 
-  private static class InstanceHolder {
-    private static final OidcGoogleApi20 INSTANCE = new OidcGoogleApi20();
-  }
-
   /**
    * Retourne l'instance unique (singleton) de l'API Google OIDC.
    *
@@ -77,5 +73,9 @@ public class OidcGoogleApi20 extends DefaultOidcApi20 {
   public String getRevokeTokenEndpoint() {
     final String endpoint = super.getRevokeTokenEndpoint();
     return endpoint != null ? endpoint : "https://oauth2.googleapis.com/revoke";
+  }
+
+  private static class InstanceHolder {
+    private static final OidcGoogleApi20 INSTANCE = new OidcGoogleApi20();
   }
 }

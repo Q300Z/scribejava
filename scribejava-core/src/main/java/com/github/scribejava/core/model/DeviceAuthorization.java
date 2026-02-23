@@ -51,12 +51,14 @@ public class DeviceAuthorization {
    * and easy to remember as end users will be asked to manually type it into their user agent.
    */
   private final String verificationUri;
+
   /**
    * expires_in
    *
    * <p>REQUIRED. The lifetime in seconds of the "device_code" and "user_code".
    */
   private final int expiresInSeconds;
+
   /**
    * verification_uri_complete
    *
@@ -64,6 +66,7 @@ public class DeviceAuthorization {
    * same function as the "user_code"), which is designed for non-textual transmission.
    */
   private String verificationUriComplete;
+
   /**
    * interval
    *

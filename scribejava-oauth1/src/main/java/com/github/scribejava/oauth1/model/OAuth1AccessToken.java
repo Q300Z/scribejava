@@ -47,7 +47,9 @@ public class OAuth1AccessToken extends OAuth1Token {
     super(token, tokenSecret, rawResponse);
   }
 
-  /** @return true si le jeton est vide ou nul. */
+  /**
+   * @return true si le jeton est vide ou nul.
+   */
   public boolean isEmpty() {
     return getToken() == null || getToken().isEmpty();
   }

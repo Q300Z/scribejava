@@ -61,8 +61,10 @@ public class PrivateKeyJwtClientAuthenticationTest {
 
   @Test
   public void shouldAddClientAssertionWithEC() throws Exception {
-    final com.nimbusds.jose.jwk.ECKey ecJWK = new com.nimbusds.jose.jwk.gen.ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256)
-            .keyID("456").generate();
+    final com.nimbusds.jose.jwk.ECKey ecJWK =
+        new com.nimbusds.jose.jwk.gen.ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256)
+            .keyID("456")
+            .generate();
     final String clientId = "ec-client";
     final String audience = "https://idp.com/token";
 

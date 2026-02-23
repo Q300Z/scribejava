@@ -33,6 +33,7 @@ import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 public class FlickrApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://www.flickr.com/services/oauth/authorize";
+
   /** Lecture, écriture ou suppression. */
   private final String permString;
 

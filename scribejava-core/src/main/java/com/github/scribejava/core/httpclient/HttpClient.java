@@ -45,8 +45,10 @@ public interface HttpClient extends Closeable {
 
   /** Type de contenu par défaut pour les requêtes OAuth. */
   String DEFAULT_CONTENT_TYPE = "application/x-www-form-urlencoded";
+
   /** En-tête HTTP Content-Type. */
   String CONTENT_TYPE = "Content-Type";
+
   /** En-tête HTTP Content-Length. */
   String CONTENT_LENGTH = "Content-Length";
 
