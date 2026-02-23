@@ -25,6 +25,7 @@ package com.github.scribejava.core.utils;
 
 import static org.junit.Assert.assertThrows;
 
+import org.junit.Test;
 import org.junit.function.ThrowingRunnable;
 
 /** Tests de la classe utilitaire {@link Preconditions}. */

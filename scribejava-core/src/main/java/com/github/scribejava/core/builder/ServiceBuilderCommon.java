@@ -25,12 +25,11 @@ package com.github.scribejava.core.builder;
 
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-import com.github.scribejava.core.oauth.OAuthService;
 import java.io.OutputStream;
 
 /**
  * Implementation of the Builder pattern, with a fluent interface that creates a {@link
- * OAuthService}
+ * com.github.scribejava.core.oauth.OAuthService}
  */
 public interface ServiceBuilderCommon {
 
