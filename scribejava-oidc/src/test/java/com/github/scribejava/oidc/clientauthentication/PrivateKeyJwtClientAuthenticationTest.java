@@ -59,6 +59,24 @@ public class PrivateKeyJwtClientAuthenticationTest {
     assertThat(signedJWT.getJWTClaimsSet().getAudience()).contains(audience);
   }
 
+  @Test
+  public void shouldAddClientAssertionWithEC() throws Exception {
+    final com.nimbusds.jose.jwk.ECKey ecJWK = new com.nimbusds.jose.jwk.gen.ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256)
+            .keyID("456").generate();
+    final String clientId = "ec-client";
+    final String audience = "https://idp.com/token";
+
+    final PrivateKeyJwtClientAuthentication auth =
+        new PrivateKeyJwtClientAuthentication(clientId, audience, ecJWK, JWSAlgorithm.ES256);
+
+    final OAuthRequest request = new OAuthRequest(Verb.POST, audience);
+    auth.addClientAuthentication(request);
+
+    final String assertion = getParam(request, "client_assertion");
+    final SignedJWT signedJWT = SignedJWT.parse(assertion);
+    assertThat(signedJWT.getHeader().getAlgorithm()).isEqualTo(JWSAlgorithm.ES256);
+  }
+
   private String getParam(final OAuthRequest request, final String name) {
     return request.getBodyParams().getParams().stream()
         .filter(p -> p.getKey().equals(name))

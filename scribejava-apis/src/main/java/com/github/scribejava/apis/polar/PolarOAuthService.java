@@ -26,11 +26,7 @@ package com.github.scribejava.apis.polar;
 import com.github.scribejava.apis.PolarAPI;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.oauth.AccessTokenRequestParams;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.github.scribejava.core.pkce.PKCE;
 import java.io.OutputStream;
 
 /** Service OAuth spécifique à Polar. */
@@ -39,15 +35,15 @@ public class PolarOAuthService extends OAuth20Service {
   /**
    * Constructeur.
    *
-   * @param api L'API associée.
-   * @param apiKey La clé API.
-   * @param apiSecret Le secret API.
+   * @param api L'API Polar associée.
+   * @param apiKey La clé API du client.
+   * @param apiSecret Le secret API du client.
    * @param callback L'URL de rappel.
    * @param defaultScope La portée par défaut.
-   * @param responseType Le type de réponse.
-   * @param debugStream Flux de débogage.
-   * @param userAgent Chaîne User-Agent.
-   * @param httpClientConfig Configuration HTTP.
+   * @param responseType Le type de réponse attendu.
+   * @param debugStream Le flux de débogage.
+   * @param userAgent La chaîne User-Agent.
+   * @param httpClientConfig La configuration du client HTTP.
    * @param httpClient Le client HTTP.
    */
   public PolarOAuthService(
@@ -72,34 +68,5 @@ public class PolarOAuthService extends OAuth20Service {
         userAgent,
         httpClientConfig,
         httpClient);
-  }
-
-  @Override
-  protected OAuthRequest createAccessTokenRequest(AccessTokenRequestParams params) {
-    final OAuthRequest request =
-        new OAuthRequest(getApi().getAccessTokenVerb(), getApi().getAccessTokenEndpoint());
-
-    getApi()
-        .getClientAuthentication()
-        .addClientAuthentication(request, getApiKey(), getApiSecret());
-
-    request.addParameter(OAuthConstants.CODE, params.getCode());
-    final String callback = getCallback();
-    if (callback != null) {
-      request.addParameter(OAuthConstants.REDIRECT_URI, callback);
-    }
-    request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
-
-    final String pkceCodeVerifier = params.getPkceCodeVerifier();
-    if (pkceCodeVerifier != null) {
-      request.addParameter(PKCE.PKCE_CODE_VERIFIER_PARAM, pkceCodeVerifier);
-    }
-    if (isDebug()) {
-      log(
-          "created access token request with body params [%s], query string params [%s]",
-          request.getBodyParams().asFormUrlEncodedString(),
-          request.getQueryStringParams().asFormUrlEncodedString());
-    }
-    return request;
   }
 }
