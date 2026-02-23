@@ -34,19 +34,7 @@ import java.text.ParseException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS.
- *
- * <p>Implémente le mécanisme de découverte permettant de configurer automatiquement le client à
- * partir de l'identifiant de l'émetteur (Issuer).
- *
- * <ul>
- *   <li><b>OpenID Connect Discovery 1.0:</b> Section 4 (Obtaining OpenID Provider Configuration
- *       Information)
- *   <li><b>RFC 8414:</b> OAuth 2.0 Authorization Server Metadata (Section 3)
- *   <li><b>RFC 7517:</b> JSON Web Key (JWK) pour la récupération via {@code jwks_uri}
- * </ul>
- */
+/** Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS. */
 public class OidcDiscoveryService implements com.github.scribejava.core.oauth.DiscoveryService {
 
   private static final String OIDC_DISCOVERY_PATH = "/.well-known/openid-configuration";
@@ -54,14 +42,8 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
   private final HttpClient httpClient;
   private final String issuerUri;
   private final String userAgent;
+  private boolean strictIssuerCheck = true;
 
-  /**
-   * Constructeur.
-   *
-   * @param issuerUri L'URI de l'émetteur (base URL).
-   * @param httpClient Le client HTTP à utiliser pour les requêtes de découverte.
-   * @param userAgent La chaîne User-Agent à envoyer dans les en-têtes.
-   */
   public OidcDiscoveryService(
       final String issuerUri, final HttpClient httpClient, final String userAgent) {
     if (issuerUri == null || issuerUri.isEmpty()) {
@@ -75,12 +57,10 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
     this.userAgent = userAgent;
   }
 
-  /**
-   * Découvre les points de terminaison de manière asynchrone.
-   *
-   * @param issuer L'URI de l'émetteur.
-   * @return Un {@link CompletableFuture} contenant les points de terminaison découverts.
-   */
+  public void setStrictIssuerCheck(boolean strictIssuerCheck) {
+    this.strictIssuerCheck = strictIssuerCheck;
+  }
+
   @Override
   public CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> discoverAsync(
       String issuer) {
@@ -91,11 +71,6 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
                     metadata.getAuthorizationEndpoint(), metadata.getTokenEndpoint()));
   }
 
-  /**
-   * Récupère et analyse les métadonnées du fournisseur OpenID de manière asynchrone.
-   *
-   * @return Un {@link CompletableFuture} résolvant vers {@link OidcProviderMetadata}.
-   */
   public CompletableFuture<OidcProviderMetadata> getProviderMetadataAsync() {
     String base = issuerUri;
     if (base.endsWith("/")) {
@@ -123,8 +98,19 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
                       + resp.getBody());
             }
             final OidcProviderMetadata metadata = OidcProviderMetadata.parse(resp.getBody());
-            // Désactivation de la vérification stricte de l'issuer pour le POC Docker
-            // car l'URL interne (keycloak:8080) diffère de l'URL externe (localhost:8081)
+
+            if (strictIssuerCheck) {
+              String expected = issuerUri.endsWith("/") ? issuerUri : issuerUri + "/";
+              String got =
+                  metadata.getIssuer().endsWith("/")
+                      ? metadata.getIssuer()
+                      : metadata.getIssuer() + "/";
+              if (!expected.equals(got)) {
+                throw new OAuthException(
+                    "Issuer mismatch. Expected: " + issuerUri + ", Got: " + metadata.getIssuer());
+              }
+            }
+
             return metadata;
           } catch (final IOException e) {
             throw new OAuthException("Error parsing OIDC Provider Metadata response", e);
@@ -132,26 +118,11 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
         });
   }
 
-  /**
-   * Récupère les métadonnées du fournisseur de manière synchrone.
-   *
-   * @return Les métadonnées du fournisseur.
-   * @throws IOException en cas d'erreur réseau.
-   * @throws ExecutionException si la tâche asynchrone échoue.
-   * @throws InterruptedException si le thread est interrompu.
-   */
   public OidcProviderMetadata getProviderMetadata()
       throws IOException, ExecutionException, InterruptedException {
     return getProviderMetadataAsync().get();
   }
 
-  /**
-   * Récupère et analyse l'ensemble de clés JWKS à partir de l'URI donnée.
-   *
-   * @param jwksUri L'URI du point de terminaison jwks_uri.
-   * @return Un {@link CompletableFuture} résolvant vers {@link JWKSet}.
-   * @see <a href="https://tools.ietf.org/html/rfc7517">RFC 7517 (JSON Web Key)</a>
-   */
   public CompletableFuture<JWKSet> getJwksAsync(final String jwksUri) {
     if (jwksUri == null || jwksUri.isEmpty()) {
       throw new IllegalArgumentException("JWKS URI cannot be null or empty.");
@@ -183,15 +154,6 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
         });
   }
 
-  /**
-   * Récupère l'ensemble de clés JWKS de manière synchrone.
-   *
-   * @param jwksUri L'URI du point de terminaison jwks_uri.
-   * @return L'instance de {@link JWKSet}.
-   * @throws IOException en cas d'erreur réseau.
-   * @throws ExecutionException si la tâche asynchrone échoue.
-   * @throws InterruptedException si le thread est interrompu.
-   */
   public JWKSet getJwks(final String jwksUri)
       throws IOException, ExecutionException, InterruptedException {
     return getJwksAsync(jwksUri).get();
