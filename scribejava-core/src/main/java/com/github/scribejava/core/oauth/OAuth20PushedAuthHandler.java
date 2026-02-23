@@ -24,7 +24,10 @@
 package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.model.*;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.PushedAuthorizationResponse;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;

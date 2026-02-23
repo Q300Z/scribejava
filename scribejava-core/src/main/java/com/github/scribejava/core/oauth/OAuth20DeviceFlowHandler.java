@@ -23,7 +23,10 @@
  */
 package com.github.scribejava.core.oauth;
 
-import com.github.scribejava.core.model.*;
+import com.github.scribejava.core.model.DeviceAuthorization;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth2.OAuth2Error;
 import com.github.scribejava.core.oauth2.grant.DeviceCodeGrant;
 import java.io.IOException;
