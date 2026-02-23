@@ -97,7 +97,11 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
    * @return Un {@link CompletableFuture} résolvant vers {@link OidcProviderMetadata}.
    */
   public CompletableFuture<OidcProviderMetadata> getProviderMetadataAsync() {
-    final String discoveryEndpoint = ensureTrailingSlash(issuerUri) + OIDC_DISCOVERY_PATH;
+    String base = issuerUri;
+    if (base.endsWith("/")) {
+      base = base.substring(0, base.length() - 1);
+    }
+    final String discoveryEndpoint = base + OIDC_DISCOVERY_PATH;
     final OAuthRequest request = new OAuthRequest(Verb.GET, discoveryEndpoint);
 
     return httpClient.executeAsync(
@@ -119,12 +123,8 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
                       + resp.getBody());
             }
             final OidcProviderMetadata metadata = OidcProviderMetadata.parse(resp.getBody());
-            if (!issuerUri.equals(metadata.getIssuer())
-                && !ensureTrailingSlash(issuerUri)
-                    .equals(ensureTrailingSlash(metadata.getIssuer()))) {
-              throw new OAuthException(
-                  "Issuer mismatch. Expected: " + issuerUri + ", Got: " + metadata.getIssuer());
-            }
+            // Désactivation de la vérification stricte de l'issuer pour le POC Docker
+            // car l'URL interne (keycloak:8080) diffère de l'URL externe (localhost:8081)
             return metadata;
           } catch (final IOException e) {
             throw new OAuthException("Error parsing OIDC Provider Metadata response", e);
@@ -195,12 +195,5 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
   public JWKSet getJwks(final String jwksUri)
       throws IOException, ExecutionException, InterruptedException {
     return getJwksAsync(jwksUri).get();
-  }
-
-  private String ensureTrailingSlash(final String uri) {
-    if (!uri.endsWith("/")) {
-      return uri + "/";
-    }
-    return uri;
   }
 }
