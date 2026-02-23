@@ -26,7 +26,8 @@ package com.github.scribejava.core.oauth;
 import java.util.Map;
 
 /**
- * Intercepteur pour modifier les paramètres d'une requête d'autorisation avant son envoi ou sa génération.
+ * Intercepteur pour modifier les paramètres d'une requête d'autorisation avant son envoi ou sa
+ * génération.
  *
  * <p>Permet d'ajouter des extensions comme PKCE de manière modulaire (Open/Closed Principle).
  */

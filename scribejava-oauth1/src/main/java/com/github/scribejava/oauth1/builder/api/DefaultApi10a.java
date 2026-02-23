@@ -38,6 +38,7 @@ import com.github.scribejava.oauth1.model.OAuth1AccessToken;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
 import com.github.scribejava.oauth1.oauth.OAuth10aService;
 import com.github.scribejava.oauth1.services.HMACSha1SignatureService;
+
 import java.io.OutputStream;
 
 /**
@@ -51,160 +52,162 @@ import java.io.OutputStream;
  */
 public abstract class DefaultApi10a {
 
-  /**
-   * Retourne l'extracteur de jeton d'accès (Access Token).
-   *
-   * @return L'instance de {@link TokenExtractor} pour {@link OAuth1AccessToken}.
-   */
-  public TokenExtractor<OAuth1AccessToken> getAccessTokenExtractor() {
-    return OAuth1AccessTokenExtractor.instance();
-  }
+    /**
+     * Retourne l'extracteur de jeton d'accès (Access Token).
+     *
+     * @return L'instance de {@link TokenExtractor} pour {@link OAuth1AccessToken}.
+     */
+    public TokenExtractor<OAuth1AccessToken> getAccessTokenExtractor() {
+        return OAuth1AccessTokenExtractor.instance();
+    }
 
-  /**
-   * Retourne l'extracteur de chaîne de base pour la signature.
-   *
-   * @return L'instance de {@link BaseStringExtractor}.
-   */
-  public BaseStringExtractor getBaseStringExtractor() {
-    return new BaseStringExtractorImpl();
-  }
+    /**
+     * Retourne l'extracteur de chaîne de base pour la signature.
+     *
+     * @return L'instance de {@link BaseStringExtractor}.
+     */
+    public BaseStringExtractor getBaseStringExtractor() {
+        return new BaseStringExtractorImpl();
+    }
 
-  /**
-   * Retourne l'extracteur d'en-tête d'autorisation.
-   *
-   * @return L'instance de {@link HeaderExtractor}.
-   */
-  public HeaderExtractor getHeaderExtractor() {
-    return new HeaderExtractorImpl();
-  }
+    /**
+     * Retourne l'extracteur d'en-tête d'autorisation.
+     *
+     * @return L'instance de {@link HeaderExtractor}.
+     */
+    public HeaderExtractor getHeaderExtractor() {
+        return new HeaderExtractorImpl();
+    }
 
-  /**
-   * Retourne l'extracteur de jeton de requête (Request Token).
-   *
-   * @return L'instance de {@link TokenExtractor} pour {@link OAuth1RequestToken}.
-   */
-  public TokenExtractor<OAuth1RequestToken> getRequestTokenExtractor() {
-    return OAuth1RequestTokenExtractor.instance();
-  }
+    /**
+     * Retourne l'extracteur de jeton de requête (Request Token).
+     *
+     * @return L'instance de {@link TokenExtractor} pour {@link OAuth1RequestToken}.
+     */
+    public TokenExtractor<OAuth1RequestToken> getRequestTokenExtractor() {
+        return OAuth1RequestTokenExtractor.instance();
+    }
 
-  /**
-   * Retourne le service de signature (HMAC-SHA1 par défaut).
-   *
-   * @return L'instance de {@link SignatureService}.
-   */
-  public SignatureService getSignatureService() {
-    return new HMACSha1SignatureService();
-  }
+    /**
+     * Retourne le service de signature (HMAC-SHA1 par défaut).
+     *
+     * @return L'instance de {@link SignatureService}.
+     */
+    public SignatureService getSignatureService() {
+        return new HMACSha1SignatureService();
+    }
 
-  /**
-   * Retourne le type de signature utilisé (En-tête par défaut).
-   *
-   * @return Le {@link OAuth1SignatureType} souhaité.
-   */
-  public OAuth1SignatureType getSignatureType() {
-    return OAuth1SignatureType.HEADER;
-  }
+    /**
+     * Retourne le type de signature utilisé (En-tête par défaut).
+     *
+     * @return Le {@link OAuth1SignatureType} souhaité.
+     */
+    public OAuth1SignatureType getSignatureType() {
+        return OAuth1SignatureType.HEADER;
+    }
 
-  /**
-   * Retourne le service de marquage temporel (Timestamp).
-   *
-   * @return L'instance de {@link TimestampService}.
-   */
-  public TimestampService getTimestampService() {
-    return new TimestampServiceImpl();
-  }
+    /**
+     * Retourne le service de marquage temporel (Timestamp).
+     *
+     * @return L'instance de {@link TimestampService}.
+     */
+    public TimestampService getTimestampService() {
+        return new TimestampServiceImpl();
+    }
 
-  /**
-   * Retourne le verbe HTTP pour le point de terminaison de jeton d'accès (POST par défaut).
-   *
-   * @return Le verbe {@link Verb}.
-   */
-  public Verb getAccessTokenVerb() {
-    return Verb.POST;
-  }
+    /**
+     * Retourne le verbe HTTP pour le point de terminaison de jeton d'accès (POST par défaut).
+     *
+     * @return Le verbe {@link Verb}.
+     */
+    public Verb getAccessTokenVerb() {
+        return Verb.POST;
+    }
 
-  /**
-   * Retourne le verbe HTTP pour le point de terminaison de jeton de requête (POST par défaut).
-   *
-   * @return Le verbe {@link Verb}.
-   */
-  public Verb getRequestTokenVerb() {
-    return Verb.POST;
-  }
+    /**
+     * Retourne le verbe HTTP pour le point de terminaison de jeton de requête (POST par défaut).
+     *
+     * @return Le verbe {@link Verb}.
+     */
+    public Verb getRequestTokenVerb() {
+        return Verb.POST;
+    }
 
-  /**
-   * Retourne l'URL pour l'obtention du jeton de requête (Request Token).
-   *
-   * @return L'URL du point de terminaison.
-   */
-  public abstract String getRequestTokenEndpoint();
+    /**
+     * Retourne l'URL pour l'obtention du jeton de requête (Request Token).
+     *
+     * @return L'URL du point de terminaison.
+     */
+    public abstract String getRequestTokenEndpoint();
 
-  /**
-   * Retourne l'URL pour l'obtention du jeton d'accès (Access Token).
-   *
-   * @return L'URL du point de terminaison.
-   */
-  public abstract String getAccessTokenEndpoint();
+    /**
+     * Retourne l'URL pour l'obtention du jeton d'accès (Access Token).
+     *
+     * @return L'URL du point de terminaison.
+     */
+    public abstract String getAccessTokenEndpoint();
 
-  /** @return L'URL de base pour l'autorisation de l'utilisateur. */
-  protected abstract String getAuthorizationBaseUrl();
+    /**
+     * @return L'URL de base pour l'autorisation de l'utilisateur.
+     */
+    protected abstract String getAuthorizationBaseUrl();
 
-  /**
-   * Retourne l'URL vers laquelle rediriger l'utilisateur pour autoriser l'application.
-   *
-   * @param requestToken Le jeton de requête à autoriser.
-   * @return L'URL d'autorisation complète.
-   */
-  public String getAuthorizationUrl(OAuth1RequestToken requestToken) {
-    final ParameterList parameters = new ParameterList();
-    parameters.add(OAuthConstants.TOKEN, requestToken.getToken());
-    return parameters.appendTo(getAuthorizationBaseUrl());
-  }
+    /**
+     * Retourne l'URL vers laquelle rediriger l'utilisateur pour autoriser l'application.
+     *
+     * @param requestToken Le jeton de requête à autoriser.
+     * @return L'URL d'autorisation complète.
+     */
+    public String getAuthorizationUrl(OAuth1RequestToken requestToken) {
+        final ParameterList parameters = new ParameterList();
+        parameters.add(OAuthConstants.TOKEN, requestToken.getToken());
+        return parameters.appendTo(getAuthorizationBaseUrl());
+    }
 
-  /**
-   * Crée l'instance de service OAuth 1.0a.
-   *
-   * @param apiKey Clé API.
-   * @param apiSecret Secret API.
-   * @param callback URL de rappel.
-   * @param scope Portée optionnelle.
-   * @param debugStream Flux de débogage.
-   * @param userAgent User-Agent.
-   * @param httpClientConfig Configuration HTTP.
-   * @param httpClient Client HTTP.
-   * @return Une instance de {@link OAuth10aService}.
-   */
-  public OAuth10aService createService(
-      String apiKey,
-      String apiSecret,
-      String callback,
-      String scope,
-      OutputStream debugStream,
-      String userAgent,
-      HttpClientConfig httpClientConfig,
-      HttpClient httpClient) {
-    return new OAuth10aService(
-        this,
-        apiKey,
-        apiSecret,
-        callback,
-        scope,
-        debugStream,
-        userAgent,
-        httpClientConfig,
-        httpClient);
-  }
+    /**
+     * Crée l'instance de service OAuth 1.0a.
+     *
+     * @param apiKey           Clé API.
+     * @param apiSecret        Secret API.
+     * @param callback         URL de rappel.
+     * @param scope            Portée optionnelle.
+     * @param debugStream      Flux de débogage.
+     * @param userAgent        User-Agent.
+     * @param httpClientConfig Configuration HTTP.
+     * @param httpClient       Client HTTP.
+     * @return Une instance de {@link OAuth10aService}.
+     */
+    public OAuth10aService createService(
+            String apiKey,
+            String apiSecret,
+            String callback,
+            String scope,
+            OutputStream debugStream,
+            String userAgent,
+            HttpClientConfig httpClientConfig,
+            HttpClient httpClient) {
+        return new OAuth10aService(
+                this,
+                apiKey,
+                apiSecret,
+                callback,
+                scope,
+                debugStream,
+                userAgent,
+                httpClientConfig,
+                httpClient);
+    }
 
-  /**
-   * Indique si le paramètre "oauth_token" vide est obligatoire dans la requête.
-   *
-   * <p>La RFC 5849 indique que ce paramètre peut être omis s'il est vide, mais certains serveurs
-   * l'exigent.
-   *
-   * @return true si le paramètre doit être inclus même s'il est vide.
-   * @see <a href="https://tools.ietf.org/html/rfc5849#section-3.5">RFC 5849, Section 3.5</a>
-   */
-  public boolean isEmptyOAuthTokenParamIsRequired() {
-    return false;
-  }
+    /**
+     * Indique si le paramètre "oauth_token" vide est obligatoire dans la requête.
+     *
+     * <p>La RFC 5849 indique que ce paramètre peut être omis s'il est vide, mais certains serveurs
+     * l'exigent.
+     *
+     * @return true si le paramètre doit être inclus même s'il est vide.
+     * @see <a href="https://tools.ietf.org/html/rfc5849#section-3.5">RFC 5849, Section 3.5</a>
+     */
+    public boolean isEmptyOAuthTokenParamIsRequired() {
+        return false;
+    }
 }

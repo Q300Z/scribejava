@@ -25,34 +25,38 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
-/** Xero.com Api */
+/**
+ * Xero.com Api
+ */
+
 /** API OAuth 2.0 pour Xero. */
 public class XeroApi20 extends DefaultApi20 {
 
-  /** Constructeur protégé. */
-  protected XeroApi20() {}
+    /** Constructeur protégé. */
+    protected XeroApi20() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API Xero.
-   *
-   * @return L'instance de {@link XeroApi20}.
-   */
-  public static XeroApi20 instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API Xero.
+     *
+     * @return L'instance de {@link XeroApi20}.
+     */
+    public static XeroApi20 instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://identity.xero.com/connect/token";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://identity.xero.com/connect/token";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return "https://login.xero.com/identity/connect/authorize";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return "https://login.xero.com/identity/connect/authorize";
+    }
 
-  private static class InstanceHolder {
+    private static class InstanceHolder {
 
-    private static final XeroApi20 INSTANCE = new XeroApi20();
-  }
+        private static final XeroApi20 INSTANCE = new XeroApi20();
+    }
 }

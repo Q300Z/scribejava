@@ -23,68 +23,67 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class OidcRegistrationRobustnessTest {
 
-  @Test
-  public void shouldThrowOnRegistrationError()
-      throws InterruptedException, ExecutionException, IOException {
-    final HttpClient mockClient = mock(HttpClient.class);
-    final OidcRegistrationService service = new OidcRegistrationService(mockClient, "UA");
+    @Test
+    public void shouldThrowOnRegistrationError()
+            throws InterruptedException, ExecutionException, IOException {
+        final HttpClient mockClient = mock(HttpClient.class);
+        final OidcRegistrationService service = new OidcRegistrationService(mockClient, "UA");
 
-    final Response errorResponse = mock(Response.class);
-    when(errorResponse.getCode()).thenReturn(400);
-    when(errorResponse.getBody()).thenReturn("{\"error\":\"invalid_redirect_uri\"}");
+        final Response errorResponse = mock(Response.class);
+        when(errorResponse.getCode()).thenReturn(400);
+        when(errorResponse.getBody()).thenReturn("{\"error\":\"invalid_redirect_uri\"}");
 
-    // Setup async mock to return error response
-    when(mockClient.executeAsync(
-            anyString(),
-            any(Map.class),
-            any(Verb.class),
-            anyString(),
-            anyString(),
-            isNull(),
-            any()))
-        .thenAnswer(
-            invocation -> {
-              final com.github.scribejava.core.model.OAuthRequest.ResponseConverter<Object>
-                  converter = invocation.getArgument(6);
-              try {
-                converter.convert(errorResponse);
-                final CompletableFuture<Object> future = new CompletableFuture<>();
-                future.complete(null);
-                return future;
-              } catch (OAuthException e) {
-                final CompletableFuture<Object> future = new CompletableFuture<>();
-                future.completeExceptionally(e);
-                return future;
-              }
-            });
+        // Setup async mock to return error response
+        when(mockClient.executeAsync(
+                anyString(),
+                any(Map.class),
+                any(Verb.class),
+                anyString(),
+                anyString(),
+                isNull(),
+                any()))
+                .thenAnswer(
+                        invocation -> {
+                            final com.github.scribejava.core.model.OAuthRequest.ResponseConverter<Object>
+                                    converter = invocation.getArgument(6);
+                            try {
+                                converter.convert(errorResponse);
+                                final CompletableFuture<Object> future = new CompletableFuture<>();
+                                future.complete(null);
+                                return future;
+                            } catch (OAuthException e) {
+                                final CompletableFuture<Object> future = new CompletableFuture<>();
+                                future.completeExceptionally(e);
+                                return future;
+                            }
+                        });
 
-    final CompletableFuture<?> future =
-        service.registerClientAsync(
-            "http://reg", Collections.singletonList("http://callback"), "client", null);
+        final CompletableFuture<?> future =
+                service.registerClientAsync(
+                        "http://reg", Collections.singletonList("http://callback"), "client", null);
 
-    assertThatThrownBy(future::get)
-        .isInstanceOf(ExecutionException.class)
-        .hasCauseInstanceOf(OAuthException.class)
-        .hasMessageContaining("Client registration failed. Status: 400");
-  }
+        assertThatThrownBy(future::get)
+                .isInstanceOf(ExecutionException.class)
+                .hasCauseInstanceOf(OAuthException.class)
+                .hasMessageContaining("Client registration failed. Status: 400");
+    }
 }

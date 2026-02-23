@@ -34,14 +34,14 @@ import com.github.scribejava.core.model.OAuthRequest;
  */
 public interface ClientAuthentication {
 
-  /**
-   * Ajoute les informations d'authentification du client à la requête.
-   *
-   * @param request La requête à laquelle ajouter l'authentification.
-   * @param apiKey La clé API (Client ID).
-   * @param apiSecret Le secret API (Client Secret).
-   * @see <a href="https://tools.ietf.org/html/rfc6749#section-2.3">RFC 6749, Section 2.3 (Client
-   *     Authentication)</a>
-   */
-  void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret);
+    /**
+     * Ajoute les informations d'authentification du client à la requête.
+     *
+     * @param request   La requête à laquelle ajouter l'authentification.
+     * @param apiKey    La clé API (Client ID).
+     * @param apiSecret Le secret API (Client Secret).
+     * @see <a href="https://tools.ietf.org/html/rfc6749#section-2.3">RFC 6749, Section 2.3 (Client
+     * Authentication)</a>
+     */
+    void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret);
 }

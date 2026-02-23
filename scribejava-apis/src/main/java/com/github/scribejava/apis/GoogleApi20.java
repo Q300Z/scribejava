@@ -31,48 +31,51 @@ import com.github.scribejava.core.extractors.DeviceAuthorizationJsonExtractor;
  * API Google OAuth 2.0 avec support OpenID Connect.
  *
  * @see <a href="https://developers.google.com/identity/protocols/oauth2">Google OAuth 2.0
- *     Documentation</a>
+ * Documentation</a>
  */
 public class GoogleApi20 extends DefaultApi20 {
 
-  /** Constructeur protégé. */
-  protected GoogleApi20() {}
+    /**
+     * Constructeur protégé.
+     */
+    protected GoogleApi20() {
+    }
 
-  private static class InstanceHolder {
-    private static final GoogleApi20 INSTANCE = new GoogleApi20();
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API Google.
+     *
+     * @return L'instance de {@link GoogleApi20}.
+     */
+    public static GoogleApi20 instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API Google.
-   *
-   * @return L'instance de {@link GoogleApi20}.
-   */
-  public static GoogleApi20 instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://oauth2.googleapis.com/token";
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://oauth2.googleapis.com/token";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return "https://accounts.google.com/o/oauth2/v2/auth";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return "https://accounts.google.com/o/oauth2/v2/auth";
-  }
+    @Override
+    public String getRevokeTokenEndpoint() {
+        return "https://oauth2.googleapis.com/revoke";
+    }
 
-  @Override
-  public String getRevokeTokenEndpoint() {
-    return "https://oauth2.googleapis.com/revoke";
-  }
+    @Override
+    public DeviceAuthorizationJsonExtractor getDeviceAuthorizationExtractor() {
+        return GoogleDeviceAuthorizationJsonExtractor.instance();
+    }
 
-  @Override
-  public DeviceAuthorizationJsonExtractor getDeviceAuthorizationExtractor() {
-    return GoogleDeviceAuthorizationJsonExtractor.instance();
-  }
+    @Override
+    public String getDeviceAuthorizationEndpoint() {
+        return "https://oauth2.googleapis.com/device/code";
+    }
 
-  @Override
-  public String getDeviceAuthorizationEndpoint() {
-    return "https://oauth2.googleapis.com/device/code";
-  }
+    private static class InstanceHolder {
+        private static final GoogleApi20 INSTANCE = new GoogleApi20();
+    }
 }

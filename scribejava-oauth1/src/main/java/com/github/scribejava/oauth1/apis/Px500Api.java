@@ -25,38 +25,41 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/** API OAuth 1.0a pour Px500Api. */
+/**
+ * API OAuth 1.0a pour Px500Api.
+ */
 public class Px500Api extends DefaultApi10a {
 
-  private static final String AUTHORIZATION_URL = "https://api.500px.com/v1/oauth/authorize";
+    private static final String AUTHORIZATION_URL = "https://api.500px.com/v1/oauth/authorize";
 
-  protected Px500Api() {}
+    protected Px500Api() {
+    }
 
-  /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link Px500Api}.
-   */
-  public static Px500Api instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique de l'API.
+     *
+     * @return L'instance {@link Px500Api}.
+     */
+    public static Px500Api instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://api.500px.com/v1/oauth/access_token";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://api.500px.com/v1/oauth/access_token";
+    }
 
-  @Override
-  public String getRequestTokenEndpoint() {
-    return "https://api.500px.com/v1/oauth/request_token";
-  }
+    @Override
+    public String getRequestTokenEndpoint() {
+        return "https://api.500px.com/v1/oauth/request_token";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return AUTHORIZATION_URL;
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return AUTHORIZATION_URL;
+    }
 
-  private static class InstanceHolder {
-    private static final Px500Api INSTANCE = new Px500Api();
-  }
+    private static class InstanceHolder {
+        private static final Px500Api INSTANCE = new Px500Api();
+    }
 }

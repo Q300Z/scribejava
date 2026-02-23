@@ -23,15 +23,10 @@
  */
 package com.github.scribejava.core.oauth;
 
-import com.github.scribejava.core.model.DeviceAuthorization;
-import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth2.OAuth2Error;
 import com.github.scribejava.core.oauth2.grant.DeviceCodeGrant;
+
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -54,7 +49,8 @@ public class OAuth20DeviceFlowHandler {
      * @return request
      */
     public OAuthRequest createDeviceAuthorizationCodesRequest(String scope) {
-        final OAuthRequest request = new OAuthRequest(Verb.POST, service.getApi().getDeviceAuthorizationEndpoint());
+        final OAuthRequest request =
+                new OAuthRequest(Verb.POST, service.getApi().getDeviceAuthorizationEndpoint());
         request.addParameter(OAuthConstants.CLIENT_ID, service.getApiKey());
         final String effectiveScope = scope != null ? scope : service.getDefaultScope();
         if (effectiveScope != null) {
@@ -67,8 +63,8 @@ public class OAuth20DeviceFlowHandler {
      * @param scope scope
      * @return codes
      * @throws InterruptedException InterruptedException
-     * @throws ExecutionException ExecutionException
-     * @throws IOException IOException
+     * @throws ExecutionException   ExecutionException
+     * @throws IOException          IOException
      */
     public DeviceAuthorization getDeviceAuthorizationCodes(String scope)
             throws InterruptedException, ExecutionException, IOException {
@@ -82,19 +78,23 @@ public class OAuth20DeviceFlowHandler {
      * @param deviceAuthorization deviceAuthorization
      * @return token
      * @throws InterruptedException InterruptedException
-     * @throws ExecutionException ExecutionException
-     * @throws IOException IOException
+     * @throws ExecutionException   ExecutionException
+     * @throws IOException          IOException
      */
-    public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(DeviceAuthorization deviceAuthorization)
+    public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(
+            DeviceAuthorization deviceAuthorization)
             throws InterruptedException, ExecutionException, IOException {
         long intervalMillis = deviceAuthorization.getIntervalSeconds() * 1000;
         while (true) {
             try {
-                return service.getAccessTokenAsync(new DeviceCodeGrant(deviceAuthorization.getDeviceCode())).get();
+                return service
+                        .getAccessTokenAsync(new DeviceCodeGrant(deviceAuthorization.getDeviceCode()))
+                        .get();
             } catch (ExecutionException e) {
                 final Throwable cause = e.getCause();
                 if (cause instanceof OAuth2AccessTokenErrorResponse) {
-                    final OAuth2AccessTokenErrorResponse errorResponse = (OAuth2AccessTokenErrorResponse) cause;
+                    final OAuth2AccessTokenErrorResponse errorResponse =
+                            (OAuth2AccessTokenErrorResponse) cause;
                     if (errorResponse.getError() != OAuth2Error.AUTHORIZATION_PENDING) {
                         if (errorResponse.getError() == OAuth2Error.SLOW_DOWN) {
                             intervalMillis += 5000;

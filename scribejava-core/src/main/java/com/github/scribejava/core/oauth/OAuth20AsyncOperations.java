@@ -23,9 +23,10 @@
  */
 package com.github.scribejava.core.oauth;
 
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
+
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -44,12 +45,12 @@ public interface OAuth20AsyncOperations {
     /**
      * Récupère un jeton d'accès de manière asynchrone avec callback.
      *
-     * @param grant La concession à utiliser.
+     * @param grant    La concession à utiliser.
      * @param callback Le callback de résultat.
      * @return Future résolvant vers le jeton d'accès.
      */
-    CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(OAuth20Grant grant,
-        OAuthAsyncRequestCallback<OAuth2AccessToken> callback);
+    CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(
+            OAuth20Grant grant, OAuthAsyncRequestCallback<OAuth2AccessToken> callback);
 
     /**
      * Rafraîchit un jeton d'accès de manière asynchrone.
@@ -62,9 +63,10 @@ public interface OAuth20AsyncOperations {
     /**
      * Révoque un jeton de manière asynchrone.
      *
-     * @param token Le jeton à révoquer.
+     * @param token         Le jeton à révoquer.
      * @param tokenTypeHint Indice sur le type de jeton.
      * @return Future.
      */
-    CompletableFuture<Void> revokeTokenAsync(String token, com.github.scribejava.core.revoke.TokenTypeHint tokenTypeHint);
+    CompletableFuture<Void> revokeTokenAsync(
+            String token, com.github.scribejava.core.revoke.TokenTypeHint tokenTypeHint);
 }

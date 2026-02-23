@@ -1,6 +1,7 @@
 # 🚀 Client HTTP OkHttp pour ScribeJava
 
-Ce module permet d'utiliser **OkHttp 4** comme moteur de transport pour ScribeJava. Il est recommandé pour les applications Android ou les environnements nécessitant une gestion fine des pools de connexions.
+Ce module permet d'utiliser **OkHttp 4** comme moteur de transport pour ScribeJava. Il est recommandé pour les
+applications Android ou les environnements nécessitant une gestion fine des pools de connexions.
 
 ## 🛠️ Configuration
 
@@ -17,6 +18,7 @@ OAuth20Service service = new ServiceBuilder(clientId)
 ```
 
 ## ⚡ Mode Asynchrone
+
 OkHttp supporte nativement les appels non-bloquants :
 
 ```java
@@ -27,7 +29,9 @@ future.thenAccept(token -> {
 ```
 
 ## 📎 Support Multipart
-Le client OkHttp supporte désormais l'envoi de fichiers et de charges utiles complexes via le format `multipart/form-data`.
+
+Le client OkHttp supporte désormais l'envoi de fichiers et de charges utiles complexes via le format
+`multipart/form-data`.
 
 ```java
 MultipartPayload payload = new MultipartPayload();

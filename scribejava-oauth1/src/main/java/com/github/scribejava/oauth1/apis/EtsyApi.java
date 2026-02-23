@@ -25,63 +25,65 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/** API OAuth 1.0a pour EtsyApi. */
+/**
+ * API OAuth 1.0a pour EtsyApi.
+ */
 public class EtsyApi extends DefaultApi10a {
 
-  private static final String AUTHORIZE_URL = "https://www.etsy.com/oauth/signin";
-  private static final String ACCESS_TOKEN_URL = "https://openapi.etsy.com/v2/oauth/access_token";
-  private static final String REQUEST_TOKEN_URL = "https://openapi.etsy.com/v2/oauth/request_token";
+    private static final String AUTHORIZE_URL = "https://www.etsy.com/oauth/signin";
+    private static final String ACCESS_TOKEN_URL = "https://openapi.etsy.com/v2/oauth/access_token";
+    private static final String REQUEST_TOKEN_URL = "https://openapi.etsy.com/v2/oauth/request_token";
 
-  private final String scopeAsString;
+    private final String scopeAsString;
 
-  private EtsyApi() {
-    scopeAsString = null;
-  }
-
-  private EtsyApi(String... scopes) {
-    final StringBuilder builder = new StringBuilder();
-    for (String scope : scopes) {
-      builder.append("%20").append(scope);
+    private EtsyApi() {
+        scopeAsString = null;
     }
-    scopeAsString = "?scope=" + builder.substring(3);
-  }
 
-  /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link EtsyApi}.
-   */
-  public static EtsyApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    private EtsyApi(String... scopes) {
+        final StringBuilder builder = new StringBuilder();
+        for (String scope : scopes) {
+            builder.append("%20").append(scope);
+        }
+        scopeAsString = "?scope=" + builder.substring(3);
+    }
 
-  /**
-   * Retourne une instance de l'API avec des portées spécifiques.
-   *
-   * @param scopes Les portées demandées.
-   * @return Une instance de {@link EtsyApi}.
-   */
-  public static EtsyApi instance(String... scopes) {
-    return scopes == null || scopes.length == 0 ? instance() : new EtsyApi(scopes);
-  }
+    /**
+     * Retourne l'instance unique de l'API.
+     *
+     * @return L'instance {@link EtsyApi}.
+     */
+    public static EtsyApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return ACCESS_TOKEN_URL;
-  }
+    /**
+     * Retourne une instance de l'API avec des portées spécifiques.
+     *
+     * @param scopes Les portées demandées.
+     * @return Une instance de {@link EtsyApi}.
+     */
+    public static EtsyApi instance(String... scopes) {
+        return scopes == null || scopes.length == 0 ? instance() : new EtsyApi(scopes);
+    }
 
-  @Override
-  public String getRequestTokenEndpoint() {
-    return scopeAsString == null ? REQUEST_TOKEN_URL : REQUEST_TOKEN_URL + scopeAsString;
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return ACCESS_TOKEN_URL;
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return AUTHORIZE_URL;
-  }
+    @Override
+    public String getRequestTokenEndpoint() {
+        return scopeAsString == null ? REQUEST_TOKEN_URL : REQUEST_TOKEN_URL + scopeAsString;
+    }
 
-  private static class InstanceHolder {
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return AUTHORIZE_URL;
+    }
 
-    private static final EtsyApi INSTANCE = new EtsyApi();
-  }
+    private static class InstanceHolder {
+
+        private static final EtsyApi INSTANCE = new EtsyApi();
+    }
 }

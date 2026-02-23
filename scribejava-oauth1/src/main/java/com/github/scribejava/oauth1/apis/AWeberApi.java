@@ -25,43 +25,46 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/** API OAuth 1.0a pour AWeberApi. */
+/**
+ * API OAuth 1.0a pour AWeberApi.
+ */
 public class AWeberApi extends DefaultApi10a {
 
-  private static final String AUTHORIZE_URL = "https://auth.aweber.com/1.0/oauth/authorize";
-  private static final String REQUEST_TOKEN_ENDPOINT =
-      "https://auth.aweber.com/1.0/oauth/request_token";
-  private static final String ACCESS_TOKEN_ENDPOINT =
-      "https://auth.aweber.com/1.0/oauth/access_token";
+    private static final String AUTHORIZE_URL = "https://auth.aweber.com/1.0/oauth/authorize";
+    private static final String REQUEST_TOKEN_ENDPOINT =
+            "https://auth.aweber.com/1.0/oauth/request_token";
+    private static final String ACCESS_TOKEN_ENDPOINT =
+            "https://auth.aweber.com/1.0/oauth/access_token";
 
-  protected AWeberApi() {}
+    protected AWeberApi() {
+    }
 
-  /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link AWeberApi}.
-   */
-  public static AWeberApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique de l'API.
+     *
+     * @return L'instance {@link AWeberApi}.
+     */
+    public static AWeberApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return ACCESS_TOKEN_ENDPOINT;
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return ACCESS_TOKEN_ENDPOINT;
+    }
 
-  @Override
-  public String getRequestTokenEndpoint() {
-    return REQUEST_TOKEN_ENDPOINT;
-  }
+    @Override
+    public String getRequestTokenEndpoint() {
+        return REQUEST_TOKEN_ENDPOINT;
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return AUTHORIZE_URL;
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return AUTHORIZE_URL;
+    }
 
-  private static class InstanceHolder {
+    private static class InstanceHolder {
 
-    private static final AWeberApi INSTANCE = new AWeberApi();
-  }
+        private static final AWeberApi INSTANCE = new AWeberApi();
+    }
 }

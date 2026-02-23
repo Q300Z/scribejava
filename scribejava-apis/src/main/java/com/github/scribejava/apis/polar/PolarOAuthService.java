@@ -27,46 +27,49 @@ import com.github.scribejava.apis.PolarAPI;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.oauth.OAuth20Service;
+
 import java.io.OutputStream;
 
-/** Service OAuth spécifique à Polar. */
+/**
+ * Service OAuth spécifique à Polar.
+ */
 public class PolarOAuthService extends OAuth20Service {
 
-  /**
-   * Constructeur.
-   *
-   * @param api L'API Polar associée.
-   * @param apiKey La clé API du client.
-   * @param apiSecret Le secret API du client.
-   * @param callback L'URL de rappel.
-   * @param defaultScope La portée par défaut.
-   * @param responseType Le type de réponse attendu.
-   * @param debugStream Le flux de débogage.
-   * @param userAgent La chaîne User-Agent.
-   * @param httpClientConfig La configuration du client HTTP.
-   * @param httpClient Le client HTTP.
-   */
-  public PolarOAuthService(
-      PolarAPI api,
-      String apiKey,
-      String apiSecret,
-      String callback,
-      String defaultScope,
-      String responseType,
-      OutputStream debugStream,
-      String userAgent,
-      HttpClientConfig httpClientConfig,
-      HttpClient httpClient) {
-    super(
-        api,
-        apiKey,
-        apiSecret,
-        callback,
-        defaultScope,
-        responseType,
-        debugStream,
-        userAgent,
-        httpClientConfig,
-        httpClient);
-  }
+    /**
+     * Constructeur.
+     *
+     * @param api              L'API Polar associée.
+     * @param apiKey           La clé API du client.
+     * @param apiSecret        Le secret API du client.
+     * @param callback         L'URL de rappel.
+     * @param defaultScope     La portée par défaut.
+     * @param responseType     Le type de réponse attendu.
+     * @param debugStream      Le flux de débogage.
+     * @param userAgent        La chaîne User-Agent.
+     * @param httpClientConfig La configuration du client HTTP.
+     * @param httpClient       Le client HTTP.
+     */
+    public PolarOAuthService(
+            PolarAPI api,
+            String apiKey,
+            String apiSecret,
+            String callback,
+            String defaultScope,
+            String responseType,
+            OutputStream debugStream,
+            String userAgent,
+            HttpClientConfig httpClientConfig,
+            HttpClient httpClient) {
+        super(
+                api,
+                apiKey,
+                apiSecret,
+                callback,
+                defaultScope,
+                responseType,
+                debugStream,
+                userAgent,
+                httpClientConfig,
+                httpClient);
+    }
 }

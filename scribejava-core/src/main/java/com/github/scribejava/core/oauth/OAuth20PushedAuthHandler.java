@@ -24,18 +24,17 @@
 package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.PushedAuthorizationResponse;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.model.*;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Handles OAuth 2.0 Pushed Authorization Requests (PAR). */
+/**
+ * Handles OAuth 2.0 Pushed Authorization Requests (PAR).
+ */
+
 /**
  * Gère les requêtes d'autorisation poussées (PAR - Pushed Authorization Requests).
  *
@@ -43,148 +42,147 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OAuth20PushedAuthHandler {
 
-  private final OAuth20Service service;
-  // Clé de cache : Hash des paramètres triés. Valeur : Réponse mise en cache avec expiration.
-  private final Map<Integer, CachedResponse> cache = new ConcurrentHashMap<>();
+    private final OAuth20Service service;
+    // Clé de cache : Hash des paramètres triés. Valeur : Réponse mise en cache avec expiration.
+    private final Map<Integer, CachedResponse> cache = new ConcurrentHashMap<>();
 
-  /**
-   * Constructeur.
-   *
-   * @param service Le service OAuth 2.0 associé.
-   */
-  public OAuth20PushedAuthHandler(OAuth20Service service) {
-    this.service = service;
-  }
-
-  private static class CachedResponse {
-    final PushedAuthorizationResponse response;
-    final long expirationTime;
-
-    CachedResponse(PushedAuthorizationResponse response) {
-      this.response = response;
-      // Expire en secondes. Conversion en millis. Marge de sécurité : 5 secondes.
-      this.expirationTime =
-          System.currentTimeMillis() + (long) (response.getExpiresIn() - 5) * 1000;
+    /**
+     * Constructeur.
+     *
+     * @param service Le service OAuth 2.0 associé.
+     */
+    public OAuth20PushedAuthHandler(OAuth20Service service) {
+        this.service = service;
     }
 
-    boolean isValid() {
-      return System.currentTimeMillis() < expirationTime;
-    }
-  }
+    /**
+     * Crée la requête HTTP pour l'appel au point de terminaison PAR.
+     *
+     * @param responseType Le type de réponse.
+     * @param apiKey Le Client ID.
+     * @param callback L'URI de redirection.
+     * @param scope La portée demandée.
+     * @param state L'état opaque.
+     * @param additionalParams Paramètres additionnels.
+     * @return Une {@link OAuthRequest} configurée.
+     */
+    public OAuthRequest createPushedAuthorizationRequest(
+            String responseType,
+            String apiKey,
+            String callback,
+            String scope,
+            String state,
+            Map<String, String> additionalParams) {
+        final OAuthRequest request =
+                new OAuthRequest(Verb.POST, service.getApi().getPushedAuthorizationRequestEndpoint());
 
-  /**
-   * Crée la requête HTTP pour l'appel au point de terminaison PAR.
-   *
-   * @param responseType Le type de réponse.
-   * @param apiKey Le Client ID.
-   * @param callback L'URI de redirection.
-   * @param scope La portée demandée.
-   * @param state L'état opaque.
-   * @param additionalParams Paramètres additionnels.
-   * @return Une {@link OAuthRequest} configurée.
-   */
-  public OAuthRequest createPushedAuthorizationRequest(
-      String responseType,
-      String apiKey,
-      String callback,
-      String scope,
-      String state,
-      Map<String, String> additionalParams) {
-    final OAuthRequest request =
-        new OAuthRequest(Verb.POST, service.getApi().getPushedAuthorizationRequestEndpoint());
+        // 1. Collect all parameters in a map
+        final ParameterList parameters = new ParameterList(additionalParams);
+        parameters.add(OAuthConstants.RESPONSE_TYPE, responseType);
+        parameters.add(OAuthConstants.CLIENT_ID, apiKey);
+        if (callback != null) {
+            parameters.add(OAuthConstants.REDIRECT_URI, callback);
+        }
+        if (scope != null) {
+            parameters.add(OAuthConstants.SCOPE, scope);
+        }
+        if (state != null) {
+            parameters.add(OAuthConstants.STATE, state);
+        }
 
-    // 1. Collect all parameters in a map
-    final com.github.scribejava.core.model.ParameterList parameters =
-        new com.github.scribejava.core.model.ParameterList(additionalParams);
-    parameters.add(OAuthConstants.RESPONSE_TYPE, responseType);
-    parameters.add(OAuthConstants.CLIENT_ID, apiKey);
-    if (callback != null) {
-      parameters.add(OAuthConstants.REDIRECT_URI, callback);
-    }
-    if (scope != null) {
-      parameters.add(OAuthConstants.SCOPE, scope);
-    }
-    if (state != null) {
-      parameters.add(OAuthConstants.STATE, state);
-    }
+        // 2. Apply strategy (JAR, etc.)
+        final Map<String, String> convertedParams =
+                service.getAuthorizationRequestConverter().convert(parameters.asMap());
 
-    // 2. Apply strategy (JAR, etc.)
-    final Map<String, String> convertedParams =
-        service.getAuthorizationRequestConverter().convert(parameters.asMap());
+        // 3. Add to request
+        convertedParams.forEach(request::addParameter);
 
-    // 3. Add to request
-    convertedParams.forEach(request::addParameter);
-
-    service
-        .getApi()
-        .getClientAuthentication()
-        .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
-    return request;
-  }
-
-  /**
-   * Envoie la requête PAR de manière asynchrone avec gestion du cache.
-   *
-   * @param responseType Le type de réponse.
-   * @param apiKey Le Client ID.
-   * @param callback L'URI de redirection.
-   * @param scope La portée.
-   * @param state L'état.
-   * @param additionalParams Paramètres additionnels.
-   * @param callbackConsumer Rappel optionnel.
-   * @return Un futur résolvant vers {@link PushedAuthorizationResponse}.
-   */
-  public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(
-      String responseType,
-      String apiKey,
-      String callback,
-      String scope,
-      String state,
-      Map<String, String> additionalParams,
-      OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
-    final String parEndpoint = service.getApi().getPushedAuthorizationRequestEndpoint();
-    if (parEndpoint == null) {
-      final CompletableFuture<PushedAuthorizationResponse> future = new CompletableFuture<>();
-      future.completeExceptionally(
-          new UnsupportedOperationException(
-              "This API doesn't support Pushed Authorization Requests"));
-      return future;
+        service
+                .getApi()
+                .getClientAuthentication()
+                .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
+        return request;
     }
 
-    final OAuthRequest request =
-        createPushedAuthorizationRequest(
-            responseType, apiKey, callback, scope, state, additionalParams);
+    /**
+     * Envoie la requête PAR de manière asynchrone avec gestion du cache.
+     *
+     * @param responseType Le type de réponse.
+     * @param apiKey Le Client ID.
+     * @param callback L'URI de redirection.
+     * @param scope La portée.
+     * @param state L'état.
+     * @param additionalParams Paramètres additionnels.
+     * @param callbackConsumer Rappel optionnel.
+     * @return Un futur résolvant vers {@link PushedAuthorizationResponse}.
+     */
+    public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(
+            String responseType,
+            String apiKey,
+            String callback,
+            String scope,
+            String state,
+            Map<String, String> additionalParams,
+            OAuthAsyncRequestCallback<PushedAuthorizationResponse> callbackConsumer) {
+        final String parEndpoint = service.getApi().getPushedAuthorizationRequestEndpoint();
+        if (parEndpoint == null) {
+            final CompletableFuture<PushedAuthorizationResponse> future = new CompletableFuture<>();
+            future.completeExceptionally(
+                    new UnsupportedOperationException(
+                            "This API doesn't support Pushed Authorization Requests"));
+            return future;
+        }
 
-    // Calculate cache key based on request parameters
-    final int cacheKey =
-        Objects.hash(
-            request.getQueryStringParams().asFormUrlEncodedString(),
-            request.getBodyParams().asFormUrlEncodedString());
+        final OAuthRequest request =
+                createPushedAuthorizationRequest(
+                        responseType, apiKey, callback, scope, state, additionalParams);
 
-    final CachedResponse cached = cache.get(cacheKey);
-    if (cached != null && cached.isValid()) {
-      if (callbackConsumer != null) {
-        callbackConsumer.onCompleted(cached.response);
-      }
-      return CompletableFuture.completedFuture(cached.response);
-    }
-    return service.execute(
-        request,
-        callbackConsumer,
-        response -> {
-          try (Response resp = response) {
-            if (resp.getCode() != 201 && resp.getCode() != 200) {
-              throw new OAuthException(
-                  "Failed to push authorization request. Status: "
-                      + resp.getCode()
-                      + ", Body: "
-                      + resp.getBody());
+        // Calculate cache key based on request parameters
+        final int cacheKey =
+                Objects.hash(
+                        request.getQueryStringParams().asFormUrlEncodedString(),
+                        request.getBodyParams().asFormUrlEncodedString());
+
+        final CachedResponse cached = cache.get(cacheKey);
+        if (cached != null && cached.isValid()) {
+            if (callbackConsumer != null) {
+                callbackConsumer.onCompleted(cached.response);
             }
-            final PushedAuthorizationResponse parResponse =
-                PushedAuthorizationResponse.parse(resp.getBody());
-            cache.put(cacheKey, new CachedResponse(parResponse));
-            return parResponse;
-          }
-        });
-  }
+            return CompletableFuture.completedFuture(cached.response);
+        }
+        return service.execute(
+                request,
+                callbackConsumer,
+                response -> {
+                    try (Response resp = response) {
+                        if (resp.getCode() != 201 && resp.getCode() != 200) {
+                            throw new OAuthException(
+                                    "Failed to push authorization request. Status: "
+                                            + resp.getCode()
+                                            + ", Body: "
+                                            + resp.getBody());
+                        }
+                        final PushedAuthorizationResponse parResponse =
+                                PushedAuthorizationResponse.parse(resp.getBody());
+                        cache.put(cacheKey, new CachedResponse(parResponse));
+                        return parResponse;
+                    }
+                });
+    }
+
+    private static class CachedResponse {
+        final PushedAuthorizationResponse response;
+        final long expirationTime;
+
+        CachedResponse(PushedAuthorizationResponse response) {
+            this.response = response;
+            // Expire en secondes. Conversion en millis. Marge de sécurité : 5 secondes.
+            this.expirationTime =
+                    System.currentTimeMillis() + (long) (response.getExpiresIn() - 5) * 1000;
+        }
+
+        boolean isValid() {
+            return System.currentTimeMillis() < expirationTime;
+        }
+    }
 }

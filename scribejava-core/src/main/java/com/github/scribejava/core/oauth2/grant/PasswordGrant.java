@@ -35,61 +35,61 @@ import com.github.scribejava.core.oauth.OAuth20Service;
  * confiance envers le client et que d'autres types de concessions ne sont pas disponibles.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.3">RFC 6749, Section 1.3.3
- *     (Resource Owner Password Credentials)</a>
+ * (Resource Owner Password Credentials)</a>
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.3">RFC 6749, Section 4.3 (Resource
- *     Owner Password Credentials Grant)</a>
+ * Owner Password Credentials Grant)</a>
  */
 public class PasswordGrant implements OAuth20Grant {
 
-  private final String username;
-  private final String password;
-  private final String scope;
+    private final String username;
+    private final String password;
+    private final String scope;
 
-  /**
-   * Constructeur simple.
-   *
-   * @param username Le nom d'utilisateur du propriétaire de la ressource.
-   * @param password Le mot de passe du propriétaire de la ressource.
-   */
-  public PasswordGrant(String username, String password) {
-    this(username, password, null);
-  }
-
-  /**
-   * Constructeur avec portée (scope) spécifique.
-   *
-   * @param username Le nom d'utilisateur du propriétaire de la ressource.
-   * @param password Le mot de passe du propriétaire de la ressource.
-   * @param scope La portée de la demande d'accès.
-   */
-  public PasswordGrant(String username, String password, String scope) {
-    this.username = username;
-    this.password = password;
-    this.scope = scope;
-  }
-
-  @Override
-  public OAuthRequest createRequest(OAuth20Service service) {
-    final OAuthRequest request =
-        new OAuthRequest(
-            service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
-
-    request.addParameter(OAuthConstants.USERNAME, username);
-    request.addParameter(OAuthConstants.PASSWORD, password);
-
-    if (scope != null) {
-      request.addParameter(OAuthConstants.SCOPE, scope);
-    } else if (service.getDefaultScope() != null) {
-      request.addParameter(OAuthConstants.SCOPE, service.getDefaultScope());
+    /**
+     * Constructeur simple.
+     *
+     * @param username Le nom d'utilisateur du propriétaire de la ressource.
+     * @param password Le mot de passe du propriétaire de la ressource.
+     */
+    public PasswordGrant(String username, String password) {
+        this(username, password, null);
     }
 
-    request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.PASSWORD);
+    /**
+     * Constructeur avec portée (scope) spécifique.
+     *
+     * @param username Le nom d'utilisateur du propriétaire de la ressource.
+     * @param password Le mot de passe du propriétaire de la ressource.
+     * @param scope    La portée de la demande d'accès.
+     */
+    public PasswordGrant(String username, String password, String scope) {
+        this.username = username;
+        this.password = password;
+        this.scope = scope;
+    }
 
-    service
-        .getApi()
-        .getClientAuthentication()
-        .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
+    @Override
+    public OAuthRequest createRequest(OAuth20Service service) {
+        final OAuthRequest request =
+                new OAuthRequest(
+                        service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
 
-    return request;
-  }
+        request.addParameter(OAuthConstants.USERNAME, username);
+        request.addParameter(OAuthConstants.PASSWORD, password);
+
+        if (scope != null) {
+            request.addParameter(OAuthConstants.SCOPE, scope);
+        } else if (service.getDefaultScope() != null) {
+            request.addParameter(OAuthConstants.SCOPE, service.getDefaultScope());
+        }
+
+        request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.PASSWORD);
+
+        service
+                .getApi()
+                .getClientAuthentication()
+                .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
+
+        return request;
+    }
 }

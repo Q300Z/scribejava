@@ -25,6 +25,7 @@ package com.github.scribejava.core.oauth2.clientauthentication;
 
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -36,32 +37,33 @@ import java.util.Base64;
  */
 public class HttpBasicAuthenticationScheme implements ClientAuthentication {
 
-  protected HttpBasicAuthenticationScheme() {}
-
-  /**
-   * Retourne l'instance unique (singleton) de ce type d'authentification.
-   *
-   * @return L'instance de {@link HttpBasicAuthenticationScheme}.
-   */
-  public static HttpBasicAuthenticationScheme instance() {
-    return InstanceHolder.INSTANCE;
-  }
-
-  @Override
-  public void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret) {
-    if (apiKey != null && apiSecret != null) {
-      final String auth = String.format("%s:%s", apiKey, apiSecret);
-      request.addHeader(
-          OAuthConstants.HEADER,
-          OAuthConstants.BASIC
-              + ' '
-              + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)));
+    protected HttpBasicAuthenticationScheme() {
     }
-  }
 
-  private static class InstanceHolder {
+    /**
+     * Retourne l'instance unique (singleton) de ce type d'authentification.
+     *
+     * @return L'instance de {@link HttpBasicAuthenticationScheme}.
+     */
+    public static HttpBasicAuthenticationScheme instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-    private static final HttpBasicAuthenticationScheme INSTANCE =
-        new HttpBasicAuthenticationScheme();
-  }
+    @Override
+    public void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret) {
+        if (apiKey != null && apiSecret != null) {
+            final String auth = String.format("%s:%s", apiKey, apiSecret);
+            request.addHeader(
+                    OAuthConstants.HEADER,
+                    OAuthConstants.BASIC
+                            + ' '
+                            + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)));
+        }
+    }
+
+    private static class InstanceHolder {
+
+        private static final HttpBasicAuthenticationScheme INSTANCE =
+                new HttpBasicAuthenticationScheme();
+    }
 }

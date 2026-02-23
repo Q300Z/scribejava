@@ -23,20 +23,19 @@
  */
 package com.github.scribejava.core.oauth;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
-import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CompletableFuture;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 /**
- * Test validant que le décorateur synchrone délègue correctement aux méthodes asynchrones.
- * (Phase 3 du refactoring SOLID).
+ * Test validant que le décorateur synchrone délègue correctement aux méthodes asynchrones. (Phase 3
+ * du refactoring SOLID).
  */
 public class OAuth20SyncDecoratorTest {
 
@@ -48,7 +47,7 @@ public class OAuth20SyncDecoratorTest {
         final OAuth2AccessToken expectedToken = new OAuth2AccessToken("token");
 
         when(asyncService.getAccessTokenAsync(any(OAuth20Grant.class)))
-            .thenReturn(CompletableFuture.completedFuture(expectedToken));
+                .thenReturn(CompletableFuture.completedFuture(expectedToken));
 
         // Le décorateur qu'on veut tester
         final OAuth20SyncService syncService = new OAuth20SyncService(asyncService);

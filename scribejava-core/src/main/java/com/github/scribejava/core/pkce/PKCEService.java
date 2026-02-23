@@ -34,70 +34,75 @@ import java.util.Base64;
  */
 public class PKCEService {
 
-  private static final SecureRandom RANDOM = new SecureRandom();
-  /** Nombre d'octets à générer aléatoirement. */
-  private final int numberOFOctets;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
-  /**
-   * Constructeur avec nombre d'octets spécifique.
-   *
-   * @param numberOFOctets Le nombre d'octets pour l'entropie.
-   */
-  public PKCEService(int numberOFOctets) {
-    this.numberOFOctets = numberOFOctets;
-  }
+    /**
+     * Nombre d'octets à générer aléatoirement.
+     */
+    private final int numberOFOctets;
 
-  /**
-   * Crée un générateur avec les paramètres recommandés (32 octets).
-   *
-   * @see <a href="https://tools.ietf.org/html/rfc7636#section-4.1">RFC 7636, Section 4.1</a>
-   */
-  public PKCEService() {
-    this(32);
-  }
-
-  /** @return L'instance par défaut de {@link PKCEService}. */
-  public static PKCEService defaultInstance() {
-    return DefaultInstanceHolder.INSTANCE;
-  }
-
-  /**
-   * Génère un nouvel objet PKCE complet (verifier et challenge).
-   *
-   * @return Une instance de {@link PKCE}.
-   */
-  public PKCE generatePKCE() {
-    final byte[] bytes = new byte[numberOFOctets];
-    RANDOM.nextBytes(bytes);
-    return generatePKCE(bytes);
-  }
-
-  /**
-   * Génère un objet PKCE à partir d'octets aléatoires fournis.
-   *
-   * @param randomBytes Octets d'entropie.
-   * @return Une instance de {@link PKCE}.
-   */
-  public PKCE generatePKCE(byte[] randomBytes) {
-    final String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-
-    final PKCE pkce = new PKCE();
-    pkce.setCodeVerifier(codeVerifier);
-    try {
-      pkce.setCodeChallenge(pkce.getCodeChallengeMethod().transform2CodeChallenge(codeVerifier));
-    } catch (NoSuchAlgorithmException nsaE) {
-      pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
-      try {
-        pkce.setCodeChallenge(PKCECodeChallengeMethod.PLAIN.transform2CodeChallenge(codeVerifier));
-      } catch (NoSuchAlgorithmException unrealE) {
-        throw new IllegalStateException("It's just cannot be", unrealE);
-      }
+    /**
+     * Constructeur avec nombre d'octets spécifique.
+     *
+     * @param numberOFOctets Le nombre d'octets pour l'entropie.
+     */
+    public PKCEService(int numberOFOctets) {
+        this.numberOFOctets = numberOFOctets;
     }
-    return pkce;
-  }
 
-  private static class DefaultInstanceHolder {
+    /**
+     * Crée un générateur avec les paramètres recommandés (32 octets).
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc7636#section-4.1">RFC 7636, Section 4.1</a>
+     */
+    public PKCEService() {
+        this(32);
+    }
 
-    private static final PKCEService INSTANCE = new PKCEService();
-  }
+    /**
+     * @return L'instance par défaut de {@link PKCEService}.
+     */
+    public static PKCEService defaultInstance() {
+        return DefaultInstanceHolder.INSTANCE;
+    }
+
+    /**
+     * Génère un nouvel objet PKCE complet (verifier et challenge).
+     *
+     * @return Une instance de {@link PKCE}.
+     */
+    public PKCE generatePKCE() {
+        final byte[] bytes = new byte[numberOFOctets];
+        RANDOM.nextBytes(bytes);
+        return generatePKCE(bytes);
+    }
+
+    /**
+     * Génère un objet PKCE à partir d'octets aléatoires fournis.
+     *
+     * @param randomBytes Octets d'entropie.
+     * @return Une instance de {@link PKCE}.
+     */
+    public PKCE generatePKCE(byte[] randomBytes) {
+        final String codeVerifier = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+
+        final PKCE pkce = new PKCE();
+        pkce.setCodeVerifier(codeVerifier);
+        try {
+            pkce.setCodeChallenge(pkce.getCodeChallengeMethod().transform2CodeChallenge(codeVerifier));
+        } catch (NoSuchAlgorithmException nsaE) {
+            pkce.setCodeChallengeMethod(PKCECodeChallengeMethod.PLAIN);
+            try {
+                pkce.setCodeChallenge(PKCECodeChallengeMethod.PLAIN.transform2CodeChallenge(codeVerifier));
+            } catch (NoSuchAlgorithmException unrealE) {
+                throw new IllegalStateException("It's just cannot be", unrealE);
+            }
+        }
+        return pkce;
+    }
+
+    private static class DefaultInstanceHolder {
+
+        private static final PKCEService INSTANCE = new PKCEService();
+    }
 }

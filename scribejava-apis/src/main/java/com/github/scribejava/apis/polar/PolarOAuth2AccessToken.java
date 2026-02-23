@@ -24,65 +24,70 @@
 package com.github.scribejava.apis.polar;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
+
 import java.util.Objects;
 
-/** Jeton d'accès OAuth 2.0 spécifique à Polar, incluant l'identifiant utilisateur Polar. */
+/**
+ * Jeton d'accès OAuth 2.0 spécifique à Polar, incluant l'identifiant utilisateur Polar.
+ */
 public class PolarOAuth2AccessToken extends OAuth2AccessToken {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  private final String userId;
+    private final String userId;
 
-  /**
-   * Constructeur.
-   *
-   * @param accessToken Le jeton d'accès.
-   * @param tokenType Le type de jeton.
-   * @param expiresIn Durée de validité.
-   * @param refreshToken Jeton de renouvellement.
-   * @param scope Portée.
-   * @param userId L'identifiant utilisateur Polar.
-   * @param rawResponse La réponse brute.
-   */
-  public PolarOAuth2AccessToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      String userId,
-      String rawResponse) {
-    super(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
-    this.userId = userId;
-  }
-
-  /** @return L'identifiant utilisateur Polar (x_user_id). */
-  public String getUserId() {
-    return userId;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = super.hashCode();
-    hash = 37 * hash + Objects.hashCode(userId);
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    if (!super.equals(obj)) {
-      return false;
+    /**
+     * Constructeur.
+     *
+     * @param accessToken  Le jeton d'accès.
+     * @param tokenType    Le type de jeton.
+     * @param expiresIn    Durée de validité.
+     * @param refreshToken Jeton de renouvellement.
+     * @param scope        Portée.
+     * @param userId       L'identifiant utilisateur Polar.
+     * @param rawResponse  La réponse brute.
+     */
+    public PolarOAuth2AccessToken(
+            String accessToken,
+            String tokenType,
+            Integer expiresIn,
+            String refreshToken,
+            String scope,
+            String userId,
+            String rawResponse) {
+        super(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
+        this.userId = userId;
     }
 
-    return Objects.equals(userId, ((PolarOAuth2AccessToken) obj).getUserId());
-  }
+    /**
+     * @return L'identifiant utilisateur Polar (x_user_id).
+     */
+    public String getUserId() {
+        return userId;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 37 * hash + Objects.hashCode(userId);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+
+        return Objects.equals(userId, ((PolarOAuth2AccessToken) obj).getUserId());
+    }
 }

@@ -23,67 +23,68 @@
  */
 package com.github.scribejava.core.oauth;
 
+import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Response;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import org.junit.jupiter.api.Test;
-
 public class AsyncResilienceTest {
 
-  @Test
-  public void shouldHandleRequestCancellation() {
-    final CompletableFuture<String> future = new CompletableFuture<>();
+    @Test
+    public void shouldHandleRequestCancellation() {
+        final CompletableFuture<String> future = new CompletableFuture<>();
 
-    // Simule l'annulation par l'utilisateur
-    future.cancel(true);
+        // Simule l'annulation par l'utilisateur
+        future.cancel(true);
 
-    assertThat(future.isCancelled()).isTrue();
-    assertThatThrownBy(future::get).isInstanceOf(java.util.concurrent.CancellationException.class);
-  }
-
-  @Test
-  public void shouldPropagateConverterExceptionsToFuture() {
-    final Response response = mock(Response.class);
-
-    final OAuthRequest.ResponseConverter<String> failingConverter =
-        r -> {
-          throw new IOException("Simulated conversion failure");
-        };
-
-    // We simulate the behavior of executeAsync manually since we don't have a real HTTP client here
-    final CompletableFuture<String> future = new CompletableFuture<>();
-    try {
-      failingConverter.convert(response);
-    } catch (IOException e) {
-      future.completeExceptionally(e);
+        assertThat(future.isCancelled()).isTrue();
+        assertThatThrownBy(future::get).isInstanceOf(java.util.concurrent.CancellationException.class);
     }
 
-    assertThat(future.isCompletedExceptionally()).isTrue();
-    assertThatThrownBy(future::get)
-        .isInstanceOf(ExecutionException.class)
-        .hasCauseInstanceOf(IOException.class)
-        .hasMessageContaining("Simulated conversion failure");
-  }
+    @Test
+    public void shouldPropagateConverterExceptionsToFuture() {
+        final Response response = mock(Response.class);
 
-  @Test
-  public void shouldHandleCallbackOnThrowable() {
-    final OAuthAsyncRequestCallback<String> callback = mock(OAuthAsyncRequestCallback.class);
-    final CompletableFuture<String> future = new CompletableFuture<>();
-    final Exception error = new RuntimeException("test failure");
+        final OAuthRequest.ResponseConverter<String> failingConverter =
+                r -> {
+                    throw new IOException("Simulated conversion failure");
+                };
 
-    // Simulate completeExceptionally behavior with callback
-    future.completeExceptionally(error);
-    callback.onThrowable(error);
+        // We simulate the behavior of executeAsync manually since we don't have a real HTTP client here
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        try {
+            failingConverter.convert(response);
+        } catch (IOException e) {
+            future.completeExceptionally(e);
+        }
 
-    verify(callback).onThrowable(error);
-    assertThat(future.isCompletedExceptionally()).isTrue();
-  }
+        assertThat(future.isCompletedExceptionally()).isTrue();
+        assertThatThrownBy(future::get)
+                .isInstanceOf(ExecutionException.class)
+                .hasCauseInstanceOf(IOException.class)
+                .hasMessageContaining("Simulated conversion failure");
+    }
+
+    @Test
+    public void shouldHandleCallbackOnThrowable() {
+        final OAuthAsyncRequestCallback<String> callback = mock(OAuthAsyncRequestCallback.class);
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        final Exception error = new RuntimeException("test failure");
+
+        // Simulate completeExceptionally behavior with callback
+        future.completeExceptionally(error);
+        callback.onThrowable(error);
+
+        verify(callback).onThrowable(error);
+        assertThat(future.isCompletedExceptionally()).isTrue();
+    }
 }

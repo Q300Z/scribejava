@@ -25,13 +25,15 @@ package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.model.OAuthRequest;
 
-/** Interceptor that can modify an OAuthRequest before it's executed. */
+/**
+ * Interceptor that can modify an OAuthRequest before it's executed.
+ */
 public interface OAuthRequestInterceptor {
 
-  /**
-   * Intercepte et modifie la requête avant son exécution.
-   *
-   * @param request La requête OAuth à modifier.
-   */
-  void intercept(OAuthRequest request);
+    /**
+     * Intercepte et modifie la requête avant son exécution.
+     *
+     * @param request La requête OAuth à modifier.
+     */
+    void intercept(OAuthRequest request);
 }

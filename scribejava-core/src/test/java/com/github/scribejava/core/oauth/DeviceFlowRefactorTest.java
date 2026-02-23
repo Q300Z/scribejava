@@ -23,19 +23,18 @@
  */
 package com.github.scribejava.core.oauth;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 /**
- * Test de non-régression pour le refactor du DeviceFlowHandler.
- * (Phase 4 du refactoring SOLID).
+ * Test de non-régression pour le refactor du DeviceFlowHandler. (Phase 4 du refactoring SOLID).
  */
 public class DeviceFlowRefactorTest {
 

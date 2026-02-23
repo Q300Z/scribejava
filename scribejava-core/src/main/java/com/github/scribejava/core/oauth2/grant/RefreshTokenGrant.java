@@ -35,57 +35,57 @@ import com.github.scribejava.core.oauth.OAuth20Service;
  * d'accès additionnels.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.5">RFC 6749, Section 1.5 (Refresh
- *     Token)</a>
+ * Token)</a>
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC 6749, Section 6 (Refreshing an
- *     Access Token)</a>
+ * Access Token)</a>
  */
 public class RefreshTokenGrant implements OAuth20Grant {
 
-  private final String refreshToken;
-  private final String scope;
+    private final String refreshToken;
+    private final String scope;
 
-  /**
-   * Constructeur simple.
-   *
-   * @param refreshToken Le jeton de renouvellement délivré au client.
-   */
-  public RefreshTokenGrant(String refreshToken) {
-    this(refreshToken, null);
-  }
-
-  /**
-   * Constructeur avec portée (scope) spécifique.
-   *
-   * @param refreshToken Le jeton de renouvellement délivré au client.
-   * @param scope La portée de la demande d'accès (doit être identique ou plus restreinte que celle
-   *     d'origine).
-   */
-  public RefreshTokenGrant(String refreshToken, String scope) {
-    this.refreshToken = refreshToken;
-    this.scope = scope;
-  }
-
-  @Override
-  public OAuthRequest createRequest(OAuth20Service service) {
-    final OAuthRequest request =
-        new OAuthRequest(
-            service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
-
-    service
-        .getApi()
-        .getClientAuthentication()
-        .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
-
-    request.addParameter(OAuthConstants.REFRESH_TOKEN, refreshToken);
-
-    if (scope != null) {
-      request.addParameter(OAuthConstants.SCOPE, scope);
-    } else if (service.getDefaultScope() != null) {
-      request.addParameter(OAuthConstants.SCOPE, service.getDefaultScope());
+    /**
+     * Constructeur simple.
+     *
+     * @param refreshToken Le jeton de renouvellement délivré au client.
+     */
+    public RefreshTokenGrant(String refreshToken) {
+        this(refreshToken, null);
     }
 
-    request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
+    /**
+     * Constructeur avec portée (scope) spécifique.
+     *
+     * @param refreshToken Le jeton de renouvellement délivré au client.
+     * @param scope        La portée de la demande d'accès (doit être identique ou plus restreinte que celle
+     *                     d'origine).
+     */
+    public RefreshTokenGrant(String refreshToken, String scope) {
+        this.refreshToken = refreshToken;
+        this.scope = scope;
+    }
 
-    return request;
-  }
+    @Override
+    public OAuthRequest createRequest(OAuth20Service service) {
+        final OAuthRequest request =
+                new OAuthRequest(
+                        service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
+
+        service
+                .getApi()
+                .getClientAuthentication()
+                .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
+
+        request.addParameter(OAuthConstants.REFRESH_TOKEN, refreshToken);
+
+        if (scope != null) {
+            request.addParameter(OAuthConstants.SCOPE, scope);
+        } else if (service.getDefaultScope() != null) {
+            request.addParameter(OAuthConstants.SCOPE, service.getDefaultScope());
+        }
+
+        request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.REFRESH_TOKEN);
+
+        return request;
+    }
 }

@@ -23,55 +23,57 @@
  */
 package com.github.scribejava.core.utils;
 
-/** Utilitaires pour la vérification des préconditions et des invariants. */
+/**
+ * Utilitaires pour la vérification des préconditions et des invariants.
+ */
 public abstract class Preconditions {
 
-  private static final String DEFAULT_MESSAGE = "Received an invalid parameter";
+    private static final String DEFAULT_MESSAGE = "Received an invalid parameter";
 
-  /**
-   * Vérifie qu'un objet n'est pas nul.
-   *
-   * @param object L'objet à vérifier.
-   * @param errorMsg Le message d'erreur si l'objet est nul.
-   * @throws IllegalArgumentException si l'objet est nul.
-   */
-  public static void checkNotNull(Object object, String errorMsg) {
-    check(object != null, errorMsg);
-  }
-
-  /**
-   * Vérifie qu'une chaîne n'est ni nulle ni vide.
-   *
-   * @param string La chaîne à vérifier.
-   * @param errorMsg Le message d'erreur si la chaîne est invalide.
-   * @throws IllegalArgumentException si la chaîne est nulle ou vide.
-   */
-  public static void checkEmptyString(String string, String errorMsg) {
-    check(hasText(string), errorMsg);
-  }
-
-  /**
-   * Vérifie si une chaîne contient du texte (non nulle et non composée uniquement d'espaces).
-   *
-   * @param str La chaîne à tester.
-   * @return true si la chaîne contient du texte utile.
-   */
-  public static boolean hasText(String str) {
-    if (str == null || str.isEmpty()) {
-      return false;
+    /**
+     * Vérifie qu'un objet n'est pas nul.
+     *
+     * @param object   L'objet à vérifier.
+     * @param errorMsg Le message d'erreur si l'objet est nul.
+     * @throws IllegalArgumentException si l'objet est nul.
+     */
+    public static void checkNotNull(Object object, String errorMsg) {
+        check(object != null, errorMsg);
     }
-    final int strLen = str.length();
-    for (int i = 0; i < strLen; i++) {
-      if (!Character.isWhitespace(str.charAt(i))) {
-        return true;
-      }
-    }
-    return false;
-  }
 
-  private static void check(boolean requirements, String error) {
-    if (!requirements) {
-      throw new IllegalArgumentException(hasText(error) ? error : DEFAULT_MESSAGE);
+    /**
+     * Vérifie qu'une chaîne n'est ni nulle ni vide.
+     *
+     * @param string   La chaîne à vérifier.
+     * @param errorMsg Le message d'erreur si la chaîne est invalide.
+     * @throws IllegalArgumentException si la chaîne est nulle ou vide.
+     */
+    public static void checkEmptyString(String string, String errorMsg) {
+        check(hasText(string), errorMsg);
     }
-  }
+
+    /**
+     * Vérifie si une chaîne contient du texte (non nulle et non composée uniquement d'espaces).
+     *
+     * @param str La chaîne à tester.
+     * @return true si la chaîne contient du texte utile.
+     */
+    public static boolean hasText(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        final int strLen = str.length();
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void check(boolean requirements, String error) {
+        if (!requirements) {
+            throw new IllegalArgumentException(hasText(error) ? error : DEFAULT_MESSAGE);
+        }
+    }
 }

@@ -24,6 +24,7 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.oauth2.OAuth2Error;
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -32,54 +33,54 @@ import java.net.URI;
  */
 public class OAuth2AccessTokenErrorResponse extends OAuthResponseException {
 
-  private static final long serialVersionUID = 2309424849700276816L;
+    private static final long serialVersionUID = 2309424849700276816L;
 
-  private final OAuth2Error error;
-  private final String errorDescription;
-  private final URI errorUri;
+    private final OAuth2Error error;
+    private final String errorDescription;
+    private final URI errorUri;
 
-  /**
-   * Constructeur.
-   *
-   * @param error Le code d'erreur OAuth 2.0.
-   * @param errorDescription Description lisible par l'homme.
-   * @param errorUri URI vers une page d'aide sur l'erreur.
-   * @param rawResponse La réponse HTTP brute.
-   * @throws IOException en cas d'erreur de lecture.
-   */
-  public OAuth2AccessTokenErrorResponse(
-      OAuth2Error error, String errorDescription, URI errorUri, Response rawResponse)
-      throws IOException {
-    super(rawResponse);
-    this.error = error;
-    this.errorDescription = errorDescription;
-    this.errorUri = errorUri;
-  }
+    /**
+     * Constructeur.
+     *
+     * @param error            Le code d'erreur OAuth 2.0.
+     * @param errorDescription Description lisible par l'homme.
+     * @param errorUri         URI vers une page d'aide sur l'erreur.
+     * @param rawResponse      La réponse HTTP brute.
+     * @throws IOException en cas d'erreur de lecture.
+     */
+    public OAuth2AccessTokenErrorResponse(
+            OAuth2Error error, String errorDescription, URI errorUri, Response rawResponse)
+            throws IOException {
+        super(rawResponse);
+        this.error = error;
+        this.errorDescription = errorDescription;
+        this.errorUri = errorUri;
+    }
 
-  /**
-   * Retourne le code d'erreur (error).
-   *
-   * @return Le code d'erreur {@link OAuth2Error}.
-   */
-  public OAuth2Error getError() {
-    return error;
-  }
+    /**
+     * Retourne le code d'erreur (error).
+     *
+     * @return Le code d'erreur {@link OAuth2Error}.
+     */
+    public OAuth2Error getError() {
+        return error;
+    }
 
-  /**
-   * Retourne la description de l'erreur (error_description).
-   *
-   * @return La description ou null.
-   */
-  public String getErrorDescription() {
-    return errorDescription;
-  }
+    /**
+     * Retourne la description de l'erreur (error_description).
+     *
+     * @return La description ou null.
+     */
+    public String getErrorDescription() {
+        return errorDescription;
+    }
 
-  /**
-   * Retourne l'URI de l'erreur (error_uri).
-   *
-   * @return L'URI ou null.
-   */
-  public URI getErrorUri() {
-    return errorUri;
-  }
+    /**
+     * Retourne l'URI de l'erreur (error_uri).
+     *
+     * @return L'URI ou null.
+     */
+    public URI getErrorUri() {
+        return errorUri;
+    }
 }

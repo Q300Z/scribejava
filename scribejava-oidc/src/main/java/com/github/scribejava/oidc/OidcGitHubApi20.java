@@ -30,47 +30,50 @@ package com.github.scribejava.oidc;
  * dynamique et la validation des jetons d'identité (ID Tokens).
  *
  * @see <a
- *     href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect">GitHub
- *     OIDC Documentation</a>
+ * href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect">GitHub
+ * OIDC Documentation</a>
  * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
  */
 public class OidcGitHubApi20 extends DefaultOidcApi20 {
 
-  /** Constructeur protégé. */
-  protected OidcGitHubApi20() {}
+    /**
+     * Constructeur protégé.
+     */
+    protected OidcGitHubApi20() {
+    }
 
-  private static class InstanceHolder {
-    private static final OidcGitHubApi20 INSTANCE = new OidcGitHubApi20();
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API GitHub OIDC.
+     *
+     * @return L'instance de {@link OidcGitHubApi20}.
+     */
+    public static OidcGitHubApi20 instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API GitHub OIDC.
-   *
-   * @return L'instance de {@link OidcGitHubApi20}.
-   */
-  public static OidcGitHubApi20 instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'identifiant de l'émetteur (Issuer) officiel de GitHub Actions.
+     *
+     * @return {@code https://token.actions.githubusercontent.com}
+     */
+    @Override
+    public String getIssuer() {
+        return "https://token.actions.githubusercontent.com";
+    }
 
-  /**
-   * Retourne l'identifiant de l'émetteur (Issuer) officiel de GitHub Actions.
-   *
-   * @return {@code https://token.actions.githubusercontent.com}
-   */
-  @Override
-  public String getIssuer() {
-    return "https://token.actions.githubusercontent.com";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        final String endpoint = super.getAccessTokenEndpoint();
+        return endpoint != null ? endpoint : "https://github.com/login/oauth/access_token";
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    final String endpoint = super.getAccessTokenEndpoint();
-    return endpoint != null ? endpoint : "https://github.com/login/oauth/access_token";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        final String baseUrl = super.getAuthorizationBaseUrl();
+        return baseUrl != null ? baseUrl : "https://github.com/login/oauth/authorize";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    final String baseUrl = super.getAuthorizationBaseUrl();
-    return baseUrl != null ? baseUrl : "https://github.com/login/oauth/authorize";
-  }
+    private static class InstanceHolder {
+        private static final OidcGitHubApi20 INSTANCE = new OidcGitHubApi20();
+    }
 }

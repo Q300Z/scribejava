@@ -23,15 +23,18 @@
  */
 package com.github.scribejava.core.oauth;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-/** Tests pour l'intercepteur PKCE (Phase 2 du refactoring SOLID). */
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Tests pour l'intercepteur PKCE (Phase 2 du refactoring SOLID).
+ */
 public class PKCEInterceptorTest {
 
     /**

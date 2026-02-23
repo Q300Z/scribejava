@@ -30,20 +30,20 @@ package com.github.scribejava.core.model;
  */
 public interface OAuthAsyncRequestCallback<T> {
 
-  /**
-   * Appelé lorsque la requête s'est terminée avec succès.
-   *
-   * <p>Les implémentations doivent s'assurer de fermer la réponse si elle implémente {@link
-   * java.io.Closeable}.
-   *
-   * @param response La réponse reçue.
-   */
-  void onCompleted(T response);
+    /**
+     * Appelé lorsque la requête s'est terminée avec succès.
+     *
+     * <p>Les implémentations doivent s'assurer de fermer la réponse si elle implémente {@link
+     * java.io.Closeable}.
+     *
+     * @param response La réponse reçue.
+     */
+    void onCompleted(T response);
 
-  /**
-   * Appelé lorsqu'une erreur survient lors de l'exécution de la requête.
-   *
-   * @param t L'exception levée.
-   */
-  void onThrowable(Throwable t);
+    /**
+     * Appelé lorsqu'une erreur survient lors de l'exécution de la requête.
+     *
+     * @param t L'exception levée.
+     */
+    void onThrowable(Throwable t);
 }

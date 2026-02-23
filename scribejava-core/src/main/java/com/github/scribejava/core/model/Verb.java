@@ -23,39 +23,45 @@
  */
 package com.github.scribejava.core.model;
 
-/** Énumération contenant les verbes HTTP les plus courants. */
+/**
+ * Énumération contenant les verbes HTTP les plus courants.
+ */
 public enum Verb {
-  GET(false),
-  POST(true),
-  PUT(true),
-  DELETE(false, true),
-  HEAD(false),
-  OPTIONS(false),
-  TRACE(false),
-  PATCH(true);
+    GET(false),
+    POST(true),
+    PUT(true),
+    DELETE(false, true),
+    HEAD(false),
+    OPTIONS(false),
+    TRACE(false),
+    PATCH(true);
 
-  private final boolean requiresBody;
-  private final boolean permitBody;
+    private final boolean requiresBody;
+    private final boolean permitBody;
 
-  Verb(boolean requiresBody) {
-    this(requiresBody, requiresBody);
-  }
-
-  Verb(boolean requiresBody, boolean permitBody) {
-    if (requiresBody && !permitBody) {
-      throw new IllegalArgumentException();
+    Verb(boolean requiresBody) {
+        this(requiresBody, requiresBody);
     }
-    this.requiresBody = requiresBody;
-    this.permitBody = permitBody;
-  }
 
-  /** @return true si le verbe nécessite obligatoirement un corps de requête. */
-  public boolean isRequiresBody() {
-    return requiresBody;
-  }
+    Verb(boolean requiresBody, boolean permitBody) {
+        if (requiresBody && !permitBody) {
+            throw new IllegalArgumentException();
+        }
+        this.requiresBody = requiresBody;
+        this.permitBody = permitBody;
+    }
 
-  /** @return true si le verbe autorise un corps de requête. */
-  public boolean isPermitBody() {
-    return permitBody;
-  }
+    /**
+     * @return true si le verbe nécessite obligatoirement un corps de requête.
+     */
+    public boolean isRequiresBody() {
+        return requiresBody;
+    }
+
+    /**
+     * @return true si le verbe autorise un corps de requête.
+     */
+    public boolean isPermitBody() {
+        return permitBody;
+    }
 }

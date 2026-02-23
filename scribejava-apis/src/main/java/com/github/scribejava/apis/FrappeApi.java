@@ -28,51 +28,55 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 
-/** API OAuth 2.0 pour Frappe. */
+/**
+ * API OAuth 2.0 pour Frappe.
+ */
 public class FrappeApi extends DefaultApi20 {
 
-  private final String serverURL;
-  private final String accessTokenEndpoint;
-  private final String authorizationBaseUrl;
+    private final String serverURL;
+    private final String accessTokenEndpoint;
+    private final String authorizationBaseUrl;
 
-  /**
-   * Constructeur protégé.
-   *
-   * @param serverURL L'URL du serveur Frappe.
-   */
-  protected FrappeApi(String serverURL) {
-    this.serverURL = serverURL;
-    this.accessTokenEndpoint = serverURL + "/api/method/frappe.integrations.oauth2.get_token";
-    this.authorizationBaseUrl = serverURL + "/api/method/frappe.integrations.oauth2.authorize";
-  }
+    /**
+     * Constructeur protégé.
+     *
+     * @param serverURL L'URL du serveur Frappe.
+     */
+    protected FrappeApi(String serverURL) {
+        this.serverURL = serverURL;
+        this.accessTokenEndpoint = serverURL + "/api/method/frappe.integrations.oauth2.get_token";
+        this.authorizationBaseUrl = serverURL + "/api/method/frappe.integrations.oauth2.authorize";
+    }
 
-  /**
-   * Retourne une nouvelle instance de l'API Frappe.
-   *
-   * @param serverUrl L'URL du serveur.
-   * @return Une instance de {@link FrappeApi}.
-   */
-  public static FrappeApi instance(String serverUrl) {
-    return new FrappeApi(serverUrl);
-  }
+    /**
+     * Retourne une nouvelle instance de l'API Frappe.
+     *
+     * @param serverUrl L'URL du serveur.
+     * @return Une instance de {@link FrappeApi}.
+     */
+    public static FrappeApi instance(String serverUrl) {
+        return new FrappeApi(serverUrl);
+    }
 
-  /** @return L'URL du serveur configurée. */
-  public String getServerURL() {
-    return serverURL;
-  }
+    /**
+     * @return L'URL du serveur configurée.
+     */
+    public String getServerURL() {
+        return serverURL;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return accessTokenEndpoint;
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return accessTokenEndpoint;
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return authorizationBaseUrl;
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return authorizationBaseUrl;
+    }
 
-  @Override
-  public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
-    return OpenIdJsonTokenExtractor.instance();
-  }
+    @Override
+    public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
+        return OpenIdJsonTokenExtractor.instance();
+    }
 }

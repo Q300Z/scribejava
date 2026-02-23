@@ -23,11 +23,6 @@
  */
 package com.github.scribejava.oidc.dpop;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -38,7 +33,14 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jwt.SignedJWT;
 import org.junit.jupiter.api.Test;
 
-/** Tests pour {@link DefaultDPoPProofCreator}. */
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * Tests pour {@link DefaultDPoPProofCreator}.
+ */
 public class DefaultDPoPProofCreatorTest {
 
     /**
@@ -65,9 +67,8 @@ public class DefaultDPoPProofCreatorTest {
      */
     @Test
     public void shouldGenerateECProof() throws Exception {
-        final ECKey ecJWK = new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256)
-                .keyUse(KeyUse.SIGNATURE)
-                .generate();
+        final ECKey ecJWK =
+                new ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256).keyUse(KeyUse.SIGNATURE).generate();
         final DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator(ecJWK, JWSAlgorithm.ES256);
         final OAuthRequest request = new OAuthRequest(Verb.GET, "https://example.com/api");
 
@@ -85,7 +86,8 @@ public class DefaultDPoPProofCreatorTest {
     public void shouldThrowOnUnsupportedJWK() throws Exception {
         final JWK mockJWK = mock(JWK.class);
         when(mockJWK.isPrivate()).thenReturn(true);
-        final DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator(mockJWK, JWSAlgorithm.RS256);
+        final DefaultDPoPProofCreator creator =
+                new DefaultDPoPProofCreator(mockJWK, JWSAlgorithm.RS256);
 
         final OAuthRequest request = new OAuthRequest(Verb.GET, "https://idp.com");
         assertThatThrownBy(() -> creator.createDPoPProof(request, null))

@@ -27,6 +27,7 @@ import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.pkce.PKCE;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,72 +38,72 @@ import java.util.Map;
  * entre le client et le propriétaire de la ressource.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.1">RFC 6749, Section 1.3.1
- *     (Authorization Code)</a>
+ * (Authorization Code)</a>
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1">RFC 6749, Section 4.1
- *     (Authorization Code Grant)</a>
+ * (Authorization Code Grant)</a>
  */
 public class AuthorizationCodeGrant implements OAuth20Grant {
 
-  private final String code;
-  private String pkceCodeVerifier;
-  private final Map<String, String> extraParameters = new HashMap<>();
+    private final String code;
+    private final Map<String, String> extraParameters = new HashMap<>();
+    private String pkceCodeVerifier;
 
-  /**
-   * Constructeur.
-   *
-   * @param code Le code d'autorisation reçu du serveur d'autorisation.
-   */
-  public AuthorizationCodeGrant(String code) {
-    this.code = code;
-  }
-
-  /**
-   * Définit le vérificateur de code PKCE (code_verifier).
-   *
-   * @param pkceCodeVerifier La valeur brute du code_verifier.
-   * @see <a href="https://tools.ietf.org/html/rfc7636">RFC 7636 (PKCE)</a>
-   */
-  public void setPkceCodeVerifier(String pkceCodeVerifier) {
-    this.pkceCodeVerifier = pkceCodeVerifier;
-  }
-
-  /**
-   * Ajoute un paramètre supplémentaire à la requête d'échange de jeton.
-   *
-   * @param name Le nom du paramètre.
-   * @param value La valeur du paramètre.
-   */
-  public void addExtraParameter(String name, String value) {
-    extraParameters.put(name, value);
-  }
-
-  @Override
-  public OAuthRequest createRequest(OAuth20Service service) {
-    final OAuthRequest request =
-        new OAuthRequest(
-            service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
-
-    service
-        .getApi()
-        .getClientAuthentication()
-        .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
-
-    request.addParameter(OAuthConstants.CODE, code);
-    final String callback = service.getCallback();
-    if (callback != null) {
-      request.addParameter(OAuthConstants.REDIRECT_URI, callback);
+    /**
+     * Constructeur.
+     *
+     * @param code Le code d'autorisation reçu du serveur d'autorisation.
+     */
+    public AuthorizationCodeGrant(String code) {
+        this.code = code;
     }
 
-    request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
-
-    if (pkceCodeVerifier != null) {
-      request.addParameter(PKCE.PKCE_CODE_VERIFIER_PARAM, pkceCodeVerifier);
+    /**
+     * Définit le vérificateur de code PKCE (code_verifier).
+     *
+     * @param pkceCodeVerifier La valeur brute du code_verifier.
+     * @see <a href="https://tools.ietf.org/html/rfc7636">RFC 7636 (PKCE)</a>
+     */
+    public void setPkceCodeVerifier(String pkceCodeVerifier) {
+        this.pkceCodeVerifier = pkceCodeVerifier;
     }
 
-    for (Map.Entry<String, String> entry : extraParameters.entrySet()) {
-      request.addParameter(entry.getKey(), entry.getValue());
+    /**
+     * Ajoute un paramètre supplémentaire à la requête d'échange de jeton.
+     *
+     * @param name  Le nom du paramètre.
+     * @param value La valeur du paramètre.
+     */
+    public void addExtraParameter(String name, String value) {
+        extraParameters.put(name, value);
     }
 
-    return request;
-  }
+    @Override
+    public OAuthRequest createRequest(OAuth20Service service) {
+        final OAuthRequest request =
+                new OAuthRequest(
+                        service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
+
+        service
+                .getApi()
+                .getClientAuthentication()
+                .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
+
+        request.addParameter(OAuthConstants.CODE, code);
+        final String callback = service.getCallback();
+        if (callback != null) {
+            request.addParameter(OAuthConstants.REDIRECT_URI, callback);
+        }
+
+        request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.AUTHORIZATION_CODE);
+
+        if (pkceCodeVerifier != null) {
+            request.addParameter(PKCE.PKCE_CODE_VERIFIER_PARAM, pkceCodeVerifier);
+        }
+
+        for (Map.Entry<String, String> entry : extraParameters.entrySet()) {
+            request.addParameter(entry.getKey(), entry.getValue());
+        }
+
+        return request;
+    }
 }

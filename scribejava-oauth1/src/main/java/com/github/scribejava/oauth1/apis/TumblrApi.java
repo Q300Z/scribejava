@@ -25,41 +25,46 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/** API OAuth 1.0a pour Tumblr. */
+/**
+ * API OAuth 1.0a pour Tumblr.
+ */
 public class TumblrApi extends DefaultApi10a {
 
-  private static final String AUTHORIZE_URL = "https://www.tumblr.com/oauth/authorize";
-  private static final String REQUEST_TOKEN_RESOURCE = "https://www.tumblr.com/oauth/request_token";
-  private static final String ACCESS_TOKEN_RESOURCE = "https://www.tumblr.com/oauth/access_token";
+    private static final String AUTHORIZE_URL = "https://www.tumblr.com/oauth/authorize";
+    private static final String REQUEST_TOKEN_RESOURCE = "https://www.tumblr.com/oauth/request_token";
+    private static final String ACCESS_TOKEN_RESOURCE = "https://www.tumblr.com/oauth/access_token";
 
-  /** Constructeur protégé. */
-  protected TumblrApi() {}
+    /**
+     * Constructeur protégé.
+     */
+    protected TumblrApi() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API Tumblr.
-   *
-   * @return L'instance de {@link TumblrApi}.
-   */
-  public static TumblrApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API Tumblr.
+     *
+     * @return L'instance de {@link TumblrApi}.
+     */
+    public static TumblrApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return ACCESS_TOKEN_RESOURCE;
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return ACCESS_TOKEN_RESOURCE;
+    }
 
-  @Override
-  public String getRequestTokenEndpoint() {
-    return REQUEST_TOKEN_RESOURCE;
-  }
+    @Override
+    public String getRequestTokenEndpoint() {
+        return REQUEST_TOKEN_RESOURCE;
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return AUTHORIZE_URL;
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return AUTHORIZE_URL;
+    }
 
-  private static class InstanceHolder {
-    private static final TumblrApi INSTANCE = new TumblrApi();
-  }
+    private static class InstanceHolder {
+        private static final TumblrApi INSTANCE = new TumblrApi();
+    }
 }

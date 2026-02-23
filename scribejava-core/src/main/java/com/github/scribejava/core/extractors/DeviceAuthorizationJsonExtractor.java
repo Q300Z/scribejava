@@ -26,6 +26,7 @@ package com.github.scribejava.core.extractors;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.model.DeviceAuthorization;
 import com.github.scribejava.core.model.Response;
+
 import java.io.IOException;
 
 /**
@@ -35,76 +36,77 @@ import java.io.IOException;
  * flux appareil.
  *
  * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628 (OAuth 2.0 Device Authorization
- *     Grant)</a>
+ * Grant)</a>
  */
 public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
 
-  protected DeviceAuthorizationJsonExtractor() {}
-
-  /**
-   * Retourne l'instance unique de l'extracteur.
-   *
-   * @return L'instance {@link DeviceAuthorizationJsonExtractor}.
-   */
-  public static DeviceAuthorizationJsonExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
-
-  /**
-   * Extrait les informations d'autorisation d'appareil à partir de la réponse HTTP.
-   *
-   * @param response La réponse HTTP du serveur.
-   * @return Un objet {@link DeviceAuthorization}.
-   * @throws IOException si l'extraction échoue ou si le serveur retourne une erreur.
-   */
-  public DeviceAuthorization extract(Response response) throws IOException {
-    if (response.getCode() != 200) {
-      generateError(response);
-    }
-    return createDeviceAuthorization(response.getBody());
-  }
-
-  /**
-   * Génère une exception d'erreur à partir de la réponse.
-   *
-   * @param response La réponse HTTP.
-   * @throws IOException l'exception d'erreur générée.
-   */
-  public void generateError(Response response) throws IOException {
-    OAuth2AccessTokenJsonExtractor.instance().generateError(response);
-  }
-
-  private DeviceAuthorization createDeviceAuthorization(String rawResponse) throws IOException {
-
-    final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
-
-    final DeviceAuthorization deviceAuthorization =
-        new DeviceAuthorization(
-            extractRequiredParameter(response, "device_code", rawResponse).asText(),
-            extractRequiredParameter(response, "user_code", rawResponse).asText(),
-            extractRequiredParameter(response, getVerificationUriParamName(), rawResponse).asText(),
-            extractRequiredParameter(response, "expires_in", rawResponse).asInt());
-
-    final JsonNode intervalSeconds = response.get("interval");
-    if (intervalSeconds != null && !intervalSeconds.isNull()) {
-      deviceAuthorization.setIntervalSeconds(intervalSeconds.asInt(5));
+    protected DeviceAuthorizationJsonExtractor() {
     }
 
-    final JsonNode verificationUriComplete = response.get("verification_uri_complete");
-    if (verificationUriComplete != null && !verificationUriComplete.isNull()) {
-      deviceAuthorization.setVerificationUriComplete(verificationUriComplete.asText());
+    /**
+     * Retourne l'instance unique de l'extracteur.
+     *
+     * @return L'instance {@link DeviceAuthorizationJsonExtractor}.
+     */
+    public static DeviceAuthorizationJsonExtractor instance() {
+        return InstanceHolder.INSTANCE;
     }
 
-    return deviceAuthorization;
-  }
+    /**
+     * Extrait les informations d'autorisation d'appareil à partir de la réponse HTTP.
+     *
+     * @param response La réponse HTTP du serveur.
+     * @return Un objet {@link DeviceAuthorization}.
+     * @throws IOException si l'extraction échoue ou si le serveur retourne une erreur.
+     */
+    public DeviceAuthorization extract(Response response) throws IOException {
+        if (response.getCode() != 200) {
+            generateError(response);
+        }
+        return createDeviceAuthorization(response.getBody());
+    }
 
-  protected String getVerificationUriParamName() {
-    return "verification_uri";
-  }
+    /**
+     * Génère une exception d'erreur à partir de la réponse.
+     *
+     * @param response La réponse HTTP.
+     * @throws IOException l'exception d'erreur générée.
+     */
+    public void generateError(Response response) throws IOException {
+        OAuth2AccessTokenJsonExtractor.instance().generateError(response);
+    }
 
-  private static class InstanceHolder {
+    private DeviceAuthorization createDeviceAuthorization(String rawResponse) throws IOException {
 
-    private static final DeviceAuthorizationJsonExtractor INSTANCE =
-        new DeviceAuthorizationJsonExtractor();
-  }
+        final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
+
+        final DeviceAuthorization deviceAuthorization =
+                new DeviceAuthorization(
+                        extractRequiredParameter(response, "device_code", rawResponse).asText(),
+                        extractRequiredParameter(response, "user_code", rawResponse).asText(),
+                        extractRequiredParameter(response, getVerificationUriParamName(), rawResponse).asText(),
+                        extractRequiredParameter(response, "expires_in", rawResponse).asInt());
+
+        final JsonNode intervalSeconds = response.get("interval");
+        if (intervalSeconds != null && !intervalSeconds.isNull()) {
+            deviceAuthorization.setIntervalSeconds(intervalSeconds.asInt(5));
+        }
+
+        final JsonNode verificationUriComplete = response.get("verification_uri_complete");
+        if (verificationUriComplete != null && !verificationUriComplete.isNull()) {
+            deviceAuthorization.setVerificationUriComplete(verificationUriComplete.asText());
+        }
+
+        return deviceAuthorization;
+    }
+
+    protected String getVerificationUriParamName() {
+        return "verification_uri";
+    }
+
+    private static class InstanceHolder {
+
+        private static final DeviceAuthorizationJsonExtractor INSTANCE =
+                new DeviceAuthorizationJsonExtractor();
+    }
 }

@@ -23,72 +23,73 @@
  */
 package com.github.scribejava.core.utils;
 
+import com.github.scribejava.core.exceptions.OAuthProtocolException;
+import com.github.scribejava.core.exceptions.OAuthRateLimitException;
+import com.github.scribejava.core.model.OAuthResponseException;
+import com.github.scribejava.core.model.Response;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.github.scribejava.core.exceptions.OAuthProtocolException;
-import com.github.scribejava.core.exceptions.OAuthRateLimitException;
-import com.github.scribejava.core.model.OAuthResponseException;
-import com.github.scribejava.core.model.Response;
-import java.io.IOException;
-import org.junit.jupiter.api.Test;
-
 public class CoreUtilitiesRobustnessTest {
 
-  @Test
-  public void shouldTestPreconditions() {
-    // checkNotNull
-    assertThatThrownBy(() -> Preconditions.checkNotNull(null, "custom error"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("custom error");
+    @Test
+    public void shouldTestPreconditions() {
+        // checkNotNull
+        assertThatThrownBy(() -> Preconditions.checkNotNull(null, "custom error"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("custom error");
 
-    Preconditions.checkNotNull(new Object(), "ok");
+        Preconditions.checkNotNull(new Object(), "ok");
 
-    // checkEmptyString
-    assertThatThrownBy(() -> Preconditions.checkEmptyString(null, null))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("Received an invalid parameter");
+        // checkEmptyString
+        assertThatThrownBy(() -> Preconditions.checkEmptyString(null, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Received an invalid parameter");
 
-    assertThatThrownBy(() -> Preconditions.checkEmptyString("", "empty"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("empty");
+        assertThatThrownBy(() -> Preconditions.checkEmptyString("", "empty"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("empty");
 
-    assertThatThrownBy(() -> Preconditions.checkEmptyString("   ", "whitespace"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("whitespace");
+        assertThatThrownBy(() -> Preconditions.checkEmptyString("   ", "whitespace"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("whitespace");
 
-    Preconditions.checkEmptyString("valid", "ok");
-  }
+        Preconditions.checkEmptyString("valid", "ok");
+    }
 
-  @Test
-  public void shouldTestHasTextUtility() {
-    assertThat(Preconditions.hasText(null)).isFalse();
-    assertThat(Preconditions.hasText("")).isFalse();
-    assertThat(Preconditions.hasText("  \n  ")).isFalse();
-    assertThat(Preconditions.hasText(" a ")).isTrue();
-  }
+    @Test
+    public void shouldTestHasTextUtility() {
+        assertThat(Preconditions.hasText(null)).isFalse();
+        assertThat(Preconditions.hasText("")).isFalse();
+        assertThat(Preconditions.hasText("  \n  ")).isFalse();
+        assertThat(Preconditions.hasText(" a ")).isTrue();
+    }
 
-  @Test
-  public void shouldTestExceptionHierarchy() throws IOException {
-    final Response mockRateLimitResponse = mock(Response.class);
-    when(mockRateLimitResponse.getCode()).thenReturn(429);
-    when(mockRateLimitResponse.getBody()).thenReturn("slow down");
+    @Test
+    public void shouldTestExceptionHierarchy() throws IOException {
+        final Response mockRateLimitResponse = mock(Response.class);
+        when(mockRateLimitResponse.getCode()).thenReturn(429);
+        when(mockRateLimitResponse.getBody()).thenReturn("slow down");
 
-    final OAuthRateLimitException rateLimit = new OAuthRateLimitException(mockRateLimitResponse);
-    assertThat(rateLimit.getMessage()).contains("Rate limit exceeded").contains("slow down");
+        final OAuthRateLimitException rateLimit = new OAuthRateLimitException(mockRateLimitResponse);
+        assertThat(rateLimit.getMessage()).contains("Rate limit exceeded").contains("slow down");
 
-    final Response mockResponse = mock(Response.class);
-    when(mockResponse.getBody()).thenReturn("error body");
+        final Response mockResponse = mock(Response.class);
+        when(mockResponse.getBody()).thenReturn("error body");
 
-    final OAuthResponseException responseEx = new OAuthResponseException(mockResponse);
-    assertThat(responseEx.getResponse()).isEqualTo(mockResponse);
-    assertThat(responseEx.getMessage()).isEqualTo("error body");
+        final OAuthResponseException responseEx = new OAuthResponseException(mockResponse);
+        assertThat(responseEx.getResponse()).isEqualTo(mockResponse);
+        assertThat(responseEx.getMessage()).isEqualTo("error body");
 
-    final OAuthProtocolException protocol =
-        new OAuthProtocolException("Malformed protocol", new RuntimeException("cause"));
-    assertThat(protocol.getMessage()).isEqualTo("Malformed protocol");
-    assertThat(protocol.getCause()).isInstanceOf(RuntimeException.class);
-  }
+        final OAuthProtocolException protocol =
+                new OAuthProtocolException("Malformed protocol", new RuntimeException("cause"));
+        assertThat(protocol.getMessage()).isEqualTo("Malformed protocol");
+        assertThat(protocol.getCause()).isInstanceOf(RuntimeException.class);
+    }
 }

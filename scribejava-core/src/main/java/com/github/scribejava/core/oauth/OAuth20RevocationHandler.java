@@ -28,6 +28,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.revoke.TokenTypeHint;
+
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -52,9 +53,12 @@ public class OAuth20RevocationHandler {
      * @return request
      */
     public OAuthRequest createRevokeTokenRequest(String tokenToRevoke, TokenTypeHint tokenTypeHint) {
-        final OAuthRequest request = new OAuthRequest(Verb.POST, service.getApi().getRevokeTokenEndpoint());
-        service.getApi().getClientAuthentication().addClientAuthentication(request, service.getApiKey(),
-                service.getApiSecret());
+        final OAuthRequest request =
+                new OAuthRequest(Verb.POST, service.getApi().getRevokeTokenEndpoint());
+        service
+                .getApi()
+                .getClientAuthentication()
+                .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
         request.addParameter("token", tokenToRevoke);
         if (tokenTypeHint != null) {
             request.addParameter("token_type_hint", tokenTypeHint.getValue());
@@ -65,9 +69,9 @@ public class OAuth20RevocationHandler {
     /**
      * @param tokenToRevoke tokenToRevoke
      * @param tokenTypeHint tokenTypeHint
-     * @throws IOException IOException
+     * @throws IOException          IOException
      * @throws InterruptedException InterruptedException
-     * @throws ExecutionException ExecutionException
+     * @throws ExecutionException   ExecutionException
      */
     public void revokeToken(String tokenToRevoke, TokenTypeHint tokenTypeHint)
             throws IOException, InterruptedException, ExecutionException {
@@ -79,12 +83,16 @@ public class OAuth20RevocationHandler {
      * @param tokenTypeHint tokenTypeHint
      * @return CompletableFuture
      */
-    public CompletableFuture<Void> revokeTokenAsync(String tokenToRevoke, TokenTypeHint tokenTypeHint) {
+    public CompletableFuture<Void> revokeTokenAsync(
+            String tokenToRevoke, TokenTypeHint tokenTypeHint) {
         final OAuthRequest request = createRevokeTokenRequest(tokenToRevoke, tokenTypeHint);
-        return service.execute(request, null, response -> {
-            checkForError(response);
-            return null;
-        });
+        return service.execute(
+                request,
+                null,
+                response -> {
+                    checkForError(response);
+                    return null;
+                });
     }
 
     /**

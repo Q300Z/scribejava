@@ -24,54 +24,61 @@
 package com.github.scribejava.oauth1.model;
 
 import com.github.scribejava.core.model.Token;
+
 import java.util.Objects;
 
-/** Classe abstraite pour les jetons OAuth 1.0a. */
+/**
+ * Classe abstraite pour les jetons OAuth 1.0a.
+ */
 public abstract class OAuth1Token extends Token {
 
-  private final String token;
-  private final String tokenSecret;
+    private final String token;
+    private final String tokenSecret;
 
-  /**
-   * Constructeur.
-   *
-   * @param token La valeur du jeton.
-   * @param tokenSecret Le secret du jeton.
-   * @param rawResponse La réponse brute du serveur.
-   */
-  public OAuth1Token(String token, String tokenSecret, String rawResponse) {
-    super(rawResponse);
-    this.token = token;
-    this.tokenSecret = tokenSecret;
-  }
-
-  /** @return La valeur du jeton. */
-  public String getToken() {
-    return token;
-  }
-
-  /** @return Le secret du jeton. */
-  public String getTokenSecret() {
-    return tokenSecret;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash = 29 * hash + Objects.hashCode(token);
-    hash = 29 * hash + Objects.hashCode(tokenSecret);
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+    /**
+     * Constructeur.
+     *
+     * @param token       La valeur du jeton.
+     * @param tokenSecret Le secret du jeton.
+     * @param rawResponse La réponse brute du serveur.
+     */
+    public OAuth1Token(String token, String tokenSecret, String rawResponse) {
+        super(rawResponse);
+        this.token = token;
+        this.tokenSecret = tokenSecret;
     }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
+
+    /**
+     * @return La valeur du jeton.
+     */
+    public String getToken() {
+        return token;
     }
-    final OAuth1Token other = (OAuth1Token) obj;
-    return Objects.equals(token, other.token) && Objects.equals(tokenSecret, other.tokenSecret);
-  }
+
+    /**
+     * @return Le secret du jeton.
+     */
+    public String getTokenSecret() {
+        return tokenSecret;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(token);
+        hash = 29 * hash + Objects.hashCode(tokenSecret);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final OAuth1Token other = (OAuth1Token) obj;
+        return Objects.equals(token, other.token) && Objects.equals(tokenSecret, other.tokenSecret);
+    }
 }

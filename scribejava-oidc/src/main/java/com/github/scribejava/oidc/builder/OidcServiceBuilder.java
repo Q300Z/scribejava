@@ -27,6 +27,7 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.oidc.jar.JarAuthorizationRequestConverter;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
+
 import java.util.function.Supplier;
 
 /**
@@ -38,52 +39,53 @@ import java.util.function.Supplier;
  */
 public class OidcServiceBuilder extends ServiceBuilder {
 
-  /**
-   * Constructeur.
-   *
-   * @param apiKey La clé API du client (Client ID).
-   */
-  public OidcServiceBuilder(String apiKey) {
-    super(apiKey);
-  }
+    /**
+     * Constructeur.
+     *
+     * @param apiKey La clé API du client (Client ID).
+     */
+    public OidcServiceBuilder(String apiKey) {
+        super(apiKey);
+    }
 
-  /**
-   * Active les requêtes d'autorisation sécurisées par JWT (JAR) - RFC 9101.
-   *
-   * @param audience L'audience de l'objet de requête (généralement l'URL de l'émetteur du
-   *     fournisseur).
-   * @param signingKey La clé privée du client (JWK) utilisée pour signer la requête.
-   * @param jwsAlgorithm L'algorithme de signature (ex: RS256).
-   * @return L'instance actuelle du builder.
-   * @see <a href="https://tools.ietf.org/html/rfc9101">RFC 9101</a>
-   */
-  public OidcServiceBuilder jwtSecuredAuthorizationRequest(
-      String audience, JWK signingKey, JWSAlgorithm jwsAlgorithm) {
-    // We use the apiKey (clientId) as the issuer of the Request Object
-    this.authorizationRequestConverter(
-        new JarAuthorizationRequestConverter(this.getApiKey(), audience, signingKey, jwsAlgorithm));
-    return this;
-  }
+    /**
+     * Active les requêtes d'autorisation sécurisées par JWT (JAR) - RFC 9101.
+     *
+     * @param audience     L'audience de l'objet de requête (généralement l'URL de l'émetteur du
+     *                     fournisseur).
+     * @param signingKey   La clé privée du client (JWK) utilisée pour signer la requête.
+     * @param jwsAlgorithm L'algorithme de signature (ex: RS256).
+     * @return L'instance actuelle du builder.
+     * @see <a href="https://tools.ietf.org/html/rfc9101">RFC 9101</a>
+     */
+    public OidcServiceBuilder jwtSecuredAuthorizationRequest(
+            String audience, JWK signingKey, JWSAlgorithm jwsAlgorithm) {
+        // We use the apiKey (clientId) as the issuer of the Request Object
+        this.authorizationRequestConverter(
+                new JarAuthorizationRequestConverter(this.getApiKey(), audience, signingKey, jwsAlgorithm));
+        return this;
+    }
 
-  /**
-   * Active les requêtes d'autorisation sécurisées par JWT (JAR) avec support du renouvellement des
-   * clés (Key Rollover).
-   *
-   * @param audience L'audience de l'objet de requête.
-   * @param signingKeySupplier Un fournisseur retournant la clé privée actuelle du client (JWK).
-   * @param jwsAlgorithm L'algorithme de signature.
-   * @return L'instance actuelle du builder.
-   */
-  public OidcServiceBuilder jwtSecuredAuthorizationRequest(
-      String audience, Supplier<JWK> signingKeySupplier, JWSAlgorithm jwsAlgorithm) {
-    this.authorizationRequestConverter(
-        new JarAuthorizationRequestConverter(
-            this.getApiKey(), audience, signingKeySupplier, jwsAlgorithm));
-    return this;
-  }
+    /**
+     * Active les requêtes d'autorisation sécurisées par JWT (JAR) avec support du renouvellement des
+     * clés (Key Rollover).
+     *
+     * @param audience           L'audience de l'objet de requête.
+     * @param signingKeySupplier Un fournisseur retournant la clé privée actuelle du client (JWK).
+     * @param jwsAlgorithm       L'algorithme de signature.
+     * @return L'instance actuelle du builder.
+     */
+    public OidcServiceBuilder jwtSecuredAuthorizationRequest(
+            String audience, Supplier<JWK> signingKeySupplier, JWSAlgorithm jwsAlgorithm) {
+        this.authorizationRequestConverter(
+                new JarAuthorizationRequestConverter(
+                        this.getApiKey(), audience, signingKeySupplier, jwsAlgorithm));
+        return this;
+    }
 
-  @Override
-  public com.github.scribejava.core.oauth.AuthorizationRequestConverter getAuthorizationRequestConverter() {
-    return super.getAuthorizationRequestConverter();
-  }
+    @Override
+    public com.github.scribejava.core.oauth.AuthorizationRequestConverter
+    getAuthorizationRequestConverter() {
+        return super.getAuthorizationRequestConverter();
+    }
 }

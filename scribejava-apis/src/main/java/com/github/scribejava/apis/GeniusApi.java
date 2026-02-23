@@ -25,33 +25,38 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
-/** API OAuth 2.0 pour Genius. */
+/**
+ * API OAuth 2.0 pour Genius.
+ */
 public class GeniusApi extends DefaultApi20 {
 
-  /** Constructeur protégé. */
-  protected GeniusApi() {}
+    /**
+     * Constructeur protégé.
+     */
+    protected GeniusApi() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API Genius.
-   *
-   * @return L'instance de {@link GeniusApi}.
-   */
-  public static GeniusApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API Genius.
+     *
+     * @return L'instance de {@link GeniusApi}.
+     */
+    public static GeniusApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://api.genius.com/oauth/token";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://api.genius.com/oauth/token";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return "https://api.genius.com/oauth/authorize";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return "https://api.genius.com/oauth/authorize";
+    }
 
-  private static class InstanceHolder {
+    private static class InstanceHolder {
 
-    private static final GeniusApi INSTANCE = new GeniusApi();
-  }
+        private static final GeniusApi INSTANCE = new GeniusApi();
+    }
 }

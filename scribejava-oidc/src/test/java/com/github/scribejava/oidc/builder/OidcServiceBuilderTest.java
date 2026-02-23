@@ -23,17 +23,20 @@
  */
 package com.github.scribejava.oidc.builder;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.scribejava.oidc.jar.JarAuthorizationRequestConverter;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-/** Tests pour {@link OidcServiceBuilder}. */
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Tests pour {@link OidcServiceBuilder}.
+ */
 public class OidcServiceBuilderTest {
 
     /**
@@ -46,7 +49,8 @@ public class OidcServiceBuilderTest {
 
         builder.jwtSecuredAuthorizationRequest("https://idp.com", rsaJWK, JWSAlgorithm.RS256);
 
-        final JarAuthorizationRequestConverter converter = (JarAuthorizationRequestConverter) builder.getAuthorizationRequestConverter();
+        final JarAuthorizationRequestConverter converter =
+                (JarAuthorizationRequestConverter) builder.getAuthorizationRequestConverter();
         assertThat(converter).isNotNull();
 
         final Map<String, String> params = new HashMap<>();
@@ -68,6 +72,7 @@ public class OidcServiceBuilderTest {
 
         builder.jwtSecuredAuthorizationRequest("https://idp.com", () -> rsaJWK, JWSAlgorithm.RS256);
 
-        assertThat(builder.getAuthorizationRequestConverter()).isInstanceOf(JarAuthorizationRequestConverter.class);
+        assertThat(builder.getAuthorizationRequestConverter())
+                .isInstanceOf(JarAuthorizationRequestConverter.class);
     }
 }

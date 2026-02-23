@@ -32,53 +32,55 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
  */
 public class HiOrgServerApi20 extends DefaultApi20 {
 
-  private final String version;
+    private final String version;
 
-  /** Constructeur utilisant la version par défaut ("v1"). */
-  protected HiOrgServerApi20() {
-    this("v1");
-  }
+    /**
+     * Constructeur utilisant la version par défaut ("v1").
+     */
+    protected HiOrgServerApi20() {
+        this("v1");
+    }
 
-  /**
-   * Constructeur pour une version spécifique.
-   *
-   * @param version La version de l'API.
-   */
-  protected HiOrgServerApi20(String version) {
-    this.version = version;
-  }
+    /**
+     * Constructeur pour une version spécifique.
+     *
+     * @param version La version de l'API.
+     */
+    protected HiOrgServerApi20(String version) {
+        this.version = version;
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API HiOrg-Server.
-   *
-   * @return L'instance de {@link HiOrgServerApi20}.
-   */
-  public static HiOrgServerApi20 instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API HiOrg-Server.
+     *
+     * @return L'instance de {@link HiOrgServerApi20}.
+     */
+    public static HiOrgServerApi20 instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  /**
-   * Crée une instance avec une version personnalisée.
-   *
-   * @param version La version de l'API.
-   * @return Une nouvelle instance de {@link HiOrgServerApi20}.
-   */
-  public static HiOrgServerApi20 customVersion(String version) {
-    return new HiOrgServerApi20(version);
-  }
+    /**
+     * Crée une instance avec une version personnalisée.
+     *
+     * @param version La version de l'API.
+     * @return Une nouvelle instance de {@link HiOrgServerApi20}.
+     */
+    public static HiOrgServerApi20 customVersion(String version) {
+        return new HiOrgServerApi20(version);
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://www.hiorg-server.de/api/oauth2/" + version + "/token.php";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://www.hiorg-server.de/api/oauth2/" + version + "/token.php";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return "https://www.hiorg-server.de/api/oauth2/" + version + "/authorize.php";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return "https://www.hiorg-server.de/api/oauth2/" + version + "/authorize.php";
+    }
 
-  private static class InstanceHolder {
+    private static class InstanceHolder {
 
-    private static final HiOrgServerApi20 INSTANCE = new HiOrgServerApi20();
-  }
+        private static final HiOrgServerApi20 INSTANCE = new HiOrgServerApi20();
+    }
 }

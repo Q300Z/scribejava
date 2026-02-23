@@ -23,11 +23,13 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
 
-/** Tests pour {@link OidcSessionHelper}. */
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * Tests pour {@link OidcSessionHelper}.
+ */
 public class OidcSessionHelperTest {
 
     /**
@@ -35,8 +37,9 @@ public class OidcSessionHelperTest {
      */
     @Test
     public void shouldGenerateSessionManagementHtml() {
-        final String html = OidcSessionHelper.getSessionManagementIframeHtml(
-                "https://idp.com/check-session", "client-123", "session-state-abc");
+        final String html =
+                OidcSessionHelper.getSessionManagementIframeHtml(
+                        "https://idp.com/check-session", "client-123", "session-state-abc");
 
         assertTrue(html.contains("https://idp.com/check-session"));
         assertTrue(html.contains("client-123"));
@@ -49,10 +52,13 @@ public class OidcSessionHelperTest {
      */
     @Test
     public void shouldGenerateFrontChannelLogoutHtml() {
-        final String html = OidcSessionHelper.getFrontChannelLogoutIframeHtml(
-                "https://client.com/logout", "https://idp.com", "sid-123");
+        final String html =
+                OidcSessionHelper.getFrontChannelLogoutIframeHtml(
+                        "https://client.com/logout", "https://idp.com", "sid-123");
 
-        assertTrue(html.contains("<iframe src=\"https://client.com/logout?iss=https%3A%2F%2Fidp.com&sid=sid-123\""));
+        assertTrue(
+                html.contains(
+                        "<iframe src=\"https://client.com/logout?iss=https%3A%2F%2Fidp.com&sid=sid-123\""));
         assertTrue(html.contains("style=\"display:none\""));
     }
 
@@ -61,8 +67,8 @@ public class OidcSessionHelperTest {
      */
     @Test
     public void shouldGenerateFrontChannelLogoutHtmlWithoutParams() {
-        final String html = OidcSessionHelper.getFrontChannelLogoutIframeHtml(
-                "https://client.com/logout", null, null);
+        final String html =
+                OidcSessionHelper.getFrontChannelLogoutIframeHtml("https://client.com/logout", null, null);
 
         assertTrue(html.contains("<iframe src=\"https://client.com/logout\""));
     }
@@ -72,8 +78,9 @@ public class OidcSessionHelperTest {
      */
     @Test
     public void shouldGenerateFrontChannelLogoutHtmlWithExistingParams() {
-        final String html = OidcSessionHelper.getFrontChannelLogoutIframeHtml(
-                "https://client.com/logout?foo=bar", "https://idp.com", "sid-123");
+        final String html =
+                OidcSessionHelper.getFrontChannelLogoutIframeHtml(
+                        "https://client.com/logout?foo=bar", "https://idp.com", "sid-123");
 
         assertTrue(html.contains("logout?foo=bar&iss=https%3A%2F%2Fidp.com&sid=sid-123"));
     }

@@ -25,38 +25,41 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/** API OAuth 1.0a pour TrelloApi. */
+/**
+ * API OAuth 1.0a pour TrelloApi.
+ */
 public class TrelloApi extends DefaultApi10a {
 
-  private static final String AUTHORIZE_URL = "https://trello.com/1/OAuthAuthorizeToken";
+    private static final String AUTHORIZE_URL = "https://trello.com/1/OAuthAuthorizeToken";
 
-  protected TrelloApi() {}
+    protected TrelloApi() {
+    }
 
-  /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link TrelloApi}.
-   */
-  public static TrelloApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique de l'API.
+     *
+     * @return L'instance {@link TrelloApi}.
+     */
+    public static TrelloApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://trello.com/1/OAuthGetAccessToken";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://trello.com/1/OAuthGetAccessToken";
+    }
 
-  @Override
-  public String getRequestTokenEndpoint() {
-    return "https://trello.com/1/OAuthGetRequestToken";
-  }
+    @Override
+    public String getRequestTokenEndpoint() {
+        return "https://trello.com/1/OAuthGetRequestToken";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return AUTHORIZE_URL;
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return AUTHORIZE_URL;
+    }
 
-  private static class InstanceHolder {
-    private static final TrelloApi INSTANCE = new TrelloApi();
-  }
+    private static class InstanceHolder {
+        private static final TrelloApi INSTANCE = new TrelloApi();
+    }
 }

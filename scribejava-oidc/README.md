@@ -6,10 +6,11 @@ Ce module fournit une implémentation complète et sécurisée du protocole Open
 
 ## 🌟 Fonctionnalités Clés
 
-*   **Auto-découverte (Discovery)** : Récupération dynamique des endpoints via `/.well-known/openid-configuration`.
-*   **Validation d'ID Token** : Vérification rigoureuse de la signature (RS256, etc.), de l'émetteur (`iss`), de l'audience (`aud`) et de l'expiration (`exp`).
-*   **Gestion des JWKS** : Support de la rotation des clés publiques du fournisseur.
-*   **UserInfo** : Récupération et parsing des claims utilisateur (email, profile, etc.).
+* **Auto-découverte (Discovery)** : Récupération dynamique des endpoints via `/.well-known/openid-configuration`.
+* **Validation d'ID Token** : Vérification rigoureuse de la signature (RS256, etc.), de l'émetteur (`iss`), de
+  l'audience (`aud`) et de l'expiration (`exp`).
+* **Gestion des JWKS** : Support de la rotation des clés publiques du fournisseur.
+* **UserInfo** : Récupération et parsing des claims utilisateur (email, profile, etc.).
 
 ---
 
@@ -43,15 +44,18 @@ System.out.println("Utilisateur authentifié : " + idToken.getSubject());
 ```
 
 ## 🛡️ Sécurité & OIDC
+
 L'utilisation d'OpenID Connect nécessite souvent une sécurité renforcée :
-*   Consultez le guide **[Sécurité Avancée (DPoP/PAR)](../ADVANCED_SECURITY.md)** pour protéger vos jetons OIDC.
-*   Utilisez systématiquement le **PKCE** pour prévenir l'injection de code.
+
+* Consultez le guide **[Sécurité Avancée (DPoP/PAR)](../ADVANCED_SECURITY.md)** pour protéger vos jetons OIDC.
+* Utilisez systématiquement le **PKCE** pour prévenir l'injection de code.
 
 ---
 
 ## 🚀 Utilisation Avancée
 
 ### Validation manuelle d'un ID Token
+
 ```java
 IdTokenValidator validator = new IdTokenValidator(expectedIssuer, clientId);
 IdToken idToken = IdToken.parse(rawIdToken);
@@ -59,6 +63,7 @@ validator.validate(idToken);
 ```
 
 ### Gestion des Claims (UserInfo)
+
 ```java
 OAuthRequest request = new OAuthRequest(Verb.GET, service.getMetadata().getUserinfoEndpoint());
 service.signRequest(token, request);

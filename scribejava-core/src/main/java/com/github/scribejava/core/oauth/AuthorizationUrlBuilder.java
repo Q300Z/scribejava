@@ -29,6 +29,7 @@ import com.github.scribejava.core.model.ParameterList;
 import com.github.scribejava.core.model.PushedAuthorizationResponse;
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCEService;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -116,7 +117,8 @@ public class AuthorizationUrlBuilder {
      * @return url
      */
     public String build() {
-        final Map<String, String> params = additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
+        final Map<String, String> params =
+                additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
 
         oauth20Service.getAuthorizationRequestInterceptors().forEach(i -> i.intercept(params));
 
@@ -126,9 +128,16 @@ public class AuthorizationUrlBuilder {
 
         if (usePushedAuthorizationRequests) {
             try {
-                final PushedAuthorizationResponse parResponse = oauth20Service.pushAuthorizationRequestAsync(
-                        oauth20Service.getResponseType(), oauth20Service.getApiKey(), oauth20Service.getCallback(),
-                        scope == null ? oauth20Service.getDefaultScope() : scope, state, params).get();
+                final PushedAuthorizationResponse parResponse =
+                        oauth20Service
+                                .pushAuthorizationRequestAsync(
+                                        oauth20Service.getResponseType(),
+                                        oauth20Service.getApiKey(),
+                                        oauth20Service.getCallback(),
+                                        scope == null ? oauth20Service.getDefaultScope() : scope,
+                                        state,
+                                        params)
+                                .get();
 
                 final ParameterList parameters = new ParameterList();
                 parameters.add("request_uri", parResponse.getRequestUri());
@@ -159,9 +168,10 @@ public class AuthorizationUrlBuilder {
                 parameters.add(OAuthConstants.STATE, state);
             }
 
-            final Map<String, String> convertedParams = oauth20Service.getAuthorizationRequestConverter()
-                    .convert(parameters.asMap());
-            return new ParameterList(convertedParams).appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
+            final Map<String, String> convertedParams =
+                    oauth20Service.getAuthorizationRequestConverter().convert(parameters.asMap());
+            return new ParameterList(convertedParams)
+                    .appendTo(oauth20Service.getApi().getAuthorizationBaseUrl());
         }
     }
 }

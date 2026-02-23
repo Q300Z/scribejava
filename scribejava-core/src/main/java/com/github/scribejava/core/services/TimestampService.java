@@ -30,17 +30,17 @@ package com.github.scribejava.core.services;
  */
 public interface TimestampService {
 
-  /**
-   * Returns the unix epoch timestamp in seconds
-   *
-   * @return timestamp
-   */
-  String getTimestampInSeconds();
+    /**
+     * Returns the unix epoch timestamp in seconds
+     *
+     * @return timestamp
+     */
+    String getTimestampInSeconds();
 
-  /**
-   * Returns a nonce (unique value for each request)
-   *
-   * @return nonce
-   */
-  String getNonce();
+    /**
+     * Returns a nonce (unique value for each request)
+     *
+     * @return nonce
+     */
+    String getNonce();
 }

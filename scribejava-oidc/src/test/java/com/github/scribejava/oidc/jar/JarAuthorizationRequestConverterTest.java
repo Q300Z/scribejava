@@ -23,16 +23,19 @@
  */
 package com.github.scribejava.oidc.jar;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-/** Tests pour {@link JarAuthorizationRequestConverter}. */
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Tests pour {@link JarAuthorizationRequestConverter}.
+ */
 public class JarAuthorizationRequestConverterTest {
 
     /**
@@ -41,8 +44,9 @@ public class JarAuthorizationRequestConverterTest {
     @Test
     public void shouldConvertParamsToJwt() throws Exception {
         final RSAKey rsaJWK = new RSAKeyGenerator(2048).generate();
-        final JarAuthorizationRequestConverter converter = new JarAuthorizationRequestConverter(
-                "client-id", "https://idp.com", rsaJWK, JWSAlgorithm.RS256);
+        final JarAuthorizationRequestConverter converter =
+                new JarAuthorizationRequestConverter(
+                        "client-id", "https://idp.com", rsaJWK, JWSAlgorithm.RS256);
 
         final Map<String, String> params = new HashMap<>();
         params.put("scope", "openid profile");
@@ -61,10 +65,15 @@ public class JarAuthorizationRequestConverterTest {
         final RSAKey signingKey = new RSAKeyGenerator(2048).keyID("sig").generate();
         final RSAKey encryptionKey = new RSAKeyGenerator(2048).keyID("enc").generate().toPublicJWK();
 
-        final JarAuthorizationRequestConverter converter = new JarAuthorizationRequestConverter(
-                "client-id", "https://idp.com", signingKey, JWSAlgorithm.RS256,
-                encryptionKey, com.nimbusds.jose.JWEAlgorithm.RSA_OAEP_256,
-                com.nimbusds.jose.EncryptionMethod.A128GCM);
+        final JarAuthorizationRequestConverter converter =
+                new JarAuthorizationRequestConverter(
+                        "client-id",
+                        "https://idp.com",
+                        signingKey,
+                        JWSAlgorithm.RS256,
+                        encryptionKey,
+                        com.nimbusds.jose.JWEAlgorithm.RSA_OAEP_256,
+                        com.nimbusds.jose.EncryptionMethod.A128GCM);
 
         assertThat(converter).isNotNull();
     }

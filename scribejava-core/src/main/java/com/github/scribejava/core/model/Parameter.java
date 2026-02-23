@@ -25,67 +25,73 @@ package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.utils.OAuthEncoder;
 
-/** Représente un paramètre de requête HTTP (clé/valeur). */
+/**
+ * Représente un paramètre de requête HTTP (clé/valeur).
+ */
 public class Parameter implements Comparable<Parameter> {
 
-  private final String key;
-  private final String value;
+    private final String key;
+    private final String value;
 
-  /**
-   * Constructeur.
-   *
-   * @param key La clé du paramètre.
-   * @param value La valeur du paramètre.
-   */
-  public Parameter(String key, String value) {
-    this.key = key;
-    this.value = value;
-  }
-
-  /**
-   * Retourne le paramètre sous forme de paire encodée pour URL.
-   *
-   * @return La chaîne {@code cle=valeur} encodée.
-   */
-  public String asUrlEncodedPair() {
-    return OAuthEncoder.encode(key).concat("=").concat(OAuthEncoder.encode(value));
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null) {
-      return false;
-    }
-    if (other == this) {
-      return true;
-    }
-    if (!(other instanceof Parameter)) {
-      return false;
+    /**
+     * Constructeur.
+     *
+     * @param key   La clé du paramètre.
+     * @param value La valeur du paramètre.
+     */
+    public Parameter(String key, String value) {
+        this.key = key;
+        this.value = value;
     }
 
-    final Parameter otherParam = (Parameter) other;
-    return otherParam.getKey().equals(key) && otherParam.getValue().equals(value);
-  }
+    /**
+     * Retourne le paramètre sous forme de paire encodée pour URL.
+     *
+     * @return La chaîne {@code cle=valeur} encodée.
+     */
+    public String asUrlEncodedPair() {
+        return OAuthEncoder.encode(key).concat("=").concat(OAuthEncoder.encode(value));
+    }
 
-  /** @return La clé du paramètre. */
-  public String getKey() {
-    return key;
-  }
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (other == this) {
+            return true;
+        }
+        if (!(other instanceof Parameter)) {
+            return false;
+        }
 
-  /** @return La valeur du paramètre. */
-  public String getValue() {
-    return value;
-  }
+        final Parameter otherParam = (Parameter) other;
+        return otherParam.getKey().equals(key) && otherParam.getValue().equals(value);
+    }
 
-  @Override
-  public int hashCode() {
-    return key.hashCode() + value.hashCode();
-  }
+    /**
+     * @return La clé du paramètre.
+     */
+    public String getKey() {
+        return key;
+    }
 
-  @Override
-  public int compareTo(Parameter parameter) {
-    final int keyDiff = key.compareTo(parameter.getKey());
+    /**
+     * @return La valeur du paramètre.
+     */
+    public String getValue() {
+        return value;
+    }
 
-    return keyDiff == 0 ? value.compareTo(parameter.getValue()) : keyDiff;
-  }
+    @Override
+    public int hashCode() {
+        return key.hashCode() + value.hashCode();
+    }
+
+    @Override
+    public int compareTo(Parameter parameter) {
+        final int keyDiff = key.compareTo(parameter.getKey());
+
+        return keyDiff == 0 ? value.compareTo(parameter.getValue()) : keyDiff;
+    }
 }

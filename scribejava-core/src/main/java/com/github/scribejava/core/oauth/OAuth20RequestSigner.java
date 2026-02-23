@@ -39,40 +39,40 @@ import com.github.scribejava.core.model.OAuthRequest;
  */
 public class OAuth20RequestSigner {
 
-  private final DefaultApi20 api;
-  private final DPoPProofCreator dpopProofCreator;
+    private final DefaultApi20 api;
+    private final DPoPProofCreator dpopProofCreator;
 
-  /**
-   * Constructeur.
-   *
-   * @param api L'implémentation de l'API.
-   * @param dpopProofCreator Le créateur de preuves DPoP (optionnel).
-   */
-  public OAuth20RequestSigner(DefaultApi20 api, DPoPProofCreator dpopProofCreator) {
-    this.api = api;
-    this.dpopProofCreator = dpopProofCreator;
-  }
-
-  /**
-   * Signe une requête avec un jeton d'accès brut.
-   *
-   * @param accessToken Le jeton d'accès.
-   * @param request La requête à signer.
-   */
-  public void signRequest(String accessToken, OAuthRequest request) {
-    if (dpopProofCreator != null) {
-      request.setDPoPProof(dpopProofCreator.createDPoPProof(request, accessToken));
+    /**
+     * Constructeur.
+     *
+     * @param api              L'implémentation de l'API.
+     * @param dpopProofCreator Le créateur de preuves DPoP (optionnel).
+     */
+    public OAuth20RequestSigner(DefaultApi20 api, DPoPProofCreator dpopProofCreator) {
+        this.api = api;
+        this.dpopProofCreator = dpopProofCreator;
     }
-    api.getBearerSignature().signRequest(accessToken, request);
-  }
 
-  /**
-   * Signe une requête avec un objet jeton d'accès.
-   *
-   * @param accessToken L'objet {@link OAuth2AccessToken}.
-   * @param request La requête à signer.
-   */
-  public void signRequest(OAuth2AccessToken accessToken, OAuthRequest request) {
-    signRequest(accessToken == null ? null : accessToken.getAccessToken(), request);
-  }
+    /**
+     * Signe une requête avec un jeton d'accès brut.
+     *
+     * @param accessToken Le jeton d'accès.
+     * @param request     La requête à signer.
+     */
+    public void signRequest(String accessToken, OAuthRequest request) {
+        if (dpopProofCreator != null) {
+            request.setDPoPProof(dpopProofCreator.createDPoPProof(request, accessToken));
+        }
+        api.getBearerSignature().signRequest(accessToken, request);
+    }
+
+    /**
+     * Signe une requête avec un objet jeton d'accès.
+     *
+     * @param accessToken L'objet {@link OAuth2AccessToken}.
+     * @param request     La requête à signer.
+     */
+    public void signRequest(OAuth2AccessToken accessToken, OAuthRequest request) {
+        signRequest(accessToken == null ? null : accessToken.getAccessToken(), request);
+    }
 }

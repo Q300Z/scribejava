@@ -24,80 +24,85 @@
 package com.github.scribejava.apis.openid;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
+
 import java.util.Objects;
 
-/** Jeton d'accès OAuth 2.0 incluant un ID Token OpenID Connect. */
+/**
+ * Jeton d'accès OAuth 2.0 incluant un ID Token OpenID Connect.
+ */
 public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
 
-  private static final long serialVersionUID = -4534058186528117610L;
+    private static final long serialVersionUID = -4534058186528117610L;
 
-  /**
-   * Le jeton d'identité (ID Token) fait partie de la spécification OpenID Connect. Il peut contenir
-   * des informations utilisateur que vous pouvez extraire directement.
-   */
-  private final String openIdToken;
+    /**
+     * Le jeton d'identité (ID Token) fait partie de la spécification OpenID Connect. Il peut contenir
+     * des informations utilisateur que vous pouvez extraire directement.
+     */
+    private final String openIdToken;
 
-  /**
-   * Constructeur simple.
-   *
-   * @param accessToken Le jeton d'accès.
-   * @param openIdToken Le jeton d'identité (ID Token).
-   * @param rawResponse La réponse brute.
-   */
-  public OpenIdOAuth2AccessToken(String accessToken, String openIdToken, String rawResponse) {
-    this(accessToken, null, null, null, null, openIdToken, rawResponse);
-  }
-
-  /**
-   * Constructeur complet.
-   *
-   * @param accessToken Le jeton d'accès.
-   * @param tokenType Le type de jeton.
-   * @param expiresIn Durée de validité.
-   * @param refreshToken Jeton de renouvellement.
-   * @param scope Portée.
-   * @param openIdToken Le jeton d'identité.
-   * @param rawResponse La réponse brute.
-   */
-  public OpenIdOAuth2AccessToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      String openIdToken,
-      String rawResponse) {
-    super(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
-    this.openIdToken = openIdToken;
-  }
-
-  /** @return Le jeton d'identité (ID Token). */
-  public String getOpenIdToken() {
-    return openIdToken;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = super.hashCode();
-    hash = 37 * hash + Objects.hashCode(openIdToken);
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    if (!super.equals(obj)) {
-      return false;
+    /**
+     * Constructeur simple.
+     *
+     * @param accessToken Le jeton d'accès.
+     * @param openIdToken Le jeton d'identité (ID Token).
+     * @param rawResponse La réponse brute.
+     */
+    public OpenIdOAuth2AccessToken(String accessToken, String openIdToken, String rawResponse) {
+        this(accessToken, null, null, null, null, openIdToken, rawResponse);
     }
 
-    return Objects.equals(openIdToken, ((OpenIdOAuth2AccessToken) obj).getOpenIdToken());
-  }
+    /**
+     * Constructeur complet.
+     *
+     * @param accessToken  Le jeton d'accès.
+     * @param tokenType    Le type de jeton.
+     * @param expiresIn    Durée de validité.
+     * @param refreshToken Jeton de renouvellement.
+     * @param scope        Portée.
+     * @param openIdToken  Le jeton d'identité.
+     * @param rawResponse  La réponse brute.
+     */
+    public OpenIdOAuth2AccessToken(
+            String accessToken,
+            String tokenType,
+            Integer expiresIn,
+            String refreshToken,
+            String scope,
+            String openIdToken,
+            String rawResponse) {
+        super(accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
+        this.openIdToken = openIdToken;
+    }
+
+    /**
+     * @return Le jeton d'identité (ID Token).
+     */
+    public String getOpenIdToken() {
+        return openIdToken;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 37 * hash + Objects.hashCode(openIdToken);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+
+        return Objects.equals(openIdToken, ((OpenIdOAuth2AccessToken) obj).getOpenIdToken());
+    }
 }

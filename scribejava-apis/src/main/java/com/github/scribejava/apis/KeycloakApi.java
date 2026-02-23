@@ -27,77 +27,80 @@ import com.github.scribejava.apis.openid.OpenIdJsonTokenExtractor;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/** API OAuth 2.0 pour Keycloak. */
+/**
+ * API OAuth 2.0 pour Keycloak.
+ */
 public class KeycloakApi extends DefaultApi20 {
 
-  private static final ConcurrentMap<String, KeycloakApi> INSTANCES = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, KeycloakApi> INSTANCES = new ConcurrentHashMap<>();
 
-  private final String baseUrlWithRealm;
+    private final String baseUrlWithRealm;
 
-  /**
-   * Constructeur protégé.
-   *
-   * @param baseUrlWithRealm L'URL de base incluant le chemin du royaume.
-   */
-  protected KeycloakApi(String baseUrlWithRealm) {
-    this.baseUrlWithRealm = baseUrlWithRealm;
-  }
-
-  /**
-   * Retourne l'instance par défaut (localhost:8080, realm master).
-   *
-   * @return L'instance de {@link KeycloakApi}.
-   */
-  public static KeycloakApi instance() {
-    return instance("http://localhost:8080/", "master");
-  }
-
-  /**
-   * Retourne une instance pour un serveur et un royaume spécifiques.
-   *
-   * @param baseUrl L'URL de base du serveur Keycloak.
-   * @param realm Le nom du royaume (realm).
-   * @return L'instance de {@link KeycloakApi}.
-   */
-  public static KeycloakApi instance(String baseUrl, String realm) {
-    final String defaultBaseUrlWithRealm = composeBaseUrlWithRealm(baseUrl, realm);
-
-    // java8: switch to ConcurrentMap::computeIfAbsent
-    KeycloakApi api = INSTANCES.get(defaultBaseUrlWithRealm);
-    if (api == null) {
-      api = new KeycloakApi(defaultBaseUrlWithRealm);
-      final KeycloakApi alreadyCreatedApi = INSTANCES.putIfAbsent(defaultBaseUrlWithRealm, api);
-      if (alreadyCreatedApi != null) {
-        return alreadyCreatedApi;
-      }
+    /**
+     * Constructeur protégé.
+     *
+     * @param baseUrlWithRealm L'URL de base incluant le chemin du royaume.
+     */
+    protected KeycloakApi(String baseUrlWithRealm) {
+        this.baseUrlWithRealm = baseUrlWithRealm;
     }
-    return api;
-  }
 
-  protected static String composeBaseUrlWithRealm(String baseUrl, String realm) {
-    return baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "auth/realms/" + realm;
-  }
+    /**
+     * Retourne l'instance par défaut (localhost:8080, realm master).
+     *
+     * @return L'instance de {@link KeycloakApi}.
+     */
+    public static KeycloakApi instance() {
+        return instance("http://localhost:8080/", "master");
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return baseUrlWithRealm + "/protocol/openid-connect/token";
-  }
+    /**
+     * Retourne une instance pour un serveur et un royaume spécifiques.
+     *
+     * @param baseUrl L'URL de base du serveur Keycloak.
+     * @param realm   Le nom du royaume (realm).
+     * @return L'instance de {@link KeycloakApi}.
+     */
+    public static KeycloakApi instance(String baseUrl, String realm) {
+        final String defaultBaseUrlWithRealm = composeBaseUrlWithRealm(baseUrl, realm);
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return baseUrlWithRealm + "/protocol/openid-connect/auth";
-  }
+        // java8: switch to ConcurrentMap::computeIfAbsent
+        KeycloakApi api = INSTANCES.get(defaultBaseUrlWithRealm);
+        if (api == null) {
+            api = new KeycloakApi(defaultBaseUrlWithRealm);
+            final KeycloakApi alreadyCreatedApi = INSTANCES.putIfAbsent(defaultBaseUrlWithRealm, api);
+            if (alreadyCreatedApi != null) {
+                return alreadyCreatedApi;
+            }
+        }
+        return api;
+    }
 
-  @Override
-  public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
-    return OpenIdJsonTokenExtractor.instance();
-  }
+    protected static String composeBaseUrlWithRealm(String baseUrl, String realm) {
+        return baseUrl + (baseUrl.endsWith("/") ? "" : "/") + "auth/realms/" + realm;
+    }
 
-  @Override
-  public String getRevokeTokenEndpoint() {
-    throw new RuntimeException("Not implemented yet");
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return baseUrlWithRealm + "/protocol/openid-connect/token";
+    }
+
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return baseUrlWithRealm + "/protocol/openid-connect/auth";
+    }
+
+    @Override
+    public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
+        return OpenIdJsonTokenExtractor.instance();
+    }
+
+    @Override
+    public String getRevokeTokenEndpoint() {
+        throw new RuntimeException("Not implemented yet");
+    }
 }

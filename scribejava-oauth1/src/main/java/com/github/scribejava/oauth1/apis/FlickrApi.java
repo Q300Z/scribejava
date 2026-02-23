@@ -32,69 +32,80 @@ import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
  */
 public class FlickrApi extends DefaultApi10a {
 
-  private static final String AUTHORIZE_URL = "https://www.flickr.com/services/oauth/authorize";
-  /** Lecture, écriture ou suppression. */
-  private final String permString;
+    private static final String AUTHORIZE_URL = "https://www.flickr.com/services/oauth/authorize";
 
-  /** Constructeur par défaut. */
-  protected FlickrApi() {
-    permString = null;
-  }
+    /**
+     * Lecture, écriture ou suppression.
+     */
+    private final String permString;
 
-  /**
-   * Constructeur avec permissions spécifiques.
-   *
-   * @param perm Le niveau de permission souhaité.
-   */
-  protected FlickrApi(FlickrPerm perm) {
-    permString = perm.name().toLowerCase();
-  }
+    /**
+     * Constructeur par défaut.
+     */
+    protected FlickrApi() {
+        permString = null;
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API Flickr.
-   *
-   * @return L'instance de {@link FlickrApi}.
-   */
-  public static FlickrApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Constructeur avec permissions spécifiques.
+     *
+     * @param perm Le niveau de permission souhaité.
+     */
+    protected FlickrApi(FlickrPerm perm) {
+        permString = perm.name().toLowerCase();
+    }
 
-  /**
-   * Retourne une instance de l'API Flickr avec des permissions spécifiques.
-   *
-   * @param perm Le niveau de permission.
-   * @return L'instance de {@link FlickrApi}.
-   */
-  public static FlickrApi instance(FlickrPerm perm) {
-    return perm == null ? instance() : new FlickrApi(perm);
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API Flickr.
+     *
+     * @return L'instance de {@link FlickrApi}.
+     */
+    public static FlickrApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://www.flickr.com/services/oauth/access_token";
-  }
+    /**
+     * Retourne une instance de l'API Flickr avec des permissions spécifiques.
+     *
+     * @param perm Le niveau de permission.
+     * @return L'instance de {@link FlickrApi}.
+     */
+    public static FlickrApi instance(FlickrPerm perm) {
+        return perm == null ? instance() : new FlickrApi(perm);
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return permString == null ? AUTHORIZE_URL : AUTHORIZE_URL + "?perms=" + permString;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://www.flickr.com/services/oauth/access_token";
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public String getRequestTokenEndpoint() {
-    return "https://www.flickr.com/services/oauth/request_token";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return permString == null ? AUTHORIZE_URL : AUTHORIZE_URL + "?perms=" + permString;
+    }
 
-  /** Niveaux de permission pour l'API Flickr. */
-  public enum FlickrPerm {
-    READ,
-    WRITE,
-    DELETE
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getRequestTokenEndpoint() {
+        return "https://www.flickr.com/services/oauth/request_token";
+    }
 
-  private static class InstanceHolder {
+    /**
+     * Niveaux de permission pour l'API Flickr.
+     */
+    public enum FlickrPerm {
+        READ,
+        WRITE,
+        DELETE
+    }
 
-    private static final FlickrApi INSTANCE = new FlickrApi();
-  }
+    private static class InstanceHolder {
+
+        private static final FlickrApi INSTANCE = new FlickrApi();
+    }
 }

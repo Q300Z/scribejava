@@ -23,57 +23,62 @@
  */
 package com.github.scribejava.oidc.jar;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.crypto.RSADecrypter;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jwt.EncryptedJWT;
+import com.nimbusds.jwt.SignedJWT;
+import org.junit.jupiter.api.Test;
 
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.*;
-import com.nimbusds.jose.jwk.*;
-import com.nimbusds.jose.jwk.gen.*;
-import com.nimbusds.jwt.*;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JarJweEncryptionTest {
 
-  @Test
-  public void shouldProduceNestedJwtWhenEncryptionIsEnabled() throws Exception {
-    // 1. Generate Signing Key (Client Private Key)
-    RSAKey signingKey = new RSAKeyGenerator(2048).keyID("sig-1").generate();
+    @Test
+    public void shouldProduceNestedJwtWhenEncryptionIsEnabled() throws Exception {
+        // 1. Generate Signing Key (Client Private Key)
+        RSAKey signingKey = new RSAKeyGenerator(2048).keyID("sig-1").generate();
 
-    // 2. Generate Encryption Key (Server Public Key)
-    RSAKey encryptionKey = new RSAKeyGenerator(2048).keyID("enc-1").generate();
+        // 2. Generate Encryption Key (Server Public Key)
+        RSAKey encryptionKey = new RSAKeyGenerator(2048).keyID("enc-1").generate();
 
-    // 3. Configure Converter with Encryption
-    // Note: This constructor doesn't exist yet!
-    JarAuthorizationRequestConverter converter =
-        new JarAuthorizationRequestConverter(
-            "client-id",
-            "https://issuer",
-            signingKey,
-            JWSAlgorithm.RS256,
-            encryptionKey.toPublicJWK(), // Encryption Key
-            JWEAlgorithm.RSA_OAEP_256, // Key Algo
-            EncryptionMethod.A128GCM // Content Algo
-            );
+        // 3. Configure Converter with Encryption
+        // Note: This constructor doesn't exist yet!
+        JarAuthorizationRequestConverter converter =
+                new JarAuthorizationRequestConverter(
+                        "client-id",
+                        "https://issuer",
+                        signingKey,
+                        JWSAlgorithm.RS256,
+                        encryptionKey.toPublicJWK(), // Encryption Key
+                        JWEAlgorithm.RSA_OAEP_256, // Key Algo
+                        EncryptionMethod.A128GCM // Content Algo
+                );
 
-    Map<String, String> params = new HashMap<>();
-    params.put("foo", "bar");
+        Map<String, String> params = new HashMap<>();
+        params.put("foo", "bar");
 
-    // 4. Convert
-    Map<String, String> result = converter.convert(params);
-    String requestJwt = result.get("request");
+        // 4. Convert
+        Map<String, String> result = converter.convert(params);
+        String requestJwt = result.get("request");
 
-    // 5. Verify it is a JWE (5 parts)
-    assertThat(requestJwt.split("\\.")).hasSize(5);
+        // 5. Verify it is a JWE (5 parts)
+        assertThat(requestJwt.split("\\.")).hasSize(5);
 
-    // 6. Decrypt and Verify
-    EncryptedJWT jwe = EncryptedJWT.parse(requestJwt);
-    jwe.decrypt(new RSADecrypter(encryptionKey));
+        // 6. Decrypt and Verify
+        EncryptedJWT jwe = EncryptedJWT.parse(requestJwt);
+        jwe.decrypt(new RSADecrypter(encryptionKey));
 
-    SignedJWT jws = jwe.getPayload().toSignedJWT();
-    assertThat(jws).isNotNull();
-    assertThat(jws.verify(new RSASSAVerifier(signingKey.toPublicJWK()))).isTrue();
-    assertThat(jws.getJWTClaimsSet().getStringClaim("foo")).isEqualTo("bar");
-  }
+        SignedJWT jws = jwe.getPayload().toSignedJWT();
+        assertThat(jws).isNotNull();
+        assertThat(jws.verify(new RSASSAVerifier(signingKey.toPublicJWK()))).isTrue();
+        assertThat(jws.getJWTClaimsSet().getStringClaim("foo")).isEqualTo("bar");
+    }
 }

@@ -23,10 +23,6 @@
  */
 package com.github.scribejava.core.oauth2.grant;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
@@ -35,7 +31,13 @@ import com.github.scribejava.core.oauth2.clientauthentication.HttpBasicAuthentic
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Tests unitaires pour {@link PasswordGrant}. */
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * Tests unitaires pour {@link PasswordGrant}.
+ */
 public class PasswordGrantTest {
 
     private OAuth20Service service;
@@ -53,7 +55,9 @@ public class PasswordGrantTest {
         when(api.getClientAuthentication()).thenReturn(HttpBasicAuthenticationScheme.instance());
     }
 
-    /** Test de création de requête. */
+    /**
+     * Test de création de requête.
+     */
     @Test
     public void shouldCreateCorrectRequest() {
         final PasswordGrant grant = new PasswordGrant("user", "pass", "all");
@@ -69,7 +73,9 @@ public class PasswordGrantTest {
         assertThat(body).contains("grant_type=password");
     }
 
-    /** Test du scope par défaut. */
+    /**
+     * Test du scope par défaut.
+     */
     @Test
     public void shouldFallbackToServiceDefaultScope() {
         when(service.getDefaultScope()).thenReturn("default-scope");

@@ -30,43 +30,47 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureURIQueryParameter;
 
-/** Stack Exchange authentication via OAuth 2.0 (stackoverflow.com, askubuntu.com, etc.). */
+/**
+ * Stack Exchange authentication via OAuth 2.0 (stackoverflow.com, askubuntu.com, etc.).
+ */
+
 /** API OAuth 2.0 pour StackExchange. */
 public class StackExchangeApi extends DefaultApi20 {
 
-  /** Constructeur protégé. */
-  protected StackExchangeApi() {}
+    /** Constructeur protégé. */
+    protected StackExchangeApi() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API StackExchange.
-   *
-   * @return L'instance de {@link StackExchangeApi}.
-   */
-  public static StackExchangeApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API StackExchange.
+     *
+     * @return L'instance de {@link StackExchangeApi}.
+     */
+    public static StackExchangeApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://stackexchange.com/oauth/access_token";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://stackexchange.com/oauth/access_token";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return "https://stackexchange.com/oauth";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return "https://stackexchange.com/oauth";
+    }
 
-  @Override
-  public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
-    return OAuth2AccessTokenExtractor.instance();
-  }
+    @Override
+    public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
+        return OAuth2AccessTokenExtractor.instance();
+    }
 
-  @Override
-  public BearerSignature getBearerSignature() {
-    return BearerSignatureURIQueryParameter.instance();
-  }
+    @Override
+    public BearerSignature getBearerSignature() {
+        return BearerSignatureURIQueryParameter.instance();
+    }
 
-  private static class InstanceHolder {
-    private static final StackExchangeApi INSTANCE = new StackExchangeApi();
-  }
+    private static class InstanceHolder {
+        private static final StackExchangeApi INSTANCE = new StackExchangeApi();
+    }
 }
