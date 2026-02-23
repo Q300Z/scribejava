@@ -24,7 +24,6 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.httpclient.multipart.BodyPartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import java.io.File;
 import java.io.IOException;
@@ -168,25 +167,6 @@ public class OAuthRequest {
    */
   public MultipartPayload getMultipartPayload() {
     return multipartPayload;
-  }
-
-  /**
-   * @param multipartPayload La charge utile multipart à définir.
-   */
-  public void setMultipartPayload(MultipartPayload multipartPayload) {
-    this.multipartPayload = multipartPayload;
-  }
-
-  /**
-   * Ajoute une partie à la charge utile multipart.
-   *
-   * @param bodyPartPayload La partie à ajouter.
-   */
-  public void addBodyPartPayloadInMultipartPayload(BodyPartPayload bodyPartPayload) {
-    if (multipartPayload == null) {
-      multipartPayload = new MultipartPayload();
-    }
-    multipartPayload.addBodyPart(bodyPartPayload);
   }
 
   /**

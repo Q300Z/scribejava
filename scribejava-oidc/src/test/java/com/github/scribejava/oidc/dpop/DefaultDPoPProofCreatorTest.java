@@ -77,11 +77,9 @@ public class DefaultDPoPProofCreatorTest {
     assertThat(jwt.getJWTClaimsSet().getClaim("htm")).isEqualTo("GET");
   }
 
-  /**
-   * @throws Exception Exception
-   */
+  /** */
   @Test
-  public void shouldThrowOnUnsupportedJWK() throws Exception {
+  public void shouldThrowOnUnsupportedJWK() {
     final JWK mockJWK = mock(JWK.class);
     when(mockJWK.isPrivate()).thenReturn(true);
     final DefaultDPoPProofCreator creator =

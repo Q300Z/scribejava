@@ -31,8 +31,6 @@ import java.io.IOException;
 public class OAuth1RequestTokenJSONExtractor
     extends AbstractOAuth1JSONTokenExtractor<OAuth1RequestToken> {
 
-  protected OAuth1RequestTokenJSONExtractor() {}
-
   /**
    * Retourne l'instance unique de l'extracteur.
    *

@@ -28,7 +28,9 @@ package com.github.scribejava.core.model;
  *
  * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.2">rfc8628</a>
  */
-public class DeviceAuthorization {
+public class DeviceAuthorization extends Token {
+
+  private static final long serialVersionUID = 1L;
 
   /**
    * device_code
@@ -85,6 +87,7 @@ public class DeviceAuthorization {
    */
   public DeviceAuthorization(
       String deviceCode, String userCode, String verificationUri, int expiresInSeconds) {
+    super(null);
     this.deviceCode = deviceCode;
     this.userCode = userCode;
     this.verificationUri = verificationUri;

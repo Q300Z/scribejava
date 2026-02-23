@@ -33,16 +33,12 @@ import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 public class SkyrockApi extends DefaultApi10a {
 
   private static final String API_ENDPOINT = "https://api.skyrock.com/v2";
-  private static final String REQUEST_TOKEN_RESOURCE = "/oauth/initiate";
   private static final String AUTHORIZE_URL = "/oauth/authorize";
-  private static final String ACCESS_TOKEN_RESOURCE = "/oauth/token";
 
   protected SkyrockApi() {}
 
   /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link SkyrockApi}.
+   * @return Instance unique de l'API Skyrock.
    */
   public static SkyrockApi instance() {
     return InstanceHolder.INSTANCE;
@@ -50,12 +46,12 @@ public class SkyrockApi extends DefaultApi10a {
 
   @Override
   public String getAccessTokenEndpoint() {
-    return API_ENDPOINT + ACCESS_TOKEN_RESOURCE;
+    return API_ENDPOINT + "/oauth/access_token";
   }
 
   @Override
   public String getRequestTokenEndpoint() {
-    return API_ENDPOINT + REQUEST_TOKEN_RESOURCE;
+    return API_ENDPOINT + "/oauth/initiate";
   }
 
   @Override

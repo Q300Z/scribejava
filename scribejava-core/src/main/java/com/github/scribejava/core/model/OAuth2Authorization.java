@@ -24,7 +24,8 @@
 package com.github.scribejava.core.model;
 
 /**
- * represents Authorization Response http://tools.ietf.org/html/rfc6749#section-4.1.2
+ * represents Authorization Response <a
+ * href="http://tools.ietf.org/html/rfc6749#section-4.1.2">...</a>
  *
  * <p>If the resource owner grants the access request, the authorization server issues an
  * authorization code and delivers it to the client by adding the following parameters to the query

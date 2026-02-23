@@ -45,29 +45,11 @@ public class ScopeBuilder {
   public ScopeBuilder() {}
 
   /**
-   * Constructeur avec une portée initiale.
-   *
-   * @param scope La portée initiale.
-   */
-  public ScopeBuilder(String scope) {
-    withScope(scope);
-  }
-
-  /**
    * Constructeur avec plusieurs portées initiales.
    *
    * @param scopes Tableau de portées.
    */
   public ScopeBuilder(String... scopes) {
-    withScopes(scopes);
-  }
-
-  /**
-   * Constructeur avec une collection de portées initiales.
-   *
-   * @param scopes Collection de portées.
-   */
-  public ScopeBuilder(Collection<String> scopes) {
     withScopes(scopes);
   }
 

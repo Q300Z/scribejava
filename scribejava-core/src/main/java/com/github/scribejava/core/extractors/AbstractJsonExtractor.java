@@ -26,17 +26,33 @@ package com.github.scribejava.core.extractors;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.utils.Preconditions;
+import java.io.IOException;
 
 /**
  * Base abstraite pour tous les extracteurs de données au format JSON.
  *
  * <p>Utilise la bibliothèque Jackson pour analyser les réponses HTTP et extraire les informations
  * nécessaires.
+ *
+ * @param <T> Type de jeton extrait par cet extracteur.
  */
-public abstract class AbstractJsonExtractor {
+public abstract class AbstractJsonExtractor<T extends Token> implements TokenExtractor<T> {
 
   /** Instance partagée du mappeur d'objets Jackson. */
   protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  @Override
+  public T extract(Response response) throws IOException {
+    final String body = response.getBody();
+    Preconditions.checkEmptyString(
+        body, "Response body is incorrect. Can't extract a token from an empty string");
+    return createToken(body);
+  }
+
+  protected abstract T createToken(String body) throws IOException;
 
   /**
    * Extrait un paramètre obligatoire d'un nœud JSON.

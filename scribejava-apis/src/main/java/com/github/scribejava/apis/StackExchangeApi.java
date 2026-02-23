@@ -30,8 +30,6 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureURIQueryParameter;
 
-/** Stack Exchange authentication via OAuth 2.0 (stackoverflow.com, askubuntu.com, etc.). */
-
 /** API OAuth 2.0 pour StackExchange. */
 public class StackExchangeApi extends DefaultApi20 {
 

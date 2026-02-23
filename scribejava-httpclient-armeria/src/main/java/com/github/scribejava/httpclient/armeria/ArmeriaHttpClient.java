@@ -55,11 +55,6 @@ public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
   private final Map<String, WebClient> httpClients = new HashMap<>();
   private final ReentrantReadWriteLock httpClientsLock = new ReentrantReadWriteLock();
 
-  /** Constructeur par défaut. */
-  public ArmeriaHttpClient() {
-    this(ArmeriaHttpClientConfig.defaultConfig());
-  }
-
   /**
    * Constructeur avec configuration.
    *
@@ -318,7 +313,7 @@ public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
   private <T> T completeExceptionally(
       final OAuthAsyncRequestCallback<T> callback, final Throwable throwable) {
     if (callback != null) {
-      callback.onThrowable(throwable);
+      callback.onThrowable();
     }
     if (throwable instanceof RuntimeException) {
       throw (RuntimeException) throwable;

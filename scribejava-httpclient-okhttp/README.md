@@ -9,12 +9,14 @@ Pour utiliser OkHttp, passez une instance de `OkHttpHttpClientConfig` au `Servic
 
 ```java
 OkHttpHttpClientConfig config = OkHttpHttpClientConfig.defaultConfig();
-config.setConnectTimeout(5000);
+config.
+
+setConnectTimeout(5000);
 
 OAuth20Service service = new ServiceBuilder(clientId)
-    .apiSecret(secret)
-    .httpClientConfig(config) // Injection de la config OkHttp
-    .build(GitHubApi.instance());
+  .apiSecret(secret)
+  .httpClientConfig(config) // Injection de la config OkHttp
+  .build(GitHubApi.instance());
 ```
 
 ## ⚡ Mode Asynchrone
@@ -23,9 +25,11 @@ OkHttp supporte nativement les appels non-bloquants :
 
 ```java
 CompletableFuture<OAuth2AccessToken> future = service.getAccessTokenAsync(grant);
-future.thenAccept(token -> {
-    // Traitement du jeton
-});
+future.
+
+thenAccept(token ->{
+  // Traitement du jeton
+  });
 ```
 
 ## 📎 Support Multipart
@@ -35,12 +39,20 @@ Le client OkHttp supporte désormais l'envoi de fichiers et de charges utiles co
 
 ```java
 MultipartPayload payload = new MultipartPayload();
-payload.addBodyPart(new ByteArrayBodyPartPayload(fileBytes, "image/jpeg"));
-payload.addBodyPart(new ByteArrayBodyPartPayload("metadata".getBytes(), "application/json"));
+payload.
+
+addBodyPart(new ByteArrayBodyPartPayload(fileBytes, "image/jpeg"));
+  payload.
+
+addBodyPart(new ByteArrayBodyPartPayload("metadata".getBytes(), "application/json"));
 
 OAuthRequest request = new OAuthRequest(Verb.POST, url);
-request.setPayload(payload);
-service.execute(request);
+request.
+
+setPayload(payload);
+service.
+
+execute(request);
 ```
 
 ---

@@ -37,7 +37,7 @@ import java.io.IOException;
  * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628 (OAuth 2.0 Device Authorization
  *     Grant)</a>
  */
-public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
+public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor<DeviceAuthorization> {
 
   protected DeviceAuthorizationJsonExtractor() {}
 
@@ -57,11 +57,12 @@ public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
    * @return Un objet {@link DeviceAuthorization}.
    * @throws IOException si l'extraction échoue ou si le serveur retourne une erreur.
    */
+  @Override
   public DeviceAuthorization extract(Response response) throws IOException {
     if (response.getCode() != 200) {
       generateError(response);
     }
-    return createDeviceAuthorization(response.getBody());
+    return super.extract(response);
   }
 
   /**
@@ -74,7 +75,8 @@ public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
     OAuth2AccessTokenJsonExtractor.instance().generateError(response);
   }
 
-  private DeviceAuthorization createDeviceAuthorization(String rawResponse) throws IOException {
+  @Override
+  protected DeviceAuthorization createToken(String rawResponse) throws IOException {
 
     final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
 

@@ -302,7 +302,7 @@ public abstract class AbstractClientTest {
     }
 
     @Override
-    public void onThrowable(Throwable throwable) {}
+    public void onThrowable() {}
 
     public Response getResponse() {
       return response;

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
@@ -68,7 +68,7 @@ public class OidcRegistrationTest {
         service
             .registerClientAsync(
                 server.url("/register").toString(),
-                Arrays.asList("https://client.example.com/cb"),
+                Collections.singletonList("https://client.example.com/cb"),
                 "My App",
                 "private_key_jwt")
             .get();

@@ -75,7 +75,7 @@ public class OAuth2AccessTokenErrorResponse extends OAuthResponseException {
   }
 
   /**
-   * Retourne l'URI de l'erreur (error_uri).
+   * Retourne l'URI d'aide (error_uri).
    *
    * @return L'URI ou null.
    */

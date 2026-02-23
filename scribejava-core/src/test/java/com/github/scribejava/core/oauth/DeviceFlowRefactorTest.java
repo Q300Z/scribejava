@@ -37,11 +37,10 @@ import org.junit.jupiter.api.Test;
 public class DeviceFlowRefactorTest {
 
   private OAuth20Service service;
-  private DefaultApi20 api;
 
   @BeforeEach
   public void setUp() {
-    api = mock(DefaultApi20.class);
+    DefaultApi20 api = mock(DefaultApi20.class);
     when(api.getDeviceAuthorizationEndpoint()).thenReturn("http://example.com/device");
 
     service = mock(OAuth20Service.class);

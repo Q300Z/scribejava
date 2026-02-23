@@ -23,11 +23,9 @@
  */
 package com.github.scribejava.oauth1.apis;
 
-import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
-import com.github.scribejava.oauth1.builder.api.OAuth1SignatureType;
 
-/** API OAuth 1.0a pour FreelancerApi. */
+/** API OAuth 1.0a pour Freelancer. */
 public class FreelancerApi extends DefaultApi10a {
 
   private static final String AUTHORIZATION_URL =
@@ -36,37 +34,20 @@ public class FreelancerApi extends DefaultApi10a {
   protected FreelancerApi() {}
 
   /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link FreelancerApi}.
+   * @return Instance unique de l'API Freelancer.
    */
   public static FreelancerApi instance() {
     return InstanceHolder.INSTANCE;
   }
 
   @Override
-  public OAuth1SignatureType getSignatureType() {
-    return OAuth1SignatureType.QUERY_STRING;
-  }
-
-  @Override
   public String getAccessTokenEndpoint() {
-    return "http://api.freelancer.com/RequestAccessToken/requestAccessToken.xml?";
+    return "http://api.freelancer.com/RequestAccessToken.php";
   }
 
   @Override
   public String getRequestTokenEndpoint() {
-    return "http://api.freelancer.com/RequestRequestToken/requestRequestToken.xml";
-  }
-
-  @Override
-  public Verb getAccessTokenVerb() {
-    return Verb.GET;
-  }
-
-  @Override
-  public Verb getRequestTokenVerb() {
-    return Verb.GET;
+    return "http://api.freelancer.com/RequestRequestToken.php";
   }
 
   @Override
@@ -87,22 +68,20 @@ public class FreelancerApi extends DefaultApi10a {
     private Sandbox() {}
 
     /**
-     * Retourne l'instance unique de la Sandbox.
-     *
-     * @return L'instance {@link Sandbox}.
+     * @return Instance unique Sandbox.
      */
     public static Sandbox instance() {
       return InstanceHolder.INSTANCE;
     }
 
     @Override
-    public String getRequestTokenEndpoint() {
-      return "http://api.sandbox.freelancer.com/RequestRequestToken/requestRequestToken.xml";
+    public String getAccessTokenEndpoint() {
+      return "http://api.sandbox.freelancer.com/RequestAccessToken.php";
     }
 
     @Override
-    public String getAccessTokenEndpoint() {
-      return "http://api.sandbox.freelancer.com/RequestAccessToken/requestAccessToken.xml?";
+    public String getRequestTokenEndpoint() {
+      return "http://api.sandbox.freelancer.com/RequestRequestToken.php";
     }
 
     @Override

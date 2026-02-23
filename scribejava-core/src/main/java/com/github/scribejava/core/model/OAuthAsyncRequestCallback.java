@@ -40,10 +40,6 @@ public interface OAuthAsyncRequestCallback<T> {
    */
   void onCompleted(T response);
 
-  /**
-   * Appelé lorsqu'une erreur survient lors de l'exécution de la requête.
-   *
-   * @param t L'exception levée.
-   */
-  void onThrowable(Throwable t);
+  /** Appelé lorsqu'une erreur survient lors de l'exécution de la requête. */
+  void onThrowable();
 }

@@ -65,8 +65,7 @@ public class OAuthEncoderTest {
   @Test
   public void shouldNotPercentEncodeReservedCharacters() {
     final String plain = "abcde123456-._~";
-    final String encoded = plain;
-    assertThat(OAuthEncoder.encode(plain)).isEqualTo(encoded);
+    assertThat(OAuthEncoder.encode(plain)).isEqualTo(plain);
   }
 
   /** Vérifie le rejet d'une chaîne nulle à l'encodage. */

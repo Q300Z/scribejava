@@ -22,7 +22,9 @@ String authUrl = service.getAuthorizationUrl(pkce, state);
 OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code, pkce));
 
 // 4. Révocation du Refresh Token (RFC 7009)
-service.revokeToken(token.getRefreshToken(), TokenTypeHint.REFRESH_TOKEN);
+service.
+
+revokeToken(token.getRefreshToken(),TokenTypeHint.REFRESH_TOKEN);
 ```
 
 ---
@@ -51,11 +53,13 @@ Vous pouvez intercepter les comportements du service en fournissant des `Handler
 
 ```java
 OAuth20Service service = new ServiceBuilder(clientId)
-    .apiSecret(secret)
-    .build(GitHubApi.instance());
+  .apiSecret(secret)
+  .build(GitHubApi.instance());
 
 // Utilisation d'un Handler pour la révocation
-service.revokeToken(myToken, TokenTypeHint.ACCESS_TOKEN);
+service.
+
+revokeToken(myToken, TokenTypeHint.ACCESS_TOKEN);
 ```
 
 ---

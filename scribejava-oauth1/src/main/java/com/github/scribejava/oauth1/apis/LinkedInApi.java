@@ -23,32 +23,38 @@
  */
 package com.github.scribejava.oauth1.apis;
 
+import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
+import com.github.scribejava.oauth1.model.OAuth1RequestToken;
+import java.util.Collection;
 
 /** API OAuth 1.0a pour LinkedIn. */
 public class LinkedInApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://api.linkedin.com/uas/oauth/authenticate";
-  private static final String REQUEST_TOKEN_URL = "https://api.linkedin.com/uas/oauth/requestToken";
 
   private final String scopesAsString;
 
   /** Constructeur par défaut. */
   protected LinkedInApi() {
-    scopesAsString = null;
+    this(null);
   }
 
   /**
-   * Constructeur avec portées spécifiques.
+   * Constructeur avec portées.
    *
-   * @param scopes Tableau de portées.
+   * @param scopes Les portées OAuth souhaitées.
    */
-  protected LinkedInApi(String... scopes) {
-    final StringBuilder builder = new StringBuilder();
-    for (String scope : scopes) {
-      builder.append('+').append(scope);
+  protected LinkedInApi(Collection<String> scopes) {
+    if (scopes == null || scopes.isEmpty()) {
+      scopesAsString = null;
+    } else {
+      final StringBuilder builder = new StringBuilder();
+      for (String scope : scopes) {
+        builder.append('+').append(scope);
+      }
+      scopesAsString = builder.substring(1);
     }
-    scopesAsString = "?scope=" + builder.substring(1);
   }
 
   /**
@@ -61,13 +67,13 @@ public class LinkedInApi extends DefaultApi10a {
   }
 
   /**
-   * Crée une instance avec des portées personnalisées.
+   * Retourne une instance de l'API LinkedIn avec des portées spécifiques.
    *
-   * @param scopes Tableau de portées.
-   * @return Une instance de {@link LinkedInApi}.
+   * @param scopes Les portées.
+   * @return L'instance configurée.
    */
-  public static LinkedInApi instance(String... scopes) {
-    return scopes == null || scopes.length == 0 ? instance() : new LinkedInApi(scopes);
+  public static LinkedInApi instance(Collection<String> scopes) {
+    return new LinkedInApi(scopes);
   }
 
   @Override
@@ -77,12 +83,20 @@ public class LinkedInApi extends DefaultApi10a {
 
   @Override
   public String getRequestTokenEndpoint() {
-    return scopesAsString == null ? REQUEST_TOKEN_URL : REQUEST_TOKEN_URL + scopesAsString;
+    return scopesAsString == null
+        ? "https://api.linkedin.com/uas/oauth/requestToken"
+        : "https://api.linkedin.com/uas/oauth/requestToken?scope=" + scopesAsString;
   }
 
   @Override
   public String getAuthorizationBaseUrl() {
     return AUTHORIZE_URL;
+  }
+
+  @Override
+  public String getAuthorizationUrl(OAuth1RequestToken requestToken) {
+    return String.format(
+        AUTHORIZE_URL + "?oauth_token=%s", OAuthEncoder.encode(requestToken.getToken()));
   }
 
   private static class InstanceHolder {

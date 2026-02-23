@@ -30,8 +30,6 @@ import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuthConstants;
-import com.github.scribejava.core.model.ParameterList;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
@@ -39,7 +37,6 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureAuthoriz
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.HttpBasicAuthenticationScheme;
 import java.io.OutputStream;
-import java.util.Map;
 
 /**
  * Implémentation par défaut du protocole OAuth, version 2.0.
@@ -110,43 +107,6 @@ public abstract class DefaultApi20 {
    * @return L'URL d'autorisation.
    */
   public abstract String getAuthorizationBaseUrl();
-
-  /**
-   * Génère l'URL d'autorisation complète.
-   *
-   * @param responseType Le type de réponse.
-   * @param apiKey Le Client ID.
-   * @param callback L'URI de redirection.
-   * @param scope La portée demandée.
-   * @param state L'état opaque.
-   * @param additionalParams Paramètres additionnels.
-   * @return L'URL d'autorisation.
-   */
-  public String getAuthorizationUrl(
-      String responseType,
-      String apiKey,
-      String callback,
-      String scope,
-      String state,
-      Map<String, String> additionalParams) {
-    final ParameterList parameters = new ParameterList(additionalParams);
-    parameters.add(OAuthConstants.RESPONSE_TYPE, responseType);
-    parameters.add(OAuthConstants.CLIENT_ID, apiKey);
-
-    if (callback != null) {
-      parameters.add(OAuthConstants.REDIRECT_URI, callback);
-    }
-
-    if (scope != null) {
-      parameters.add(OAuthConstants.SCOPE, scope);
-    }
-
-    if (state != null) {
-      parameters.add(OAuthConstants.STATE, state);
-    }
-
-    return parameters.appendTo(getAuthorizationBaseUrl());
-  }
 
   /**
    * Crée l'instance de service OAuth 2.0.

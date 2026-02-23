@@ -53,7 +53,6 @@ public class OidcGitHubApi20 extends DefaultOidcApi20 {
    *
    * @return {@code https://token.actions.githubusercontent.com}
    */
-  @Override
   public String getIssuer() {
     return "https://token.actions.githubusercontent.com";
   }

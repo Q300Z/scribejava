@@ -68,35 +68,12 @@ public class ByteArrayBodyPartPayload extends BodyPartPayload {
   }
 
   /**
-   * Constructeur avec décalage, longueur et type de contenu.
-   *
-   * @param payload Les données.
-   * @param off Le décalage.
-   * @param len La longueur.
-   * @param contentType Le type de contenu.
-   */
-  public ByteArrayBodyPartPayload(byte[] payload, int off, int len, String contentType) {
-    this(payload, off, len, convertContentTypeToHeaders(contentType));
-  }
-
-  /**
    * Constructeur simple sans en-tête.
    *
    * @param payload Les données.
    */
   public ByteArrayBodyPartPayload(byte[] payload) {
     this(payload, (Map<String, String>) null);
-  }
-
-  /**
-   * Constructeur simple avec décalage et longueur.
-   *
-   * @param payload Les données.
-   * @param off Le décalage.
-   * @param len La longueur.
-   */
-  public ByteArrayBodyPartPayload(byte[] payload, int off, int len) {
-    this(payload, off, len, (Map<String, String>) null);
   }
 
   /**

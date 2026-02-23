@@ -33,7 +33,6 @@ import com.github.scribejava.core.oauth2.OAuth2Error;
 import java.io.IOException;
 import java.util.Collections;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 /** Tests de l'extracteur JSON des jetons d'accès OAuth 2.0. */
 public class OAuth2AccessTokenJsonExtractorTest {
@@ -42,13 +41,15 @@ public class OAuth2AccessTokenJsonExtractorTest {
       OAuth2AccessTokenJsonExtractor.instance();
 
   private static Response ok(String body) {
-    return new Response(
-        200, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+    return new Response(200, /* message */ null, /* headers */ Collections.emptyMap(), body);
   }
 
-  private static Response error(String body) {
+  private static Response error() {
     return new Response(
-        400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+        400, /* message */
+        null, /* headers */
+        Collections.emptyMap(),
+        "{\"error_description\":\"unknown, invalid, or expired refresh token\",\"error\":\"invalid_grant\"}");
   }
 
   /** Vérifie l'analyse correcte d'une réponse JSON simple. */
@@ -107,51 +108,24 @@ public class OAuth2AccessTokenJsonExtractorTest {
   @Test
   public void shouldThrowExceptionIfForNullParameters() throws IOException {
     try (Response response = ok(null)) {
-      assertThrows(
-          IllegalArgumentException.class,
-          new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-              extractor.extract(response);
-            }
-          });
+      assertThrows(IllegalArgumentException.class, () -> extractor.extract(response));
     }
   }
 
   /** Vérifie que le passage d'une chaîne vide lève une exception. */
   @Test
   public void shouldThrowExceptionIfForEmptyStrings() throws IOException {
-    final String responseBody = "";
-    try (Response response = ok(responseBody)) {
-      assertThrows(
-          IllegalArgumentException.class,
-          new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-              extractor.extract(response);
-            }
-          });
+    try (Response response = ok("")) {
+      assertThrows(IllegalArgumentException.class, () -> extractor.extract(response));
     }
   }
 
   /** Vérifie la gestion d'une réponse d'erreur JSON standard. */
   @Test
   public void shouldThrowExceptionIfResponseIsError() throws IOException {
-    final String responseBody =
-        "{"
-            + "\"error_description\":\"unknown, invalid, or expired refresh token\","
-            + "\"error\":\"invalid_grant\""
-            + "}";
-    try (Response response = error(responseBody)) {
+    try (Response response = error()) {
       final OAuth2AccessTokenErrorResponse oaer =
-          assertThrows(
-              OAuth2AccessTokenErrorResponse.class,
-              new ThrowingRunnable() {
-                @Override
-                public void run() throws Throwable {
-                  extractor.extract(response);
-                }
-              });
+          assertThrows(OAuth2AccessTokenErrorResponse.class, () -> extractor.extract(response));
       assertEquals(OAuth2Error.INVALID_GRANT, oaer.getError());
       assertEquals("unknown, invalid, or expired refresh token", oaer.getErrorDescription());
     }
@@ -160,10 +134,10 @@ public class OAuth2AccessTokenJsonExtractorTest {
   /** Vérifie la gestion des caractères échappés en JSON. */
   @Test
   public void testEscapedJsonInResponse() throws IOException {
-    final String responseBody =
+    final String body =
         "{ \"access_token\":\"I0122HKLEM2\\/MV3ABKFTDT3T5X\"," + "\"token_type\":\"example\"}";
     final OAuth2AccessToken token;
-    try (Response response = ok(responseBody)) {
+    try (Response response = ok(body)) {
       token = extractor.extract(response);
     }
     assertEquals("I0122HKLEM2/MV3ABKFTDT3T5X", token.getAccessToken());

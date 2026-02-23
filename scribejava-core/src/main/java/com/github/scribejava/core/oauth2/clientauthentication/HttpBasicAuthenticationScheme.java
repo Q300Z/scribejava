@@ -31,7 +31,7 @@ import java.util.Base64;
 /**
  * 2.3. Client Authentication<br>
  * 2.3.1. Client Password<br>
- * https://tools.ietf.org/html/rfc6749#section-2.3.1 <br>
+ * <a href="https://tools.ietf.org/html/rfc6749#section-2.3.1">...</a> <br>
  * НTTP Basic authentication scheme
  */
 public class HttpBasicAuthenticationScheme implements ClientAuthentication {

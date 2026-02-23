@@ -30,13 +30,10 @@ public class FoursquareApi extends DefaultApi10a {
 
   private static final String AUTHORIZATION_URL = "http://foursquare.com/oauth/authorize";
 
-  /** Constructeur protégé. */
   protected FoursquareApi() {}
 
   /**
-   * Retourne l'instance unique (singleton) de l'API Foursquare.
-   *
-   * @return L'instance de {@link FoursquareApi}.
+   * @return Instance unique de l'API Foursquare.
    */
   public static FoursquareApi instance() {
     return InstanceHolder.INSTANCE;

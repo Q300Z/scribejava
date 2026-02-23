@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 /**
  * test PKCE according to<br>
  * Appendix B. Example for the S256 code_challenge_method<br>
- * https://tools.ietf.org/html/rfc7636#appendix-B
+ * <a href="https://tools.ietf.org/html/rfc7636#appendix-B">...</a>
  */
 public class PKCECodeChallengeMethodTest {
 

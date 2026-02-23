@@ -30,8 +30,8 @@ import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.utils.Preconditions;
 
 /**
- * Default implementation of {@link BaseStringExtractor}. Conforms to OAuth 1.0a
- * https://tools.ietf.org/html/rfc5849#section-3.4.1.1
+ * Default implementation of {@link BaseStringExtractor}. Conforms to OAuth 1.0a <a
+ * href="https://tools.ietf.org/html/rfc5849#section-3.4.1.1">...</a>
  */
 public class BaseStringExtractorImpl implements BaseStringExtractor {
 

@@ -200,7 +200,7 @@ public class OidcSecurityDeepDiveTest {
    */
   @Test
   public void shouldRejectTokenIfKeyTypeMismatch() throws Exception {
-    final SignedJWT signedJWT = createSignedJWTWithRsa(rsaKey, JWSAlgorithm.RS256);
+    final SignedJWT signedJWT = createSignedJWTWithRsa(rsaKey);
     // We configure the validator with ONLY an EC Key but we send an RSA signed JWT
     final com.nimbusds.jose.jwk.ECKey ecKey =
         new com.nimbusds.jose.jwk.gen.ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256)
@@ -214,11 +214,11 @@ public class OidcSecurityDeepDiveTest {
         () -> validator.validate(signedJWT.serialize(), new Nonce("nonce123"), 0));
   }
 
-  private SignedJWT createSignedJWTWithRsa(final RSAKey key, final JWSAlgorithm alg)
-      throws Exception {
+  private SignedJWT createSignedJWTWithRsa(final RSAKey key) throws Exception {
     final SignedJWT signedJWT =
         new SignedJWT(
-            new JWSHeader.Builder(alg).keyID(key.getKeyID()).build(), createBaseClaims().build());
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(key.getKeyID()).build(),
+            createBaseClaims().build());
     signedJWT.sign(new RSASSASigner(key));
     return signedJWT;
   }

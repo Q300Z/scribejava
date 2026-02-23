@@ -23,29 +23,10 @@
  */
 package com.github.scribejava.core.revoke;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.Response;
-import java.io.IOException;
-
 /**
  * Convertisseur pour la réponse de révocation de jeton OAuth 2.0.
  *
  * @see <a href="https://tools.ietf.org/html/rfc7009#section-2.2">RFC 7009, Section 2.2 (Revocation
  *     Response)</a>
  */
-public class OAuth2RevokeTokenResponseConverter {
-
-  /**
-   * Vérifie la réponse de révocation.
-   *
-   * @param response La réponse HTTP.
-   * @return null si succès.
-   * @throws IOException si le serveur retourne une erreur.
-   */
-  public Void convert(Response response) throws IOException {
-    if (response.getCode() != 200) {
-      OAuth2AccessTokenJsonExtractor.instance().generateError(response);
-    }
-    return null;
-  }
-}
+public class OAuth2RevokeTokenResponseConverter {}

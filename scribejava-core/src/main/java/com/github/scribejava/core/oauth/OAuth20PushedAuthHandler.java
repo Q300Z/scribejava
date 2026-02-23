@@ -30,8 +30,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Handles OAuth 2.0 Pushed Authorization Requests (PAR). */
-
 /**
  * Gère les requêtes d'autorisation poussées (PAR - Pushed Authorization Requests).
  *
@@ -174,8 +172,7 @@ public class OAuth20PushedAuthHandler {
     CachedResponse(PushedAuthorizationResponse response) {
       this.response = response;
       // Expire en secondes. Conversion en millis. Marge de sécurité : 5 secondes.
-      this.expirationTime =
-          System.currentTimeMillis() + (long) (response.getExpiresIn() - 5) * 1000;
+      this.expirationTime = System.currentTimeMillis() + (response.getExpiresIn() - 5) * 1000;
     }
 
     boolean isValid() {

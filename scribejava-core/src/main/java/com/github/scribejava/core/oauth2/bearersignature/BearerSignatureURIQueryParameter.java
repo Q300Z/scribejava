@@ -28,7 +28,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 
 /**
  * 2.3. URI Query Parameter<br>
- * https://tools.ietf.org/html/rfc6750#section-2.3
+ * <a href="https://tools.ietf.org/html/rfc6750#section-2.3">...</a>
  */
 public class BearerSignatureURIQueryParameter implements BearerSignature {
   protected BearerSignatureURIQueryParameter() {}

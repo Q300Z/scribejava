@@ -414,7 +414,7 @@
     <armeria.version>1.26.4</armeria.version>
     <junit.version>5.9.3</junit.version>
     <mockito.version>4.11.0</mockito.version>
-    <assertj.version>3.24.2</assertj.version>
+    <assertj.version>3.27.7</assertj.version>
     <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
   </properties>
 

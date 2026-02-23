@@ -96,14 +96,6 @@ public class AuthorizationUrlBuilder {
   }
 
   /**
-   * @return builder
-   */
-  public AuthorizationUrlBuilder usePushedAuthorizationRequests() {
-    this.usePushedAuthorizationRequests = true;
-    return this;
-  }
-
-  /**
    * @return pkce
    */
   public PKCE getPkce() {

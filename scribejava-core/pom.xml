@@ -10,7 +10,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>com.github.scribejava</groupId>
   <artifactId>scribejava-core</artifactId>
   <name>ScribeJava Core</name>
   <packaging>jar</packaging>

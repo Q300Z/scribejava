@@ -98,15 +98,6 @@ public class Response implements Closeable {
   }
 
   /**
-   * Indique si la requête a réussi (code entre 200 et 399).
-   *
-   * @return true si le code de statut est un succès.
-   */
-  public boolean isSuccessful() {
-    return code >= 200 && code < 400;
-  }
-
-  /**
    * Retourne le corps de la réponse sous forme de chaîne de caractères.
    *
    * <p>Cette méthode ferme automatiquement le flux de données sous-jacent.
@@ -134,24 +125,6 @@ public class Response implements Closeable {
    */
   public int getCode() {
     return code;
-  }
-
-  /**
-   * Retourne le message de statut HTTP.
-   *
-   * @return Le message textuel (ex: "OK", "Not Found").
-   */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * Retourne l'ensemble des en-têtes de la réponse.
-   *
-   * @return Un dictionnaire des en-têtes HTTP.
-   */
-  public Map<String, String> getHeaders() {
-    return headers;
   }
 
   /**
@@ -190,7 +163,6 @@ public class Response implements Closeable {
     if (closed) {
       return;
     }
-    IOException ioException = null;
     if (closeables != null) {
       for (Closeable closeable : closeables) {
         if (closeable == null) {
@@ -199,14 +171,8 @@ public class Response implements Closeable {
         try {
           closeable.close();
         } catch (IOException ioE) {
-          if (ioException != null) {
-            ioException = ioE;
-          }
         }
       }
-    }
-    if (ioException != null) {
-      throw ioException;
     }
     closed = true;
   }

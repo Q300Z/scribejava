@@ -133,7 +133,7 @@ public class AsyncErrorHandlingTest {
 
   /** Vérifie la gestion d'une erreur d'extraction lors d'un appel asynchrone. */
   @Test
-  public void shouldHandleExtractorErrorAsync() throws IOException {
+  public void shouldHandleExtractorErrorAsync() {
     final IOException extractorError = new IOException("Invalid Token");
 
     final CompletableFuture<OAuth2AccessToken> failedFuture = new CompletableFuture<>();

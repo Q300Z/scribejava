@@ -42,15 +42,6 @@ public abstract class BodyPartPayload {
   }
 
   /**
-   * Constructeur avec un type de contenu (Content-Type).
-   *
-   * @param contentType Le type de contenu de cette partie.
-   */
-  public BodyPartPayload(String contentType) {
-    this(convertContentTypeToHeaders(contentType));
-  }
-
-  /**
    * Constructeur avec une map d'en-têtes.
    *
    * @param headers Les en-têtes de cette partie.

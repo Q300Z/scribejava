@@ -23,15 +23,13 @@
  */
 package com.github.scribejava.core.extractors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.github.scribejava.core.ObjectMother;
-import com.github.scribejava.core.exceptions.OAuthParametersMissingException;
 import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Verb;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 public class HeaderExtractorTest {
 
@@ -67,28 +65,5 @@ public class HeaderExtractorTest {
             .replaceFirst(signature, "")
             .replaceFirst(key, "")
             .replaceFirst(timestamp, ""));
-  }
-
-  public void shouldExceptionIfRequestIsNull() {
-    assertThrows(
-        IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            extractor.extract(null);
-          }
-        });
-  }
-
-  public void shouldExceptionIfRequestHasNoOAuthParams() {
-    final OAuthRequest emptyRequest = new OAuthRequest(Verb.GET, "http://example.com");
-    assertThrows(
-        OAuthParametersMissingException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            extractor.extract(emptyRequest);
-          }
-        });
   }
 }

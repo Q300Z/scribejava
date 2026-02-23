@@ -10,7 +10,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>com.github.scribejava</groupId>
   <artifactId>scribejava-oidc</artifactId>
   <name>ScribeJava OpenID Connect</name>
   <packaging>jar</packaging>

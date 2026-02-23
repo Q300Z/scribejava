@@ -28,7 +28,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 /**
  * Represents<br>
  * 2. Authenticated Requests<br>
- * https://tools.ietf.org/html/rfc6750#section-2
+ * <a href="https://tools.ietf.org/html/rfc6750#section-2">...</a>
  */
 public interface BearerSignature {
 

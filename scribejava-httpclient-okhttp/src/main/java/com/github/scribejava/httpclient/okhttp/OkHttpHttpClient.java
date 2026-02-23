@@ -34,10 +34,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
+import org.jetbrains.annotations.NotNull;
 
 /** Implémentation du client HTTP utilisant la bibliothèque OkHttp. */
 public class OkHttpHttpClient implements HttpClient {
@@ -60,15 +61,6 @@ public class OkHttpHttpClient implements HttpClient {
   public OkHttpHttpClient(final OkHttpHttpClientConfig config) {
     final OkHttpClient.Builder clientBuilder = config.getClientBuilder();
     client = clientBuilder == null ? new OkHttpClient() : clientBuilder.build();
-  }
-
-  /**
-   * Constructeur avec une instance OkHttpClient préexistante.
-   *
-   * @param client L'instance OkHttp.
-   */
-  public OkHttpHttpClient(final OkHttpClient client) {
-    this.client = client;
   }
 
   static Response convertResponse(final okhttp3.Response okHttpResponse) {
@@ -200,16 +192,16 @@ public class OkHttpHttpClient implements HttpClient {
     call.enqueue(
         new Callback() {
           @Override
-          public void onFailure(final Call call, final IOException e) {
+          public void onFailure(@NotNull final Call call, @NotNull final IOException e) {
             if (callback != null) {
-              callback.onThrowable(e);
+              callback.onThrowable();
             }
             future.completeExceptionally(e);
           }
 
           @Override
-          public void onResponse(final Call call, final okhttp3.Response response)
-              throws IOException {
+          public void onResponse(
+              @NotNull final Call call, @NotNull final okhttp3.Response response) {
             try {
               final Response resp = convertResponse(response);
               @SuppressWarnings("unchecked")
@@ -220,7 +212,7 @@ public class OkHttpHttpClient implements HttpClient {
               future.complete(t);
             } catch (final IOException | RuntimeException e) {
               if (callback != null) {
-                callback.onThrowable(e);
+                callback.onThrowable();
               }
               future.completeExceptionally(e);
             }
@@ -236,7 +228,7 @@ public class OkHttpHttpClient implements HttpClient {
       final Verb httpVerb,
       final String completeUrl,
       final byte[] bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws IOException {
 
     return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.BYTE_ARRAY, bodyContents);
   }
@@ -248,7 +240,7 @@ public class OkHttpHttpClient implements HttpClient {
       final Verb httpVerb,
       final String completeUrl,
       final MultipartPayload bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws IOException {
 
     return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.MULTIPART, bodyContents);
   }
@@ -260,7 +252,7 @@ public class OkHttpHttpClient implements HttpClient {
       final Verb httpVerb,
       final String completeUrl,
       final String bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws IOException {
 
     return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.STRING, bodyContents);
   }
@@ -272,7 +264,7 @@ public class OkHttpHttpClient implements HttpClient {
       final Verb httpVerb,
       final String completeUrl,
       final File bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws IOException {
 
     return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.FILE, bodyContents);
   }
@@ -354,7 +346,7 @@ public class OkHttpHttpClient implements HttpClient {
 
         final String contentType = multipartPayload.getHeaders().get(CONTENT_TYPE);
         if (contentType != null) {
-          builder.setType(MediaType.parse(contentType));
+          builder.setType(Objects.requireNonNull(MediaType.parse(contentType)));
         }
 
         for (final BodyPartPayload part : multipartPayload.getBodyParts()) {

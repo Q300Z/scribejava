@@ -66,16 +66,6 @@ public class AuthorizationCodeGrant implements OAuth20Grant {
     this.pkceCodeVerifier = pkceCodeVerifier;
   }
 
-  /**
-   * Ajoute un paramètre supplémentaire à la requête d'échange de jeton.
-   *
-   * @param name Le nom du paramètre.
-   * @param value La valeur du paramètre.
-   */
-  public void addExtraParameter(String name, String value) {
-    extraParameters.put(name, value);
-  }
-
   @Override
   public OAuthRequest createRequest(OAuth20Service service) {
     final OAuthRequest request =

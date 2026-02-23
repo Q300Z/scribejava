@@ -31,6 +31,7 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.Timeout;
+import org.jetbrains.annotations.NotNull;
 
 public class MockCall implements Call {
 
@@ -38,7 +39,7 @@ public class MockCall implements Call {
   private boolean canceled;
 
   @Override
-  public void enqueue(Callback responseCallback) {
+  public void enqueue(@NotNull Callback responseCallback) {
     callbacks.add(responseCallback);
   }
 
@@ -55,13 +56,15 @@ public class MockCall implements Call {
     return canceled;
   }
 
+  @NotNull
   @Override
   public Request request() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @NotNull
   @Override
-  public Response execute() throws IOException {
+  public Response execute() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
@@ -70,11 +73,13 @@ public class MockCall implements Call {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @NotNull
   @Override
   public MockCall clone() {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @NotNull
   @Override
   public Timeout timeout() {
     throw new UnsupportedOperationException("Not supported yet.");

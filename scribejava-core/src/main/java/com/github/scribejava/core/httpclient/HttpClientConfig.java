@@ -29,12 +29,4 @@ package com.github.scribejava.core.httpclient;
  * <p>Permet de centraliser les réglages réseau comme les délais d'attente (timeouts) ou les
  * procurations (proxies).
  */
-public interface HttpClientConfig {
-
-  /**
-   * Crée une instance avec les valeurs de configuration par défaut.
-   *
-   * @return Une instance de {@link HttpClientConfig} préconfigurée.
-   */
-  HttpClientConfig createDefaultConfig();
-}
+public interface HttpClientConfig {}

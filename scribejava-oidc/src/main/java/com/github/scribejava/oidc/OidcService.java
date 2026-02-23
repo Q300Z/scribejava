@@ -35,8 +35,6 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -169,58 +167,6 @@ public class OidcService extends OAuth20Service {
       parameters.add(OAuthConstants.STATE, state);
     }
     return parameters.appendTo(endSessionEndpoint);
-  }
-
-  /**
-   * Révoque un jeton (Access ou Refresh) de manière asynchrone.
-   *
-   * @param revocationEndpoint L'URL du point de terminaison de révocation.
-   * @param token Le jeton à révoquer.
-   * @return Un futur complété à la fin de l'opération.
-   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (OAuth 2.0 Token Revocation)</a>
-   */
-  public CompletableFuture<Void> revokeTokenAsync(
-      final String revocationEndpoint, final String token) {
-    final com.github.scribejava.core.model.OAuthRequest request =
-        new com.github.scribejava.core.model.OAuthRequest(
-            com.github.scribejava.core.model.Verb.POST, revocationEndpoint);
-    request.addBodyParameter("token", token);
-    getApi()
-        .getClientAuthentication()
-        .addClientAuthentication(request, getApiKey(), getApiSecret());
-
-    return execute(
-        request,
-        null,
-        response -> {
-          try (com.github.scribejava.core.model.Response resp = response) {
-            if (resp.getCode() != 200) {
-              throw new com.github.scribejava.core.exceptions.OAuthException(
-                  "Token revocation failed. Status: "
-                      + resp.getCode()
-                      + ", Body: "
-                      + resp.getBody());
-            }
-            return null;
-          }
-        });
-  }
-
-  /**
-   * Retourne l'URL d'autorisation utilisant le mode de réponse "form_post".
-   *
-   * @param state La valeur d'état opaque.
-   * @param additionalParams Paramètres additionnels.
-   * @return L'URL d'autorisation.
-   * @see <a href="https://openid.net/specs/oauth-v2-form-post-response-mode-1_0.html">OIDC Form
-   *     Post Response Mode 1.0</a>
-   */
-  public String getAuthorizationUrlFormPost(
-      final String state, final Map<String, String> additionalParams) {
-    final Map<String, String> params =
-        additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
-    params.put("response_mode", "form_post");
-    return createAuthorizationUrlBuilder().state(state).additionalParams(params).build();
   }
 
   /**

@@ -25,7 +25,6 @@ package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 /** Décorateur transformant un service asynchrone en service synchrone (Decorator Pattern). */
@@ -42,15 +41,8 @@ public class OAuth20SyncService implements OAuth20Operations {
     this.asyncService = asyncService;
   }
 
-  @Override
   public OAuth2AccessToken getAccessToken(OAuth20Grant grant)
-      throws IOException, InterruptedException, ExecutionException {
+      throws InterruptedException, ExecutionException {
     return asyncService.getAccessTokenAsync(grant).get();
-  }
-
-  @Override
-  public OAuth2AccessToken refreshAccessToken(String refreshToken)
-      throws IOException, InterruptedException, ExecutionException {
-    return asyncService.refreshAccessTokenAsync(refreshToken).get();
   }
 }

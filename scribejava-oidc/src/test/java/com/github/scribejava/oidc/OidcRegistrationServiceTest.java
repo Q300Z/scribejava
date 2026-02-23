@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import okhttp3.mockwebserver.MockResponse;
@@ -64,7 +63,7 @@ public class OidcRegistrationServiceTest {
         registrationService
             .registerClientAsync(
                 server.url("/register").toString(),
-                Arrays.asList("http://callback.com"),
+                Collections.singletonList("http://callback.com"),
                 "My App",
                 "client_secret_post")
             .get();

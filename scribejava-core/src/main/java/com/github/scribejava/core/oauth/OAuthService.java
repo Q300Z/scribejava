@@ -100,15 +100,6 @@ public abstract class OAuthService implements Closeable {
     return null;
   }
 
-  /**
-   * Ajoute un intercepteur de requête.
-   *
-   * @param interceptor L'intercepteur à ajouter.
-   */
-  public void addInterceptor(OAuthRequestInterceptor interceptor) { // ADDED
-    interceptors.add(interceptor);
-  }
-
   /** {@inheritDoc} */
   @Override
   public void close() throws IOException {
@@ -140,23 +131,6 @@ public abstract class OAuthService implements Closeable {
    */
   public String getCallback() {
     return callback;
-  }
-
-  /**
-   * Retourne la version du protocole OAuth supportée par ce service.
-   *
-   * @return La version du protocole (ex: "1.0", "2.0").
-   */
-  public abstract String getVersion();
-
-  /**
-   * Exécute une requête OAuth de manière asynchrone.
-   *
-   * @param request La requête à exécuter.
-   * @return Un {@link CompletableFuture} résolvant vers la réponse.
-   */
-  public CompletableFuture<Response> executeAsync(OAuthRequest request) {
-    return execute(request, null);
   }
 
   /**

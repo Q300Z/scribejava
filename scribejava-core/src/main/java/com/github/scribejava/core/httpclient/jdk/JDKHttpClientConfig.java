@@ -45,12 +45,6 @@ public class JDKHttpClientConfig implements HttpClientConfig {
     return new JDKHttpClientConfig();
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public JDKHttpClientConfig createDefaultConfig() {
-    return defaultConfig();
-  }
-
   /**
    * Retourne la fabrique de sockets SSL.
    *
@@ -61,41 +55,12 @@ public class JDKHttpClientConfig implements HttpClientConfig {
   }
 
   /**
-   * Définit la fabrique de sockets SSL.
-   *
-   * @param sslSocketFactory La fabrique à utiliser.
-   */
-  public void setSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
-    this.sslSocketFactory = sslSocketFactory;
-  }
-
-  /**
-   * Définit la fabrique de sockets SSL (version fluide).
-   *
-   * @param sslSocketFactory La fabrique.
-   * @return L'instance de configuration.
-   */
-  public JDKHttpClientConfig withSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
-    this.sslSocketFactory = sslSocketFactory;
-    return this;
-  }
-
-  /**
    * Retourne le vérificateur de nom d'hôte (HostnameVerifier).
    *
    * @return Le {@link javax.net.ssl.HostnameVerifier}.
    */
   public javax.net.ssl.HostnameVerifier getHostnameVerifier() {
     return hostnameVerifier;
-  }
-
-  /**
-   * Définit le vérificateur de nom d'hôte.
-   *
-   * @param hostnameVerifier Le vérificateur.
-   */
-  public void setHostnameVerifier(javax.net.ssl.HostnameVerifier hostnameVerifier) {
-    this.hostnameVerifier = hostnameVerifier;
   }
 
   /**
@@ -128,17 +93,6 @@ public class JDKHttpClientConfig implements HttpClientConfig {
   }
 
   /**
-   * Définit le délai d'attente de connexion (version fluide).
-   *
-   * @param connectTimeout Le délai.
-   * @return L'instance de configuration.
-   */
-  public JDKHttpClientConfig withConnectTimeout(Integer connectTimeout) {
-    this.connectTimeout = connectTimeout;
-    return this;
-  }
-
-  /**
    * Retourne le délai d'attente de lecture.
    *
    * @return Le délai en millisecondes.
@@ -157,17 +111,6 @@ public class JDKHttpClientConfig implements HttpClientConfig {
   }
 
   /**
-   * Définit le délai d'attente de lecture (version fluide).
-   *
-   * @param readTimeout Le délai.
-   * @return L'instance de configuration.
-   */
-  public JDKHttpClientConfig withReadTimeout(Integer readTimeout) {
-    this.readTimeout = readTimeout;
-    return this;
-  }
-
-  /**
    * Retourne le proxy configuré.
    *
    * @return Le {@link Proxy}.
@@ -183,17 +126,6 @@ public class JDKHttpClientConfig implements HttpClientConfig {
    */
   public void setProxy(Proxy proxy) {
     this.proxy = proxy;
-  }
-
-  /**
-   * Définit le proxy (version fluide).
-   *
-   * @param proxy Le proxy.
-   * @return L'instance de configuration.
-   */
-  public JDKHttpClientConfig withProxy(Proxy proxy) {
-    this.proxy = proxy;
-    return this;
   }
 
   /**
@@ -216,20 +148,5 @@ public class JDKHttpClientConfig implements HttpClientConfig {
    */
   public void setFollowRedirects(boolean followRedirects) {
     this.followRedirects = followRedirects;
-  }
-
-  /**
-   * Sets whether the underlying Http Connection follows redirects or not.
-   *
-   * <p>Defaults to true (follow redirects)
-   *
-   * @param followRedirects boolean
-   * @return this for chaining methods invocations
-   * @see <a
-   *     href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
-   */
-  public JDKHttpClientConfig withFollowRedirects(boolean followRedirects) {
-    this.followRedirects = followRedirects;
-    return this;
   }
 }

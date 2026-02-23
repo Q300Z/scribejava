@@ -40,12 +40,9 @@ public class ServiceBuilderDiscoveryTest {
     final String issuer = "http://idp.com";
 
     final DiscoveryService mockDiscovery =
-        new DiscoveryService() {
-          @Override
-          public CompletableFuture<DiscoveredEndpoints> discoverAsync(String issuer) {
-            return CompletableFuture.completedFuture(
-                new DiscoveredEndpoints("http://idp.com/auth", "http://idp.com/token"));
-          }
+        () -> {
+          return CompletableFuture.completedFuture(
+              new DiscoveredEndpoints("http://idp.com/auth", "http://idp.com/token"));
         };
 
     final OAuth20Service service =

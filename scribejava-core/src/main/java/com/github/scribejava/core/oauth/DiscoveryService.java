@@ -30,10 +30,9 @@ public interface DiscoveryService {
   /**
    * Effectue la découverte des points de terminaison (endpoints) de manière asynchrone.
    *
-   * @param issuer L'identifiant de l'émetteur (Issuer ID).
    * @return Un {@link CompletableFuture} résolvant vers les points de terminaison découverts.
    * @see <a href="https://openid.net/specs/openid-connect-discovery-1_0.html">OpenID Connect
    *     Discovery 1.0</a>
    */
-  CompletableFuture<DiscoveredEndpoints> discoverAsync(String issuer);
+  CompletableFuture<DiscoveredEndpoints> discoverAsync();
 }

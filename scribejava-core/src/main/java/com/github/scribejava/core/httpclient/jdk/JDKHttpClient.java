@@ -37,7 +37,6 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -229,7 +228,7 @@ public class JDKHttpClient implements HttpClient {
       future.complete(t);
     } catch (IOException | RuntimeException e) {
       if (callback != null) {
-        callback.onThrowable(e);
+        callback.onThrowable();
       }
       future.completeExceptionally(e);
     }
@@ -243,7 +242,7 @@ public class JDKHttpClient implements HttpClient {
       Verb httpVerb,
       String completeUrl,
       byte[] bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws IOException {
     return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.BYTE_ARRAY, bodyContents);
   }
 
@@ -254,7 +253,7 @@ public class JDKHttpClient implements HttpClient {
       Verb httpVerb,
       String completeUrl,
       MultipartPayload multipartPayloads)
-      throws InterruptedException, ExecutionException, IOException {
+      throws IOException {
     return doExecute(
         userAgent, headers, httpVerb, completeUrl, BodyType.MULTIPART, multipartPayloads);
   }
@@ -266,7 +265,7 @@ public class JDKHttpClient implements HttpClient {
       Verb httpVerb,
       String completeUrl,
       String bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws IOException {
     return doExecute(userAgent, headers, httpVerb, completeUrl, BodyType.STRING, bodyContents);
   }
 
@@ -276,8 +275,7 @@ public class JDKHttpClient implements HttpClient {
       Map<String, String> headers,
       Verb httpVerb,
       String completeUrl,
-      File bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      File bodyContents) {
     throw new UnsupportedOperationException(
         "JDKHttpClient does not support File payload for the moment");
   }

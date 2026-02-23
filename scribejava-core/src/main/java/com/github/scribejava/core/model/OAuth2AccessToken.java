@@ -37,7 +37,7 @@ public class OAuth2AccessToken extends Token {
   private static final long serialVersionUID = 8901381135476613449L;
 
   /** Le jeton d'accès délivré par le serveur d'autorisation. */
-  private String accessToken;
+  private final String accessToken;
 
   /**
    * Le type de jeton (ex: Bearer).
@@ -45,10 +45,10 @@ public class OAuth2AccessToken extends Token {
    * @see <a href="http://tools.ietf.org/html/rfc6749#section-7.1">RFC 6749, Section 7.1 (Access
    *     Token Types)</a>
    */
-  private String tokenType;
+  private final String tokenType;
 
   /** La durée de vie en secondes du jeton d'accès. */
-  private Integer expiresIn;
+  private final Integer expiresIn;
 
   /**
    * Le jeton de renouvellement (Refresh Token).
@@ -56,7 +56,7 @@ public class OAuth2AccessToken extends Token {
    * @see <a href="http://tools.ietf.org/html/rfc6749#section-6">RFC 6749, Section 6 (Refreshing an
    *     Access Token)</a>
    */
-  private String refreshToken;
+  private final String refreshToken;
 
   /**
    * La portée (scope) du jeton d'accès.
@@ -64,7 +64,7 @@ public class OAuth2AccessToken extends Token {
    * @see <a href="http://tools.ietf.org/html/rfc6749#section-3.3">RFC 6749, Section 3.3 (Access
    *     Token Scope)</a>
    */
-  private String scope;
+  private final String scope;
 
   /**
    * Constructeur simple.

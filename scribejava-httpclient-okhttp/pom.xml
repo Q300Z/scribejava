@@ -10,7 +10,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>com.github.scribejava</groupId>
   <artifactId>scribejava-httpclient-okhttp</artifactId>
   <name>ScribeJava Async OkHttp Client support</name>
   <packaging>jar</packaging>

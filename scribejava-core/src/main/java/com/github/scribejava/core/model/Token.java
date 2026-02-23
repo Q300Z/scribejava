@@ -49,24 +49,4 @@ public abstract class Token implements Serializable {
     }
     return rawResponse;
   }
-
-  /**
-   * Extrait un paramètre spécifique de la réponse brute.
-   *
-   * @param parameter Le nom du paramètre à extraire.
-   * @return La valeur du paramètre ou null si non trouvé.
-   */
-  public String getParameter(String parameter) {
-    String value = null;
-    for (String str : rawResponse.split("&")) {
-      if (str.startsWith(parameter + '=')) {
-        final String[] part = str.split("=");
-        if (part.length > 1) {
-          value = part[1].trim();
-        }
-        break;
-      }
-    }
-    return value;
-  }
 }

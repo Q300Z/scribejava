@@ -32,7 +32,6 @@ import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.core.oauth2.grant.ClientCredentialsGrant;
 import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
 import com.github.scribejava.core.oauth2.grant.PasswordGrant;
-import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -132,13 +131,6 @@ public class OAuth20Service extends OAuthService
   }
 
   /**
-   * @param interceptor interceptor
-   */
-  public void addAuthorizationRequestInterceptor(AuthorizationRequestInterceptor interceptor) {
-    authorizationRequestInterceptors.add(interceptor);
-  }
-
-  /**
    * @return builder
    */
   public AuthorizationUrlBuilder createAuthorizationUrlBuilder() {
@@ -187,7 +179,6 @@ public class OAuth20Service extends OAuthService
     return api;
   }
 
-  @Override
   public OAuth2AccessToken getAccessToken(OAuth20Grant grant)
       throws IOException, InterruptedException, ExecutionException {
     try {
@@ -238,13 +229,11 @@ public class OAuth20Service extends OAuthService
     return getAccessTokenAsync(new AuthorizationCodeGrant(code), callback);
   }
 
-  @Override
   public CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(OAuth20Grant grant) {
     return getAccessTokenAsync(grant, null);
   }
 
-  @Override
-  public CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(
+  private CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(
       OAuth20Grant grant, OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
     return sendAccessTokenRequestAsync(grant.createRequest(this), callback);
   }
@@ -349,14 +338,6 @@ public class OAuth20Service extends OAuthService
   }
 
   /**
-   * @param pkce pkce
-   * @return url
-   */
-  public String getAuthorizationUrl(PKCE pkce) {
-    return createAuthorizationUrlBuilder().pkce(pkce).build();
-  }
-
-  /**
    * @return defaultScope
    */
   public String getDefaultScope() {
@@ -390,8 +371,15 @@ public class OAuth20Service extends OAuthService
     return CompletableFuture.supplyAsync(
         () -> {
           try {
-            return getDeviceAuthorizationCodes();
+            final DeviceAuthorization codes = getDeviceAuthorizationCodes();
+            if (callback != null) {
+              callback.onCompleted(codes);
+            }
+            return codes;
           } catch (Exception e) {
+            if (callback != null) {
+              callback.onThrowable();
+            }
             throw new RuntimeException(e);
           }
         });
@@ -404,7 +392,6 @@ public class OAuth20Service extends OAuthService
     return responseType;
   }
 
-  @Override
   public String getVersion() {
     return "2.0";
   }
@@ -442,7 +429,6 @@ public class OAuth20Service extends OAuthService
         responseType, apiKey, callback, scope, state, additionalParams, null);
   }
 
-  @Override
   public OAuth2AccessToken refreshAccessToken(String refreshToken)
       throws IOException, InterruptedException, ExecutionException {
     try {
@@ -465,9 +451,8 @@ public class OAuth20Service extends OAuthService
     return refreshAccessTokenAsync(refreshToken, null, callback);
   }
 
-  @Override
   public CompletableFuture<OAuth2AccessToken> refreshAccessTokenAsync(String refreshToken) {
-    return refreshAccessTokenAsync(refreshToken, (String) null);
+    return refreshAccessTokenAsync(refreshToken, null);
   }
 
   /**
@@ -520,8 +505,7 @@ public class OAuth20Service extends OAuthService
     revokeToken(token, null);
   }
 
-  @Override
-  public CompletableFuture<Void> revokeTokenAsync(String token, TokenTypeHint tokenTypeHint) {
+  private CompletableFuture<Void> revokeTokenAsync(String token, TokenTypeHint tokenTypeHint) {
     return revocationHandler.revokeTokenAsync(token, tokenTypeHint);
   }
 
@@ -558,12 +542,7 @@ public class OAuth20Service extends OAuthService
    */
   protected CompletableFuture<OAuth2AccessToken> sendAccessTokenRequestAsync(
       OAuthRequest request, OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
-    return execute(
-        request,
-        callback,
-        response -> {
-          return api.getAccessTokenExtractor().extract(response);
-        });
+    return execute(request, callback, response -> api.getAccessTokenExtractor().extract(response));
   }
 
   /**
@@ -609,21 +588,16 @@ public class OAuth20Service extends OAuthService
   }
 
   /**
-   * @param username username
-   * @param password password
-   * @param scope scope
    * @return request
    */
-  protected OAuthRequest createAccessTokenPasswordGrantRequest(
-      String username, String password, String scope) {
-    return new PasswordGrant(username, password, scope).createRequest(this);
+  protected OAuthRequest createAccessTokenPasswordGrantRequest() {
+    return new PasswordGrant("user", "pass", "scope1").createRequest(this);
   }
 
   /**
-   * @param scope scope
    * @return request
    */
-  protected OAuthRequest createAccessTokenClientCredentialsGrantRequest(String scope) {
-    return new ClientCredentialsGrant(scope).createRequest(this);
+  protected OAuthRequest createAccessTokenClientCredentialsGrantRequest() {
+    return new ClientCredentialsGrant("scope2").createRequest(this);
   }
 }

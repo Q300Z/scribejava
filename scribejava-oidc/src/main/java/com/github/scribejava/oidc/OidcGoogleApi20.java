@@ -52,7 +52,6 @@ public class OidcGoogleApi20 extends DefaultOidcApi20 {
    *
    * @return {@code https://accounts.google.com}
    */
-  @Override
   public String getIssuer() {
     return "https://accounts.google.com";
   }

@@ -38,17 +38,6 @@ public class OpenIdOAuth2AccessToken extends OAuth2AccessToken {
   private final String openIdToken;
 
   /**
-   * Constructeur simple.
-   *
-   * @param accessToken Le jeton d'accès.
-   * @param openIdToken Le jeton d'identité (ID Token).
-   * @param rawResponse La réponse brute.
-   */
-  public OpenIdOAuth2AccessToken(String accessToken, String openIdToken, String rawResponse) {
-    this(accessToken, null, null, null, null, openIdToken, rawResponse);
-  }
-
-  /**
    * Constructeur complet.
    *
    * @param accessToken Le jeton d'accès.

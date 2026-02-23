@@ -24,8 +24,8 @@
 package com.github.scribejava.core.services;
 
 /**
- * Signs a base string, returning the OAuth signature
- * https://tools.ietf.org/html/rfc5849#section-3.4
+ * Signs a base string, returning the OAuth signature <a
+ * href="https://tools.ietf.org/html/rfc5849#section-3.4">...</a>
  */
 public interface SignatureService {
 

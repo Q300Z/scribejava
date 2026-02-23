@@ -34,9 +34,7 @@ public interface OAuthConstants {
   String VERSION = "oauth_version";
   String NONCE = "oauth_nonce";
   String REALM = "realm";
-  String PARAM_PREFIX = "oauth_";
   String TOKEN = "oauth_token";
-  String TOKEN_SECRET = "oauth_token_secret";
   String VERIFIER = "oauth_verifier";
   String HEADER = "Authorization";
   String SCOPE = "scope";

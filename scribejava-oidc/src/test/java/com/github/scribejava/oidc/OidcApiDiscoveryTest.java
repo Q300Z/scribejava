@@ -103,10 +103,5 @@ public class OidcApiDiscoveryTest {
     public TestOidcApi(final String issuer) {
       this.issuer = issuer;
     }
-
-    @Override
-    public String getIssuer() {
-      return issuer;
-    }
   }
 }

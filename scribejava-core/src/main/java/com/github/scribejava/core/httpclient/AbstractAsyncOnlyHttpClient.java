@@ -28,7 +28,6 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -47,7 +46,7 @@ public abstract class AbstractAsyncOnlyHttpClient implements HttpClient {
       Verb httpVerb,
       String completeUrl,
       byte[] bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws InterruptedException, ExecutionException {
     return executeAsync(
             userAgent,
             headers,
@@ -66,7 +65,7 @@ public abstract class AbstractAsyncOnlyHttpClient implements HttpClient {
       Verb httpVerb,
       String completeUrl,
       MultipartPayload bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws InterruptedException, ExecutionException {
     return executeAsync(
             userAgent,
             headers,
@@ -85,7 +84,7 @@ public abstract class AbstractAsyncOnlyHttpClient implements HttpClient {
       Verb httpVerb,
       String completeUrl,
       String bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws InterruptedException, ExecutionException {
     return executeAsync(
             userAgent,
             headers,
@@ -104,7 +103,7 @@ public abstract class AbstractAsyncOnlyHttpClient implements HttpClient {
       Verb httpVerb,
       String completeUrl,
       File bodyContents)
-      throws InterruptedException, ExecutionException, IOException {
+      throws InterruptedException, ExecutionException {
     return executeAsync(
             userAgent,
             headers,

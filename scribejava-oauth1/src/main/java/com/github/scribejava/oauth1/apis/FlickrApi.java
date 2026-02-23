@@ -37,18 +37,12 @@ public class FlickrApi extends DefaultApi10a {
   /** Lecture, écriture ou suppression. */
   private final String permString;
 
-  /** Constructeur par défaut. */
   protected FlickrApi() {
-    permString = null;
+    this(null);
   }
 
-  /**
-   * Constructeur avec permissions spécifiques.
-   *
-   * @param perm Le niveau de permission souhaité.
-   */
-  protected FlickrApi(FlickrPerm perm) {
-    permString = perm.name().toLowerCase();
+  protected FlickrApi(FlickrPerm perms) {
+    permString = perms == null ? null : perms.name().toLowerCase();
   }
 
   /**
@@ -61,30 +55,28 @@ public class FlickrApi extends DefaultApi10a {
   }
 
   /**
-   * Retourne une instance de l'API Flickr avec des permissions spécifiques.
+   * Retourne une instance avec des permissions spécifiques.
    *
-   * @param perm Le niveau de permission.
-   * @return L'instance de {@link FlickrApi}.
+   * @param perms Les permissions (READ, WRITE, DELETE).
+   * @return L'instance configurée.
    */
-  public static FlickrApi instance(FlickrPerm perm) {
-    return perm == null ? instance() : new FlickrApi(perm);
+  public static FlickrApi instance(FlickrPerm perms) {
+    return new FlickrApi(perms);
   }
 
-  /** {@inheritDoc} */
   @Override
   public String getAccessTokenEndpoint() {
     return "https://www.flickr.com/services/oauth/access_token";
   }
 
   @Override
-  public String getAuthorizationBaseUrl() {
-    return permString == null ? AUTHORIZE_URL : AUTHORIZE_URL + "?perms=" + permString;
-  }
-
-  /** {@inheritDoc} */
-  @Override
   public String getRequestTokenEndpoint() {
     return "https://www.flickr.com/services/oauth/request_token";
+  }
+
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return permString == null ? AUTHORIZE_URL : AUTHORIZE_URL + "?perms=" + permString;
   }
 
   /** Niveaux de permission pour l'API Flickr. */

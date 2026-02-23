@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 /**
  * Tests unitaires pour {@link OAuth2AccessTokenExtractor}.
@@ -45,13 +44,11 @@ public class OAuth2AccessTokenExtractorTest {
   private OAuth2AccessTokenExtractor extractor;
 
   private static Response ok(String body) {
-    return new Response(
-        200, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+    return new Response(200, /* message */ null, /* headers */ Collections.emptyMap(), body);
   }
 
-  private static Response error(String body) {
-    return new Response(
-        400, /* message */ null, /* headers */ Collections.<String, String>emptyMap(), body);
+  private static Response error() {
+    return new Response(400, /* message */ null, /* headers */ Collections.emptyMap(), "");
   }
 
   /** Initialisation de l'extracteur. */
@@ -112,7 +109,7 @@ public class OAuth2AccessTokenExtractorTest {
   /** Vérifie l'extraction même en présence de nombreux paramètres inattendus. */
   @Test
   public void shouldExtractTokenFromResponseWithManyParameters() throws IOException {
-    final String responseBody = "access_token=foo1234&other_stuff=yeah_we_have_this_too&number=42";
+    final String responseBody = "access_token=foo1234&foo=bar&baz=qux&other=param";
     final OAuth2AccessToken extracted;
     try (Response response = ok(responseBody)) {
       extracted = extractor.extract(response);
@@ -123,32 +120,16 @@ public class OAuth2AccessTokenExtractorTest {
   /** Vérifie la levée d'exception pour une réponse d'erreur HTTP. */
   @Test
   public void shouldThrowExceptionIfErrorResponse() throws IOException {
-    final String responseBody = "";
-    try (Response response = error(responseBody)) {
-      assertThrows(
-          OAuthException.class,
-          new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-              extractor.extract(response);
-            }
-          });
+    try (Response response = error()) {
+      assertThrows(OAuthException.class, () -> extractor.extract(response));
     }
   }
 
   /** Vérifie la levée d'exception si le paramètre access_token est absent. */
   @Test
   public void shouldThrowExceptionIfTokenIsAbsent() throws IOException {
-    final String responseBody = "&expires=5108";
-    try (Response response = ok(responseBody)) {
-      assertThrows(
-          OAuthException.class,
-          new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-              extractor.extract(response);
-            }
-          });
+    try (Response response = ok("some_other_param=value")) {
+      assertThrows(OAuthException.class, () -> extractor.extract(response));
     }
   }
 
@@ -156,30 +137,15 @@ public class OAuth2AccessTokenExtractorTest {
   @Test
   public void shouldThrowExceptionIfResponseIsNull() throws IOException {
     try (Response response = ok(null)) {
-      assertThrows(
-          IllegalArgumentException.class,
-          new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-              extractor.extract(response);
-            }
-          });
+      assertThrows(IllegalArgumentException.class, () -> extractor.extract(response));
     }
   }
 
   /** Vérifie le rejet d'une réponse contenant une chaîne vide. */
   @Test
   public void shouldThrowExceptionIfResponseIsEmptyString() throws IOException {
-    final String responseBody = "";
-    try (Response response = ok(responseBody)) {
-      assertThrows(
-          IllegalArgumentException.class,
-          new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-              extractor.extract(response);
-            }
-          });
+    try (Response response = ok("")) {
+      assertThrows(IllegalArgumentException.class, () -> extractor.extract(response));
     }
   }
 }

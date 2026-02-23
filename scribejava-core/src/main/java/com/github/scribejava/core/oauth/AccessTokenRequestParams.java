@@ -23,8 +23,6 @@
  */
 package com.github.scribejava.core.oauth;
 
-import com.github.scribejava.core.builder.ScopeBuilder;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -50,117 +48,36 @@ public class AccessTokenRequestParams {
   }
 
   /**
-   * Méthode statique de création.
-   *
-   * @param code Le code d'autorisation.
-   * @return Une nouvelle instance de {@link AccessTokenRequestParams}.
-   */
-  public static AccessTokenRequestParams create(String code) {
-    return new AccessTokenRequestParams(code);
-  }
-
-  /**
-   * Définit le vérificateur de code PKCE.
-   *
-   * @param pkceCodeVerifier La valeur brute du code_verifier.
-   * @return L'instance actuelle.
-   * @see <a href="https://tools.ietf.org/html/rfc7636">RFC 7636 (PKCE)</a>
-   */
-  public AccessTokenRequestParams pkceCodeVerifier(String pkceCodeVerifier) {
-    this.pkceCodeVerifier = pkceCodeVerifier;
-    return this;
-  }
-
-  /**
-   * Définit la portée (scope).
-   *
-   * @param scope La chaîne représentant la portée.
-   * @return L'instance actuelle.
-   */
-  public AccessTokenRequestParams scope(String scope) {
-    this.scope = scope;
-    return this;
-  }
-
-  /**
-   * Définit la portée via un builder.
-   *
-   * @param scope Le builder de portée.
-   * @return L'instance actuelle.
-   */
-  public AccessTokenRequestParams scope(ScopeBuilder scope) {
-    this.scope = scope.build();
-    return this;
-  }
-
-  /**
-   * Ajoute un dictionnaire de paramètres supplémentaires.
-   *
-   * @param extraParameters Les paramètres à ajouter.
-   * @return L'instance actuelle.
-   */
-  public AccessTokenRequestParams addExtraParameters(Map<String, String> extraParameters) {
-    if (extraParameters == null || extraParameters.isEmpty()) {
-      return this;
-    }
-    if (this.extraParameters == null) {
-      extraParameters = new HashMap<>();
-    }
-    this.extraParameters.putAll(extraParameters);
-    return this;
-  }
-
-  /**
-   * Ajoute un paramètre supplémentaire unique.
-   *
-   * @param name Le nom du paramètre.
-   * @param value La valeur du paramètre.
-   * @return L'instance actuelle.
-   */
-  public AccessTokenRequestParams addExtraParameter(String name, String value) {
-    if (this.extraParameters == null) {
-      extraParameters = new HashMap<>();
-    }
-    this.extraParameters.put(name, value);
-    return this;
-  }
-
-  /**
-   * @return Le dictionnaire des paramètres supplémentaires.
-   */
-  public Map<String, String> getExtraParameters() {
-    return extraParameters;
-  }
-
-  /**
-   * Définit globalement les paramètres supplémentaires.
-   *
-   * @param extraParameters Le dictionnaire de paramètres.
-   * @return L'instance actuelle.
-   */
-  public AccessTokenRequestParams setExtraParameters(Map<String, String> extraParameters) {
-    this.extraParameters = extraParameters;
-    return this;
-  }
-
-  /**
    * @return Le code d'autorisation.
    */
   public String getCode() {
     return code;
   }
 
-  /**
-   * @return Le vérificateur de code PKCE.
-   */
   public String getPkceCodeVerifier() {
     return pkceCodeVerifier;
   }
 
-  /**
-   * @return La portée configurée.
-   */
+  public AccessTokenRequestParams pkceCodeVerifier(String pkceCodeVerifier) {
+    this.pkceCodeVerifier = pkceCodeVerifier;
+    return this;
+  }
+
   public String getScope() {
     return scope;
+  }
+
+  public AccessTokenRequestParams scope(String scope) {
+    this.scope = scope;
+    return this;
+  }
+
+  public Map<String, String> getExtraParameters() {
+    return extraParameters;
+  }
+
+  public AccessTokenRequestParams extraParameters(Map<String, String> extraParameters) {
+    this.extraParameters = extraParameters;
+    return this;
   }
 }

@@ -90,7 +90,7 @@ public class JDKHttpClientExtendedTest {
                 server.url("/").toString(),
                 "payload-string",
                 null,
-                response -> response.getBody())
+                Response::getBody)
             .get();
     assertThat(result).isEqualTo("OK");
   }

@@ -29,16 +29,11 @@ import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 public class TumblrApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://www.tumblr.com/oauth/authorize";
-  private static final String REQUEST_TOKEN_RESOURCE = "https://www.tumblr.com/oauth/request_token";
-  private static final String ACCESS_TOKEN_RESOURCE = "https://www.tumblr.com/oauth/access_token";
 
-  /** Constructeur protégé. */
   protected TumblrApi() {}
 
   /**
-   * Retourne l'instance unique (singleton) de l'API Tumblr.
-   *
-   * @return L'instance de {@link TumblrApi}.
+   * @return Instance unique de l'API Tumblr.
    */
   public static TumblrApi instance() {
     return InstanceHolder.INSTANCE;
@@ -46,12 +41,12 @@ public class TumblrApi extends DefaultApi10a {
 
   @Override
   public String getAccessTokenEndpoint() {
-    return ACCESS_TOKEN_RESOURCE;
+    return "https://www.tumblr.com/oauth/access_token";
   }
 
   @Override
   public String getRequestTokenEndpoint() {
-    return REQUEST_TOKEN_RESOURCE;
+    return "https://www.tumblr.com/oauth/request_token";
   }
 
   @Override

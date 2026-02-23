@@ -136,7 +136,7 @@ public class DeviceFlowTest {
 
   /** Vérifie qu'une erreur terminale arrête la scrutation. */
   @Test
-  public void shouldThrowExceptionOnTerminalErrorDuringPolling() throws Exception {
+  public void shouldThrowExceptionOnTerminalErrorDuringPolling() {
     final DeviceAuthorization auth =
         new DeviceAuthorization("dev123", "user456", "http://v.com", 600);
     auth.setIntervalSeconds(1);

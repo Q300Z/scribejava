@@ -36,38 +36,27 @@ public class MediaWikiApi extends DefaultApi10a {
   private final String niceUrlBase;
 
   /**
-   * @param indexUrl The URL to the index.php of the wiki. Due to <a
-   *     href="https://phabricator.wikimedia.org/T59500">a MediaWiki bug</a>, some requests must
-   *     currently use the non-nice URL.
-   * @param niceUrlBase The base of nice URLs for the wiki, including the trailing slash. Due to <a
-   *     href="https://phabricator.wikimedia.org/T74186">another MediaWiki bug</a>, some requests
-   *     must currently use the nice URL.
+   * Constructeur.
+   *
+   * @param indexUrl URL de index.php.
+   * @param niceUrlBase URL de base pour les URLs propres.
    */
-  public MediaWikiApi(String indexUrl, String niceUrlBase) {
+  protected MediaWikiApi(String indexUrl, String niceUrlBase) {
     this.indexUrl = indexUrl;
     this.niceUrlBase = niceUrlBase;
   }
 
   /**
-   * The instance for wikis hosted by the Wikimedia Foundation. Consumers are requested on <a
-   * href="https://meta.wikimedia.org/wiki/Special:OAuthConsumerRegistration/propose">
-   * Special:OAuthConsumerRegistration/propose </a>.
-   *
-   * @return instance
+   * @return Instance meta.wikimedia.org.
    */
   public static MediaWikiApi instance() {
     return InstanceHolder.INSTANCE;
   }
 
   /**
-   * The instance for wikis in the Wikimedia Foundation’s Beta Cluster. Consumers are requested on
-   * <a
-   * href="https://meta.wikimedia.beta.wmflabs.org/wiki/Special:OAuthConsumerRegistration/propose">
-   * Special:OAuthConsumerRegistration/propose </a>.
-   *
-   * @return instanceBeta
+   * @return Instance beta.wmflabs.org.
    */
-  public static MediaWikiApi instanceBeta() {
+  public static MediaWikiApi betaInstance() {
     return BetaInstanceHolder.BETA_INSTANCE;
   }
 
@@ -77,13 +66,13 @@ public class MediaWikiApi extends DefaultApi10a {
   }
 
   @Override
-  public String getAuthorizationBaseUrl() {
-    return niceUrlBase + "Special:OAuth/authorize";
+  public String getAccessTokenEndpoint() {
+    return indexUrl + "?title=Special:OAuth/token";
   }
 
   @Override
-  public String getAccessTokenEndpoint() {
-    return indexUrl + "?title=Special:OAuth/token";
+  public String getAuthorizationBaseUrl() {
+    return niceUrlBase + "Special:OAuth/authorize";
   }
 
   private static class InstanceHolder {

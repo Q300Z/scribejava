@@ -65,13 +65,7 @@ public class OidcServiceEdgeCasesTest {
             null,
             null);
 
-    final DefaultOidcApi20 api =
-        new DefaultOidcApi20() {
-          @Override
-          public String getIssuer() {
-            return server.url("/").toString();
-          }
-        };
+    final DefaultOidcApi20 api = new DefaultOidcApi20() {};
     api.setMetadata(metadata);
 
     service =
@@ -112,13 +106,7 @@ public class OidcServiceEdgeCasesTest {
 
   @Test
   public void shouldThrowExceptionIfUserInfoEndpointMissing() {
-    final DefaultOidcApi20 api =
-        new DefaultOidcApi20() {
-          @Override
-          public String getIssuer() {
-            return "iss";
-          }
-        };
+    final DefaultOidcApi20 api = new DefaultOidcApi20() {};
     // Metadata with NO userinfo_endpoint
     api.setMetadata(
         new OidcProviderMetadata(

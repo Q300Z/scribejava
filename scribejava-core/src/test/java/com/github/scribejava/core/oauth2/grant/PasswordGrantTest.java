@@ -39,12 +39,11 @@ import org.junit.jupiter.api.Test;
 public class PasswordGrantTest {
 
   private OAuth20Service service;
-  private DefaultApi20 api;
 
   @BeforeEach
   public void setUp() {
     service = mock(OAuth20Service.class);
-    api = mock(DefaultApi20.class);
+    DefaultApi20 api = mock(DefaultApi20.class);
     when(service.getApi()).thenReturn(api);
     when(service.getApiKey()).thenReturn("api-key");
     when(service.getApiSecret()).thenReturn("api-secret");

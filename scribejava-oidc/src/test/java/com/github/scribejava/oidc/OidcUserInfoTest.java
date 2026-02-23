@@ -63,13 +63,7 @@ public class OidcUserInfoTest {
             null,
             null);
 
-    final DefaultOidcApi20 api =
-        new DefaultOidcApi20() {
-          @Override
-          public String getIssuer() {
-            return server.url("/").toString();
-          }
-        };
+    final DefaultOidcApi20 api = new DefaultOidcApi20() {};
     api.setMetadata(metadata);
 
     service =

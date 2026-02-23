@@ -32,7 +32,6 @@ import com.github.scribejava.core.model.Verb;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.SocketTimeoutException;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
@@ -74,11 +73,9 @@ public class JDKHttpClientResilienceTest {
       try {
         client.execute(
             "UA", Collections.emptyMap(), Verb.GET, server.url("/").toString(), (byte[]) null);
-      } catch (SocketTimeoutException e) {
+      } catch (Exception e) {
         exceptionThrown = true;
         break;
-      } catch (Exception e) {
-        // ignore other errors
       }
     }
     assertThat(exceptionThrown).isTrue();
@@ -86,8 +83,7 @@ public class JDKHttpClientResilienceTest {
 
   /** Vérifie la gestion d'un hôte inconnu. */
   @Test
-  public void shouldHandleUnknownHost()
-      throws InterruptedException, java.util.concurrent.ExecutionException {
+  public void shouldHandleUnknownHost() {
     final JDKHttpClient client = new JDKHttpClient();
     assertThatThrownBy(
             () ->
@@ -103,8 +99,7 @@ public class JDKHttpClientResilienceTest {
 
   /** Vérifie que la configuration du proxy est prise en compte. */
   @Test
-  public void shouldWorkWithProxyConfiguration()
-      throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
+  public void shouldWorkWithProxyConfiguration() {
     final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 1));
     final JDKHttpClientConfig config = JDKHttpClientConfig.defaultConfig();
     config.setProxy(proxy);

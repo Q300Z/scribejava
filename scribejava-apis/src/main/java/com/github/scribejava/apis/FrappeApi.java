@@ -31,7 +31,6 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 /** API OAuth 2.0 pour Frappe. */
 public class FrappeApi extends DefaultApi20 {
 
-  private final String serverURL;
   private final String accessTokenEndpoint;
   private final String authorizationBaseUrl;
 
@@ -41,7 +40,6 @@ public class FrappeApi extends DefaultApi20 {
    * @param serverURL L'URL du serveur Frappe.
    */
   protected FrappeApi(String serverURL) {
-    this.serverURL = serverURL;
     this.accessTokenEndpoint = serverURL + "/api/method/frappe.integrations.oauth2.get_token";
     this.authorizationBaseUrl = serverURL + "/api/method/frappe.integrations.oauth2.authorize";
   }
@@ -54,13 +52,6 @@ public class FrappeApi extends DefaultApi20 {
    */
   public static FrappeApi instance(String serverUrl) {
     return new FrappeApi(serverUrl);
-  }
-
-  /**
-   * @return L'URL du serveur configurée.
-   */
-  public String getServerURL() {
-    return serverURL;
   }
 
   @Override

@@ -57,10 +57,4 @@ public class OkHttpHttpClientConfig implements HttpClientConfig {
   public OkHttpClient.Builder getClientBuilder() {
     return clientBuilder;
   }
-
-  /** {@inheritDoc} */
-  @Override
-  public OkHttpHttpClientConfig createDefaultConfig() {
-    return defaultConfig();
-  }
 }

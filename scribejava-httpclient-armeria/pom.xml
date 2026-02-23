@@ -10,7 +10,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <groupId>com.github.scribejava</groupId>
   <artifactId>scribejava-httpclient-armeria</artifactId>
   <name>ScribeJava Async Armeria Client support</name>
   <packaging>jar</packaging>

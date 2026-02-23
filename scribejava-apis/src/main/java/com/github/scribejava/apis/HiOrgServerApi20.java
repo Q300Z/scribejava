@@ -57,16 +57,6 @@ public class HiOrgServerApi20 extends DefaultApi20 {
     return InstanceHolder.INSTANCE;
   }
 
-  /**
-   * Crée une instance avec une version personnalisée.
-   *
-   * @param version La version de l'API.
-   * @return Une nouvelle instance de {@link HiOrgServerApi20}.
-   */
-  public static HiOrgServerApi20 customVersion(String version) {
-    return new HiOrgServerApi20(version);
-  }
-
   @Override
   public String getAccessTokenEndpoint() {
     return "https://www.hiorg-server.de/api/oauth2/" + version + "/token.php";

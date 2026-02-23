@@ -41,8 +41,7 @@ import java.util.Optional;
  * @see <a href="http://tools.ietf.org/html/rfc6749#section-5.1">RFC 6749, Section 5.1 (Successful
  *     Response)</a>
  */
-public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor
-    implements TokenExtractor<OAuth2AccessToken> {
+public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2AccessToken> {
 
   /** Constructeur protégé. */
   protected OAuth2AccessTokenJsonExtractor() {}
@@ -126,7 +125,8 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor
     throw new OAuth2AccessTokenErrorResponse(errorCode, errorDescription, errorUri, response);
   }
 
-  private OAuth2AccessToken createToken(String rawResponse) throws IOException {
+  @Override
+  protected OAuth2AccessToken createToken(String rawResponse) throws IOException {
     final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
 
     final Integer expiresIn =

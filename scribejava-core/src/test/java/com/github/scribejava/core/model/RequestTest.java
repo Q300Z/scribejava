@@ -103,7 +103,7 @@ public class RequestTest {
 
   /** Vérifie que la charge utile textuelle brute n'est pas ré-encodée. */
   @Test
-  public void shouldNotEncodeInStringPayload() throws Exception {
+  public void shouldNotEncodeInStringPayload() {
     final String requestBody = "~/!@#$%^&*( )_+//\r\n%2F&amp;";
 
     final OAuthRequest postRequest = new OAuthRequest(Verb.POST, "http://example.com");
@@ -114,7 +114,7 @@ public class RequestTest {
 
   /** Vérifie que la charge utile binaire brute n'est pas altérée. */
   @Test
-  public void shouldNotEncodeInByteBodyPayload() throws Exception {
+  public void shouldNotEncodeInByteBodyPayload() {
     final byte[] requestBody = "~/!@#$%^&*( )_+//\r\n%2F&amp;".getBytes();
 
     final OAuthRequest postRequest = new OAuthRequest(Verb.POST, "http://example.com");
@@ -125,7 +125,7 @@ public class RequestTest {
 
   /** Vérifie l'encodage strict des caractères spéciaux dans les paramètres de corps. */
   @Test
-  public void shouldEncodeInBodyParamsPayload() throws Exception {
+  public void shouldEncodeInBodyParamsPayload() {
     final String expectedRequestBodyParamName = "~/!@#$%^&*( )_+//\r\n%2F&amp;name";
     final String expectedRequestBodyParamValue = "~/!@#$%^&*( )_+//\r\n%2F&amp;value";
     final String expectedRequestBody =

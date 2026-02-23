@@ -45,15 +45,6 @@ public class DPoPInterceptor implements OAuthRequestInterceptor {
     this.proofCreator = proofCreator;
   }
 
-  /**
-   * Définit le jeton d'accès pour inclure la réclamation 'ath' (Access Token Hash) dans la preuve.
-   *
-   * @param accessToken Le jeton d'accès.
-   */
-  public void setAccessToken(String accessToken) {
-    this.accessToken = accessToken;
-  }
-
   /** {@inheritDoc} */
   @Override
   public void intercept(OAuthRequest request) {

@@ -90,8 +90,7 @@ public class OAuth20RequestCreationTest {
   /** Vérifie la création d'une requête Password Grant. */
   @Test
   public void shouldCreatePasswordGrantRequest() {
-    final OAuthRequest request =
-        service.createAccessTokenPasswordGrantRequest("user", "pass", "scope1");
+    final OAuthRequest request = service.createAccessTokenPasswordGrantRequest();
     assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("username=user");
     assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("password=pass");
     assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("grant_type=password");
@@ -100,7 +99,7 @@ public class OAuth20RequestCreationTest {
   /** Vérifie la création d'une requête Client Credentials Grant. */
   @Test
   public void shouldCreateClientCredentialsGrantRequest() {
-    final OAuthRequest request = service.createAccessTokenClientCredentialsGrantRequest("scope2");
+    final OAuthRequest request = service.createAccessTokenClientCredentialsGrantRequest();
     assertThat(request.getBodyParams().asFormUrlEncodedString())
         .contains("grant_type=client_credentials");
     assertThat(request.getBodyParams().asFormUrlEncodedString()).contains("scope=scope2");

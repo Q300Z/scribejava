@@ -33,9 +33,9 @@ public class MicrosoftAzureActiveDirectoryBearerSignature
   }
 
   /**
-   * Retourne l'instance unique (singleton) de ce type de signature.
+   * Retourne l'instance unique (singleton) de la signature.
    *
-   * @return L'instance de {@link MicrosoftAzureActiveDirectoryBearerSignature}.
+   * @return L'instance {@link MicrosoftAzureActiveDirectoryBearerSignature}.
    */
   public static MicrosoftAzureActiveDirectoryBearerSignature instance() {
     return InstanceHolder.INSTANCE;

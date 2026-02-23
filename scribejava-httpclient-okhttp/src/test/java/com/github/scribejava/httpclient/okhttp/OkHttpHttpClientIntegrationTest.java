@@ -25,6 +25,7 @@ package com.github.scribejava.httpclient.okhttp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import java.io.IOException;
 import java.util.Collections;
@@ -75,14 +76,14 @@ public class OkHttpHttpClientIntegrationTest {
                 server.url("/").toString(),
                 (byte[]) null,
                 null,
-                response -> response.getBody())
+                Response::getBody)
             .get();
     assertThat(result).isEqualTo("OK");
   }
 
   /** Vérifie l'annulation d'une requête asynchrone. */
   @Test
-  public void shouldCancelAsyncRequest() throws Exception {
+  public void shouldCancelAsyncRequest() {
     server.enqueue(
         new MockResponse().setBody("OK").setBodyDelay(5, java.util.concurrent.TimeUnit.SECONDS));
     final java.util.concurrent.CompletableFuture<String> future =
@@ -93,7 +94,7 @@ public class OkHttpHttpClientIntegrationTest {
             server.url("/").toString(),
             (byte[]) null,
             null,
-            response -> response.getBody());
+            Response::getBody);
 
     future.cancel(true);
     assertThat(future.isCancelled()).isTrue();

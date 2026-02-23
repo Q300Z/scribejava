@@ -81,7 +81,7 @@ public class OAuth20DeviceFlowHandler {
   public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(
       DeviceAuthorization deviceAuthorization)
       throws InterruptedException, ExecutionException, IOException {
-    long intervalMillis = deviceAuthorization.getIntervalSeconds() * 1000;
+    long intervalMillis = deviceAuthorization.getIntervalSeconds() * 1000L;
     while (true) {
       try {
         return service

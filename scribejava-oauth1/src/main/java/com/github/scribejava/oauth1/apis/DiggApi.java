@@ -25,7 +25,7 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/** API OAuth 1.0a pour DiggApi. */
+/** API OAuth 1.0a pour Digg. */
 public class DiggApi extends DefaultApi10a {
 
   private static final String AUTHORIZATION_URL = "http://digg.com/oauth/authorize";
@@ -34,22 +34,20 @@ public class DiggApi extends DefaultApi10a {
   protected DiggApi() {}
 
   /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link DiggApi}.
+   * @return Instance unique de l'API Digg.
    */
   public static DiggApi instance() {
     return InstanceHolder.INSTANCE;
   }
 
   @Override
-  public String getRequestTokenEndpoint() {
-    return BASE_URL + "request_token";
+  public String getAccessTokenEndpoint() {
+    return BASE_URL + "access_token";
   }
 
   @Override
-  public String getAccessTokenEndpoint() {
-    return BASE_URL + "access_token";
+  public String getRequestTokenEndpoint() {
+    return BASE_URL + "request_token";
   }
 
   @Override

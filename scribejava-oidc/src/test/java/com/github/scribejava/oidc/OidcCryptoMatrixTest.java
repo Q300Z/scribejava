@@ -51,7 +51,6 @@ public class OidcCryptoMatrixTest {
 
   private static final String ISSUER = "https://issuer.example.com";
   private static final ClientID CLIENT_ID = new ClientID("client-id");
-  private final String hmacSecret = "super-secret-hmac-key-of-at-least-32-chars";
   private RSAKey rsaKey;
   private ECKey ecKey;
 
@@ -87,6 +86,7 @@ public class OidcCryptoMatrixTest {
   public void shouldValidateHS256() throws Exception {
     final JWTClaimsSet claimsSet = createClaims().build();
     final SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+    String hmacSecret = "super-secret-hmac-key-of-at-least-32-chars";
     signedJWT.sign(new MACSigner(hmacSecret.getBytes()));
 
     final IdTokenValidator validator =

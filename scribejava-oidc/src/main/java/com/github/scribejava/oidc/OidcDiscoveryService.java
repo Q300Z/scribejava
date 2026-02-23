@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutionException;
  * <pre>
  * // 1. Initialisation du service de découverte (avec le client par défaut du JDK)
  * final OidcDiscoveryService discovery = new OidcDiscoveryService(
- *     "https://accounts.google.com",
+ *     "<a href="https://accounts.google.com">...</a>",
  *     new com.github.scribejava.core.httpclient.jdk.JDKHttpClient(
  *         com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig.defaultConfig()),
  *     "MonApp/1.0"
@@ -58,7 +58,7 @@ import java.util.concurrent.ExecutionException;
  * final com.github.scribejava.oidc.DefaultOidcApi20 api = new com.github.scribejava.oidc.DefaultOidcApi20(metadata) {
  *     &#064;Override
  *     public String getIssuer() {
- *         return "https://accounts.google.com";
+ *         return "<a href="https://accounts.google.com">...</a>";
  *     }
  * };
  *
@@ -98,19 +98,9 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
     this.userAgent = userAgent;
   }
 
-  /**
-   * Active ou désactive la vérification stricte de l'émetteur.
-   *
-   * @param strictIssuerCheck true pour activer la vérification.
-   */
-  public void setStrictIssuerCheck(boolean strictIssuerCheck) {
-    this.strictIssuerCheck = strictIssuerCheck;
-  }
-
   /** {@inheritDoc} */
   @Override
-  public CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> discoverAsync(
-      String issuer) {
+  public CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> discoverAsync() {
     return getProviderMetadataAsync()
         .thenApply(
             metadata ->
@@ -177,12 +167,11 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
    * Récupère les métadonnées du fournisseur OIDC de manière synchrone.
    *
    * @return Un objet {@link OidcProviderMetadata}.
-   * @throws IOException en cas d'erreur réseau.
    * @throws ExecutionException si la tâche échoue.
    * @throws InterruptedException si le thread est interrompu.
    */
   public OidcProviderMetadata getProviderMetadata()
-      throws IOException, ExecutionException, InterruptedException {
+      throws ExecutionException, InterruptedException {
     return getProviderMetadataAsync().get();
   }
 
@@ -230,12 +219,10 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
    *
    * @param jwksUri L'URI du point de terminaison JWKS.
    * @return Un objet {@link JWKSet}.
-   * @throws IOException en cas d'erreur réseau.
    * @throws ExecutionException si la tâche échoue.
    * @throws InterruptedException si le thread est interrompu.
    */
-  public JWKSet getJwks(final String jwksUri)
-      throws IOException, ExecutionException, InterruptedException {
+  public JWKSet getJwks(final String jwksUri) throws ExecutionException, InterruptedException {
     return getJwksAsync(jwksUri).get();
   }
 }

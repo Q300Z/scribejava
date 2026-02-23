@@ -11,8 +11,8 @@ uniquement et sera supprimé dans une future version majeure. Veuillez migrer ve
 
 ```java
 OAuth10aService service = new ServiceBuilder(apiKey)
-    .apiSecret(apiSecret)
-    .build(TwitterApi.instance());
+  .apiSecret(apiSecret)
+  .build(TwitterApi.instance());
 
 OAuth1RequestToken requestToken = service.getRequestToken();
 ```

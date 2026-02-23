@@ -76,13 +76,7 @@ public class OidcDiscoveryExample {
             + ")");
 
     // 2. Initialisation du service OIDC
-    final DefaultOidcApi20 api =
-        new DefaultOidcApi20() {
-          @Override
-          public String getIssuer() {
-            return GOOGLE_ISSUER;
-          }
-        };
+    final DefaultOidcApi20 api = new DefaultOidcApi20() {};
     api.setMetadata(metadata);
 
     final OidcService service =

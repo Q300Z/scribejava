@@ -298,19 +298,8 @@ public class OAuth10aService extends OAuthService {
     signRequest(new OAuth1AccessToken(token, tokenSecret), request);
   }
 
-  @Override
-  public String getVersion() {
+  private String getVersion() {
     return VERSION;
-  }
-
-  /**
-   * Retourne l'URL d'autorisation.
-   *
-   * @param requestToken Le jeton de requête.
-   * @return L'URL vers laquelle rediriger l'utilisateur.
-   */
-  public String getAuthorizationUrl(final OAuth1RequestToken requestToken) {
-    return api.getAuthorizationUrl(requestToken);
   }
 
   private String getSignature(final OAuthRequest request, final String tokenSecret) {

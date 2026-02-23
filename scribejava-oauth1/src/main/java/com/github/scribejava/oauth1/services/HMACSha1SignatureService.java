@@ -35,8 +35,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * HMAC-SHA1 implementation of {@link SignatureService}
- * https://tools.ietf.org/html/rfc5849#section-3.4.2
+ * HMAC-SHA1 implementation of {@link SignatureService} <a
+ * href="https://tools.ietf.org/html/rfc5849#section-3.4.2">...</a>
  */
 public class HMACSha1SignatureService implements SignatureService {
 

@@ -25,7 +25,7 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/** API OAuth 1.0a pour Px500Api. */
+/** API OAuth 1.0a pour 500px. */
 public class Px500Api extends DefaultApi10a {
 
   private static final String AUTHORIZATION_URL = "https://api.500px.com/v1/oauth/authorize";
@@ -33,9 +33,7 @@ public class Px500Api extends DefaultApi10a {
   protected Px500Api() {}
 
   /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link Px500Api}.
+   * @return Instance unique de l'API 500px.
    */
   public static Px500Api instance() {
     return InstanceHolder.INSTANCE;

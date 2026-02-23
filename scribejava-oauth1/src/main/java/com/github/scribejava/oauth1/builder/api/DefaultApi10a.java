@@ -24,8 +24,6 @@
 package com.github.scribejava.oauth1.builder.api;
 
 import com.github.scribejava.core.extractors.*;
-import com.github.scribejava.core.httpclient.HttpClient;
-import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.ParameterList;
 import com.github.scribejava.core.model.Verb;
@@ -36,9 +34,7 @@ import com.github.scribejava.oauth1.extractors.OAuth1AccessTokenExtractor;
 import com.github.scribejava.oauth1.extractors.OAuth1RequestTokenExtractor;
 import com.github.scribejava.oauth1.model.OAuth1AccessToken;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
-import com.github.scribejava.oauth1.oauth.OAuth10aService;
 import com.github.scribejava.oauth1.services.HMACSha1SignatureService;
-import java.io.OutputStream;
 
 /**
  * Implémentation par défaut du protocole OAuth, version 1.0a.
@@ -161,40 +157,6 @@ public abstract class DefaultApi10a {
     final ParameterList parameters = new ParameterList();
     parameters.add(OAuthConstants.TOKEN, requestToken.getToken());
     return parameters.appendTo(getAuthorizationBaseUrl());
-  }
-
-  /**
-   * Crée l'instance de service OAuth 1.0a.
-   *
-   * @param apiKey Clé API.
-   * @param apiSecret Secret API.
-   * @param callback URL de rappel.
-   * @param scope Portée optionnelle.
-   * @param debugStream Flux de débogage.
-   * @param userAgent User-Agent.
-   * @param httpClientConfig Configuration HTTP.
-   * @param httpClient Client HTTP.
-   * @return Une instance de {@link OAuth10aService}.
-   */
-  public OAuth10aService createService(
-      String apiKey,
-      String apiSecret,
-      String callback,
-      String scope,
-      OutputStream debugStream,
-      String userAgent,
-      HttpClientConfig httpClientConfig,
-      HttpClient httpClient) {
-    return new OAuth10aService(
-        this,
-        apiKey,
-        apiSecret,
-        callback,
-        scope,
-        debugStream,
-        userAgent,
-        httpClientConfig,
-        httpClient);
   }
 
   /**

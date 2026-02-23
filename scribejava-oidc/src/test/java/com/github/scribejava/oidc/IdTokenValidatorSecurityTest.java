@@ -51,30 +51,28 @@ public class IdTokenValidatorSecurityTest {
   private final String clientId = "client-123";
   private final String issuer = "https://idp.example.com";
   private RSAKey rsaJWK;
-  private JWKSet jwkSet;
   private IdTokenValidator validator;
 
   /** Initialisation de l'environnement de test et des clés. */
   @BeforeEach
   public void setUp() throws Exception {
     rsaJWK = new RSAKeyGenerator(2048).keyID("kid-1").generate();
-    jwkSet = new JWKSet(rsaJWK.toPublicJWK());
+    JWKSet jwkSet = new JWKSet(rsaJWK.toPublicJWK());
     validator = new IdTokenValidator(issuer, new ClientID(clientId), JWSAlgorithm.RS256, jwkSet);
   }
 
   /**
    * Utilitaire de création de jeton signé.
    *
-   * @param iss Émetteur.
    * @param aud Audience.
    * @param exp Date d'expiration.
    * @return Le jeton sérialisé.
    */
-  private String createToken(final String iss, final String aud, final Date exp) throws Exception {
+  private String createToken(final String aud, final Date exp) throws Exception {
     final JWTClaimsSet claimsSet =
         new JWTClaimsSet.Builder()
             .subject("user1")
-            .issuer(iss)
+            .issuer("https://idp.example.com")
             .audience(aud)
             .expirationTime(exp)
             .issueTime(new Date())
@@ -88,24 +86,21 @@ public class IdTokenValidatorSecurityTest {
   /** Vérifie que le validateur rejette les jetons dont la date d'expiration est passée. */
   @Test
   public void shouldRejectExpiredToken() throws Exception {
-    final String token =
-        createToken(issuer, clientId, new Date(System.currentTimeMillis() - 100000));
+    final String token = createToken(clientId, new Date(System.currentTimeMillis() - 100000));
     assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
   }
 
   /** Vérifie le rejet d'un jeton destiné à un autre client (audience incorrecte). */
   @Test
   public void shouldRejectWrongAudience() throws Exception {
-    final String token =
-        createToken(issuer, "wrong-client", new Date(System.currentTimeMillis() + 10000));
+    final String token = createToken("wrong-client", new Date(System.currentTimeMillis() + 10000));
     assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
   }
 
   /** Vérifie que toute modification de la signature entraîne le rejet du jeton. */
   @Test
   public void shouldRejectInvalidSignature() throws Exception {
-    final String token =
-        createToken(issuer, clientId, new Date(System.currentTimeMillis() + 10000));
+    final String token = createToken(clientId, new Date(System.currentTimeMillis() + 10000));
     final String tamperedToken =
         token.substring(0, token.length() - 5) + (token.endsWith("a") ? "b" : "a");
     assertThrows(OAuthException.class, () -> validator.validate(tamperedToken, null, 0));

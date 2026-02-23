@@ -39,15 +39,6 @@ public abstract class DefaultOidcApi20 extends DefaultApi20 {
   private OidcProviderMetadata metadata;
 
   /**
-   * Retourne l'URL de l'émetteur (Issuer) pour cette API.
-   *
-   * @return L'URL de l'émetteur.
-   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">OpenID Connect Core
-   *     1.0, Section 2 (ID Token - iss claim)</a>
-   */
-  public abstract String getIssuer();
-
-  /**
    * Retourne les métadonnées du fournisseur associées à cette API.
    *
    * @return Les métadonnées {@link OidcProviderMetadata}, ou null si non encore récupérées.

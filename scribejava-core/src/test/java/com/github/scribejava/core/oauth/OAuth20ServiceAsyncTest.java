@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.PushedAuthorizationResponse;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -106,10 +105,7 @@ public class OAuth20ServiceAsyncTest {
   @Test
   public void shouldGetAccessTokenAsync() throws Exception {
     server.enqueue(new MockResponse().setBody("{\"access_token\":\"at123\"}").setResponseCode(200));
-    final OAuth2AccessToken token =
-        service
-            .getAccessToken("code123", (OAuthAsyncRequestCallback<OAuth2AccessToken>) null)
-            .get();
+    final OAuth2AccessToken token = service.getAccessTokenAsync("code123", null).get();
     assertThat(token.getAccessToken()).isEqualTo("at123");
   }
 
@@ -117,10 +113,7 @@ public class OAuth20ServiceAsyncTest {
   @Test
   public void shouldRefreshAccessTokenAsync() throws Exception {
     server.enqueue(new MockResponse().setBody("{\"access_token\":\"at456\"}").setResponseCode(200));
-    final OAuth2AccessToken token =
-        service
-            .refreshAccessToken("rt123", (OAuthAsyncRequestCallback<OAuth2AccessToken>) null)
-            .get();
+    final OAuth2AccessToken token = service.refreshAccessToken("rt123", null).get();
     assertThat(token.getAccessToken()).isEqualTo("at456");
   }
 
@@ -147,13 +140,9 @@ public class OAuth20ServiceAsyncTest {
 
   /** Vérifie la gestion d'erreur lors d'une requête asynchrone. */
   @Test
-  public void shouldHandleErrorInAsyncRequest() throws Exception {
+  public void shouldHandleErrorInAsyncRequest() {
     server.enqueue(new MockResponse().setResponseCode(500).setBody("Internal Server Error"));
     assertThrows(
-        ExecutionException.class,
-        () ->
-            service
-                .getAccessToken("code123", (OAuthAsyncRequestCallback<OAuth2AccessToken>) null)
-                .get());
+        ExecutionException.class, () -> service.getAccessTokenAsync("code123", null).get());
   }
 }

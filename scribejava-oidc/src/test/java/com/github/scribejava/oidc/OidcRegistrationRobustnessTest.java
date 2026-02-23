@@ -42,8 +42,7 @@ import org.junit.jupiter.api.Test;
 public class OidcRegistrationRobustnessTest {
 
   @Test
-  public void shouldThrowOnRegistrationError()
-      throws InterruptedException, ExecutionException, IOException {
+  public void shouldThrowOnRegistrationError() throws IOException {
     final HttpClient mockClient = mock(HttpClient.class);
     final OidcRegistrationService service = new OidcRegistrationService(mockClient, "UA");
 

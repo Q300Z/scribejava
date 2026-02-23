@@ -89,13 +89,7 @@ public class OidcFullCoverageTest {
   /** Vérifie que la classe de base DefaultOidcApi20 expose correctement les métadonnées. */
   @Test
   public void testDefaultOidcApi20FullCoverage() {
-    final DefaultOidcApi20 api =
-        new DefaultOidcApi20() {
-          @Override
-          public String getIssuer() {
-            return "https://idp.com";
-          }
-        };
+    final DefaultOidcApi20 api = new DefaultOidcApi20() {};
 
     assertThat(api.getAccessTokenEndpoint()).isNull();
     assertThat(api.getAuthorizationBaseUrl()).isNull();

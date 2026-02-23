@@ -24,7 +24,6 @@
 package com.github.scribejava.core.oauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;

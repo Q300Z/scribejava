@@ -28,7 +28,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 
 /**
  * 2.1. Authorization Request Header Field <br>
- * https://tools.ietf.org/html/rfc6750#section-2.1
+ * <a href="https://tools.ietf.org/html/rfc6750#section-2.1">...</a>
  */
 public class BearerSignatureAuthorizationRequestHeaderField implements BearerSignature {
 

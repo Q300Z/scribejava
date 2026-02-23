@@ -26,7 +26,6 @@ package com.github.scribejava.core.utils;
 import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 /** Tests de la classe utilitaire {@link Preconditions}. */
 public class PreconditionsTest {
@@ -36,40 +35,21 @@ public class PreconditionsTest {
   /** Vérifie que le rejet des objets nuls. */
   @Test
   public void shouldThrowExceptionForNullObjects() {
-    assertThrows(
-        IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            Preconditions.checkNotNull(null, ERROR_MSG);
-          }
-        });
+    assertThrows(IllegalArgumentException.class, () -> Preconditions.checkNotNull(null, ERROR_MSG));
   }
 
   /** Vérifie que le rejet des chaînes nulles. */
   @Test
   public void shouldThrowExceptionForNullStrings() {
     assertThrows(
-        IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            Preconditions.checkEmptyString(null, ERROR_MSG);
-          }
-        });
+        IllegalArgumentException.class, () -> Preconditions.checkEmptyString(null, ERROR_MSG));
   }
 
   /** Vérifie que le rejet des chaînes vides. */
   @Test
   public void shouldThrowExceptionForEmptyStrings() {
     assertThrows(
-        IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            Preconditions.checkEmptyString("", ERROR_MSG);
-          }
-        });
+        IllegalArgumentException.class, () -> Preconditions.checkEmptyString("", ERROR_MSG));
   }
 
   /** Vérifie que le rejet des chaînes composées uniquement d'espaces. */
@@ -77,11 +57,6 @@ public class PreconditionsTest {
   public void shouldThrowExceptionForSpacesOnlyStrings() {
     assertThrows(
         IllegalArgumentException.class,
-        new ThrowingRunnable() {
-          @Override
-          public void run() throws Throwable {
-            Preconditions.checkEmptyString("               ", ERROR_MSG);
-          }
-        });
+        () -> Preconditions.checkEmptyString("               ", ERROR_MSG));
   }
 }

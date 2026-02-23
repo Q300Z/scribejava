@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 
 /** Tests unitaires pour la classe utilitaire {@link MultipartUtils}. */
 public class MultipartUtilsTest {
@@ -44,13 +43,7 @@ public class MultipartUtilsTest {
   private static void testNotValidBoundary(final String boundary) {
     final IllegalArgumentException thrown =
         assertThrows(
-            IllegalArgumentException.class,
-            new ThrowingRunnable() {
-              @Override
-              public void run() throws Throwable {
-                MultipartUtils.checkBoundarySyntax(boundary);
-              }
-            });
+            IllegalArgumentException.class, () -> MultipartUtils.checkBoundarySyntax(boundary));
     assertTrue(
         thrown
             .getMessage()

@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Used to hold code_challenge, code_challenge_method and code_verifier for
- * https://tools.ietf.org/html/rfc7636
+ * Used to hold code_challenge, code_challenge_method and code_verifier for <a
+ * href="https://tools.ietf.org/html/rfc7636">...</a>
  */
 public class PKCE {
 

@@ -66,50 +66,6 @@ public class ArmeriaHttpClientConfig implements HttpClientConfig {
   }
 
   /**
-   * Creates new {@link HttpClientConfig} using default settings.
-   *
-   * @return new {@link HttpClientConfig} using default settings.
-   */
-  @Override
-  public HttpClientConfig createDefaultConfig() {
-    return defaultConfig();
-  }
-
-  /**
-   * Selects which protocol shall take preference when generic protocol scheme used by the URL, like
-   * {@code http} or {@code https}.
-   *
-   * @param protocolPreference specifies which protocol shall take preference. Acceptable values:
-   *     {@link SessionProtocol#H1} and {@link SessionProtocol#H2}
-   */
-  public void setProtocolPreference(SessionProtocol protocolPreference) {
-    if (protocolPreference != SessionProtocol.H1 && protocolPreference != SessionProtocol.H2) {
-      throw new IllegalArgumentException("Invalid protocolPreference: " + protocolPreference);
-    }
-    this.protocolPreference = protocolPreference;
-  }
-
-  /**
-   * Définit la préférence de protocole (version fluide).
-   *
-   * @param protocolPreference Le protocole préféré (H1 ou H2).
-   * @return L'instance de configuration.
-   */
-  public ArmeriaHttpClientConfig withProtocolPreference(SessionProtocol protocolPreference) {
-    setProtocolPreference(protocolPreference);
-    return this;
-  }
-
-  /**
-   * Définit la fonction de réessai (retry).
-   *
-   * @param retry La fonction de réessai.
-   */
-  public void setRetry(Function<? super HttpClient, RetryingClient> retry) {
-    this.retry = retry;
-  }
-
-  /**
    * Définit la fonction de réessai (version fluide).
    *
    * @param retry La fonction de réessai.
@@ -127,17 +83,6 @@ public class ArmeriaHttpClientConfig implements HttpClientConfig {
    */
   public void setLogging(Function<? super HttpClient, LoggingClient> logging) {
     this.logging = logging;
-  }
-
-  /**
-   * Définit la fonction de journalisation (version fluide).
-   *
-   * @param logging La fonction de journalisation.
-   * @return L'instance de configuration.
-   */
-  public ArmeriaHttpClientConfig withLogging(Function<? super HttpClient, LoggingClient> logging) {
-    this.logging = logging;
-    return this;
   }
 
   ArmeriaWebClientBuilder createClientBuilder() {

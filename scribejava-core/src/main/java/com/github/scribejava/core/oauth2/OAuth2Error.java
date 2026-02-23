@@ -155,13 +155,4 @@ public enum OAuth2Error {
     }
     throw new IllegalArgumentException("there is no knowlege about '" + errorString + "' Error");
   }
-
-  /**
-   * Retourne la représentation textuelle du code d'erreur.
-   *
-   * @return Le code d'erreur sous forme de chaîne de caractères.
-   */
-  public String getErrorString() {
-    return errorString;
-  }
 }

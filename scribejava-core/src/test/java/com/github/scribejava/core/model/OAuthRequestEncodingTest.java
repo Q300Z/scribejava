@@ -25,7 +25,6 @@ package com.github.scribejava.core.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
@@ -48,8 +47,7 @@ public class OAuthRequestEncodingTest {
 
   /** Vérifie que les paramètres sont toujours encodés en UTF-8 même si le charset est différent. */
   @Test
-  public void shouldHandleParametersAsUtf8EvenIfCharsetIsDifferent()
-      throws UnsupportedEncodingException {
+  public void shouldHandleParametersAsUtf8EvenIfCharsetIsDifferent() {
     final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
     request.addBodyParameter("city", "Montréal");
     // ScribeJava's OAuthEncoder currently enforces UTF-8 for parameter encoding

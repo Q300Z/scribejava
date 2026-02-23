@@ -30,7 +30,6 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /** Gère la révocation des jetons OAuth 2.0. */
 public class OAuth20RevocationHandler {
@@ -61,18 +60,6 @@ public class OAuth20RevocationHandler {
       request.addParameter("token_type_hint", tokenTypeHint.getValue());
     }
     return request;
-  }
-
-  /**
-   * @param tokenToRevoke tokenToRevoke
-   * @param tokenTypeHint tokenTypeHint
-   * @throws IOException IOException
-   * @throws InterruptedException InterruptedException
-   * @throws ExecutionException ExecutionException
-   */
-  public void revokeToken(String tokenToRevoke, TokenTypeHint tokenTypeHint)
-      throws IOException, InterruptedException, ExecutionException {
-    revokeTokenAsync(tokenToRevoke, tokenTypeHint).get();
   }
 
   /**

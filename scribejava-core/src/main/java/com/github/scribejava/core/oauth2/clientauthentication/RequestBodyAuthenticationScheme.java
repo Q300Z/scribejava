@@ -29,7 +29,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 /**
  * 2.3. Client Authentication<br>
  * 2.3.1. Client Password<br>
- * https://tools.ietf.org/html/rfc6749#section-2.3.1 <br>
+ * <a href="https://tools.ietf.org/html/rfc6749#section-2.3.1">...</a> <br>
  * request-body authentication scheme
  */
 public class RequestBodyAuthenticationScheme implements ClientAuthentication {

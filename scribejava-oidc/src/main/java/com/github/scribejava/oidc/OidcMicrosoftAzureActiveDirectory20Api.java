@@ -77,7 +77,6 @@ public class OidcMicrosoftAzureActiveDirectory20Api extends DefaultOidcApi20 {
    *
    * @return L'URL de l'émetteur Azure AD v2.0.
    */
-  @Override
   public String getIssuer() {
     return "https://login.microsoftonline.com/" + tenant + "/v2.0";
   }

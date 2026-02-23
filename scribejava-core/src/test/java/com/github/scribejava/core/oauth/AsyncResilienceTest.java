@@ -81,9 +81,9 @@ public class AsyncResilienceTest {
 
     // Simulate completeExceptionally behavior with callback
     future.completeExceptionally(error);
-    callback.onThrowable(error);
+    callback.onThrowable();
 
-    verify(callback).onThrowable(error);
+    verify(callback).onThrowable();
     assertThat(future.isCompletedExceptionally()).isTrue();
   }
 }

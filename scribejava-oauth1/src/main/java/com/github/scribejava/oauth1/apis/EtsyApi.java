@@ -24,26 +24,29 @@
 package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
+import java.util.Collection;
 
-/** API OAuth 1.0a pour EtsyApi. */
+/** API OAuth 1.0a pour Etsy. */
 public class EtsyApi extends DefaultApi10a {
 
   private static final String AUTHORIZE_URL = "https://www.etsy.com/oauth/signin";
-  private static final String ACCESS_TOKEN_URL = "https://openapi.etsy.com/v2/oauth/access_token";
-  private static final String REQUEST_TOKEN_URL = "https://openapi.etsy.com/v2/oauth/request_token";
 
   private final String scopeAsString;
 
-  private EtsyApi() {
-    scopeAsString = null;
+  protected EtsyApi() {
+    this(null);
   }
 
-  private EtsyApi(String... scopes) {
-    final StringBuilder builder = new StringBuilder();
-    for (String scope : scopes) {
-      builder.append("%20").append(scope);
+  protected EtsyApi(Collection<String> scopes) {
+    if (scopes == null || scopes.isEmpty()) {
+      scopeAsString = null;
+    } else {
+      final StringBuilder builder = new StringBuilder();
+      for (String scope : scopes) {
+        builder.append("%20").append(scope);
+      }
+      scopeAsString = builder.substring(3);
     }
-    scopeAsString = "?scope=" + builder.substring(3);
   }
 
   /**
@@ -56,23 +59,23 @@ public class EtsyApi extends DefaultApi10a {
   }
 
   /**
-   * Retourne une instance de l'API avec des portées spécifiques.
-   *
-   * @param scopes Les portées demandées.
-   * @return Une instance de {@link EtsyApi}.
+   * @param scopes scopes
+   * @return instance
    */
-  public static EtsyApi instance(String... scopes) {
-    return scopes == null || scopes.length == 0 ? instance() : new EtsyApi(scopes);
+  public static EtsyApi instance(Collection<String> scopes) {
+    return new EtsyApi(scopes);
   }
 
   @Override
   public String getAccessTokenEndpoint() {
-    return ACCESS_TOKEN_URL;
+    return "https://openapi.etsy.com/v2/oauth/access_token";
   }
 
   @Override
   public String getRequestTokenEndpoint() {
-    return scopeAsString == null ? REQUEST_TOKEN_URL : REQUEST_TOKEN_URL + scopeAsString;
+    return scopeAsString == null
+        ? "https://openapi.etsy.com/v2/oauth/request_token"
+        : "https://openapi.etsy.com/v2/oauth/request_token?scope=" + scopeAsString;
   }
 
   @Override

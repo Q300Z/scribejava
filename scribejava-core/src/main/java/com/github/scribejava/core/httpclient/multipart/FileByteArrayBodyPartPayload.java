@@ -32,26 +32,6 @@ import java.util.Map;
 public class FileByteArrayBodyPartPayload extends ByteArrayBodyPartPayload {
 
   /**
-   * Constructeur simple.
-   *
-   * @param payload Les données.
-   */
-  public FileByteArrayBodyPartPayload(byte[] payload) {
-    this(payload, null);
-  }
-
-  /**
-   * Constructeur avec décalage et longueur.
-   *
-   * @param payload Les données.
-   * @param off Le décalage.
-   * @param len La longueur.
-   */
-  public FileByteArrayBodyPartPayload(byte[] payload, int off, int len) {
-    this(payload, off, len, null);
-  }
-
-  /**
    * Constructeur avec nom de champ.
    *
    * @param payload Les données.
@@ -96,28 +76,6 @@ public class FileByteArrayBodyPartPayload extends ByteArrayBodyPartPayload {
   public FileByteArrayBodyPartPayload(
       byte[] payload, int off, int len, String name, String filename) {
     this(null, payload, off, len, name, filename);
-  }
-
-  /**
-   * Constructeur avec type de contenu.
-   *
-   * @param contentType Le type de contenu.
-   * @param payload Les données.
-   */
-  public FileByteArrayBodyPartPayload(String contentType, byte[] payload) {
-    this(contentType, payload, null);
-  }
-
-  /**
-   * Constructeur avec type de contenu, décalage et longueur.
-   *
-   * @param contentType Le type de contenu.
-   * @param payload Les données.
-   * @param off Le décalage.
-   * @param len La longueur.
-   */
-  public FileByteArrayBodyPartPayload(String contentType, byte[] payload, int off, int len) {
-    this(contentType, payload, off, len, null);
   }
 
   /**

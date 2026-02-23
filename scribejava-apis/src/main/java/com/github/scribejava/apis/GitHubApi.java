@@ -27,7 +27,6 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenExtractor;
 import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.Verb;
 
 /**
  * API OAuth 2.0 pour GitHub.
@@ -48,11 +47,6 @@ public class GitHubApi extends DefaultApi20 {
    */
   public static GitHubApi instance() {
     return InstanceHolder.INSTANCE;
-  }
-
-  @Override
-  public Verb getAccessTokenVerb() {
-    return Verb.POST;
   }
 
   @Override
