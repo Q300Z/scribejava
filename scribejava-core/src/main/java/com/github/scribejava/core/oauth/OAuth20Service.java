@@ -52,6 +52,40 @@ import java.util.concurrent.ExecutionException;
  *   <li><b>Revocation (RFC 7009):</b> Invalidation des jetons d'accès et de renouvellement.
  * </ul>
  *
+ * <h3>Exemple d'utilisation standard avec PKCE</h3>
+ *
+ * <pre>{@code
+ * // 1. Configuration du service
+ * final OAuth20Service service = new ServiceBuilder("votre_client_id")
+ *     .apiSecret("votre_client_secret")
+ *     .callback("https://votre-app.com/callback")
+ *     .build(GitHubApi.instance());
+ *
+ * // 2. Génération du challenge PKCE (Recommandé)
+ * final PKCE pkce = new PKCE();
+ * pkce.generateCodeVerifier();
+ *
+ * // 3. Obtention de l'URL d'autorisation
+ * final String authorizationUrl = service.createAuthorizationUrlBuilder()
+ *     .pkce(pkce)
+ *     .build();
+ *
+ * // ... Redirection de l'utilisateur et récupération du 'code' ...
+ *
+ * // 4. Échange du code contre un jeton d'accès
+ * final OAuth2AccessToken accessToken = service.getAccessToken(
+ *     new AuthorizationCodeGrant(code, pkce)
+ * );
+ *
+ * // 5. Signature et exécution d'une requête protégée
+ * final OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
+ * service.signRequest(accessToken, request);
+ *
+ * try (Response response = service.execute(request)) {
+ *     System.out.println(response.getBody());
+ * }
+ * }</pre>
+ *
  * @see <a href="https://tools.ietf.org/html/rfc6749">RFC 6749 (The OAuth 2.0 Authorization
  *     Framework)</a>
  */

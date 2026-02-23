@@ -123,8 +123,9 @@ dependencies {
 *   🛠️ **[Dépannage & Logs](TROUBLESHOOTING.md)** - Solutions aux erreurs et Débogage.
 *   📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Catalogue APIs](./scribejava-apis/README.md)
 *   🎯 **Exemples** :
+    *   [OAuth 2.0 GitHub avec PKCE](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/GitHubExample.java)
+    *   [OpenID Connect avec Découverte Dynamique](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/OidcDiscoveryExample.java)
     *   [Projet Enterprise Multi-Tenant (Local)](../scribejava-ee-example/README.md)
-    *   [Google](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/Google20Example.java) | [GitHub](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/GitHubExample.java)
 
 ### 🏗️ API Javadoc
 Nous maintenons une couverture Javadoc de 100%.

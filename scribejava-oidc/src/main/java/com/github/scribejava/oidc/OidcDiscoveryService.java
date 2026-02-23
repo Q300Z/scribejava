@@ -34,7 +34,31 @@ import java.text.ParseException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-/** Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS. */
+/**
+ * Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS.
+ *
+ * <p>Ce service permet de récupérer dynamiquement la configuration d'un fournisseur OIDC via son
+ * endpoint {@code /.well-known/openid-configuration} (RFC 8414 / OIDC Discovery 1.0).
+ *
+ * <h3>Exemple de découverte dynamique</h3>
+ *
+ * <pre>{@code
+ * // 1. Initialisation du service de découverte
+ * final OidcDiscoveryService discovery = new OidcDiscoveryService("https://accounts.google.com");
+ *
+ * // 2. Récupération des métadonnées
+ * final OidcProviderMetadata metadata = discovery.getMetadata();
+ *
+ * // 3. Création dynamique de l'API ScribeJava
+ * final DefaultOidcApi20 api = new DefaultOidcApi20(metadata);
+ *
+ * // 4. Récupération optionnelle des clés publiques (pour validation locale des jetons)
+ * final JWKSet jwks = discovery.getJWKSet();
+ * }</pre>
+ *
+ * @see <a href="https://openid.net/specs/openid-connect-discovery-1_0.html">OpenID Connect
+ *     Discovery 1.0</a>
+ */
 public class OidcDiscoveryService implements com.github.scribejava.core.oauth.DiscoveryService {
 
   private static final String OIDC_DISCOVERY_PATH = "/.well-known/openid-configuration";

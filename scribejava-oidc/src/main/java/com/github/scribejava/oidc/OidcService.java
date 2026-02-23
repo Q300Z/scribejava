@@ -46,6 +46,27 @@ import java.util.concurrent.CompletableFuture;
  * validation de l'ID Token, la récupération des informations utilisateur (UserInfo), la déconnexion
  * initiée par le client (RP-Initiated Logout) et le support du mode "form_post".
  *
+ * <h3>Exemple d'utilisation OpenID Connect</h3>
+ *
+ * <pre>{@code
+ * // 1. Construction du service (via Discovery recommandé)
+ * final OidcService service = (OidcService) new ServiceBuilder("votre_client_id")
+ *     .apiSecret("votre_client_secret")
+ *     .defaultScope("openid profile email")
+ *     .build(OidcGoogleApi20.instance());
+ *
+ * // 2. Échange du code contre un jeton OIDC
+ * final OidcToken token = (OidcToken) service.getAccessToken(new AuthorizationCodeGrant(code));
+ *
+ * // 3. Lecture des claims de l'ID Token
+ * final IdToken idToken = service.validateIdToken(token.getIdToken());
+ * System.out.println("Sujet : " + idToken.getSubject());
+ *
+ * // 4. Récupération des informations utilisateur complètes
+ * final String userInfo = service.getUserInfo(token);
+ * System.out.println("UserInfo : " + userInfo);
+ * }</pre>
+ *
  * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
  */
 public class OidcService extends OAuth20Service {
