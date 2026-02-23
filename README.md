@@ -58,22 +58,32 @@ graph TD
 
 ## 🚀 Démarrage Rapide
 
+### OAuth 2.0 avec PKCE (Recommandé)
 ```java
 // 1. Initialisation
 OAuth20Service service = new ServiceBuilder(clientId)
     .apiSecret(clientSecret)
     .build(GitHubApi.instance());
 
-// 2. Récupération du Token (Strategy)
-OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
+// 2. PKCE (Sécurité renforcée)
+PKCE pkce = PKCEService.defaultInstance().generatePKCE();
+String authUrl = service.createAuthorizationUrlBuilder().pkce(pkce).build();
 
-// 3. Appel API autorisé
+// 3. Récupération du Token
+OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code, pkce));
+
+// 4. Appel API
 OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
 service.signRequest(token, request);
+Response response = service.execute(request);
+```
 
-try (Response response = service.execute(request)) {
-    System.out.println("Corps : " + response.getBody());
-}
+### OpenID Connect Discovery
+```java
+// Découverte automatique des endpoints
+OidcDiscoveryService discovery = new OidcDiscoveryService("https://accounts.google.com");
+OidcProviderMetadata metadata = discovery.getMetadata();
+OidcService service = (OidcService) new ServiceBuilder(id).build(new DefaultOidcApi20(metadata));
 ```
 
 ---
