@@ -61,8 +61,9 @@ public class OidcDiscoveryExample {
      * @throws IOException Si une erreur E/S survient.
      * @throws InterruptedException Si l'exécution est interrompue.
      * @throws ExecutionException Si une erreur survient lors de l'exécution asynchrone.
+     * @throws java.text.ParseException Si une erreur survient lors de l'analyse JWT.
      */
-    public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+    public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, java.text.ParseException {
         System.out.println("=== Découverte Dynamique OIDC avec Google ===");
 
         // 1. Découverte des métadonnées
@@ -77,16 +78,19 @@ public class OidcDiscoveryExample {
         System.out.println("Métadonnées récupérées (Authorization Endpoint: " + metadata.getAuthorizationEndpoint() + ")");
 
         // 2. Initialisation du service OIDC
+        final DefaultOidcApi20 api = new DefaultOidcApi20() {
+            @Override
+            public String getIssuer() {
+                return GOOGLE_ISSUER;
+            }
+        };
+        api.setMetadata(metadata);
+
         final OidcService service = (OidcService) new ServiceBuilder(CLIENT_ID)
                 .apiSecret(CLIENT_SECRET)
                 .defaultScope("openid profile email")
                 .callback("http://localhost:8080/callback")
-                .build(new DefaultOidcApi20(metadata) {
-                    @Override
-                    public String getIssuer() {
-                        return GOOGLE_ISSUER;
-                    }
-                });
+                .build(api);
 
         final Scanner in = new Scanner(System.in, "UTF-8");
 
@@ -109,7 +113,7 @@ public class OidcDiscoveryExample {
             System.out.println("ID Token (JWT) : " + rawIdToken);
 
             System.out.println("Validation de l'ID Token...");
-            final IdToken idToken = service.validateIdToken(rawIdToken);
+            final IdToken idToken = service.validateIdToken(token, null);
             System.out.println("Utilisateur identifié (Subject) : " + idToken.getSubject());
             System.out.println("Email (depuis JWT) : " + idToken.getClaimsSet().getStringClaim("email"));
         }

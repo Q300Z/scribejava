@@ -30,6 +30,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCEService;
 import java.io.IOException;
@@ -93,10 +94,9 @@ public class GitHubExample {
 
         // 4. Échange du code contre un Access Token
         System.out.println("Échange du code contre un Access Token...");
-        final OAuth2AccessToken accessToken = service.getAccessToken(
-                com.github.scribejava.core.model.AccessTokenRequestParams.create(code)
-                        .pkceCodeVerifier(pkce.getCodeVerifier())
-        );
+        final AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
+        grant.setPkceCodeVerifier(pkce.getCodeVerifier());
+        final OAuth2AccessToken accessToken = service.getAccessToken(grant);
         System.out.println("Jeton obtenu : " + accessToken.getAccessToken());
 
         // 5. Appel d'une ressource protégée
