@@ -107,5 +107,18 @@ services:
       - /app/scribejava-oidc/target
     command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
+  docs:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        JAVA_VERSION: 17
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - docs-data:/app/target/site/apidocs
+    command: javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+
 volumes:
   maven-cache:
+  docs-data:
