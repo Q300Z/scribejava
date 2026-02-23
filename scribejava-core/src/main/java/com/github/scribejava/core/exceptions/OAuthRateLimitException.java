@@ -25,7 +25,6 @@ package com.github.scribejava.core.exceptions;
 
 import com.github.scribejava.core.model.OAuthResponseException;
 import com.github.scribejava.core.model.Response;
-
 import java.io.IOException;
 
 /**
@@ -34,36 +33,36 @@ import java.io.IOException;
  * <p>Correspond généralement au code de statut HTTP 429 (Too Many Requests).
  *
  * @see <a href="https://tools.ietf.org/html/rfc6585#section-4">RFC 6585, Section 4 (429 Too Many
- * Requests)</a>
+ *     Requests)</a>
  */
 public class OAuthRateLimitException extends OAuthResponseException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructeur.
-     *
-     * @param response La réponse HTTP contenant l'erreur de limitation.
-     * @throws IOException en cas d'erreur de lecture du corps de la réponse.
-     */
-    public OAuthRateLimitException(Response response) throws IOException {
-        super(response);
-    }
+  /**
+   * Constructeur.
+   *
+   * @param response La réponse HTTP contenant l'erreur de limitation.
+   * @throws IOException en cas d'erreur de lecture du corps de la réponse.
+   */
+  public OAuthRateLimitException(Response response) throws IOException {
+    super(response);
+  }
 
-    /**
-     * Retourne un message détaillé incluant le code de statut et le corps de la réponse.
-     *
-     * @return Le message d'erreur formaté.
-     */
-    @Override
-    public String getMessage() {
-        try {
-            return "Rate limit exceeded. Status: "
-                    + getResponse().getCode()
-                    + ", Body: "
-                    + getResponse().getBody();
-        } catch (IOException e) {
-            return "Rate limit exceeded. Status: " + getResponse().getCode() + " (could not read body)";
-        }
+  /**
+   * Retourne un message détaillé incluant le code de statut et le corps de la réponse.
+   *
+   * @return Le message d'erreur formaté.
+   */
+  @Override
+  public String getMessage() {
+    try {
+      return "Rate limit exceeded. Status: "
+          + getResponse().getCode()
+          + ", Body: "
+          + getResponse().getBody();
+    } catch (IOException e) {
+      return "Rate limit exceeded. Status: " + getResponse().getCode() + " (could not read body)";
     }
+  }
 }

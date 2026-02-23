@@ -35,48 +35,46 @@ import com.github.scribejava.core.oauth.OAuth20Service;
  * sur la base d'une autorisation préalablement arrangée avec le serveur d'autorisation.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3.4">RFC 6749, Section 1.3.4 (Client
- * Credentials)</a>
+ *     Credentials)</a>
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.4">RFC 6749, Section 4.4 (Client
- * Credentials Grant)</a>
+ *     Credentials Grant)</a>
  */
 public class ClientCredentialsGrant implements OAuth20Grant {
 
-    private final String scope;
+  private final String scope;
 
-    /**
-     * Constructeur par défaut.
-     */
-    public ClientCredentialsGrant() {
-        this(null);
+  /** Constructeur par défaut. */
+  public ClientCredentialsGrant() {
+    this(null);
+  }
+
+  /**
+   * Constructeur avec une portée (scope) spécifique.
+   *
+   * @param scope La portée de la demande d'accès.
+   */
+  public ClientCredentialsGrant(String scope) {
+    this.scope = scope;
+  }
+
+  @Override
+  public OAuthRequest createRequest(OAuth20Service service) {
+    final OAuthRequest request =
+        new OAuthRequest(
+            service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
+
+    service
+        .getApi()
+        .getClientAuthentication()
+        .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
+
+    if (scope != null) {
+      request.addParameter(OAuthConstants.SCOPE, scope);
+    } else if (service.getDefaultScope() != null) {
+      request.addParameter(OAuthConstants.SCOPE, service.getDefaultScope());
     }
+    request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.CLIENT_CREDENTIALS);
 
-    /**
-     * Constructeur avec une portée (scope) spécifique.
-     *
-     * @param scope La portée de la demande d'accès.
-     */
-    public ClientCredentialsGrant(String scope) {
-        this.scope = scope;
-    }
-
-    @Override
-    public OAuthRequest createRequest(OAuth20Service service) {
-        final OAuthRequest request =
-                new OAuthRequest(
-                        service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
-
-        service
-                .getApi()
-                .getClientAuthentication()
-                .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
-
-        if (scope != null) {
-            request.addParameter(OAuthConstants.SCOPE, scope);
-        } else if (service.getDefaultScope() != null) {
-            request.addParameter(OAuthConstants.SCOPE, service.getDefaultScope());
-        }
-        request.addParameter(OAuthConstants.GRANT_TYPE, OAuthConstants.CLIENT_CREDENTIALS);
-
-        return request;
-    }
+    return request;
+  }
 }

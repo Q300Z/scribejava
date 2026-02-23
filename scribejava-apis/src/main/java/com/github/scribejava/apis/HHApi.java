@@ -27,43 +27,38 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
-/**
- * API OAuth 2.0 pour HeadHunter (HH.ru).
- */
+/** API OAuth 2.0 pour HeadHunter (HH.ru). */
 public class HHApi extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected HHApi() {
-    }
+  /** Constructeur protégé. */
+  protected HHApi() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API HH.
-     *
-     * @return L'instance de {@link HHApi}.
-     */
-    public static HHApi instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API HH.
+   *
+   * @return L'instance de {@link HHApi}.
+   */
+  public static HHApi instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://hh.ru/oauth/token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://hh.ru/oauth/token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://hh.ru/oauth/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://hh.ru/oauth/authorize";
+  }
 
-    @Override
-    public ClientAuthentication getClientAuthentication() {
-        return RequestBodyAuthenticationScheme.instance();
-    }
+  @Override
+  public ClientAuthentication getClientAuthentication() {
+    return RequestBodyAuthenticationScheme.instance();
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final HHApi INSTANCE = new HHApi();
-    }
+    private static final HHApi INSTANCE = new HHApi();
+  }
 }

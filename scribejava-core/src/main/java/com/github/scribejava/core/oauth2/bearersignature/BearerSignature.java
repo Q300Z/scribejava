@@ -32,13 +32,13 @@ import com.github.scribejava.core.model.OAuthRequest;
  */
 public interface BearerSignature {
 
-    /**
-     * Signe la requête en y ajoutant le jeton d'accès (Bearer Token).
-     *
-     * @param accessToken Le jeton d'accès à utiliser pour l'authentification.
-     * @param request     La requête HTTP à signer.
-     * @see <a href="https://tools.ietf.org/html/rfc6750#section-2">RFC 6750, Section 2 (Authenticated
-     * Requests)</a>
-     */
-    void signRequest(String accessToken, OAuthRequest request);
+  /**
+   * Signe la requête en y ajoutant le jeton d'accès (Bearer Token).
+   *
+   * @param accessToken Le jeton d'accès à utiliser pour l'authentification.
+   * @param request La requête HTTP à signer.
+   * @see <a href="https://tools.ietf.org/html/rfc6750#section-2">RFC 6750, Section 2 (Authenticated
+   *     Requests)</a>
+   */
+  void signRequest(String accessToken, OAuthRequest request);
 }

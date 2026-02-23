@@ -31,26 +31,25 @@ import com.github.scribejava.core.model.OAuthRequest;
  * https://tools.ietf.org/html/rfc6750#section-2.3
  */
 public class BearerSignatureURIQueryParameter implements BearerSignature {
-    protected BearerSignatureURIQueryParameter() {
-    }
+  protected BearerSignatureURIQueryParameter() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de ce type de signature.
-     *
-     * @return L'instance de {@link BearerSignatureURIQueryParameter}.
-     */
-    public static BearerSignatureURIQueryParameter instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de ce type de signature.
+   *
+   * @return L'instance de {@link BearerSignatureURIQueryParameter}.
+   */
+  public static BearerSignatureURIQueryParameter instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public void signRequest(String accessToken, OAuthRequest request) {
-        request.addQuerystringParameter(OAuthConstants.ACCESS_TOKEN, accessToken);
-    }
+  @Override
+  public void signRequest(String accessToken, OAuthRequest request) {
+    request.addQuerystringParameter(OAuthConstants.ACCESS_TOKEN, accessToken);
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final BearerSignatureURIQueryParameter INSTANCE =
-                new BearerSignatureURIQueryParameter();
-    }
+    private static final BearerSignatureURIQueryParameter INSTANCE =
+        new BearerSignatureURIQueryParameter();
+  }
 }

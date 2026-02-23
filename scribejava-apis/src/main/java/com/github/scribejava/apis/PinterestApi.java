@@ -27,42 +27,37 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
-/**
- * API OAuth 2.0 pour Pinterest.
- */
+/** API OAuth 2.0 pour Pinterest. */
 public class PinterestApi extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected PinterestApi() {
-    }
+  /** Constructeur protégé. */
+  protected PinterestApi() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API Pinterest.
-     *
-     * @return L'instance de {@link PinterestApi}.
-     */
-    public static PinterestApi instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API Pinterest.
+   *
+   * @return L'instance de {@link PinterestApi}.
+   */
+  public static PinterestApi instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://api.pinterest.com/v1/oauth/token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://api.pinterest.com/v1/oauth/token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://api.pinterest.com/oauth";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://api.pinterest.com/oauth";
+  }
 
-    @Override
-    public ClientAuthentication getClientAuthentication() {
-        return RequestBodyAuthenticationScheme.instance();
-    }
+  @Override
+  public ClientAuthentication getClientAuthentication() {
+    return RequestBodyAuthenticationScheme.instance();
+  }
 
-    private static class InstanceHolder {
-        private static final PinterestApi INSTANCE = new PinterestApi();
-    }
+  private static class InstanceHolder {
+    private static final PinterestApi INSTANCE = new PinterestApi();
+  }
 }

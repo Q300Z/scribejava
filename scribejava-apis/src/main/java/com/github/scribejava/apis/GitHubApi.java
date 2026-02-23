@@ -33,47 +33,44 @@ import com.github.scribejava.core.model.Verb;
  * API OAuth 2.0 pour GitHub.
  *
  * @see <a
- * href="https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps">GitHub
- * OAuth Documentation</a>
+ *     href="https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps">GitHub
+ *     OAuth Documentation</a>
  */
 public class GitHubApi extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected GitHubApi() {
-    }
+  /** Constructeur protégé. */
+  protected GitHubApi() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API GitHub.
-     *
-     * @return L'instance de {@link GitHubApi}.
-     */
-    public static GitHubApi instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API GitHub.
+   *
+   * @return L'instance de {@link GitHubApi}.
+   */
+  public static GitHubApi instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public Verb getAccessTokenVerb() {
-        return Verb.POST;
-    }
+  @Override
+  public Verb getAccessTokenVerb() {
+    return Verb.POST;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://github.com/login/oauth/access_token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://github.com/login/oauth/access_token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://github.com/login/oauth/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://github.com/login/oauth/authorize";
+  }
 
-    @Override
-    public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
-        return OAuth2AccessTokenExtractor.instance();
-    }
+  @Override
+  public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
+    return OAuth2AccessTokenExtractor.instance();
+  }
 
-    private static class InstanceHolder {
-        private static final GitHubApi INSTANCE = new GitHubApi();
-    }
+  private static class InstanceHolder {
+    private static final GitHubApi INSTANCE = new GitHubApi();
+  }
 }

@@ -37,7 +37,6 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-
 import java.util.Date;
 import java.util.UUID;
 
@@ -55,87 +54,87 @@ import java.util.UUID;
  */
 public class PrivateKeyJwtClientAuthentication implements ClientAuthentication {
 
-    private static final int EXPIRATION_TIMEOUT_MS = 5 * 60 * 1000;
-    private final String clientId;
-    private final String audience;
-    private final JWK privateJWK;
-    private final JWSAlgorithm jwsAlgorithm;
+  private static final int EXPIRATION_TIMEOUT_MS = 5 * 60 * 1000;
+  private final String clientId;
+  private final String audience;
+  private final JWK privateJWK;
+  private final JWSAlgorithm jwsAlgorithm;
 
-    /**
-     * Constructeur.
-     *
-     * @param clientId     L'identifiant du client (Client ID).
-     * @param audience     L'audience attendue par le serveur (typiquement l'URL du point de terminaison
-     *                     de jeton).
-     * @param privateJWK   La clé privée du client au format JWK.
-     * @param jwsAlgorithm L'algorithme de signature à utiliser (ex: RS256, ES256).
-     * @throws IllegalArgumentException si la clé fournie n'est pas une clé privée.
-     */
-    public PrivateKeyJwtClientAuthentication(
-            final String clientId,
-            final String audience,
-            final JWK privateJWK,
-            final JWSAlgorithm jwsAlgorithm) {
-        this.clientId = clientId;
-        this.audience = audience;
-        this.privateJWK = privateJWK;
-        this.jwsAlgorithm = jwsAlgorithm;
+  /**
+   * Constructeur.
+   *
+   * @param clientId L'identifiant du client (Client ID).
+   * @param audience L'audience attendue par le serveur (typiquement l'URL du point de terminaison
+   *     de jeton).
+   * @param privateJWK La clé privée du client au format JWK.
+   * @param jwsAlgorithm L'algorithme de signature à utiliser (ex: RS256, ES256).
+   * @throws IllegalArgumentException si la clé fournie n'est pas une clé privée.
+   */
+  public PrivateKeyJwtClientAuthentication(
+      final String clientId,
+      final String audience,
+      final JWK privateJWK,
+      final JWSAlgorithm jwsAlgorithm) {
+    this.clientId = clientId;
+    this.audience = audience;
+    this.privateJWK = privateJWK;
+    this.jwsAlgorithm = jwsAlgorithm;
 
-        if (!privateJWK.isPrivate()) {
-            throw new IllegalArgumentException("JWK must contain a private key.");
-        }
+    if (!privateJWK.isPrivate()) {
+      throw new IllegalArgumentException("JWK must contain a private key.");
+    }
+  }
+
+  @Override
+  public void addClientAuthentication(
+      final OAuthRequest request, final String apiKey, final String apiSecret) {
+    addClientAuthentication(request);
+  }
+
+  /**
+   * Ajoute l'assertion JWT d'authentification client à la requête.
+   *
+   * @param request La requête HTTP à laquelle ajouter les paramètres {@code client_assertion} et
+   *     {@code client_assertion_type}.
+   */
+  public void addClientAuthentication(final OAuthRequest request) {
+    final String assertion = createAssertion();
+    request.addBodyParameter(
+        "client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+    request.addBodyParameter("client_assertion", assertion);
+  }
+
+  private String createAssertion() {
+    final JWSHeader header =
+        new JWSHeader.Builder(jwsAlgorithm).keyID(privateJWK.getKeyID()).build();
+
+    final long now = System.currentTimeMillis();
+    final JWTClaimsSet claimsSet =
+        new JWTClaimsSet.Builder()
+            .issuer(clientId)
+            .subject(clientId)
+            .audience(audience)
+            .expirationTime(new Date(now + EXPIRATION_TIMEOUT_MS))
+            .issueTime(new Date(now))
+            .jwtID(UUID.randomUUID().toString())
+            .build();
+
+    final SignedJWT signedJWT = new SignedJWT(header, claimsSet);
+
+    try {
+      final JWSSigner signer;
+      if (privateJWK instanceof RSAKey) {
+        signer = new RSASSASigner((RSAKey) privateJWK);
+      } else if (privateJWK instanceof ECKey) {
+        signer = new ECDSASigner((ECKey) privateJWK);
+      } else {
+        throw new OAuthException("Unsupported JWK type: " + privateJWK.getClass().getName());
+      }
+      signedJWT.sign(signer);
+    } catch (final JOSEException e) {
+      throw new OAuthException("Error signing client assertion JWT", e);
     }
 
-    @Override
-    public void addClientAuthentication(
-            final OAuthRequest request, final String apiKey, final String apiSecret) {
-        addClientAuthentication(request);
-    }
-
-    /**
-     * Ajoute l'assertion JWT d'authentification client à la requête.
-     *
-     * @param request La requête HTTP à laquelle ajouter les paramètres {@code client_assertion} et
-     *                {@code client_assertion_type}.
-     */
-    public void addClientAuthentication(final OAuthRequest request) {
-        final String assertion = createAssertion();
-        request.addBodyParameter(
-                "client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
-        request.addBodyParameter("client_assertion", assertion);
-    }
-
-    private String createAssertion() {
-        final JWSHeader header =
-                new JWSHeader.Builder(jwsAlgorithm).keyID(privateJWK.getKeyID()).build();
-
-        final long now = System.currentTimeMillis();
-        final JWTClaimsSet claimsSet =
-                new JWTClaimsSet.Builder()
-                        .issuer(clientId)
-                        .subject(clientId)
-                        .audience(audience)
-                        .expirationTime(new Date(now + EXPIRATION_TIMEOUT_MS))
-                        .issueTime(new Date(now))
-                        .jwtID(UUID.randomUUID().toString())
-                        .build();
-
-        final SignedJWT signedJWT = new SignedJWT(header, claimsSet);
-
-        try {
-            final JWSSigner signer;
-            if (privateJWK instanceof RSAKey) {
-                signer = new RSASSASigner((RSAKey) privateJWK);
-            } else if (privateJWK instanceof ECKey) {
-                signer = new ECDSASigner((ECKey) privateJWK);
-            } else {
-                throw new OAuthException("Unsupported JWK type: " + privateJWK.getClass().getName());
-            }
-            signedJWT.sign(signer);
-        } catch (final JOSEException e) {
-            throw new OAuthException("Error signing client assertion JWT", e);
-        }
-
-        return signedJWT.serialize();
-    }
+    return signedJWT.serialize();
+  }
 }

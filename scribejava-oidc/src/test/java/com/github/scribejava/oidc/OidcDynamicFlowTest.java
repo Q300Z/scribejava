@@ -23,112 +23,101 @@
  */
 package com.github.scribejava.oidc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-/**
- * Tests du flux de découverte dynamique OpenID Connect.
- */
+/** Tests du flux de découverte dynamique OpenID Connect. */
 public class OidcDynamicFlowTest {
 
-    private MockWebServer server;
-    private OidcDiscoveryService discoveryService;
-    private String issuer;
+  private MockWebServer server;
+  private OidcDiscoveryService discoveryService;
+  private String issuer;
 
-    /**
-     * Initialisation du serveur de simulation.
-     *
-     * @throws IOException en cas d'erreur.
-     */
-    @BeforeEach
-    public void setUp() throws IOException {
-        server = new MockWebServer();
-        server.start();
-        issuer = server.url("/").toString();
-        discoveryService = new OidcDiscoveryService(issuer, new JDKHttpClient(), "UA");
-    }
+  /**
+   * Initialisation du serveur de simulation.
+   *
+   * @throws IOException en cas d'erreur.
+   */
+  @BeforeEach
+  public void setUp() throws IOException {
+    server = new MockWebServer();
+    server.start();
+    issuer = server.url("/").toString();
+    discoveryService = new OidcDiscoveryService(issuer, new JDKHttpClient(), "UA");
+  }
 
-    /**
-     * Arrêt du serveur.
-     *
-     * @throws IOException en cas d'erreur.
-     */
-    @AfterEach
-    public void tearDown() throws IOException {
-        server.shutdown();
-    }
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
+  @AfterEach
+  public void tearDown() throws IOException {
+    server.shutdown();
+  }
 
-    /**
-     * Vérifie la découverte correcte des métadonnées du fournisseur.
-     */
-    @Test
-    public void shouldDiscoverMetadata() throws Exception {
-        final String json =
-                "{\"issuer\":\""
-                        + issuer
-                        + "\", \"authorization_endpoint\":\""
-                        + issuer
-                        + "auth\", "
-                        + "\"token_endpoint\":\""
-                        + issuer
-                        + "token\", \"jwks_uri\":\""
-                        + issuer
-                        + "jwks\", "
-                        + "\"subject_types_supported\":[\"public\"]}";
-        server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
+  /** Vérifie la découverte correcte des métadonnées du fournisseur. */
+  @Test
+  public void shouldDiscoverMetadata() throws Exception {
+    final String json =
+        "{\"issuer\":\""
+            + issuer
+            + "\", \"authorization_endpoint\":\""
+            + issuer
+            + "auth\", "
+            + "\"token_endpoint\":\""
+            + issuer
+            + "token\", \"jwks_uri\":\""
+            + issuer
+            + "jwks\", "
+            + "\"subject_types_supported\":[\"public\"]}";
+    server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
 
-        final OidcProviderMetadata metadata = discoveryService.getProviderMetadata();
-        assertThat(metadata.getIssuer()).isEqualTo(issuer);
-        assertThat(metadata.getTokenEndpoint()).isEqualTo(issuer + "token");
-    }
+    final OidcProviderMetadata metadata = discoveryService.getProviderMetadata();
+    assertThat(metadata.getIssuer()).isEqualTo(issuer);
+    assertThat(metadata.getTokenEndpoint()).isEqualTo(issuer + "token");
+  }
 
-    /**
-     * Vérifie la gestion d'une réponse de découverte malformée.
-     */
-    @Test
-    public void shouldHandleMalformedDiscoveryResponse() {
-        server.enqueue(new MockResponse().setBody("not-json").setResponseCode(200));
-        assertThrows(Exception.class, () -> discoveryService.getProviderMetadata());
-    }
+  /** Vérifie la gestion d'une réponse de découverte malformée. */
+  @Test
+  public void shouldHandleMalformedDiscoveryResponse() {
+    server.enqueue(new MockResponse().setBody("not-json").setResponseCode(200));
+    assertThrows(Exception.class, () -> discoveryService.getProviderMetadata());
+  }
 
-    /**
-     * Vérifie la gestion d'une erreur HTTP lors de la découverte.
-     */
-    @Test
-    public void shouldHandleDiscoveryHttpError() {
-        server.enqueue(new MockResponse().setResponseCode(404));
-        assertThrows(Exception.class, () -> discoveryService.getProviderMetadata());
-    }
+  /** Vérifie la gestion d'une erreur HTTP lors de la découverte. */
+  @Test
+  public void shouldHandleDiscoveryHttpError() {
+    server.enqueue(new MockResponse().setResponseCode(404));
+    assertThrows(Exception.class, () -> discoveryService.getProviderMetadata());
+  }
 
-    /**
-     * Vérifie que la différence entre l'émetteur attendu et reçu lève une erreur.
-     */
-    @Test
-    public void shouldHandleIssuerMismatch() {
-        final String json =
-                "{\"issuer\":\"https://mismatch.com\", \"authorization_endpoint\":\""
-                        + issuer
-                        + "auth\","
-                        + " \"token_endpoint\":\""
-                        + issuer
-                        + "token\", \"jwks_uri\":\""
-                        + issuer
-                        + "jwks\","
-                        + " \"subject_types_supported\":[\"public\"]}";
-        server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
+  /** Vérifie que la différence entre l'émetteur attendu et reçu lève une erreur. */
+  @Test
+  public void shouldHandleIssuerMismatch() {
+    final String json =
+        "{\"issuer\":\"https://mismatch.com\", \"authorization_endpoint\":\""
+            + issuer
+            + "auth\","
+            + " \"token_endpoint\":\""
+            + issuer
+            + "token\", \"jwks_uri\":\""
+            + issuer
+            + "jwks\","
+            + " \"subject_types_supported\":[\"public\"]}";
+    server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
 
-        final ExecutionException ex =
-                assertThrows(ExecutionException.class, () -> discoveryService.getProviderMetadata());
-        assertThat(ex.getCause().getMessage()).contains("Issuer mismatch");
-    }
+    final ExecutionException ex =
+        assertThrows(ExecutionException.class, () -> discoveryService.getProviderMetadata());
+    assertThat(ex.getCause().getMessage()).contains("Issuer mismatch");
+  }
 }

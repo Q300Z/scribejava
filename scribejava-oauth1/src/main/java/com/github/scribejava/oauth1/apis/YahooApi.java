@@ -25,44 +25,39 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/**
- * API OAuth 1.0a pour Yahoo.
- */
+/** API OAuth 1.0a pour Yahoo. */
 public class YahooApi extends DefaultApi10a {
 
-    private static final String AUTHORIZE_URL = "https://api.login.yahoo.com/oauth/v2/request_auth";
+  private static final String AUTHORIZE_URL = "https://api.login.yahoo.com/oauth/v2/request_auth";
 
-    /**
-     * Constructeur protégé.
-     */
-    protected YahooApi() {
-    }
+  /** Constructeur protégé. */
+  protected YahooApi() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API Yahoo.
-     *
-     * @return L'instance de {@link YahooApi}.
-     */
-    public static YahooApi instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API Yahoo.
+   *
+   * @return L'instance de {@link YahooApi}.
+   */
+  public static YahooApi instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://api.login.yahoo.com/oauth/v2/get_token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://api.login.yahoo.com/oauth/v2/get_token";
+  }
 
-    @Override
-    public String getRequestTokenEndpoint() {
-        return "https://api.login.yahoo.com/oauth/v2/get_request_token";
-    }
+  @Override
+  public String getRequestTokenEndpoint() {
+    return "https://api.login.yahoo.com/oauth/v2/get_request_token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return AUTHORIZE_URL;
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return AUTHORIZE_URL;
+  }
 
-    private static class InstanceHolder {
-        private static final YahooApi INSTANCE = new YahooApi();
-    }
+  private static class InstanceHolder {
+    private static final YahooApi INSTANCE = new YahooApi();
+  }
 }

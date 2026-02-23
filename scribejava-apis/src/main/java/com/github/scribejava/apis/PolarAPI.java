@@ -30,74 +30,70 @@ import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-
 import java.io.OutputStream;
 
 /**
  * API OAuth 2.0 pour Polar.
  *
  * @see <a href="https://www.polar.com/accesslink-api/#authentication">Polar Accesslink API
- * Documentation</a>
+ *     Documentation</a>
  */
 public class PolarAPI extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected PolarAPI() {
-    }
+  /** Constructeur protégé. */
+  protected PolarAPI() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API Polar.
-     *
-     * @return L'instance de {@link PolarAPI}.
-     */
-    public static PolarAPI instance() {
-        return PolarAPI.InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API Polar.
+   *
+   * @return L'instance de {@link PolarAPI}.
+   */
+  public static PolarAPI instance() {
+    return PolarAPI.InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://polarremote.com/v2/oauth2/token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://polarremote.com/v2/oauth2/token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://flow.polar.com/oauth2/authorization";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://flow.polar.com/oauth2/authorization";
+  }
 
-    @Override
-    public PolarOAuthService createService(
-            String apiKey,
-            String apiSecret,
-            String callback,
-            String defaultScope,
-            String responseType,
-            OutputStream debugStream,
-            String userAgent,
-            HttpClientConfig httpClientConfig,
-            HttpClient httpClient) {
+  @Override
+  public PolarOAuthService createService(
+      String apiKey,
+      String apiSecret,
+      String callback,
+      String defaultScope,
+      String responseType,
+      OutputStream debugStream,
+      String userAgent,
+      HttpClientConfig httpClientConfig,
+      HttpClient httpClient) {
 
-        return new PolarOAuthService(
-                this,
-                apiKey,
-                apiSecret,
-                callback,
-                defaultScope,
-                responseType,
-                debugStream,
-                userAgent,
-                httpClientConfig,
-                httpClient);
-    }
+    return new PolarOAuthService(
+        this,
+        apiKey,
+        apiSecret,
+        callback,
+        defaultScope,
+        responseType,
+        debugStream,
+        userAgent,
+        httpClientConfig,
+        httpClient);
+  }
 
-    @Override
-    public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
-        return PolarJsonTokenExtractor.instance();
-    }
+  @Override
+  public TokenExtractor<OAuth2AccessToken> getAccessTokenExtractor() {
+    return PolarJsonTokenExtractor.instance();
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final PolarAPI INSTANCE = new PolarAPI();
-    }
+    private static final PolarAPI INSTANCE = new PolarAPI();
+  }
 }

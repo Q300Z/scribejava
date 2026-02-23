@@ -30,78 +30,76 @@ package com.github.scribejava.oidc;
  * ID (ex-Azure AD).
  *
  * @see <a
- * href="https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc">Microsoft
- * Entra OIDC Documentation</a>
+ *     href="https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc">Microsoft
+ *     Entra OIDC Documentation</a>
  * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
  */
 public class OidcMicrosoftAzureActiveDirectory20Api extends DefaultOidcApi20 {
 
-    private static final String DEFAULT_TENANT = "common";
-    private final String tenant;
+  private static final String DEFAULT_TENANT = "common";
+  private final String tenant;
 
-    /**
-     * Constructeur protégé utilisant le tenant par défaut ("common").
-     */
-    protected OidcMicrosoftAzureActiveDirectory20Api() {
-        this(DEFAULT_TENANT);
-    }
+  /** Constructeur protégé utilisant le tenant par défaut ("common"). */
+  protected OidcMicrosoftAzureActiveDirectory20Api() {
+    this(DEFAULT_TENANT);
+  }
 
-    /**
-     * Constructeur protégé pour un tenant spécifique.
-     *
-     * @param tenant L'identifiant ou le nom du tenant Azure AD.
-     */
-    protected OidcMicrosoftAzureActiveDirectory20Api(String tenant) {
-        this.tenant = tenant;
-    }
+  /**
+   * Constructeur protégé pour un tenant spécifique.
+   *
+   * @param tenant L'identifiant ou le nom du tenant Azure AD.
+   */
+  protected OidcMicrosoftAzureActiveDirectory20Api(String tenant) {
+    this.tenant = tenant;
+  }
 
-    /**
-     * Retourne l'instance unique (singleton) liée au tenant "common".
-     *
-     * @return L'instance de {@link OidcMicrosoftAzureActiveDirectory20Api}.
-     */
-    public static OidcMicrosoftAzureActiveDirectory20Api instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) liée au tenant "common".
+   *
+   * @return L'instance de {@link OidcMicrosoftAzureActiveDirectory20Api}.
+   */
+  public static OidcMicrosoftAzureActiveDirectory20Api instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    /**
-     * Crée une nouvelle instance de l'API pour un tenant spécifique.
-     *
-     * @param tenant L'identifiant du tenant.
-     * @return Une nouvelle instance de {@link OidcMicrosoftAzureActiveDirectory20Api}.
-     */
-    public static OidcMicrosoftAzureActiveDirectory20Api custom(String tenant) {
-        return new OidcMicrosoftAzureActiveDirectory20Api(tenant);
-    }
+  /**
+   * Crée une nouvelle instance de l'API pour un tenant spécifique.
+   *
+   * @param tenant L'identifiant du tenant.
+   * @return Une nouvelle instance de {@link OidcMicrosoftAzureActiveDirectory20Api}.
+   */
+  public static OidcMicrosoftAzureActiveDirectory20Api custom(String tenant) {
+    return new OidcMicrosoftAzureActiveDirectory20Api(tenant);
+  }
 
-    /**
-     * Retourne l'identifiant de l'émetteur (Issuer) pour le tenant configuré.
-     *
-     * @return L'URL de l'émetteur Azure AD v2.0.
-     */
-    @Override
-    public String getIssuer() {
-        return "https://login.microsoftonline.com/" + tenant + "/v2.0";
-    }
+  /**
+   * Retourne l'identifiant de l'émetteur (Issuer) pour le tenant configuré.
+   *
+   * @return L'URL de l'émetteur Azure AD v2.0.
+   */
+  @Override
+  public String getIssuer() {
+    return "https://login.microsoftonline.com/" + tenant + "/v2.0";
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        final String endpoint = super.getAccessTokenEndpoint();
-        return endpoint != null
-                ? endpoint
-                : "https://login.microsoftonline.com/" + tenant + "/oauth2/v2.0/token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    final String endpoint = super.getAccessTokenEndpoint();
+    return endpoint != null
+        ? endpoint
+        : "https://login.microsoftonline.com/" + tenant + "/oauth2/v2.0/token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        final String baseUrl = super.getAuthorizationBaseUrl();
-        return baseUrl != null
-                ? baseUrl
-                : "https://login.microsoftonline.com/" + tenant + "/oauth2/v2.0/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    final String baseUrl = super.getAuthorizationBaseUrl();
+    return baseUrl != null
+        ? baseUrl
+        : "https://login.microsoftonline.com/" + tenant + "/oauth2/v2.0/authorize";
+  }
 
-    private static class InstanceHolder {
-        private static final OidcMicrosoftAzureActiveDirectory20Api INSTANCE =
-                new OidcMicrosoftAzureActiveDirectory20Api();
-    }
+  private static class InstanceHolder {
+    private static final OidcMicrosoftAzureActiveDirectory20Api INSTANCE =
+        new OidcMicrosoftAzureActiveDirectory20Api();
+  }
 }

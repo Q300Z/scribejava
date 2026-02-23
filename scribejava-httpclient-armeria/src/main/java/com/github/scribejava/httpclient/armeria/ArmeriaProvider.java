@@ -27,19 +27,15 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.httpclient.HttpClientProvider;
 
-/**
- * Fournisseur de client HTTP utilisant Armeria.
- */
+/** Fournisseur de client HTTP utilisant Armeria. */
 public class ArmeriaProvider implements HttpClientProvider {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public HttpClient createClient(HttpClientConfig config) {
-        if (config instanceof ArmeriaHttpClientConfig) {
-            return new ArmeriaHttpClient((ArmeriaHttpClientConfig) config);
-        }
-        return null;
+  /** {@inheritDoc} */
+  @Override
+  public HttpClient createClient(HttpClientConfig config) {
+    if (config instanceof ArmeriaHttpClientConfig) {
+      return new ArmeriaHttpClient((ArmeriaHttpClientConfig) config);
     }
+    return null;
+  }
 }

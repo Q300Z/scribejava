@@ -21,9 +21,9 @@ Comme ScribeJava n'est pas publié sur Maven Central, les releases sont gérées
    ```
 
 4. **Vérifier sur GitHub** :
-    * Allez dans l'onglet **Actions** pour voir le build de la release.
-    * Une fois terminé, allez dans **Releases**. Vous y trouverez les notes de version et tous les fichiers `.jar` (
-      core, oidc, apis, etc.) attachés automatiquement.
+  * Allez dans l'onglet **Actions** pour voir le build de la release.
+  * Une fois terminé, allez dans **Releases**. Vous y trouverez les notes de version et tous les fichiers `.jar` (
+    core, oidc, apis, etc.) attachés automatiquement.
 
 ## 🛠️ Utiliser cette version dans un autre projet
 

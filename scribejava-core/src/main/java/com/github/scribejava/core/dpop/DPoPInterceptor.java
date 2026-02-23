@@ -33,32 +33,30 @@ import com.github.scribejava.core.oauth.OAuthRequestInterceptor;
  */
 public class DPoPInterceptor implements OAuthRequestInterceptor {
 
-    private final DPoPProofCreator proofCreator;
-    private String accessToken; // Can be set if we want to include 'ath' claim
+  private final DPoPProofCreator proofCreator;
+  private String accessToken; // Can be set if we want to include 'ath' claim
 
-    /**
-     * Constructeur.
-     *
-     * @param proofCreator Le créateur de preuves DPoP.
-     */
-    public DPoPInterceptor(DPoPProofCreator proofCreator) {
-        this.proofCreator = proofCreator;
-    }
+  /**
+   * Constructeur.
+   *
+   * @param proofCreator Le créateur de preuves DPoP.
+   */
+  public DPoPInterceptor(DPoPProofCreator proofCreator) {
+    this.proofCreator = proofCreator;
+  }
 
-    /**
-     * Définit le jeton d'accès pour inclure la réclamation 'ath' (Access Token Hash) dans la preuve.
-     *
-     * @param accessToken Le jeton d'accès.
-     */
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
+  /**
+   * Définit le jeton d'accès pour inclure la réclamation 'ath' (Access Token Hash) dans la preuve.
+   *
+   * @param accessToken Le jeton d'accès.
+   */
+  public void setAccessToken(String accessToken) {
+    this.accessToken = accessToken;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void intercept(OAuthRequest request) {
-        request.setDPoPProof(proofCreator.createDPoPProof(request, accessToken));
-    }
+  /** {@inheritDoc} */
+  @Override
+  public void intercept(OAuthRequest request) {
+    request.setDPoPProof(proofCreator.createDPoPProof(request, accessToken));
+  }
 }

@@ -32,7 +32,6 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -44,75 +43,75 @@ import java.util.concurrent.CompletableFuture;
  * fournissant ses métadonnées (URIs de redirection, nom, méthode d'authentification).
  *
  * @see <a href="http://openid.net/specs/openid-connect-registration-1_0.html">OpenID Connect
- * Dynamic Client Registration 1.0</a>
+ *     Dynamic Client Registration 1.0</a>
  * @see <a href="https://tools.ietf.org/html/rfc7591">RFC 7591 (OAuth 2.0 Dynamic Client
- * Registration Protocol)</a>
+ *     Registration Protocol)</a>
  */
 public class OidcRegistrationService {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final HttpClient httpClient;
-    private final String userAgent;
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private final HttpClient httpClient;
+  private final String userAgent;
 
-    /**
-     * Constructeur.
-     *
-     * @param httpClient Le client HTTP à utiliser.
-     * @param userAgent  La chaîne User-Agent.
-     */
-    public OidcRegistrationService(final HttpClient httpClient, final String userAgent) {
-        this.httpClient = httpClient;
-        this.userAgent = userAgent;
+  /**
+   * Constructeur.
+   *
+   * @param httpClient Le client HTTP à utiliser.
+   * @param userAgent La chaîne User-Agent.
+   */
+  public OidcRegistrationService(final HttpClient httpClient, final String userAgent) {
+    this.httpClient = httpClient;
+    this.userAgent = userAgent;
+  }
+
+  /**
+   * Enregistre un client de manière asynchrone auprès du fournisseur.
+   *
+   * @param registrationEndpoint L'URL du point de terminaison d'enregistrement.
+   * @param redirectUris Liste des URIs de redirection autorisées pour ce client.
+   * @param clientName Nom convivial du client.
+   * @param tokenEndpointAuthMethod Méthode d'authentification souhaitée au point de terminaison de
+   *     jeton.
+   * @return Un {@link CompletableFuture} contenant la réponse du serveur sous forme de {@link
+   *     JsonNode}.
+   */
+  public CompletableFuture<JsonNode> registerClientAsync(
+      final String registrationEndpoint,
+      final List<String> redirectUris,
+      final String clientName,
+      final String tokenEndpointAuthMethod) {
+    final ObjectNode registrationRequest = OBJECT_MAPPER.createObjectNode();
+    final ArrayNode redirectUrisNode = registrationRequest.putArray("redirect_uris");
+    redirectUris.forEach(redirectUrisNode::add);
+    registrationRequest.put("client_name", clientName);
+    if (tokenEndpointAuthMethod != null) {
+      registrationRequest.put("token_endpoint_auth_method", tokenEndpointAuthMethod);
     }
 
-    /**
-     * Enregistre un client de manière asynchrone auprès du fournisseur.
-     *
-     * @param registrationEndpoint    L'URL du point de terminaison d'enregistrement.
-     * @param redirectUris            Liste des URIs de redirection autorisées pour ce client.
-     * @param clientName              Nom convivial du client.
-     * @param tokenEndpointAuthMethod Méthode d'authentification souhaitée au point de terminaison de
-     *                                jeton.
-     * @return Un {@link CompletableFuture} contenant la réponse du serveur sous forme de {@link
-     * JsonNode}.
-     */
-    public CompletableFuture<JsonNode> registerClientAsync(
-            final String registrationEndpoint,
-            final List<String> redirectUris,
-            final String clientName,
-            final String tokenEndpointAuthMethod) {
-        final ObjectNode registrationRequest = OBJECT_MAPPER.createObjectNode();
-        final ArrayNode redirectUrisNode = registrationRequest.putArray("redirect_uris");
-        redirectUris.forEach(redirectUrisNode::add);
-        registrationRequest.put("client_name", clientName);
-        if (tokenEndpointAuthMethod != null) {
-            registrationRequest.put("token_endpoint_auth_method", tokenEndpointAuthMethod);
-        }
+    final OAuthRequest request = new OAuthRequest(Verb.POST, registrationEndpoint);
+    request.setPayload(registrationRequest.toString());
+    request.addHeader("Content-Type", "application/json");
 
-        final OAuthRequest request = new OAuthRequest(Verb.POST, registrationEndpoint);
-        request.setPayload(registrationRequest.toString());
-        request.addHeader("Content-Type", "application/json");
-
-        return httpClient.executeAsync(
-                userAgent,
-                request.getHeaders(),
-                request.getVerb(),
-                request.getCompleteUrl(),
-                request.getStringPayload(),
-                null,
-                response -> {
-                    try (Response resp = response) {
-                        if (resp.getCode() != 201 && resp.getCode() != 200) {
-                            throw new OAuthException(
-                                    "Client registration failed. Status: "
-                                            + resp.getCode()
-                                            + ", Body: "
-                                            + resp.getBody());
-                        }
-                        return OBJECT_MAPPER.readTree(resp.getBody());
-                    } catch (final IOException e) {
-                        throw new OAuthException("Error parsing registration response", e);
-                    }
-                });
-    }
+    return httpClient.executeAsync(
+        userAgent,
+        request.getHeaders(),
+        request.getVerb(),
+        request.getCompleteUrl(),
+        request.getStringPayload(),
+        null,
+        response -> {
+          try (Response resp = response) {
+            if (resp.getCode() != 201 && resp.getCode() != 200) {
+              throw new OAuthException(
+                  "Client registration failed. Status: "
+                      + resp.getCode()
+                      + ", Body: "
+                      + resp.getBody());
+            }
+            return OBJECT_MAPPER.readTree(resp.getBody());
+          } catch (final IOException e) {
+            throw new OAuthException("Error parsing registration response", e);
+          }
+        });
+  }
 }

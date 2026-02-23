@@ -30,138 +30,138 @@ import java.util.Set;
  * Énumération des codes d'erreur OAuth 2.0 standards.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, Section 5.2 (Error
- * Response)</a>
+ *     Response)</a>
  */
 public enum OAuth2Error {
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6750#section-6.2">RFC 6750, 6.2. OAuth Extensions
-     * Error Registration</a>
-     */
-    INVALID_REQUEST("invalid_request"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
-     */
-    UNAUTHORIZED_CLIENT("unauthorized_client"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
-     * Token Response</a>
-     */
-    ACCESS_DENIED("access_denied"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
-     * Response</a>
-     */
-    UNSUPPORTED_RESPONSE_TYPE("unsupported_response_type"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
-     */
-    INVALID_SCOPE("invalid_scope"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
-     * Response</a>
-     */
-    SERVER_ERROR("server_error"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
-     * Response</a>
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
-     * Response</a>
-     */
-    TEMPORARILY_UNAVAILABLE("temporarily_unavailable"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
-     */
-    INVALID_CLIENT("invalid_client"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
-     */
-    INVALID_GRANT("invalid_grant"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
-     */
-    UNSUPPORTED_GRANT_TYPE("unsupported_grant_type"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6750#section-6.2">RFC 6750, 6.2. OAuth Extensions
-     * Error Registration</a>
-     */
-    INVALID_TOKEN("invalid_token"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc6750#section-6.2">RFC 6750, 6.2. OAuth Extensions
-     * Error Registration</a>
-     */
-    INSUFFICIENT_SCOPE("insufficient_scope"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc7009#section-4.1">RFC 7009, 4.1. OAuth Extensions
-     * Error Registration</a>
-     */
-    UNSUPPORTED_TOKEN_TYPE("unsupported_token_type"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
-     * Token Response</a>
-     */
-    AUTHORIZATION_PENDING("authorization_pending"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
-     * Token Response</a>
-     */
-    SLOW_DOWN("slow_down"),
-    /**
-     * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
-     * Token Response</a>
-     */
-    EXPIRED_TOKEN("expired_token");
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6750#section-6.2">RFC 6750, 6.2. OAuth Extensions
+   *     Error Registration</a>
+   */
+  INVALID_REQUEST("invalid_request"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
+   */
+  UNAUTHORIZED_CLIENT("unauthorized_client"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
+   *     Token Response</a>
+   */
+  ACCESS_DENIED("access_denied"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
+   *     Response</a>
+   */
+  UNSUPPORTED_RESPONSE_TYPE("unsupported_response_type"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
+   */
+  INVALID_SCOPE("invalid_scope"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
+   *     Response</a>
+   */
+  SERVER_ERROR("server_error"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC 6749, 4.1.2.1 Error
+   *     Response</a>
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.2.2.1">RFC 6749, 4.2.2.1 Error
+   *     Response</a>
+   */
+  TEMPORARILY_UNAVAILABLE("temporarily_unavailable"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
+   */
+  INVALID_CLIENT("invalid_client"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
+   */
+  INVALID_GRANT("invalid_grant"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, 5.2 Error Response</a>
+   */
+  UNSUPPORTED_GRANT_TYPE("unsupported_grant_type"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6750#section-6.2">RFC 6750, 6.2. OAuth Extensions
+   *     Error Registration</a>
+   */
+  INVALID_TOKEN("invalid_token"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc6750#section-6.2">RFC 6750, 6.2. OAuth Extensions
+   *     Error Registration</a>
+   */
+  INSUFFICIENT_SCOPE("insufficient_scope"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc7009#section-4.1">RFC 7009, 4.1. OAuth Extensions
+   *     Error Registration</a>
+   */
+  UNSUPPORTED_TOKEN_TYPE("unsupported_token_type"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
+   *     Token Response</a>
+   */
+  AUTHORIZATION_PENDING("authorization_pending"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
+   *     Token Response</a>
+   */
+  SLOW_DOWN("slow_down"),
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.5">RFC 8628, 3.5. Device Access
+   *     Token Response</a>
+   */
+  EXPIRED_TOKEN("expired_token");
 
-    private static final Set<OAuth2Error> VALUES = EnumSet.allOf(OAuth2Error.class);
+  private static final Set<OAuth2Error> VALUES = EnumSet.allOf(OAuth2Error.class);
 
-    private final String errorString;
+  private final String errorString;
 
-    OAuth2Error(String errorString) {
-        this.errorString = errorString;
+  OAuth2Error(String errorString) {
+    this.errorString = errorString;
+  }
+
+  /**
+   * Analyse la chaîne de caractères fournie pour retourner l'erreur OAuth 2.0 correspondante.
+   *
+   * @param errorString La chaîne de caractères représentant le code d'erreur.
+   * @return L'instance de {@link OAuth2Error} associée.
+   * @throws IllegalArgumentException si le code d'erreur n'est pas reconnu.
+   */
+  public static OAuth2Error parseFrom(String errorString) {
+    for (OAuth2Error error : VALUES) {
+      if (error.errorString.equals(errorString)) {
+        return error;
+      }
     }
+    throw new IllegalArgumentException("there is no knowlege about '" + errorString + "' Error");
+  }
 
-    /**
-     * Analyse la chaîne de caractères fournie pour retourner l'erreur OAuth 2.0 correspondante.
-     *
-     * @param errorString La chaîne de caractères représentant le code d'erreur.
-     * @return L'instance de {@link OAuth2Error} associée.
-     * @throws IllegalArgumentException si le code d'erreur n'est pas reconnu.
-     */
-    public static OAuth2Error parseFrom(String errorString) {
-        for (OAuth2Error error : VALUES) {
-            if (error.errorString.equals(errorString)) {
-                return error;
-            }
-        }
-        throw new IllegalArgumentException("there is no knowlege about '" + errorString + "' Error");
-    }
-
-    /**
-     * Retourne la représentation textuelle du code d'erreur.
-     *
-     * @return Le code d'erreur sous forme de chaîne de caractères.
-     */
-    public String getErrorString() {
-        return errorString;
-    }
+  /**
+   * Retourne la représentation textuelle du code d'erreur.
+   *
+   * @return Le code d'erreur sous forme de chaîne de caractères.
+   */
+  public String getErrorString() {
+    return errorString;
+  }
 }

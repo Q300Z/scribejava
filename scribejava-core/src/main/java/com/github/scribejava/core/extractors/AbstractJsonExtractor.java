@@ -35,34 +35,32 @@ import com.github.scribejava.core.exceptions.OAuthException;
  */
 public abstract class AbstractJsonExtractor {
 
-    /**
-     * Instance partagée du mappeur d'objets Jackson.
-     */
-    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  /** Instance partagée du mappeur d'objets Jackson. */
+  protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    /**
-     * Extrait un paramètre obligatoire d'un nœud JSON.
-     *
-     * @param errorNode     Le nœud JSON à analyser.
-     * @param parameterName Le nom du paramètre attendu.
-     * @param rawResponse   La réponse brute (utilisée pour le message d'erreur).
-     * @return Le {@link JsonNode} correspondant au paramètre.
-     * @throws OAuthException si le paramètre est absent ou nul.
-     */
-    protected static JsonNode extractRequiredParameter(
-            JsonNode errorNode, String parameterName, String rawResponse) throws OAuthException {
-        final JsonNode value = errorNode.get(parameterName);
+  /**
+   * Extrait un paramètre obligatoire d'un nœud JSON.
+   *
+   * @param errorNode Le nœud JSON à analyser.
+   * @param parameterName Le nom du paramètre attendu.
+   * @param rawResponse La réponse brute (utilisée pour le message d'erreur).
+   * @return Le {@link JsonNode} correspondant au paramètre.
+   * @throws OAuthException si le paramètre est absent ou nul.
+   */
+  protected static JsonNode extractRequiredParameter(
+      JsonNode errorNode, String parameterName, String rawResponse) throws OAuthException {
+    final JsonNode value = errorNode.get(parameterName);
 
-        if (value == null || value.isNull()) {
-            throw new OAuthException(
-                    "Response body is incorrect. Can't extract a '"
-                            + parameterName
-                            + "' from this: '"
-                            + rawResponse
-                            + "'",
-                    null);
-        }
-
-        return value;
+    if (value == null || value.isNull()) {
+      throw new OAuthException(
+          "Response body is incorrect. Can't extract a '"
+              + parameterName
+              + "' from this: '"
+              + rawResponse
+              + "'",
+          null);
     }
+
+    return value;
+  }
 }

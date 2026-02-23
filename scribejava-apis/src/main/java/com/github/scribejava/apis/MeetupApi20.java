@@ -27,42 +27,37 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
-/**
- * API OAuth 2.0 pour Meetup.
- */
+/** API OAuth 2.0 pour Meetup. */
 public class MeetupApi20 extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected MeetupApi20() {
-    }
+  /** Constructeur protégé. */
+  protected MeetupApi20() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API Meetup.
-     *
-     * @return L'instance de {@link MeetupApi20}.
-     */
-    public static MeetupApi20 instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API Meetup.
+   *
+   * @return L'instance de {@link MeetupApi20}.
+   */
+  public static MeetupApi20 instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://secure.meetup.com/oauth2/access";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://secure.meetup.com/oauth2/access";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://secure.meetup.com/oauth2/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://secure.meetup.com/oauth2/authorize";
+  }
 
-    @Override
-    public ClientAuthentication getClientAuthentication() {
-        return RequestBodyAuthenticationScheme.instance();
-    }
+  @Override
+  public ClientAuthentication getClientAuthentication() {
+    return RequestBodyAuthenticationScheme.instance();
+  }
 
-    private static class InstanceHolder {
-        private static final MeetupApi20 INSTANCE = new MeetupApi20();
-    }
+  private static class InstanceHolder {
+    private static final MeetupApi20 INSTANCE = new MeetupApi20();
+  }
 }

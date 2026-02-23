@@ -27,43 +27,38 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
-/**
- * API OAuth 2.0 pour Kakao.
- */
+/** API OAuth 2.0 pour Kakao. */
 public class KakaoApi extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected KakaoApi() {
-    }
+  /** Constructeur protégé. */
+  protected KakaoApi() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API Kakao.
-     *
-     * @return L'instance de {@link KakaoApi}.
-     */
-    public static KakaoApi instance() {
-        return KakaoApi.InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API Kakao.
+   *
+   * @return L'instance de {@link KakaoApi}.
+   */
+  public static KakaoApi instance() {
+    return KakaoApi.InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://kauth.kakao.com/oauth/token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://kauth.kakao.com/oauth/token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://kauth.kakao.com/oauth/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://kauth.kakao.com/oauth/authorize";
+  }
 
-    @Override
-    public ClientAuthentication getClientAuthentication() {
-        return RequestBodyAuthenticationScheme.instance();
-    }
+  @Override
+  public ClientAuthentication getClientAuthentication() {
+    return RequestBodyAuthenticationScheme.instance();
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final KakaoApi INSTANCE = new KakaoApi();
-    }
+    private static final KakaoApi INSTANCE = new KakaoApi();
+  }
 }

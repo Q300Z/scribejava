@@ -55,7 +55,7 @@ OAuth20Service service = new ServiceBuilder(clientId)
     .build(GitHubApi.instance());
 
 // Utilisation d'un Handler pour la révocation
-service.revokeToken(myToken, TokenTypeHint.ACCESS_TOKEN); 
+service.revokeToken(myToken, TokenTypeHint.ACCESS_TOKEN);
 ```
 
 ---

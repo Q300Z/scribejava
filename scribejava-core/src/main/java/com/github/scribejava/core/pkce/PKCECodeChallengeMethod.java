@@ -32,33 +32,33 @@ import java.util.Base64;
  * Méthodes de calcul du code_challenge pour PKCE.
  *
  * @see <a href="https://tools.ietf.org/html/rfc7636#section-4.2">RFC 7636, Section 4.2 (Client
- * Creates the Code Challenge)</a>
+ *     Creates the Code Challenge)</a>
  */
 public enum PKCECodeChallengeMethod {
-    S256 {
-        @Override
-        public String transform2CodeChallenge(String codeVerifier) throws NoSuchAlgorithmException {
-            return Base64.getUrlEncoder()
-                    .withoutPadding()
-                    .encodeToString(
-                            MessageDigest.getInstance("SHA-256")
-                                    .digest(codeVerifier.getBytes(StandardCharsets.US_ASCII)));
-        }
-    },
-    PLAIN {
-        @Override
-        public String transform2CodeChallenge(String codeVerifier) {
-            return codeVerifier;
-        }
-    };
+  S256 {
+    @Override
+    public String transform2CodeChallenge(String codeVerifier) throws NoSuchAlgorithmException {
+      return Base64.getUrlEncoder()
+          .withoutPadding()
+          .encodeToString(
+              MessageDigest.getInstance("SHA-256")
+                  .digest(codeVerifier.getBytes(StandardCharsets.US_ASCII)));
+    }
+  },
+  PLAIN {
+    @Override
+    public String transform2CodeChallenge(String codeVerifier) {
+      return codeVerifier;
+    }
+  };
 
-    /**
-     * Transforme le code_verifier en code_challenge selon la méthode.
-     *
-     * @param codeVerifier Le code verifier d'origine.
-     * @return Le code challenge calculé.
-     * @throws NoSuchAlgorithmException si l'algorithme de hachage n'est pas disponible.
-     */
-    public abstract String transform2CodeChallenge(String codeVerifier)
-            throws NoSuchAlgorithmException;
+  /**
+   * Transforme le code_verifier en code_challenge selon la méthode.
+   *
+   * @param codeVerifier Le code verifier d'origine.
+   * @return Le code challenge calculé.
+   * @throws NoSuchAlgorithmException si l'algorithme de hachage n'est pas disponible.
+   */
+  public abstract String transform2CodeChallenge(String codeVerifier)
+      throws NoSuchAlgorithmException;
 }

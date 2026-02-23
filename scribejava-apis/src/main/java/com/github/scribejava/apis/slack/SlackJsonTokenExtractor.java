@@ -26,49 +26,44 @@ package com.github.scribejava.apis.slack;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
 
-/**
- * Extracteur JSON pour les jetons Slack.
- */
+/** Extracteur JSON pour les jetons Slack. */
 public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected SlackJsonTokenExtractor() {
+  /** Constructeur protégé. */
+  protected SlackJsonTokenExtractor() {}
+
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link SlackJsonTokenExtractor}.
+   */
+  public static SlackJsonTokenExtractor instance() {
+    return SlackJsonTokenExtractor.InstanceHolder.INSTANCE;
+  }
+
+  @Override
+  protected SlackOAuth2AccessToken createToken(
+      String accessToken,
+      String tokenType,
+      Integer expiresIn,
+      String refreshToken,
+      String scope,
+      JsonNode response,
+      String rawResponse) {
+    final String userAccessToken;
+    final JsonNode userAccessTokenNode = response.get("authed_user").get("access_token");
+    if (userAccessTokenNode == null) {
+      userAccessToken = "";
+    } else {
+      userAccessToken = userAccessTokenNode.asText();
     }
 
-    /**
-     * Retourne l'instance unique (singleton) de l'extracteur.
-     *
-     * @return L'instance de {@link SlackJsonTokenExtractor}.
-     */
-    public static SlackJsonTokenExtractor instance() {
-        return SlackJsonTokenExtractor.InstanceHolder.INSTANCE;
-    }
+    return new SlackOAuth2AccessToken(
+        accessToken, tokenType, expiresIn, refreshToken, scope, userAccessToken, rawResponse);
+  }
 
-    @Override
-    protected SlackOAuth2AccessToken createToken(
-            String accessToken,
-            String tokenType,
-            Integer expiresIn,
-            String refreshToken,
-            String scope,
-            JsonNode response,
-            String rawResponse) {
-        final String userAccessToken;
-        final JsonNode userAccessTokenNode = response.get("authed_user").get("access_token");
-        if (userAccessTokenNode == null) {
-            userAccessToken = "";
-        } else {
-            userAccessToken = userAccessTokenNode.asText();
-        }
+  private static class InstanceHolder {
 
-        return new SlackOAuth2AccessToken(
-                accessToken, tokenType, expiresIn, refreshToken, scope, userAccessToken, rawResponse);
-    }
-
-    private static class InstanceHolder {
-
-        private static final SlackJsonTokenExtractor INSTANCE = new SlackJsonTokenExtractor();
-    }
+    private static final SlackJsonTokenExtractor INSTANCE = new SlackJsonTokenExtractor();
+  }
 }

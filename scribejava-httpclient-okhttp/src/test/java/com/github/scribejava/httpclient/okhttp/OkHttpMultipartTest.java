@@ -23,10 +23,14 @@
  */
 package com.github.scribejava.httpclient.okhttp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.github.scribejava.core.httpclient.multipart.ByteArrayBodyPartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import java.io.IOException;
+import java.util.Collections;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -34,50 +38,45 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class OkHttpMultipartTest {
 
-    private MockWebServer server;
-    private OkHttpHttpClient client;
+  private MockWebServer server;
+  private OkHttpHttpClient client;
 
-    @BeforeEach
-    public void setUp() throws IOException {
-        server = new MockWebServer();
-        server.start();
-        client = new OkHttpHttpClient();
-    }
+  @BeforeEach
+  public void setUp() throws IOException {
+    server = new MockWebServer();
+    server.start();
+    client = new OkHttpHttpClient();
+  }
 
-    @AfterEach
-    public void tearDown() throws IOException {
-        server.shutdown();
-    }
+  @AfterEach
+  public void tearDown() throws IOException {
+    server.shutdown();
+  }
 
-    @Test
-    public void shouldSendMultipartPayload() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("Multipart OK"));
+  @Test
+  public void shouldSendMultipartPayload() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("Multipart OK"));
 
-        final MultipartPayload multipartPayload = new MultipartPayload("test-boundary");
-        multipartPayload.addBodyPart(new ByteArrayBodyPartPayload("part1".getBytes(), "text/plain"));
-        multipartPayload.addBodyPart(
-                new ByteArrayBodyPartPayload("part2".getBytes(), "application/octet-stream"));
+    final MultipartPayload multipartPayload = new MultipartPayload("test-boundary");
+    multipartPayload.addBodyPart(new ByteArrayBodyPartPayload("part1".getBytes(), "text/plain"));
+    multipartPayload.addBodyPart(
+        new ByteArrayBodyPartPayload("part2".getBytes(), "application/octet-stream"));
 
-        final Response response =
-                client.execute(
-                        "UA", Collections.emptyMap(), Verb.POST, server.url("/").toString(), multipartPayload);
+    final Response response =
+        client.execute(
+            "UA", Collections.emptyMap(), Verb.POST, server.url("/").toString(), multipartPayload);
 
-        assertThat(response.getBody()).isEqualTo("Multipart OK");
+    assertThat(response.getBody()).isEqualTo("Multipart OK");
 
-        final RecordedRequest recordedRequest = server.takeRequest();
-        assertThat(recordedRequest.getHeader("Content-Type")).contains("multipart/form-data");
-        assertThat(recordedRequest.getHeader("Content-Type")).contains("boundary=test-boundary");
+    final RecordedRequest recordedRequest = server.takeRequest();
+    assertThat(recordedRequest.getHeader("Content-Type")).contains("multipart/form-data");
+    assertThat(recordedRequest.getHeader("Content-Type")).contains("boundary=test-boundary");
 
-        final String body = recordedRequest.getBody().readUtf8();
-        assertThat(body).contains("part1");
-        assertThat(body).contains("part2");
-        assertThat(body).contains("--test-boundary");
-    }
+    final String body = recordedRequest.getBody().readUtf8();
+    assertThat(body).contains("part1");
+    assertThat(body).contains("part2");
+    assertThat(body).contains("--test-boundary");
+  }
 }

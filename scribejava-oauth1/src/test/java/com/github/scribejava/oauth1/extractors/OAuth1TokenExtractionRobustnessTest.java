@@ -23,47 +23,46 @@
  */
 package com.github.scribejava.oauth1.extractors;
 
-import com.github.scribejava.core.exceptions.OAuthException;
-import com.github.scribejava.core.model.Response;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.model.Response;
+import java.io.IOException;
+import org.junit.jupiter.api.Test;
+
 public class OAuth1TokenExtractionRobustnessTest {
 
-    @Test
-    public void shouldThrowOnMissingToken() throws IOException {
-        final OAuth1AccessTokenExtractor extractor = OAuth1AccessTokenExtractor.instance();
-        final Response response = mock(Response.class);
-        // oauth_token missing
-        when(response.getBody()).thenReturn("oauth_token_secret=secret");
+  @Test
+  public void shouldThrowOnMissingToken() throws IOException {
+    final OAuth1AccessTokenExtractor extractor = OAuth1AccessTokenExtractor.instance();
+    final Response response = mock(Response.class);
+    // oauth_token missing
+    when(response.getBody()).thenReturn("oauth_token_secret=secret");
 
-        assertThatThrownBy(() -> extractor.extract(response))
-                .isInstanceOf(OAuthException.class)
-                .hasMessageContaining("Can't extract token and secret");
-    }
+    assertThatThrownBy(() -> extractor.extract(response))
+        .isInstanceOf(OAuthException.class)
+        .hasMessageContaining("Can't extract token and secret");
+  }
 
-    @Test
-    public void shouldThrowOnEmptyToken() throws IOException {
-        final OAuth1AccessTokenExtractor extractor = OAuth1AccessTokenExtractor.instance();
-        final Response response = mock(Response.class);
-        // oauth_token present but empty
-        when(response.getBody()).thenReturn("oauth_token=&oauth_token_secret=secret");
+  @Test
+  public void shouldThrowOnEmptyToken() throws IOException {
+    final OAuth1AccessTokenExtractor extractor = OAuth1AccessTokenExtractor.instance();
+    final Response response = mock(Response.class);
+    // oauth_token present but empty
+    when(response.getBody()).thenReturn("oauth_token=&oauth_token_secret=secret");
 
-        assertThatThrownBy(() -> extractor.extract(response)).isInstanceOf(OAuthException.class);
-    }
+    assertThatThrownBy(() -> extractor.extract(response)).isInstanceOf(OAuthException.class);
+  }
 
-    @Test
-    public void shouldThrowOnEmptyBody() throws IOException {
-        final OAuth1AccessTokenExtractor extractor = OAuth1AccessTokenExtractor.instance();
-        final Response response = mock(Response.class);
-        when(response.getBody()).thenReturn("");
+  @Test
+  public void shouldThrowOnEmptyBody() throws IOException {
+    final OAuth1AccessTokenExtractor extractor = OAuth1AccessTokenExtractor.instance();
+    final Response response = mock(Response.class);
+    when(response.getBody()).thenReturn("");
 
-        assertThatThrownBy(() -> extractor.extract(response))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
+    assertThatThrownBy(() -> extractor.extract(response))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
 }

@@ -10,18 +10,18 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 
 * **Cause** : Vous utilisez une version de Java incompatible ou il manque une dépendance optionnelle.
 * **Solution** :
-    * Si l'erreur concerne `jackson`, assurez-vous d'avoir ajouté une bibliothèque de JSON (Jackson est utilisé par
-      défaut dans `apis` et `oidc`).
-    * Si l'erreur survient lors des tests sous Java 8, vérifiez que vous utilisez JUnit 5.9.3 et Surefire 3.0.0-M7 (voir
-      `pom.xml`).
+  * Si l'erreur concerne `jackson`, assurez-vous d'avoir ajouté une bibliothèque de JSON (Jackson est utilisé par
+    défaut dans `apis` et `oidc`).
+  * Si l'erreur survient lors des tests sous Java 8, vérifiez que vous utilisez JUnit 5.9.3 et Surefire 3.0.0-M7 (voir
+    `pom.xml`).
 
 ### ❌ `SSLHandshakeException: Received fatal alert: handshake_failure`
 
 * **Cause** : Votre JDK 8 est trop vieux et ne supporte pas les suites de chiffrement modernes demandées par le
   fournisseur (ex: Google, GitHub).
 * **Solution** :
-    * Mettez à jour votre JDK vers une version récente (ex: OpenJDK 8u251+).
-    * Ou forcez TLS 1.2 au démarrage : `-Dhttps.protocols=TLSv1.2`.
+  * Mettez à jour votre JDK vers une version récente (ex: OpenJDK 8u251+).
+  * Ou forcez TLS 1.2 au démarrage : `-Dhttps.protocols=TLSv1.2`.
 
 ---
 
@@ -34,8 +34,8 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 * **Cause** : Conflit entre les règles strictes de Checkstyle et le formatage automatique Spotless, ou mauvais ordre des
   balises `@param`, `@return`, `@deprecated` dans la Javadoc.
 * **Solution** :
-    * Lancez `make format` (ou `mvn spotless:apply`) pour le style.
-    * Respectez l'ordre OIDC/Javadoc : `@param` -> `@return` -> `@throws` -> `@see` -> `@deprecated`.
+  * Lancez `make format` (ou `mvn spotless:apply`) pour le style.
+  * Respectez l'ordre OIDC/Javadoc : `@param` -> `@return` -> `@throws` -> `@see` -> `@deprecated`.
 
 ### ❌ Avertissements de Build (Duplicate Plugin Declaration)
 

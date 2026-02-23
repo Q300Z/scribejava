@@ -27,49 +27,45 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
 import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
-/**
- * Classe de base pour les APIs Microsoft Azure Active Directory.
- */
+/** Classe de base pour les APIs Microsoft Azure Active Directory. */
 public abstract class BaseMicrosoftAzureActiveDirectoryApi extends DefaultApi20 {
 
-    protected static final String COMMON_TENANT = "common";
+  protected static final String COMMON_TENANT = "common";
 
-    private static final String MSFT_LOGIN_URL = "https://login.microsoftonline.com/";
-    private static final String OAUTH_2 = "/oauth2";
-    private final String tenant;
+  private static final String MSFT_LOGIN_URL = "https://login.microsoftonline.com/";
+  private static final String OAUTH_2 = "/oauth2";
+  private final String tenant;
 
-    /**
-     * Constructeur utilisant le tenant par défaut.
-     */
-    protected BaseMicrosoftAzureActiveDirectoryApi() {
-        this(COMMON_TENANT);
-    }
+  /** Constructeur utilisant le tenant par défaut. */
+  protected BaseMicrosoftAzureActiveDirectoryApi() {
+    this(COMMON_TENANT);
+  }
 
-    /**
-     * Constructeur pour un tenant spécifique.
-     *
-     * @param tenant L'identifiant du tenant.
-     */
-    protected BaseMicrosoftAzureActiveDirectoryApi(String tenant) {
-        this.tenant = tenant == null || tenant.isEmpty() ? COMMON_TENANT : tenant;
-    }
+  /**
+   * Constructeur pour un tenant spécifique.
+   *
+   * @param tenant L'identifiant du tenant.
+   */
+  protected BaseMicrosoftAzureActiveDirectoryApi(String tenant) {
+    this.tenant = tenant == null || tenant.isEmpty() ? COMMON_TENANT : tenant;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return MSFT_LOGIN_URL + tenant + OAUTH_2 + getEndpointVersionPath() + "/token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return MSFT_LOGIN_URL + tenant + OAUTH_2 + getEndpointVersionPath() + "/token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return MSFT_LOGIN_URL + tenant + OAUTH_2 + getEndpointVersionPath() + "/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return MSFT_LOGIN_URL + tenant + OAUTH_2 + getEndpointVersionPath() + "/authorize";
+  }
 
-    @Override
-    public ClientAuthentication getClientAuthentication() {
-        return RequestBodyAuthenticationScheme.instance();
-    }
+  @Override
+  public ClientAuthentication getClientAuthentication() {
+    return RequestBodyAuthenticationScheme.instance();
+  }
 
-    protected String getEndpointVersionPath() {
-        return "";
-    }
+  protected String getEndpointVersionPath() {
+    return "";
+  }
 }

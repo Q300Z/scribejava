@@ -31,42 +31,39 @@ import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthent
  * API OAuth 2.0 pour LinkedIn.
  *
  * @see <a
- * href="https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow">LinkedIn
- * OAuth Documentation</a>
+ *     href="https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow">LinkedIn
+ *     OAuth Documentation</a>
  */
 public class LinkedInApi20 extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected LinkedInApi20() {
-    }
+  /** Constructeur protégé. */
+  protected LinkedInApi20() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API LinkedIn.
-     *
-     * @return L'instance de {@link LinkedInApi20}.
-     */
-    public static LinkedInApi20 instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API LinkedIn.
+   *
+   * @return L'instance de {@link LinkedInApi20}.
+   */
+  public static LinkedInApi20 instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://www.linkedin.com/oauth/v2/accessToken";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://www.linkedin.com/oauth/v2/accessToken";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://www.linkedin.com/oauth/v2/authorization";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://www.linkedin.com/oauth/v2/authorization";
+  }
 
-    @Override
-    public ClientAuthentication getClientAuthentication() {
-        return RequestBodyAuthenticationScheme.instance();
-    }
+  @Override
+  public ClientAuthentication getClientAuthentication() {
+    return RequestBodyAuthenticationScheme.instance();
+  }
 
-    private static class InstanceHolder {
-        private static final LinkedInApi20 INSTANCE = new LinkedInApi20();
-    }
+  private static class InstanceHolder {
+    private static final LinkedInApi20 INSTANCE = new LinkedInApi20();
+  }
 }

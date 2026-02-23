@@ -23,44 +23,43 @@
  */
 package com.github.scribejava.oauth1.services;
 
-import com.github.scribejava.core.exceptions.OAuthSignatureException;
-import org.junit.jupiter.api.Test;
-
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
+import com.github.scribejava.core.exceptions.OAuthSignatureException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import org.junit.jupiter.api.Test;
+
 public class RSASha1SignatureAdvancedTest {
 
-    @Test
-    public void shouldGenerateValidSignatureWithRealKey() throws NoSuchAlgorithmException {
-        final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        keyGen.initialize(1024);
-        final KeyPair pair = keyGen.generateKeyPair();
-        final PrivateKey privateKey = pair.getPrivate();
+  @Test
+  public void shouldGenerateValidSignatureWithRealKey() throws NoSuchAlgorithmException {
+    final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(1024);
+    final KeyPair pair = keyGen.generateKeyPair();
+    final PrivateKey privateKey = pair.getPrivate();
 
-        final RSASha1SignatureService service = new RSASha1SignatureService(privateKey);
-        final String baseString = "GET&http%3A%2F%2Fexample.com&oauth_consumer_key%3Dkey";
+    final RSASha1SignatureService service = new RSASha1SignatureService(privateKey);
+    final String baseString = "GET&http%3A%2F%2Fexample.com&oauth_consumer_key%3Dkey";
 
-        final String signature = service.getSignature(baseString, "api-secret", "token-secret");
+    final String signature = service.getSignature(baseString, "api-secret", "token-secret");
 
-        assertThat(signature).isNotNull();
-        assertThat(signature).isNotEmpty();
-        assertThat(service.getSignatureMethod()).isEqualTo("RSA-SHA1");
-    }
+    assertThat(signature).isNotNull();
+    assertThat(signature).isNotEmpty();
+    assertThat(service.getSignatureMethod()).isEqualTo("RSA-SHA1");
+  }
 
-    @Test
-    public void shouldThrowExceptionOnSignatureError() {
-        // We use a mock PrivateKey that might cause an error during initSign or sign
-        final PrivateKey invalidKey = mock(PrivateKey.class);
-        final RSASha1SignatureService service = new RSASha1SignatureService(invalidKey);
+  @Test
+  public void shouldThrowExceptionOnSignatureError() {
+    // We use a mock PrivateKey that might cause an error during initSign or sign
+    final PrivateKey invalidKey = mock(PrivateKey.class);
+    final RSASha1SignatureService service = new RSASha1SignatureService(invalidKey);
 
-        assertThatThrownBy(() -> service.getSignature("any", "secret", "secret"))
-                .isInstanceOf(OAuthSignatureException.class);
-    }
+    assertThatThrownBy(() -> service.getSignature("any", "secret", "secret"))
+        .isInstanceOf(OAuthSignatureException.class);
+  }
 }

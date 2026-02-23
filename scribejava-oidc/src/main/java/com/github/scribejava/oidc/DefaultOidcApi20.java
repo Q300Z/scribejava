@@ -32,102 +32,102 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
  * OIDC Discovery 1.0 et la gestion des métadonnées du fournisseur.
  *
  * @see <a href="http://openid.net/specs/openid-connect-discovery-1_0.html">OpenID Connect Discovery
- * 1.0</a>
+ *     1.0</a>
  */
 public abstract class DefaultOidcApi20 extends DefaultApi20 {
 
-    private OidcProviderMetadata metadata;
+  private OidcProviderMetadata metadata;
 
-    /**
-     * Retourne l'URL de l'émetteur (Issuer) pour cette API.
-     *
-     * @return L'URL de l'émetteur.
-     * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">OpenID Connect Core
-     * 1.0, Section 2 (ID Token - iss claim)</a>
-     */
-    public abstract String getIssuer();
+  /**
+   * Retourne l'URL de l'émetteur (Issuer) pour cette API.
+   *
+   * @return L'URL de l'émetteur.
+   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">OpenID Connect Core
+   *     1.0, Section 2 (ID Token - iss claim)</a>
+   */
+  public abstract String getIssuer();
 
-    /**
-     * Retourne les métadonnées du fournisseur associées à cette API.
-     *
-     * @return Les métadonnées {@link OidcProviderMetadata}, ou null si non encore récupérées.
-     */
-    public OidcProviderMetadata getMetadata() {
-        return metadata;
-    }
+  /**
+   * Retourne les métadonnées du fournisseur associées à cette API.
+   *
+   * @return Les métadonnées {@link OidcProviderMetadata}, ou null si non encore récupérées.
+   */
+  public OidcProviderMetadata getMetadata() {
+    return metadata;
+  }
 
-    /**
-     * Définit les métadonnées du fournisseur pour cette API.
-     *
-     * @param metadata Les métadonnées récupérées via le service de découverte.
-     */
-    public void setMetadata(final OidcProviderMetadata metadata) {
-        this.metadata = metadata;
-    }
+  /**
+   * Définit les métadonnées du fournisseur pour cette API.
+   *
+   * @param metadata Les métadonnées récupérées via le service de découverte.
+   */
+  public void setMetadata(final OidcProviderMetadata metadata) {
+    this.metadata = metadata;
+  }
 
-    /**
-     * Retourne l'URL du point de terminaison de jeton (Token Endpoint).
-     *
-     * @return L'URL extraite des métadonnées.
-     */
-    @Override
-    public String getAccessTokenEndpoint() {
-        return metadata != null ? metadata.getTokenEndpoint() : null;
-    }
+  /**
+   * Retourne l'URL du point de terminaison de jeton (Token Endpoint).
+   *
+   * @return L'URL extraite des métadonnées.
+   */
+  @Override
+  public String getAccessTokenEndpoint() {
+    return metadata != null ? metadata.getTokenEndpoint() : null;
+  }
 
-    /**
-     * Retourne l'URL de base pour l'autorisation (Authorization Endpoint).
-     *
-     * @return L'URL extraite des métadonnées.
-     */
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return metadata != null ? metadata.getAuthorizationEndpoint() : null;
-    }
+  /**
+   * Retourne l'URL de base pour l'autorisation (Authorization Endpoint).
+   *
+   * @return L'URL extraite des métadonnées.
+   */
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return metadata != null ? metadata.getAuthorizationEndpoint() : null;
+  }
 
-    /**
-     * Retourne l'URL du point de terminaison de révocation de jeton.
-     *
-     * @return L'URL extraite des métadonnées ou celle par défaut.
-     * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
-     */
-    @Override
-    public String getRevokeTokenEndpoint() {
-        return metadata != null ? metadata.getRevocationEndpoint() : super.getRevokeTokenEndpoint();
-    }
+  /**
+   * Retourne l'URL du point de terminaison de révocation de jeton.
+   *
+   * @return L'URL extraite des métadonnées ou celle par défaut.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
+  @Override
+  public String getRevokeTokenEndpoint() {
+    return metadata != null ? metadata.getRevocationEndpoint() : super.getRevokeTokenEndpoint();
+  }
 
-    /**
-     * Retourne l'URL du point de terminaison PAR (Pushed Authorization Request).
-     *
-     * @return L'URL extraite des métadonnées ou celle par défaut.
-     * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126 (OAuth 2.0 PAR)</a>
-     */
-    @Override
-    public String getPushedAuthorizationRequestEndpoint() {
-        return metadata != null
-                ? metadata.getPushedAuthorizationRequestEndpoint()
-                : super.getPushedAuthorizationRequestEndpoint();
-    }
+  /**
+   * Retourne l'URL du point de terminaison PAR (Pushed Authorization Request).
+   *
+   * @return L'URL extraite des métadonnées ou celle par défaut.
+   * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126 (OAuth 2.0 PAR)</a>
+   */
+  @Override
+  public String getPushedAuthorizationRequestEndpoint() {
+    return metadata != null
+        ? metadata.getPushedAuthorizationRequestEndpoint()
+        : super.getPushedAuthorizationRequestEndpoint();
+  }
 
-    /**
-     * Retourne l'URL du document JWK Set (jwks_uri).
-     *
-     * @return L'URL extraite des métadonnées.
-     * @see <a href="http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata">OIDC
-     * Discovery, jwks_uri</a>
-     */
-    public String getJwksUri() {
-        return metadata != null ? metadata.getJwksUri() : null;
-    }
+  /**
+   * Retourne l'URL du document JWK Set (jwks_uri).
+   *
+   * @return L'URL extraite des métadonnées.
+   * @see <a href="http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata">OIDC
+   *     Discovery, jwks_uri</a>
+   */
+  public String getJwksUri() {
+    return metadata != null ? metadata.getJwksUri() : null;
+  }
 
-    /**
-     * Retourne l'URL du point de terminaison UserInfo.
-     *
-     * @return L'URL extraite des métadonnées.
-     * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">OIDC Core, Section
-     * 5.3</a>
-     */
-    public String getUserinfoEndpoint() {
-        return metadata != null ? metadata.getUserinfoEndpoint() : null;
-    }
+  /**
+   * Retourne l'URL du point de terminaison UserInfo.
+   *
+   * @return L'URL extraite des métadonnées.
+   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">OIDC Core, Section
+   *     5.3</a>
+   */
+  public String getUserinfoEndpoint() {
+    return metadata != null ? metadata.getUserinfoEndpoint() : null;
+  }
 }

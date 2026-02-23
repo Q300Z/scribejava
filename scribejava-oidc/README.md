@@ -59,7 +59,7 @@ L'utilisation d'OpenID Connect nécessite souvent une sécurité renforcée :
 ```java
 IdTokenValidator validator = new IdTokenValidator(expectedIssuer, clientId);
 IdToken idToken = IdToken.parse(rawIdToken);
-validator.validate(idToken); 
+validator.validate(idToken);
 ```
 
 ### Gestion des Claims (UserInfo)

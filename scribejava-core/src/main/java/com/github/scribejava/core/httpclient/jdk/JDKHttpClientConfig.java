@@ -24,217 +24,212 @@
 package com.github.scribejava.core.httpclient.jdk;
 
 import com.github.scribejava.core.httpclient.HttpClientConfig;
-
 import java.net.Proxy;
 
-/**
- * Configuration pour le client HTTP par défaut du JDK (HttpURLConnection).
- */
+/** Configuration pour le client HTTP par défaut du JDK (HttpURLConnection). */
 public class JDKHttpClientConfig implements HttpClientConfig {
 
-    private Integer connectTimeout;
-    private Integer readTimeout;
-    private boolean followRedirects = true;
-    private Proxy proxy;
-    private javax.net.ssl.SSLSocketFactory sslSocketFactory;
-    private javax.net.ssl.HostnameVerifier hostnameVerifier;
+  private Integer connectTimeout;
+  private Integer readTimeout;
+  private boolean followRedirects = true;
+  private Proxy proxy;
+  private javax.net.ssl.SSLSocketFactory sslSocketFactory;
+  private javax.net.ssl.HostnameVerifier hostnameVerifier;
 
-    /**
-     * Crée une configuration par défaut.
-     *
-     * @return Une instance de {@link JDKHttpClientConfig}.
-     */
-    public static JDKHttpClientConfig defaultConfig() {
-        return new JDKHttpClientConfig();
-    }
+  /**
+   * Crée une configuration par défaut.
+   *
+   * @return Une instance de {@link JDKHttpClientConfig}.
+   */
+  public static JDKHttpClientConfig defaultConfig() {
+    return new JDKHttpClientConfig();
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JDKHttpClientConfig createDefaultConfig() {
-        return defaultConfig();
-    }
+  /** {@inheritDoc} */
+  @Override
+  public JDKHttpClientConfig createDefaultConfig() {
+    return defaultConfig();
+  }
 
-    /**
-     * Retourne la fabrique de sockets SSL.
-     *
-     * @return La {@link javax.net.ssl.SSLSocketFactory}.
-     */
-    public javax.net.ssl.SSLSocketFactory getSslSocketFactory() {
-        return sslSocketFactory;
-    }
+  /**
+   * Retourne la fabrique de sockets SSL.
+   *
+   * @return La {@link javax.net.ssl.SSLSocketFactory}.
+   */
+  public javax.net.ssl.SSLSocketFactory getSslSocketFactory() {
+    return sslSocketFactory;
+  }
 
-    /**
-     * Définit la fabrique de sockets SSL.
-     *
-     * @param sslSocketFactory La fabrique à utiliser.
-     */
-    public void setSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
-        this.sslSocketFactory = sslSocketFactory;
-    }
+  /**
+   * Définit la fabrique de sockets SSL.
+   *
+   * @param sslSocketFactory La fabrique à utiliser.
+   */
+  public void setSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
+    this.sslSocketFactory = sslSocketFactory;
+  }
 
-    /**
-     * Définit la fabrique de sockets SSL (version fluide).
-     *
-     * @param sslSocketFactory La fabrique.
-     * @return L'instance de configuration.
-     */
-    public JDKHttpClientConfig withSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
-        this.sslSocketFactory = sslSocketFactory;
-        return this;
-    }
+  /**
+   * Définit la fabrique de sockets SSL (version fluide).
+   *
+   * @param sslSocketFactory La fabrique.
+   * @return L'instance de configuration.
+   */
+  public JDKHttpClientConfig withSslSocketFactory(javax.net.ssl.SSLSocketFactory sslSocketFactory) {
+    this.sslSocketFactory = sslSocketFactory;
+    return this;
+  }
 
-    /**
-     * Retourne le vérificateur de nom d'hôte (HostnameVerifier).
-     *
-     * @return Le {@link javax.net.ssl.HostnameVerifier}.
-     */
-    public javax.net.ssl.HostnameVerifier getHostnameVerifier() {
-        return hostnameVerifier;
-    }
+  /**
+   * Retourne le vérificateur de nom d'hôte (HostnameVerifier).
+   *
+   * @return Le {@link javax.net.ssl.HostnameVerifier}.
+   */
+  public javax.net.ssl.HostnameVerifier getHostnameVerifier() {
+    return hostnameVerifier;
+  }
 
-    /**
-     * Définit le vérificateur de nom d'hôte.
-     *
-     * @param hostnameVerifier Le vérificateur.
-     */
-    public void setHostnameVerifier(javax.net.ssl.HostnameVerifier hostnameVerifier) {
-        this.hostnameVerifier = hostnameVerifier;
-    }
+  /**
+   * Définit le vérificateur de nom d'hôte.
+   *
+   * @param hostnameVerifier Le vérificateur.
+   */
+  public void setHostnameVerifier(javax.net.ssl.HostnameVerifier hostnameVerifier) {
+    this.hostnameVerifier = hostnameVerifier;
+  }
 
-    /**
-     * Définit le vérificateur de nom d'hôte (version fluide).
-     *
-     * @param hostnameVerifier Le vérificateur.
-     * @return L'instance de configuration.
-     */
-    public JDKHttpClientConfig withHostnameVerifier(javax.net.ssl.HostnameVerifier hostnameVerifier) {
-        this.hostnameVerifier = hostnameVerifier;
-        return this;
-    }
+  /**
+   * Définit le vérificateur de nom d'hôte (version fluide).
+   *
+   * @param hostnameVerifier Le vérificateur.
+   * @return L'instance de configuration.
+   */
+  public JDKHttpClientConfig withHostnameVerifier(javax.net.ssl.HostnameVerifier hostnameVerifier) {
+    this.hostnameVerifier = hostnameVerifier;
+    return this;
+  }
 
-    /**
-     * Retourne le délai d'attente de connexion.
-     *
-     * @return Le délai en millisecondes.
-     */
-    public Integer getConnectTimeout() {
-        return connectTimeout;
-    }
+  /**
+   * Retourne le délai d'attente de connexion.
+   *
+   * @return Le délai en millisecondes.
+   */
+  public Integer getConnectTimeout() {
+    return connectTimeout;
+  }
 
-    /**
-     * Définit le délai d'attente de connexion.
-     *
-     * @param connectTimeout Le délai en millisecondes.
-     */
-    public void setConnectTimeout(Integer connectTimeout) {
-        this.connectTimeout = connectTimeout;
-    }
+  /**
+   * Définit le délai d'attente de connexion.
+   *
+   * @param connectTimeout Le délai en millisecondes.
+   */
+  public void setConnectTimeout(Integer connectTimeout) {
+    this.connectTimeout = connectTimeout;
+  }
 
-    /**
-     * Définit le délai d'attente de connexion (version fluide).
-     *
-     * @param connectTimeout Le délai.
-     * @return L'instance de configuration.
-     */
-    public JDKHttpClientConfig withConnectTimeout(Integer connectTimeout) {
-        this.connectTimeout = connectTimeout;
-        return this;
-    }
+  /**
+   * Définit le délai d'attente de connexion (version fluide).
+   *
+   * @param connectTimeout Le délai.
+   * @return L'instance de configuration.
+   */
+  public JDKHttpClientConfig withConnectTimeout(Integer connectTimeout) {
+    this.connectTimeout = connectTimeout;
+    return this;
+  }
 
-    /**
-     * Retourne le délai d'attente de lecture.
-     *
-     * @return Le délai en millisecondes.
-     */
-    public Integer getReadTimeout() {
-        return readTimeout;
-    }
+  /**
+   * Retourne le délai d'attente de lecture.
+   *
+   * @return Le délai en millisecondes.
+   */
+  public Integer getReadTimeout() {
+    return readTimeout;
+  }
 
-    /**
-     * Définit le délai d'attente de lecture.
-     *
-     * @param readTimeout Le délai en millisecondes.
-     */
-    public void setReadTimeout(Integer readTimeout) {
-        this.readTimeout = readTimeout;
-    }
+  /**
+   * Définit le délai d'attente de lecture.
+   *
+   * @param readTimeout Le délai en millisecondes.
+   */
+  public void setReadTimeout(Integer readTimeout) {
+    this.readTimeout = readTimeout;
+  }
 
-    /**
-     * Définit le délai d'attente de lecture (version fluide).
-     *
-     * @param readTimeout Le délai.
-     * @return L'instance de configuration.
-     */
-    public JDKHttpClientConfig withReadTimeout(Integer readTimeout) {
-        this.readTimeout = readTimeout;
-        return this;
-    }
+  /**
+   * Définit le délai d'attente de lecture (version fluide).
+   *
+   * @param readTimeout Le délai.
+   * @return L'instance de configuration.
+   */
+  public JDKHttpClientConfig withReadTimeout(Integer readTimeout) {
+    this.readTimeout = readTimeout;
+    return this;
+  }
 
-    /**
-     * Retourne le proxy configuré.
-     *
-     * @return Le {@link Proxy}.
-     */
-    public Proxy getProxy() {
-        return proxy;
-    }
+  /**
+   * Retourne le proxy configuré.
+   *
+   * @return Le {@link Proxy}.
+   */
+  public Proxy getProxy() {
+    return proxy;
+  }
 
-    /**
-     * Définit le proxy.
-     *
-     * @param proxy Le proxy à utiliser.
-     */
-    public void setProxy(Proxy proxy) {
-        this.proxy = proxy;
-    }
+  /**
+   * Définit le proxy.
+   *
+   * @param proxy Le proxy à utiliser.
+   */
+  public void setProxy(Proxy proxy) {
+    this.proxy = proxy;
+  }
 
-    /**
-     * Définit le proxy (version fluide).
-     *
-     * @param proxy Le proxy.
-     * @return L'instance de configuration.
-     */
-    public JDKHttpClientConfig withProxy(Proxy proxy) {
-        this.proxy = proxy;
-        return this;
-    }
+  /**
+   * Définit le proxy (version fluide).
+   *
+   * @param proxy Le proxy.
+   * @return L'instance de configuration.
+   */
+  public JDKHttpClientConfig withProxy(Proxy proxy) {
+    this.proxy = proxy;
+    return this;
+  }
 
-    /**
-     * Indique si les redirections doivent être suivies.
-     *
-     * @return true si activé, false sinon.
-     */
-    public boolean isFollowRedirects() {
-        return followRedirects;
-    }
+  /**
+   * Indique si les redirections doivent être suivies.
+   *
+   * @return true si activé, false sinon.
+   */
+  public boolean isFollowRedirects() {
+    return followRedirects;
+  }
 
-    /**
-     * Sets whether the underlying Http Connection follows redirects or not.
-     *
-     * <p>Defaults to true (follow redirects)
-     *
-     * @param followRedirects boolean
-     * @see <a
-     * href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
-     */
-    public void setFollowRedirects(boolean followRedirects) {
-        this.followRedirects = followRedirects;
-    }
+  /**
+   * Sets whether the underlying Http Connection follows redirects or not.
+   *
+   * <p>Defaults to true (follow redirects)
+   *
+   * @param followRedirects boolean
+   * @see <a
+   *     href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
+   */
+  public void setFollowRedirects(boolean followRedirects) {
+    this.followRedirects = followRedirects;
+  }
 
-    /**
-     * Sets whether the underlying Http Connection follows redirects or not.
-     *
-     * <p>Defaults to true (follow redirects)
-     *
-     * @param followRedirects boolean
-     * @return this for chaining methods invocations
-     * @see <a
-     * href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
-     */
-    public JDKHttpClientConfig withFollowRedirects(boolean followRedirects) {
-        this.followRedirects = followRedirects;
-        return this;
-    }
+  /**
+   * Sets whether the underlying Http Connection follows redirects or not.
+   *
+   * <p>Defaults to true (follow redirects)
+   *
+   * @param followRedirects boolean
+   * @return this for chaining methods invocations
+   * @see <a
+   *     href="http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)">http://docs.oracle.com/javase/6/docs/api/java/net/HttpURLConnection.html#setInstanceFollowRedirects(boolean)</a>
+   */
+  public JDKHttpClientConfig withFollowRedirects(boolean followRedirects) {
+    this.followRedirects = followRedirects;
+    return this;
+  }
 }

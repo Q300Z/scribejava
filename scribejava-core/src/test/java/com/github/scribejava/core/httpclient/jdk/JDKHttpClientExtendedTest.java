@@ -23,131 +23,118 @@
  */
 package com.github.scribejava.core.httpclient.jdk;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.github.scribejava.core.httpclient.multipart.ByteArrayBodyPartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import java.io.IOException;
+import java.util.Collections;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-/**
- * Tests étendus pour le client HTTP JDK, incluant les payloads chaîne et multipart.
- */
+/** Tests étendus pour le client HTTP JDK, incluant les payloads chaîne et multipart. */
 public class JDKHttpClientExtendedTest {
 
-    private MockWebServer server;
-    private JDKHttpClient client;
+  private MockWebServer server;
+  private JDKHttpClient client;
 
-    /**
-     * Initialisation du serveur et du client.
-     *
-     * @throws IOException en cas d'erreur.
-     */
-    @BeforeEach
-    public void setUp() throws IOException {
-        server = new MockWebServer();
-        server.start();
-        client = new JDKHttpClient();
-    }
+  /**
+   * Initialisation du serveur et du client.
+   *
+   * @throws IOException en cas d'erreur.
+   */
+  @BeforeEach
+  public void setUp() throws IOException {
+    server = new MockWebServer();
+    server.start();
+    client = new JDKHttpClient();
+  }
 
-    /**
-     * Arrêt du serveur.
-     *
-     * @throws IOException en cas d'erreur.
-     */
-    @AfterEach
-    public void tearDown() throws IOException {
-        server.shutdown();
-    }
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
+  @AfterEach
+  public void tearDown() throws IOException {
+    server.shutdown();
+  }
 
-    /**
-     * Vérifie l'exécution d'une requête avec un corps de message sous forme de chaîne.
-     */
-    @Test
-    public void shouldExecuteWithPayloadAsString() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
-        final Response resp =
-                client.execute(
-                        "UA", Collections.emptyMap(), Verb.POST, server.url("/").toString(), "payload-string");
-        assertThat(resp.getCode()).isEqualTo(200);
-        assertThat(server.takeRequest().getBody().readUtf8()).isEqualTo("payload-string");
-    }
+  /** Vérifie l'exécution d'une requête avec un corps de message sous forme de chaîne. */
+  @Test
+  public void shouldExecuteWithPayloadAsString() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
+    final Response resp =
+        client.execute(
+            "UA", Collections.emptyMap(), Verb.POST, server.url("/").toString(), "payload-string");
+    assertThat(resp.getCode()).isEqualTo(200);
+    assertThat(server.takeRequest().getBody().readUtf8()).isEqualTo("payload-string");
+  }
 
-    /**
-     * Vérifie l'exécution asynchrone d'une requête avec un corps de message sous forme de chaîne.
-     */
-    @Test
-    public void shouldExecuteAsyncWithPayloadAsString() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
-        final String result =
-                client
-                        .executeAsync(
-                                "UA",
-                                Collections.emptyMap(),
-                                Verb.POST,
-                                server.url("/").toString(),
-                                "payload-string",
-                                null,
-                                response -> response.getBody())
-                        .get();
-        assertThat(result).isEqualTo("OK");
-    }
+  /** Vérifie l'exécution asynchrone d'une requête avec un corps de message sous forme de chaîne. */
+  @Test
+  public void shouldExecuteAsyncWithPayloadAsString() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
+    final String result =
+        client
+            .executeAsync(
+                "UA",
+                Collections.emptyMap(),
+                Verb.POST,
+                server.url("/").toString(),
+                "payload-string",
+                null,
+                response -> response.getBody())
+            .get();
+    assertThat(result).isEqualTo("OK");
+  }
 
-    /**
-     * Vérifie l'exécution d'une requête Multipart.
-     */
-    @Test
-    public void shouldExecuteWithMultipartPayload() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200));
-        final MultipartPayload multipart = new MultipartPayload();
-        multipart.addBodyPart(new ByteArrayBodyPartPayload("content1".getBytes()));
+  /** Vérifie l'exécution d'une requête Multipart. */
+  @Test
+  public void shouldExecuteWithMultipartPayload() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200));
+    final MultipartPayload multipart = new MultipartPayload();
+    multipart.addBodyPart(new ByteArrayBodyPartPayload("content1".getBytes()));
 
-        final Response resp =
-                client.execute(
-                        "UA", Collections.emptyMap(), Verb.POST, server.url("/").toString(), multipart);
-        assertThat(resp.getCode()).isEqualTo(200);
-    }
+    final Response resp =
+        client.execute(
+            "UA", Collections.emptyMap(), Verb.POST, server.url("/").toString(), multipart);
+    assertThat(resp.getCode()).isEqualTo(200);
+  }
 
-    /**
-     * Vérifie que l'envoi de fichiers n'est pas encore supporté en synchrone.
-     */
-    @Test
-    public void shouldThrowExceptionOnFileSync() {
-        assertThrows(
-                UnsupportedOperationException.class,
-                () ->
-                        client.execute(
-                                "UA",
-                                Collections.emptyMap(),
-                                Verb.POST,
-                                server.url("/").toString(),
-                                new java.io.File("dummy")));
-    }
+  /** Vérifie que l'envoi de fichiers n'est pas encore supporté en synchrone. */
+  @Test
+  public void shouldThrowExceptionOnFileSync() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            client.execute(
+                "UA",
+                Collections.emptyMap(),
+                Verb.POST,
+                server.url("/").toString(),
+                new java.io.File("dummy")));
+  }
 
-    /**
-     * Vérifie que l'envoi de fichiers n'est pas encore supporté en asynchrone.
-     */
-    @Test
-    public void shouldThrowExceptionOnFileAsync() {
-        assertThrows(
-                UnsupportedOperationException.class,
-                () ->
-                        client.executeAsync(
-                                "UA",
-                                Collections.emptyMap(),
-                                Verb.POST,
-                                server.url("/").toString(),
-                                new java.io.File("dummy"),
-                                null,
-                                null));
-    }
+  /** Vérifie que l'envoi de fichiers n'est pas encore supporté en asynchrone. */
+  @Test
+  public void shouldThrowExceptionOnFileAsync() {
+    assertThrows(
+        UnsupportedOperationException.class,
+        () ->
+            client.executeAsync(
+                "UA",
+                Collections.emptyMap(),
+                Verb.POST,
+                server.url("/").toString(),
+                new java.io.File("dummy"),
+                null,
+                null));
+  }
 }

@@ -32,29 +32,26 @@ import com.github.scribejava.core.extractors.DeviceAuthorizationJsonExtractor;
  */
 public class GoogleDeviceAuthorizationJsonExtractor extends DeviceAuthorizationJsonExtractor {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected GoogleDeviceAuthorizationJsonExtractor() {
-    }
+  /** Constructeur protégé. */
+  protected GoogleDeviceAuthorizationJsonExtractor() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'extracteur.
-     *
-     * @return L'instance de {@link GoogleDeviceAuthorizationJsonExtractor}.
-     */
-    public static GoogleDeviceAuthorizationJsonExtractor instance() {
-        return GoogleDeviceAuthorizationJsonExtractor.InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link GoogleDeviceAuthorizationJsonExtractor}.
+   */
+  public static GoogleDeviceAuthorizationJsonExtractor instance() {
+    return GoogleDeviceAuthorizationJsonExtractor.InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    protected String getVerificationUriParamName() {
-        return "verification_url";
-    }
+  @Override
+  protected String getVerificationUriParamName() {
+    return "verification_url";
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final GoogleDeviceAuthorizationJsonExtractor INSTANCE =
-                new GoogleDeviceAuthorizationJsonExtractor();
-    }
+    private static final GoogleDeviceAuthorizationJsonExtractor INSTANCE =
+        new GoogleDeviceAuthorizationJsonExtractor();
+  }
 }

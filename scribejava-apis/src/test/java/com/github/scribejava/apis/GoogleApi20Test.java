@@ -23,20 +23,20 @@
  */
 package com.github.scribejava.apis;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 public class GoogleApi20Test {
 
-    @Test
-    public void shouldReturnCorrectEndpoints() {
-        final GoogleApi20 api = GoogleApi20.instance();
-        assertThat(api.getAccessTokenEndpoint()).isEqualTo("https://oauth2.googleapis.com/token");
-        assertThat(api.getAuthorizationBaseUrl())
-                .isEqualTo("https://accounts.google.com/o/oauth2/v2/auth");
-        assertThat(api.getRevokeTokenEndpoint()).isEqualTo("https://oauth2.googleapis.com/revoke");
-        assertThat(api.getDeviceAuthorizationEndpoint())
-                .isEqualTo("https://oauth2.googleapis.com/device/code");
-    }
+  @Test
+  public void shouldReturnCorrectEndpoints() {
+    final GoogleApi20 api = GoogleApi20.instance();
+    assertThat(api.getAccessTokenEndpoint()).isEqualTo("https://oauth2.googleapis.com/token");
+    assertThat(api.getAuthorizationBaseUrl())
+        .isEqualTo("https://accounts.google.com/o/oauth2/v2/auth");
+    assertThat(api.getRevokeTokenEndpoint()).isEqualTo("https://oauth2.googleapis.com/revoke");
+    assertThat(api.getDeviceAuthorizationEndpoint())
+        .isEqualTo("https://oauth2.googleapis.com/device/code");
+  }
 }

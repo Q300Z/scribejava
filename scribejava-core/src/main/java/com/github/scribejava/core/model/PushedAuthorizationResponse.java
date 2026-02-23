@@ -27,87 +27,84 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.utils.Preconditions;
-
 import java.io.IOException;
 
-/**
- * Represents the response from a Pushed Authorization Request (PAR) endpoint.
- */
+/** Represents the response from a Pushed Authorization Request (PAR) endpoint. */
 public class PushedAuthorizationResponse {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    private final String requestUri;
-    private final Long expiresIn;
-    private final String rawResponse;
+  private final String requestUri;
+  private final Long expiresIn;
+  private final String rawResponse;
 
-    /**
-     * Constructeur.
-     *
-     * @param requestUri  L'URI de la requête poussée.
-     * @param expiresIn   Durée de validité de l'URI en secondes.
-     * @param rawResponse La réponse JSON brute.
-     */
-    public PushedAuthorizationResponse(String requestUri, Long expiresIn, String rawResponse) {
-        Preconditions.checkEmptyString(requestUri, "request_uri cannot be null or empty");
-        this.requestUri = requestUri;
-        this.expiresIn = expiresIn;
-        this.rawResponse = rawResponse;
+  /**
+   * Constructeur.
+   *
+   * @param requestUri L'URI de la requête poussée.
+   * @param expiresIn Durée de validité de l'URI en secondes.
+   * @param rawResponse La réponse JSON brute.
+   */
+  public PushedAuthorizationResponse(String requestUri, Long expiresIn, String rawResponse) {
+    Preconditions.checkEmptyString(requestUri, "request_uri cannot be null or empty");
+    this.requestUri = requestUri;
+    this.expiresIn = expiresIn;
+    this.rawResponse = rawResponse;
+  }
+
+  /**
+   * Analyse le corps de la réponse JSON pour créer une instance.
+   *
+   * @param responseBody Le corps de la réponse HTTP.
+   * @return Une instance de {@link PushedAuthorizationResponse}.
+   * @throws IOException si l'analyse JSON échoue.
+   * @see <a href="https://tools.ietf.org/html/rfc9126#section-2.2">RFC 9126, Section 2.2
+   *     (Successful Response)</a>
+   */
+  public static PushedAuthorizationResponse parse(String responseBody) throws IOException {
+    Preconditions.checkEmptyString(
+        responseBody, "Response body is incorrect. Can't parse an empty string.");
+
+    final JsonNode body = OBJECT_MAPPER.readTree(responseBody);
+    final JsonNode requestUri = body.get("request_uri");
+    final JsonNode expiresIn = body.get("expires_in");
+
+    if (requestUri == null || requestUri.isNull()) {
+      throw new OAuthException(
+          "Response body is incorrect. Missing 'request_uri' parameter. Raw response: "
+              + responseBody);
     }
 
-    /**
-     * Analyse le corps de la réponse JSON pour créer une instance.
-     *
-     * @param responseBody Le corps de la réponse HTTP.
-     * @return Une instance de {@link PushedAuthorizationResponse}.
-     * @throws IOException si l'analyse JSON échoue.
-     * @see <a href="https://tools.ietf.org/html/rfc9126#section-2.2">RFC 9126, Section 2.2
-     * (Successful Response)</a>
-     */
-    public static PushedAuthorizationResponse parse(String responseBody) throws IOException {
-        Preconditions.checkEmptyString(
-                responseBody, "Response body is incorrect. Can't parse an empty string.");
+    return new PushedAuthorizationResponse(
+        requestUri.asText(),
+        expiresIn == null || expiresIn.isNull() ? null : expiresIn.asLong(),
+        responseBody);
+  }
 
-        final JsonNode body = OBJECT_MAPPER.readTree(responseBody);
-        final JsonNode requestUri = body.get("request_uri");
-        final JsonNode expiresIn = body.get("expires_in");
+  /**
+   * Retourne l'URI de la requête (request_uri).
+   *
+   * @return L'URI générée par le serveur.
+   */
+  public String getRequestUri() {
+    return requestUri;
+  }
 
-        if (requestUri == null || requestUri.isNull()) {
-            throw new OAuthException(
-                    "Response body is incorrect. Missing 'request_uri' parameter. Raw response: "
-                            + responseBody);
-        }
+  /**
+   * Retourne le délai d'expiration (expires_in).
+   *
+   * @return Le délai en secondes.
+   */
+  public Long getExpiresIn() {
+    return expiresIn;
+  }
 
-        return new PushedAuthorizationResponse(
-                requestUri.asText(),
-                expiresIn == null || expiresIn.isNull() ? null : expiresIn.asLong(),
-                responseBody);
-    }
-
-    /**
-     * Retourne l'URI de la requête (request_uri).
-     *
-     * @return L'URI générée par le serveur.
-     */
-    public String getRequestUri() {
-        return requestUri;
-    }
-
-    /**
-     * Retourne le délai d'expiration (expires_in).
-     *
-     * @return Le délai en secondes.
-     */
-    public Long getExpiresIn() {
-        return expiresIn;
-    }
-
-    /**
-     * Retourne la réponse brute.
-     *
-     * @return La chaîne JSON reçue.
-     */
-    public String getRawResponse() {
-        return rawResponse;
-    }
+  /**
+   * Retourne la réponse brute.
+   *
+   * @return La chaîne JSON reçue.
+   */
+  public String getRawResponse() {
+    return rawResponse;
+  }
 }

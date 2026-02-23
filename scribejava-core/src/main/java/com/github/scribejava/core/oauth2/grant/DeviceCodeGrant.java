@@ -35,32 +35,32 @@ import com.github.scribejava.core.oauth.OAuth20Service;
  * d'accès.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-4.5">RFC 6749, Section 4.5 (Extension
- * Grants)</a>
+ *     Grants)</a>
  */
 public class DeviceCodeGrant implements OAuth20Grant {
 
-    private final String deviceCode;
+  private final String deviceCode;
 
-    /**
-     * Constructeur.
-     *
-     * @param deviceCode Le code appareil obtenu lors de l'étape d'autorisation initiale.
-     */
-    public DeviceCodeGrant(String deviceCode) {
-        this.deviceCode = deviceCode;
-    }
+  /**
+   * Constructeur.
+   *
+   * @param deviceCode Le code appareil obtenu lors de l'étape d'autorisation initiale.
+   */
+  public DeviceCodeGrant(String deviceCode) {
+    this.deviceCode = deviceCode;
+  }
 
-    @Override
-    public OAuthRequest createRequest(OAuth20Service service) {
-        final OAuthRequest request =
-                new OAuthRequest(
-                        service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
-        request.addParameter(OAuthConstants.GRANT_TYPE, "urn:ietf:params:oauth:grant-type:device_code");
-        request.addParameter("device_code", deviceCode);
-        service
-                .getApi()
-                .getClientAuthentication()
-                .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
-        return request;
-    }
+  @Override
+  public OAuthRequest createRequest(OAuth20Service service) {
+    final OAuthRequest request =
+        new OAuthRequest(
+            service.getApi().getAccessTokenVerb(), service.getApi().getAccessTokenEndpoint());
+    request.addParameter(OAuthConstants.GRANT_TYPE, "urn:ietf:params:oauth:grant-type:device_code");
+    request.addParameter("device_code", deviceCode);
+    service
+        .getApi()
+        .getClientAuthentication()
+        .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
+    return request;
+  }
 }

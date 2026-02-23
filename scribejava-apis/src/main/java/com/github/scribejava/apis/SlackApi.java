@@ -26,43 +26,38 @@ package com.github.scribejava.apis;
 import com.github.scribejava.apis.slack.SlackJsonTokenExtractor;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
-/**
- * API OAuth 2.0 pour Slack.
- */
+/** API OAuth 2.0 pour Slack. */
 public class SlackApi extends DefaultApi20 {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected SlackApi() {
-    }
+  /** Constructeur protégé. */
+  protected SlackApi() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API Slack.
-     *
-     * @return L'instance de {@link SlackApi}.
-     */
-    public static SlackApi instance() {
-        return SlackApi.InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API Slack.
+   *
+   * @return L'instance de {@link SlackApi}.
+   */
+  public static SlackApi instance() {
+    return SlackApi.InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://slack.com/api/oauth.v2.access";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://slack.com/api/oauth.v2.access";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://slack.com/oauth/v2/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://slack.com/oauth/v2/authorize";
+  }
 
-    @Override
-    public SlackJsonTokenExtractor getAccessTokenExtractor() {
-        return SlackJsonTokenExtractor.instance();
-    }
+  @Override
+  public SlackJsonTokenExtractor getAccessTokenExtractor() {
+    return SlackJsonTokenExtractor.instance();
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final SlackApi INSTANCE = new SlackApi();
-    }
+    private static final SlackApi INSTANCE = new SlackApi();
+  }
 }

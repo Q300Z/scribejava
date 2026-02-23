@@ -151,9 +151,9 @@ dependencies {
 * 📖 **Modules
   ** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Catalogue APIs](./scribejava-apis/README.md)
 * 🎯 **Exemples** :
-    * [OAuth 2.0 GitHub avec PKCE](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/GitHubExample.java)
-    * [OpenID Connect avec Découverte Dynamique](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/OidcDiscoveryExample.java)
-    * [Projet Enterprise Multi-Tenant (Local)](../scribejava-ee-example/README.md)
+  * [OAuth 2.0 GitHub avec PKCE](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/GitHubExample.java)
+  * [OpenID Connect avec Découverte Dynamique](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/OidcDiscoveryExample.java)
+  * [Projet Enterprise Multi-Tenant (Local)](../scribejava-ee-example/README.md)
 
 ### 🏗️ API Javadoc
 

@@ -23,86 +23,79 @@
  */
 package com.github.scribejava.httpclient.okhttp;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.github.scribejava.core.model.Verb;
+import java.io.IOException;
+import java.util.Collections;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-/**
- * Tests d'intégration pour le client HTTP OkHttp.
- */
+/** Tests d'intégration pour le client HTTP OkHttp. */
 public class OkHttpHttpClientIntegrationTest {
 
-    private MockWebServer server;
-    private OkHttpHttpClient client;
+  private MockWebServer server;
+  private OkHttpHttpClient client;
 
-    /**
-     * Initialisation du serveur et du client.
-     *
-     * @throws IOException en cas d'erreur.
-     */
-    @BeforeEach
-    public void setUp() throws IOException {
-        server = new MockWebServer();
-        server.start();
-        client = new OkHttpHttpClient();
-    }
+  /**
+   * Initialisation du serveur et du client.
+   *
+   * @throws IOException en cas d'erreur.
+   */
+  @BeforeEach
+  public void setUp() throws IOException {
+    server = new MockWebServer();
+    server.start();
+    client = new OkHttpHttpClient();
+  }
 
-    /**
-     * Arrêt du serveur.
-     *
-     * @throws IOException en cas d'erreur.
-     */
-    @AfterEach
-    public void tearDown() throws IOException {
-        server.shutdown();
-    }
+  /**
+   * Arrêt du serveur.
+   *
+   * @throws IOException en cas d'erreur.
+   */
+  @AfterEach
+  public void tearDown() throws IOException {
+    server.shutdown();
+  }
 
-    /**
-     * Vérifie l'exécution asynchrone d'une requête.
-     */
-    @Test
-    public void shouldExecuteAsync() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
-        final String result =
-                client
-                        .executeAsync(
-                                "UA",
-                                Collections.emptyMap(),
-                                Verb.GET,
-                                server.url("/").toString(),
-                                (byte[]) null,
-                                null,
-                                response -> response.getBody())
-                        .get();
-        assertThat(result).isEqualTo("OK");
-    }
+  /** Vérifie l'exécution asynchrone d'une requête. */
+  @Test
+  public void shouldExecuteAsync() throws Exception {
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("OK"));
+    final String result =
+        client
+            .executeAsync(
+                "UA",
+                Collections.emptyMap(),
+                Verb.GET,
+                server.url("/").toString(),
+                (byte[]) null,
+                null,
+                response -> response.getBody())
+            .get();
+    assertThat(result).isEqualTo("OK");
+  }
 
-    /**
-     * Vérifie l'annulation d'une requête asynchrone.
-     */
-    @Test
-    public void shouldCancelAsyncRequest() throws Exception {
-        server.enqueue(
-                new MockResponse().setBody("OK").setBodyDelay(5, java.util.concurrent.TimeUnit.SECONDS));
-        final java.util.concurrent.CompletableFuture<String> future =
-                client.executeAsync(
-                        "UA",
-                        Collections.emptyMap(),
-                        Verb.GET,
-                        server.url("/").toString(),
-                        (byte[]) null,
-                        null,
-                        response -> response.getBody());
+  /** Vérifie l'annulation d'une requête asynchrone. */
+  @Test
+  public void shouldCancelAsyncRequest() throws Exception {
+    server.enqueue(
+        new MockResponse().setBody("OK").setBodyDelay(5, java.util.concurrent.TimeUnit.SECONDS));
+    final java.util.concurrent.CompletableFuture<String> future =
+        client.executeAsync(
+            "UA",
+            Collections.emptyMap(),
+            Verb.GET,
+            server.url("/").toString(),
+            (byte[]) null,
+            null,
+            response -> response.getBody());
 
-        future.cancel(true);
-        assertThat(future.isCancelled()).isTrue();
-    }
+    future.cancel(true);
+    assertThat(future.isCancelled()).isTrue();
+  }
 }

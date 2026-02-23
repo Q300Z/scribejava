@@ -25,7 +25,6 @@ package com.github.scribejava.core.oauth;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 

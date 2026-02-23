@@ -23,6 +23,8 @@
  */
 package com.github.scribejava.oidc;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -33,96 +35,93 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OidcTokenBindingTest {
 
-    private IdTokenValidator validator;
-    private RSAKey rsaJWK;
+  private IdTokenValidator validator;
+  private RSAKey rsaJWK;
 
-    @BeforeEach
-    public void setUp() throws Exception {
-        rsaJWK = new RSAKeyGenerator(2048).keyID("kid-1").generate();
-        final JWKSet jwkSet = new JWKSet(rsaJWK.toPublicJWK());
-        validator =
-                new IdTokenValidator(
-                        "https://idp.com", new ClientID("client-1"), JWSAlgorithm.RS256, jwkSet);
-    }
+  @BeforeEach
+  public void setUp() throws Exception {
+    rsaJWK = new RSAKeyGenerator(2048).keyID("kid-1").generate();
+    final JWKSet jwkSet = new JWKSet(rsaJWK.toPublicJWK());
+    validator =
+        new IdTokenValidator(
+            "https://idp.com", new ClientID("client-1"), JWSAlgorithm.RS256, jwkSet);
+  }
 
-    private IdToken createSignedIdToken(final Map<String, Object> extraClaims) throws Exception {
-        final JWTClaimsSet.Builder builder =
-                new JWTClaimsSet.Builder()
-                        .subject("user1")
-                        .issuer("https://idp.com")
-                        .audience("client-1")
-                        .expirationTime(new Date(System.currentTimeMillis() + 10000))
-                        .issueTime(new Date());
+  private IdToken createSignedIdToken(final Map<String, Object> extraClaims) throws Exception {
+    final JWTClaimsSet.Builder builder =
+        new JWTClaimsSet.Builder()
+            .subject("user1")
+            .issuer("https://idp.com")
+            .audience("client-1")
+            .expirationTime(new Date(System.currentTimeMillis() + 10000))
+            .issueTime(new Date());
 
-        extraClaims.forEach(builder::claim);
+    extraClaims.forEach(builder::claim);
 
-        final SignedJWT signedJWT =
-                new SignedJWT(
-                        new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), builder.build());
-        signedJWT.sign(new RSASSASigner(rsaJWK));
-        return new IdToken(signedJWT.serialize());
-    }
+    final SignedJWT signedJWT =
+        new SignedJWT(
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), builder.build());
+    signedJWT.sign(new RSASSASigner(rsaJWK));
+    return new IdToken(signedJWT.serialize());
+  }
 
-    @Test
-    public void shouldValidateJktBinding() throws Exception {
-        final Map<String, String> cnf = new HashMap<>();
-        cnf.put("jkt", "expected-jkt-value");
+  @Test
+  public void shouldValidateJktBinding() throws Exception {
+    final Map<String, String> cnf = new HashMap<>();
+    cnf.put("jkt", "expected-jkt-value");
 
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("cnf", cnf);
+    final Map<String, Object> claims = new HashMap<>();
+    claims.put("cnf", cnf);
 
-        final IdToken idToken = createSignedIdToken(claims);
-        validator.validateTokenBinding(idToken, "expected-jkt-value", null);
-    }
+    final IdToken idToken = createSignedIdToken(claims);
+    validator.validateTokenBinding(idToken, "expected-jkt-value", null);
+  }
 
-    @Test
-    public void shouldRejectJktMismatch() throws Exception {
-        final Map<String, String> cnf = new HashMap<>();
-        cnf.put("jkt", "wrong-jkt-value");
+  @Test
+  public void shouldRejectJktMismatch() throws Exception {
+    final Map<String, String> cnf = new HashMap<>();
+    cnf.put("jkt", "wrong-jkt-value");
 
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("cnf", cnf);
+    final Map<String, Object> claims = new HashMap<>();
+    claims.put("cnf", cnf);
 
-        final IdToken idToken = createSignedIdToken(claims);
-        assertThrows(
-                OAuthException.class,
-                () -> validator.validateTokenBinding(idToken, "expected-jkt-value", null));
-    }
+    final IdToken idToken = createSignedIdToken(claims);
+    assertThrows(
+        OAuthException.class,
+        () -> validator.validateTokenBinding(idToken, "expected-jkt-value", null));
+  }
 
-    @Test
-    public void shouldValidateX5tBinding() throws Exception {
-        final Map<String, String> cnf = new HashMap<>();
-        cnf.put("x5t#S256", "expected-x5t-value");
+  @Test
+  public void shouldValidateX5tBinding() throws Exception {
+    final Map<String, String> cnf = new HashMap<>();
+    cnf.put("x5t#S256", "expected-x5t-value");
 
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("cnf", cnf);
+    final Map<String, Object> claims = new HashMap<>();
+    claims.put("cnf", cnf);
 
-        final IdToken idToken = createSignedIdToken(claims);
-        validator.validateTokenBinding(idToken, null, "expected-x5t-value");
-    }
+    final IdToken idToken = createSignedIdToken(claims);
+    validator.validateTokenBinding(idToken, null, "expected-x5t-value");
+  }
 
-    @Test
-    public void shouldRejectX5tMismatch() throws Exception {
-        final Map<String, String> cnf = new HashMap<>();
-        cnf.put("x5t#S256", "wrong-x5t-value");
+  @Test
+  public void shouldRejectX5tMismatch() throws Exception {
+    final Map<String, String> cnf = new HashMap<>();
+    cnf.put("x5t#S256", "wrong-x5t-value");
 
-        final Map<String, Object> claims = new HashMap<>();
-        claims.put("cnf", cnf);
+    final Map<String, Object> claims = new HashMap<>();
+    claims.put("cnf", cnf);
 
-        final IdToken idToken = createSignedIdToken(claims);
-        assertThrows(
-                OAuthException.class,
-                () -> validator.validateTokenBinding(idToken, null, "expected-x5t-value"));
-    }
+    final IdToken idToken = createSignedIdToken(claims);
+    assertThrows(
+        OAuthException.class,
+        () -> validator.validateTokenBinding(idToken, null, "expected-x5t-value"));
+  }
 }

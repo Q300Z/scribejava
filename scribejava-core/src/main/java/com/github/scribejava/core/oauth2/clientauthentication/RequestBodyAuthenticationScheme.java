@@ -34,29 +34,28 @@ import com.github.scribejava.core.model.OAuthRequest;
  */
 public class RequestBodyAuthenticationScheme implements ClientAuthentication {
 
-    protected RequestBodyAuthenticationScheme() {
-    }
+  protected RequestBodyAuthenticationScheme() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de ce type d'authentification.
-     *
-     * @return L'instance de {@link RequestBodyAuthenticationScheme}.
-     */
-    public static RequestBodyAuthenticationScheme instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de ce type d'authentification.
+   *
+   * @return L'instance de {@link RequestBodyAuthenticationScheme}.
+   */
+  public static RequestBodyAuthenticationScheme instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret) {
-        request.addParameter(OAuthConstants.CLIENT_ID, apiKey);
-        if (apiSecret != null) {
-            request.addParameter(OAuthConstants.CLIENT_SECRET, apiSecret);
-        }
+  @Override
+  public void addClientAuthentication(OAuthRequest request, String apiKey, String apiSecret) {
+    request.addParameter(OAuthConstants.CLIENT_ID, apiKey);
+    if (apiSecret != null) {
+      request.addParameter(OAuthConstants.CLIENT_SECRET, apiSecret);
     }
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final RequestBodyAuthenticationScheme INSTANCE =
-                new RequestBodyAuthenticationScheme();
-    }
+    private static final RequestBodyAuthenticationScheme INSTANCE =
+        new RequestBodyAuthenticationScheme();
+  }
 }

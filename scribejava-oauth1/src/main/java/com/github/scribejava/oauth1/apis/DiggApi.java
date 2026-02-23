@@ -25,42 +25,39 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
-/**
- * API OAuth 1.0a pour DiggApi.
- */
+/** API OAuth 1.0a pour DiggApi. */
 public class DiggApi extends DefaultApi10a {
 
-    private static final String AUTHORIZATION_URL = "http://digg.com/oauth/authorize";
-    private static final String BASE_URL = "http://services.digg.com/oauth/";
+  private static final String AUTHORIZATION_URL = "http://digg.com/oauth/authorize";
+  private static final String BASE_URL = "http://services.digg.com/oauth/";
 
-    protected DiggApi() {
-    }
+  protected DiggApi() {}
 
-    /**
-     * Retourne l'instance unique de l'API.
-     *
-     * @return L'instance {@link DiggApi}.
-     */
-    public static DiggApi instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link DiggApi}.
+   */
+  public static DiggApi instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getRequestTokenEndpoint() {
-        return BASE_URL + "request_token";
-    }
+  @Override
+  public String getRequestTokenEndpoint() {
+    return BASE_URL + "request_token";
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return BASE_URL + "access_token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return BASE_URL + "access_token";
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return AUTHORIZATION_URL;
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return AUTHORIZATION_URL;
+  }
 
-    private static class InstanceHolder {
-        private static final DiggApi INSTANCE = new DiggApi();
-    }
+  private static class InstanceHolder {
+    private static final DiggApi INSTANCE = new DiggApi();
+  }
 }

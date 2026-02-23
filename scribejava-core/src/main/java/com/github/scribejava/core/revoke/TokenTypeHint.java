@@ -28,24 +28,24 @@ package com.github.scribejava.core.revoke;
  * 2.1. Revocation Request
  *
  * @see <a href="https://tools.ietf.org/html/rfc7009#section-2.1">RFC 7009, 2.1. Revocation
- * Request</a>
+ *     Request</a>
  */
 public enum TokenTypeHint {
-    ACCESS_TOKEN("access_token"),
-    REFRESH_TOKEN("refresh_token");
+  ACCESS_TOKEN("access_token"),
+  REFRESH_TOKEN("refresh_token");
 
-    private final String value;
+  private final String value;
 
-    TokenTypeHint(String value) {
-        this.value = value;
-    }
+  TokenTypeHint(String value) {
+    this.value = value;
+  }
 
-    /**
-     * Retourne la valeur textuelle de l'indice (access_token ou refresh_token).
-     *
-     * @return La valeur de l'indice.
-     */
-    public String getValue() {
-        return value;
-    }
+  /**
+   * Retourne la valeur textuelle de l'indice (access_token ou refresh_token).
+   *
+   * @return La valeur de l'indice.
+   */
+  public String getValue() {
+    return value;
+  }
 }

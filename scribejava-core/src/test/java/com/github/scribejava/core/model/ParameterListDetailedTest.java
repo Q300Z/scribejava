@@ -23,89 +23,76 @@
  */
 package com.github.scribejava.core.model;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * Tests détaillés de la classe {@link ParameterList}.
- */
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+
+/** Tests détaillés de la classe {@link ParameterList}. */
 public class ParameterListDetailedTest {
 
-    /**
-     * Vérifie que le tri des paramètres s'effectue correctement par clé puis par valeur.
-     */
-    @Test
-    public void shouldSortParametersCorrectly() {
-        final ParameterList list = new ParameterList();
-        list.add("z", "last");
-        list.add("a", "first");
-        list.add("m", "middle");
-        list.add("a", "alpha"); // Same key, different value
+  /** Vérifie que le tri des paramètres s'effectue correctement par clé puis par valeur. */
+  @Test
+  public void shouldSortParametersCorrectly() {
+    final ParameterList list = new ParameterList();
+    list.add("z", "last");
+    list.add("a", "first");
+    list.add("m", "middle");
+    list.add("a", "alpha"); // Same key, different value
 
-        final ParameterList sorted = list.sort();
+    final ParameterList sorted = list.sort();
 
-        assertThat(sorted.getParams().get(0).getKey()).isEqualTo("a");
-        assertThat(sorted.getParams().get(0).getValue()).isEqualTo("alpha");
-        assertThat(sorted.getParams().get(1).getValue()).isEqualTo("first");
-        assertThat(sorted.getParams().get(2).getKey()).isEqualTo("m");
-        assertThat(sorted.getParams().get(3).getKey()).isEqualTo("z");
-    }
+    assertThat(sorted.getParams().get(0).getKey()).isEqualTo("a");
+    assertThat(sorted.getParams().get(0).getValue()).isEqualTo("alpha");
+    assertThat(sorted.getParams().get(1).getValue()).isEqualTo("first");
+    assertThat(sorted.getParams().get(2).getKey()).isEqualTo("m");
+    assertThat(sorted.getParams().get(3).getKey()).isEqualTo("z");
+  }
 
-    /**
-     * Vérifie la fusion de deux listes de paramètres.
-     */
-    @Test
-    public void shouldAddAllFromAnotherList() {
-        final ParameterList list1 = new ParameterList();
-        list1.add("k1", "v1");
+  /** Vérifie la fusion de deux listes de paramètres. */
+  @Test
+  public void shouldAddAllFromAnotherList() {
+    final ParameterList list1 = new ParameterList();
+    list1.add("k1", "v1");
 
-        final ParameterList list2 = new ParameterList();
-        list2.add("k2", "v2");
+    final ParameterList list2 = new ParameterList();
+    list2.add("k2", "v2");
 
-        list1.addAll(list2);
+    list1.addAll(list2);
 
-        assertThat(list1.size()).isEqualTo(2);
-        assertThat(list1.asFormUrlEncodedString()).contains("k1=v1").contains("k2=v2");
-    }
+    assertThat(list1.size()).isEqualTo(2);
+    assertThat(list1.asFormUrlEncodedString()).contains("k1=v1").contains("k2=v2");
+  }
 
-    /**
-     * Vérifie l'initialisation d'une liste à partir d'une {@link Map}.
-     */
-    @Test
-    public void shouldInitializeFromMap() {
-        final Map<String, String> map = new HashMap<>();
-        map.put("key1", "val1");
-        map.put("key2", "val2");
+  /** Vérifie l'initialisation d'une liste à partir d'une {@link Map}. */
+  @Test
+  public void shouldInitializeFromMap() {
+    final Map<String, String> map = new HashMap<>();
+    map.put("key1", "val1");
+    map.put("key2", "val2");
 
-        final ParameterList list = new ParameterList(map);
-        assertThat(list.size()).isEqualTo(2);
-    }
+    final ParameterList list = new ParameterList(map);
+    assertThat(list.size()).isEqualTo(2);
+  }
 
-    /**
-     * Vérifie que l'ajout à une URL nulle lève une exception.
-     */
-    @Test
-    public void shouldHandleNullUrlOnAppend() {
-        final ParameterList list = new ParameterList();
-        assertThatThrownBy(() -> list.appendTo(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Cannot append to null URL");
-    }
+  /** Vérifie que l'ajout à une URL nulle lève une exception. */
+  @Test
+  public void shouldHandleNullUrlOnAppend() {
+    final ParameterList list = new ParameterList();
+    assertThatThrownBy(() -> list.appendTo(null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Cannot append to null URL");
+  }
 
-    /**
-     * Vérifie l'ajout correct de paramètres à une URL possédant déjà une QueryString.
-     */
-    @Test
-    public void shouldCorrectelyAppendToUrlWithExistingQuery() {
-        final ParameterList list = new ParameterList();
-        list.add("new", "param");
+  /** Vérifie l'ajout correct de paramètres à une URL possédant déjà une QueryString. */
+  @Test
+  public void shouldCorrectelyAppendToUrlWithExistingQuery() {
+    final ParameterList list = new ParameterList();
+    list.add("new", "param");
 
-        assertThat(list.appendTo("http://example.com?old=val"))
-                .isEqualTo("http://example.com?old=val&new=param");
-    }
+    assertThat(list.appendTo("http://example.com?old=val"))
+        .isEqualTo("http://example.com?old=val&new=param");
+  }
 }

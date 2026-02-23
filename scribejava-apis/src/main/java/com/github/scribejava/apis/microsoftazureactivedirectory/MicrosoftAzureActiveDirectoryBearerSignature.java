@@ -23,31 +23,27 @@
  */
 package com.github.scribejava.apis.microsoftazureactivedirectory;
 
-/**
- * Signature Bearer pour Microsoft Azure Active Directory v1.0.
- */
+/** Signature Bearer pour Microsoft Azure Active Directory v1.0. */
 public class MicrosoftAzureActiveDirectoryBearerSignature
-        extends BaseMicrosoftAzureActiveDirectoryBearerSignature {
+    extends BaseMicrosoftAzureActiveDirectoryBearerSignature {
 
-    /**
-     * Constructeur protégé.
-     */
-    protected MicrosoftAzureActiveDirectoryBearerSignature() {
-        super("application/json; odata=minimalmetadata; streaming=true; charset=utf-8");
-    }
+  /** Constructeur protégé. */
+  protected MicrosoftAzureActiveDirectoryBearerSignature() {
+    super("application/json; odata=minimalmetadata; streaming=true; charset=utf-8");
+  }
 
-    /**
-     * Retourne l'instance unique (singleton) de ce type de signature.
-     *
-     * @return L'instance de {@link MicrosoftAzureActiveDirectoryBearerSignature}.
-     */
-    public static MicrosoftAzureActiveDirectoryBearerSignature instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de ce type de signature.
+   *
+   * @return L'instance de {@link MicrosoftAzureActiveDirectoryBearerSignature}.
+   */
+  public static MicrosoftAzureActiveDirectoryBearerSignature instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    private static class InstanceHolder {
+  private static class InstanceHolder {
 
-        private static final MicrosoftAzureActiveDirectoryBearerSignature INSTANCE =
-                new MicrosoftAzureActiveDirectoryBearerSignature();
-    }
+    private static final MicrosoftAzureActiveDirectoryBearerSignature INSTANCE =
+        new MicrosoftAzureActiveDirectoryBearerSignature();
+  }
 }

@@ -25,39 +25,36 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
-/**
- * API OAuth 2.0 pour Discord.
- */
+/** API OAuth 2.0 pour Discord. */
 public class DiscordApi extends DefaultApi20 {
 
-    private DiscordApi() {
-    }
+  private DiscordApi() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'API Discord.
-     *
-     * @return L'instance de {@link DiscordApi}.
-     */
-    public static DiscordApi instance() {
-        return DiscordApi.InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'API Discord.
+   *
+   * @return L'instance de {@link DiscordApi}.
+   */
+  public static DiscordApi instance() {
+    return DiscordApi.InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    public String getAuthorizationBaseUrl() {
-        return "https://discordapp.com/api/oauth2/authorize";
-    }
+  @Override
+  public String getAuthorizationBaseUrl() {
+    return "https://discordapp.com/api/oauth2/authorize";
+  }
 
-    @Override
-    public String getRevokeTokenEndpoint() {
-        return "https://discordapp.com/api/oauth2/token/revoke";
-    }
+  @Override
+  public String getRevokeTokenEndpoint() {
+    return "https://discordapp.com/api/oauth2/token/revoke";
+  }
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://discordapp.com/api/oauth2/token";
-    }
+  @Override
+  public String getAccessTokenEndpoint() {
+    return "https://discordapp.com/api/oauth2/token";
+  }
 
-    private static class InstanceHolder {
-        private static final DiscordApi INSTANCE = new DiscordApi();
-    }
+  private static class InstanceHolder {
+    private static final DiscordApi INSTANCE = new DiscordApi();
+  }
 }

@@ -28,7 +28,6 @@ import com.github.scribejava.core.extractors.TokenExtractor;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.utils.Preconditions;
 import com.github.scribejava.oauth1.model.OAuth1Token;
-
 import java.io.IOException;
 
 /**
@@ -37,15 +36,15 @@ import java.io.IOException;
  * @param <T> concrete type of token
  */
 public abstract class AbstractOAuth1JSONTokenExtractor<T extends OAuth1Token>
-        extends AbstractJsonExtractor implements TokenExtractor<T> {
+    extends AbstractJsonExtractor implements TokenExtractor<T> {
 
-    @Override
-    public T extract(Response response) throws IOException {
-        final String body = response.getBody();
-        Preconditions.checkEmptyString(
-                body, "Response body is incorrect. Can't extract a token from an empty string");
-        return createToken(body);
-    }
+  @Override
+  public T extract(Response response) throws IOException {
+    final String body = response.getBody();
+    Preconditions.checkEmptyString(
+        body, "Response body is incorrect. Can't extract a token from an empty string");
+    return createToken(body);
+  }
 
-    protected abstract T createToken(String body) throws IOException;
+  protected abstract T createToken(String body) throws IOException;
 }

@@ -23,38 +23,38 @@
  */
 package com.github.scribejava.oidc;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 public class OidcProvidersTest {
 
-    @Test
-    public void shouldReturnCorrectGoogleOidcConfig() {
-        final OidcGoogleApi20 api = OidcGoogleApi20.instance();
-        assertThat(api.getIssuer()).isEqualTo("https://accounts.google.com");
-        assertThat(api.getAccessTokenEndpoint()).isEqualTo("https://oauth2.googleapis.com/token");
-        assertThat(api.getAuthorizationBaseUrl())
-                .isEqualTo("https://accounts.google.com/o/oauth2/v2/auth");
-    }
+  @Test
+  public void shouldReturnCorrectGoogleOidcConfig() {
+    final OidcGoogleApi20 api = OidcGoogleApi20.instance();
+    assertThat(api.getIssuer()).isEqualTo("https://accounts.google.com");
+    assertThat(api.getAccessTokenEndpoint()).isEqualTo("https://oauth2.googleapis.com/token");
+    assertThat(api.getAuthorizationBaseUrl())
+        .isEqualTo("https://accounts.google.com/o/oauth2/v2/auth");
+  }
 
-    @Test
-    public void shouldReturnCorrectGitHubOidcConfig() {
-        final OidcGitHubApi20 api = OidcGitHubApi20.instance();
-        assertThat(api.getIssuer()).isEqualTo("https://token.actions.githubusercontent.com");
-        assertThat(api.getAccessTokenEndpoint())
-                .isEqualTo("https://github.com/login/oauth/access_token");
-    }
+  @Test
+  public void shouldReturnCorrectGitHubOidcConfig() {
+    final OidcGitHubApi20 api = OidcGitHubApi20.instance();
+    assertThat(api.getIssuer()).isEqualTo("https://token.actions.githubusercontent.com");
+    assertThat(api.getAccessTokenEndpoint())
+        .isEqualTo("https://github.com/login/oauth/access_token");
+  }
 
-    @Test
-    public void shouldReturnCorrectMicrosoftOidcConfig() {
-        final OidcMicrosoftAzureActiveDirectory20Api api =
-                OidcMicrosoftAzureActiveDirectory20Api.instance();
-        assertThat(api.getIssuer()).isEqualTo("https://login.microsoftonline.com/common/v2.0");
+  @Test
+  public void shouldReturnCorrectMicrosoftOidcConfig() {
+    final OidcMicrosoftAzureActiveDirectory20Api api =
+        OidcMicrosoftAzureActiveDirectory20Api.instance();
+    assertThat(api.getIssuer()).isEqualTo("https://login.microsoftonline.com/common/v2.0");
 
-        final OidcMicrosoftAzureActiveDirectory20Api customApi =
-                OidcMicrosoftAzureActiveDirectory20Api.custom("my-tenant");
-        assertThat(customApi.getIssuer()).isEqualTo("https://login.microsoftonline.com/my-tenant/v2.0");
-        assertThat(customApi.getAccessTokenEndpoint()).contains("my-tenant");
-    }
+    final OidcMicrosoftAzureActiveDirectory20Api customApi =
+        OidcMicrosoftAzureActiveDirectory20Api.custom("my-tenant");
+    assertThat(customApi.getIssuer()).isEqualTo("https://login.microsoftonline.com/my-tenant/v2.0");
+    assertThat(customApi.getAccessTokenEndpoint()).contains("my-tenant");
+  }
 }

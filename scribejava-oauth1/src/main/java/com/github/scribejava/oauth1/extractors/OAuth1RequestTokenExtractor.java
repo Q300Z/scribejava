@@ -26,7 +26,6 @@ package com.github.scribejava.oauth1.extractors;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,44 +37,41 @@ import java.util.regex.Pattern;
  */
 public class OAuth1RequestTokenExtractor extends AbstractOAuth1TokenExtractor<OAuth1RequestToken> {
 
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("oauth_token=([^&]+)");
-    private static final Pattern SECRET_PATTERN = Pattern.compile("oauth_token_secret=([^&]+)");
+  private static final Pattern TOKEN_PATTERN = Pattern.compile("oauth_token=([^&]+)");
+  private static final Pattern SECRET_PATTERN = Pattern.compile("oauth_token_secret=([^&]+)");
 
-    /**
-     * Constructeur protégé.
-     */
-    protected OAuth1RequestTokenExtractor() {
-    }
+  /** Constructeur protégé. */
+  protected OAuth1RequestTokenExtractor() {}
 
-    /**
-     * Retourne l'instance unique (singleton) de l'extracteur.
-     *
-     * @return L'instance de {@link OAuth1RequestTokenExtractor}.
-     */
-    public static OAuth1RequestTokenExtractor instance() {
-        return InstanceHolder.INSTANCE;
-    }
+  /**
+   * Retourne l'instance unique (singleton) de l'extracteur.
+   *
+   * @return L'instance de {@link OAuth1RequestTokenExtractor}.
+   */
+  public static OAuth1RequestTokenExtractor instance() {
+    return InstanceHolder.INSTANCE;
+  }
 
-    @Override
-    protected OAuth1RequestToken parse(final String body) {
-        return new OAuth1RequestToken(
-                extract(body, TOKEN_PATTERN), extract(body, SECRET_PATTERN), body);
-    }
+  @Override
+  protected OAuth1RequestToken parse(final String body) {
+    return new OAuth1RequestToken(
+        extract(body, TOKEN_PATTERN), extract(body, SECRET_PATTERN), body);
+  }
 
-    private String extract(final String response, final Pattern pattern) {
-        final Matcher matcher = pattern.matcher(response);
-        if (matcher.find() && matcher.groupCount() >= 1) {
-            return OAuthEncoder.decode(matcher.group(1));
-        } else {
-            throw new OAuthException(
-                    "Response body is incorrect. Can't extract token and secret from this: '"
-                            + response
-                            + "'",
-                    null);
-        }
+  private String extract(final String response, final Pattern pattern) {
+    final Matcher matcher = pattern.matcher(response);
+    if (matcher.find() && matcher.groupCount() >= 1) {
+      return OAuthEncoder.decode(matcher.group(1));
+    } else {
+      throw new OAuthException(
+          "Response body is incorrect. Can't extract token and secret from this: '"
+              + response
+              + "'",
+          null);
     }
+  }
 
-    private static class InstanceHolder {
-        private static final OAuth1RequestTokenExtractor INSTANCE = new OAuth1RequestTokenExtractor();
-    }
+  private static class InstanceHolder {
+    private static final OAuth1RequestTokenExtractor INSTANCE = new OAuth1RequestTokenExtractor();
+  }
 }

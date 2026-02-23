@@ -31,24 +31,24 @@ package com.github.scribejava.core.exceptions;
  */
 public class OAuthProtocolException extends OAuthException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructeur avec message.
-     *
-     * @param message Le message détaillant l'erreur de protocole.
-     */
-    public OAuthProtocolException(String message) {
-        super(message);
-    }
+  /**
+   * Constructeur avec message.
+   *
+   * @param message Le message détaillant l'erreur de protocole.
+   */
+  public OAuthProtocolException(String message) {
+    super(message);
+  }
 
-    /**
-     * Constructeur avec message et cause.
-     *
-     * @param message Le message détaillant l'erreur.
-     * @param cause   L'exception parente ayant provoqué l'erreur.
-     */
-    public OAuthProtocolException(String message, Exception cause) {
-        super(message, cause);
-    }
+  /**
+   * Constructeur avec message et cause.
+   *
+   * @param message Le message détaillant l'erreur.
+   * @param cause L'exception parente ayant provoqué l'erreur.
+   */
+  public OAuthProtocolException(String message, Exception cause) {
+    super(message, cause);
+  }
 }

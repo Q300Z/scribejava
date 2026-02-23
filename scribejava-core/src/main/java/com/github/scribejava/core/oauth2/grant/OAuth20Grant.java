@@ -32,17 +32,17 @@ import com.github.scribejava.core.oauth.OAuth20Service;
  */
 public interface OAuth20Grant {
 
-    /**
-     * Crée la requête HTTP permettant d'échanger une concession d'autorisation (grant) contre un
-     * jeton d'accès.
-     *
-     * <p>Cette méthode implémente le patron de conception "Strategy" pour découpler la logique
-     * spécifique à chaque type de concession du service OAuth principal.
-     *
-     * @param service L'instance du service OAuth 2.0 utilisée pour configurer la requête.
-     * @return Une instance de {@link OAuthRequest} configurée selon le type de concession.
-     * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3">RFC 6749, Section 1.3
-     * (Authorization Grant)</a>
-     */
-    OAuthRequest createRequest(OAuth20Service service);
+  /**
+   * Crée la requête HTTP permettant d'échanger une concession d'autorisation (grant) contre un
+   * jeton d'accès.
+   *
+   * <p>Cette méthode implémente le patron de conception "Strategy" pour découpler la logique
+   * spécifique à chaque type de concession du service OAuth principal.
+   *
+   * @param service L'instance du service OAuth 2.0 utilisée pour configurer la requête.
+   * @return Une instance de {@link OAuthRequest} configurée selon le type de concession.
+   * @see <a href="https://tools.ietf.org/html/rfc6749#section-1.3">RFC 6749, Section 1.3
+   *     (Authorization Grant)</a>
+   */
+  OAuthRequest createRequest(OAuth20Service service);
 }

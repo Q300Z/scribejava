@@ -35,88 +35,85 @@ import java.util.Set;
  * délimitée par des espaces, conformément au standard OAuth 2.0.
  *
  * @see <a href="https://tools.ietf.org/html/rfc6749#section-3.3">RFC 6749, Section 3.3 (Access
- * Token Scope)</a>
+ *     Token Scope)</a>
  */
 public class ScopeBuilder {
 
-    private final Set<String> scopes = new HashSet<>();
+  private final Set<String> scopes = new HashSet<>();
 
-    /**
-     * Constructeur par défaut.
-     */
-    public ScopeBuilder() {
-    }
+  /** Constructeur par défaut. */
+  public ScopeBuilder() {}
 
-    /**
-     * Constructeur avec une portée initiale.
-     *
-     * @param scope La portée initiale.
-     */
-    public ScopeBuilder(String scope) {
-        withScope(scope);
-    }
+  /**
+   * Constructeur avec une portée initiale.
+   *
+   * @param scope La portée initiale.
+   */
+  public ScopeBuilder(String scope) {
+    withScope(scope);
+  }
 
-    /**
-     * Constructeur avec plusieurs portées initiales.
-     *
-     * @param scopes Tableau de portées.
-     */
-    public ScopeBuilder(String... scopes) {
-        withScopes(scopes);
-    }
+  /**
+   * Constructeur avec plusieurs portées initiales.
+   *
+   * @param scopes Tableau de portées.
+   */
+  public ScopeBuilder(String... scopes) {
+    withScopes(scopes);
+  }
 
-    /**
-     * Constructeur avec une collection de portées initiales.
-     *
-     * @param scopes Collection de portées.
-     */
-    public ScopeBuilder(Collection<String> scopes) {
-        withScopes(scopes);
-    }
+  /**
+   * Constructeur avec une collection de portées initiales.
+   *
+   * @param scopes Collection de portées.
+   */
+  public ScopeBuilder(Collection<String> scopes) {
+    withScopes(scopes);
+  }
 
-    /**
-     * Ajoute une portée individuelle.
-     *
-     * @param scope La portée à ajouter.
-     * @return L'instance actuelle.
-     */
-    public final ScopeBuilder withScope(String scope) {
-        scopes.add(scope);
-        return this;
-    }
+  /**
+   * Ajoute une portée individuelle.
+   *
+   * @param scope La portée à ajouter.
+   * @return L'instance actuelle.
+   */
+  public final ScopeBuilder withScope(String scope) {
+    scopes.add(scope);
+    return this;
+  }
 
-    /**
-     * Ajoute plusieurs portées.
-     *
-     * @param scopes Tableau de portées.
-     * @return L'instance actuelle.
-     */
-    public final ScopeBuilder withScopes(String... scopes) {
-        this.scopes.addAll(Arrays.asList(scopes));
-        return this;
-    }
+  /**
+   * Ajoute plusieurs portées.
+   *
+   * @param scopes Tableau de portées.
+   * @return L'instance actuelle.
+   */
+  public final ScopeBuilder withScopes(String... scopes) {
+    this.scopes.addAll(Arrays.asList(scopes));
+    return this;
+  }
 
-    /**
-     * Ajoute une collection de portées.
-     *
-     * @param scopes Collection de portées.
-     * @return L'instance actuelle.
-     */
-    public final ScopeBuilder withScopes(Collection<String> scopes) {
-        this.scopes.addAll(scopes);
-        return this;
-    }
+  /**
+   * Ajoute une collection de portées.
+   *
+   * @param scopes Collection de portées.
+   * @return L'instance actuelle.
+   */
+  public final ScopeBuilder withScopes(Collection<String> scopes) {
+    this.scopes.addAll(scopes);
+    return this;
+  }
 
-    /**
-     * Construit la chaîne de portée finale.
-     *
-     * @return Une chaîne de caractères contenant toutes les portées séparées par des espaces.
-     */
-    public String build() {
-        final StringBuilder scopeBuilder = new StringBuilder();
-        for (String scope : scopes) {
-            scopeBuilder.append(' ').append(scope);
-        }
-        return scopeBuilder.substring(1);
+  /**
+   * Construit la chaîne de portée finale.
+   *
+   * @return Une chaîne de caractères contenant toutes les portées séparées par des espaces.
+   */
+  public String build() {
+    final StringBuilder scopeBuilder = new StringBuilder();
+    for (String scope : scopes) {
+      scopeBuilder.append(' ').append(scope);
     }
+    return scopeBuilder.substring(1);
+  }
 }

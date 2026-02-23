@@ -31,15 +31,15 @@ import java.util.Map;
  */
 public interface AuthorizationRequestConverter {
 
-    /**
-     * Convertit les paramètres de la requête d'autorisation.
-     *
-     * <p>Utilisé pour transformer des paramètres classiques en un objet de requête sécurisé (JAR) ou
-     * pour adapter la requête pour PAR.
-     *
-     * @param params Les paramètres d'autorisation d'origine.
-     * @return Les paramètres convertis (ex: un dictionnaire contenant uniquement le paramètre
-     * 'request').
-     */
-    Map<String, String> convert(Map<String, String> params);
+  /**
+   * Convertit les paramètres de la requête d'autorisation.
+   *
+   * <p>Utilisé pour transformer des paramètres classiques en un objet de requête sécurisé (JAR) ou
+   * pour adapter la requête pour PAR.
+   *
+   * @param params Les paramètres d'autorisation d'origine.
+   * @return Les paramètres convertis (ex: un dictionnaire contenant uniquement le paramètre
+   *     'request').
+   */
+  Map<String, String> convert(Map<String, String> params);
 }
