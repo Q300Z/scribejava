@@ -25,12 +25,21 @@ package com.github.scribejava.core.httpclient.multipart;
 
 import java.util.Map;
 
+/** Implémentation de {@link BodyPartPayload} pour les données en tableau d'octets (byte array). */
 public class ByteArrayBodyPartPayload extends BodyPartPayload {
 
   private final byte[] payload;
   private final int off;
   private final int len;
 
+  /**
+   * Constructeur complet.
+   *
+   * @param payload Les données.
+   * @param off Le décalage (offset) dans le tableau.
+   * @param len La longueur des données à lire.
+   * @param headers Les en-têtes de cette partie.
+   */
   public ByteArrayBodyPartPayload(byte[] payload, int off, int len, Map<String, String> headers) {
     super(headers);
     this.payload = payload;
@@ -38,34 +47,81 @@ public class ByteArrayBodyPartPayload extends BodyPartPayload {
     this.len = len;
   }
 
+  /**
+   * Constructeur avec en-têtes.
+   *
+   * @param payload Les données.
+   * @param headers Les en-têtes.
+   */
   public ByteArrayBodyPartPayload(byte[] payload, Map<String, String> headers) {
     this(payload, 0, payload.length, headers);
   }
 
+  /**
+   * Constructeur avec type de contenu.
+   *
+   * @param payload Les données.
+   * @param contentType Le type de contenu.
+   */
   public ByteArrayBodyPartPayload(byte[] payload, String contentType) {
     this(payload, convertContentTypeToHeaders(contentType));
   }
 
+  /**
+   * Constructeur avec décalage, longueur et type de contenu.
+   *
+   * @param payload Les données.
+   * @param off Le décalage.
+   * @param len La longueur.
+   * @param contentType Le type de contenu.
+   */
   public ByteArrayBodyPartPayload(byte[] payload, int off, int len, String contentType) {
     this(payload, off, len, convertContentTypeToHeaders(contentType));
   }
 
+  /**
+   * Constructeur simple sans en-tête.
+   *
+   * @param payload Les données.
+   */
   public ByteArrayBodyPartPayload(byte[] payload) {
     this(payload, (Map<String, String>) null);
   }
 
+  /**
+   * Constructeur simple avec décalage et longueur.
+   *
+   * @param payload Les données.
+   * @param off Le décalage.
+   * @param len La longueur.
+   */
   public ByteArrayBodyPartPayload(byte[] payload, int off, int len) {
     this(payload, off, len, (Map<String, String>) null);
   }
 
+  /**
+   * Retourne le tableau d'octets.
+   *
+   * @return Le tableau payload.
+   */
   public byte[] getPayload() {
     return payload;
   }
 
+  /**
+   * Retourne le décalage.
+   *
+   * @return L'offset.
+   */
   public int getOff() {
     return off;
   }
 
+  /**
+   * Retourne la longueur.
+   *
+   * @return La longueur.
+   */
   public int getLen() {
     return len;
   }

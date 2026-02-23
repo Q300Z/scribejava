@@ -32,6 +32,7 @@ import com.linecorp.armeria.client.retry.RetryingClient;
 import com.linecorp.armeria.common.SessionProtocol;
 import java.util.function.Function;
 
+/** Configuration pour le client HTTP Armeria. */
 public class ArmeriaHttpClientConfig implements HttpClientConfig {
 
   private static final SessionProtocol DEFAULT_PROTOCOL_PREFERENCE = SessionProtocol.H1; // H1 or H2
@@ -88,24 +89,52 @@ public class ArmeriaHttpClientConfig implements HttpClientConfig {
     this.protocolPreference = protocolPreference;
   }
 
+  /**
+   * Définit la préférence de protocole (version fluide).
+   *
+   * @param protocolPreference Le protocole préféré (H1 ou H2).
+   * @return L'instance de configuration.
+   */
   public ArmeriaHttpClientConfig withProtocolPreference(SessionProtocol protocolPreference) {
     setProtocolPreference(protocolPreference);
     return this;
   }
 
+  /**
+   * Définit la fonction de réessai (retry).
+   *
+   * @param retry La fonction de réessai.
+   */
   public void setRetry(Function<? super HttpClient, RetryingClient> retry) {
     this.retry = retry;
   }
 
+  /**
+   * Définit la fonction de réessai (version fluide).
+   *
+   * @param retry La fonction de réessai.
+   * @return L'instance de configuration.
+   */
   public ArmeriaHttpClientConfig withRetry(Function<? super HttpClient, RetryingClient> retry) {
     this.retry = retry;
     return this;
   }
 
+  /**
+   * Définit la fonction de journalisation (logging).
+   *
+   * @param logging La fonction de journalisation.
+   */
   public void setLogging(Function<? super HttpClient, LoggingClient> logging) {
     this.logging = logging;
   }
 
+  /**
+   * Définit la fonction de journalisation (version fluide).
+   *
+   * @param logging La fonction de journalisation.
+   * @return L'instance de configuration.
+   */
   public ArmeriaHttpClientConfig withLogging(Function<? super HttpClient, LoggingClient> logging) {
     this.logging = logging;
     return this;

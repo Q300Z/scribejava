@@ -26,22 +26,39 @@ package com.github.scribejava.httpclient.okhttp;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import okhttp3.OkHttpClient;
 
+/** Configuration pour le client HTTP OkHttp. */
 public class OkHttpHttpClientConfig implements HttpClientConfig {
 
   private final OkHttpClient.Builder clientBuilder;
 
+  /**
+   * Constructeur.
+   *
+   * @param clientBuilder Le constructeur de client OkHttp.
+   */
   public OkHttpHttpClientConfig(OkHttpClient.Builder clientBuilder) {
     this.clientBuilder = clientBuilder;
   }
 
+  /**
+   * Crée une configuration par défaut.
+   *
+   * @return Une instance de {@link OkHttpHttpClientConfig}.
+   */
   public static OkHttpHttpClientConfig defaultConfig() {
     return new OkHttpHttpClientConfig(null);
   }
 
+  /**
+   * Retourne le constructeur de client OkHttp.
+   *
+   * @return Le {@link okhttp3.OkHttpClient.Builder}.
+   */
   public OkHttpClient.Builder getClientBuilder() {
     return clientBuilder;
   }
 
+  /** {@inheritDoc} */
   @Override
   public OkHttpHttpClientConfig createDefaultConfig() {
     return defaultConfig();

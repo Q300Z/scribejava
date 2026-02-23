@@ -27,8 +27,10 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.httpclient.HttpClientProvider;
 
+/** Fournisseur de client HTTP utilisant OkHttp. */
 public class OkHttpProvider implements HttpClientProvider {
 
+  /** {@inheritDoc} */
   @Override
   public HttpClient createClient(HttpClientConfig config) {
     if (config instanceof OkHttpHttpClientConfig) {

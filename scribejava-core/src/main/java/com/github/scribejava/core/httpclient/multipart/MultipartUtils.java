@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/** Utilitaires pour la gestion des requêtes Multipart. */
 public class MultipartUtils {
 
   private static final String B_CHARS_NO_SPACE_PATTERN = "0-9a-zA-Z'()+_,-./:=?";
@@ -43,6 +44,12 @@ public class MultipartUtils {
 
   private MultipartUtils() {}
 
+  /**
+   * Vérifie la syntaxe d'un séparateur (boundary).
+   *
+   * @param boundary Le séparateur à vérifier.
+   * @throws IllegalArgumentException si la syntaxe est invalide.
+   */
   public static void checkBoundarySyntax(String boundary) {
     if (boundary == null || !BOUNDARY_REGEXP.matcher(boundary).matches()) {
       throw new IllegalArgumentException(
@@ -54,6 +61,12 @@ public class MultipartUtils {
     }
   }
 
+  /**
+   * Extrait le séparateur de l'en-tête Content-Type.
+   *
+   * @param contentTypeHeader L'en-tête Content-Type.
+   * @return Le séparateur trouvé ou null.
+   */
   public static String parseBoundaryFromHeader(String contentTypeHeader) {
     if (contentTypeHeader == null) {
       return null;
@@ -62,10 +75,22 @@ public class MultipartUtils {
     return matcher.find() ? matcher.group(1) : null;
   }
 
+  /**
+   * Génère un séparateur par défaut.
+   *
+   * @return Une chaîne de caractères unique servant de séparateur.
+   */
   public static String generateDefaultBoundary() {
     return "----ScribeJava----" + Instant.now().toEpochMilli();
   }
 
+  /**
+   * Génère le corps de la requête Multipart sous forme de flux de sortie.
+   *
+   * @param multipartPayload Le contenu Multipart.
+   * @return Un {@link ByteArrayOutputStream} contenant les données brutes.
+   * @throws IOException en cas d'erreur d'écriture.
+   */
   public static ByteArrayOutputStream getPayload(MultipartPayload multipartPayload)
       throws IOException {
     final ByteArrayOutputStream os = new ByteArrayOutputStream();

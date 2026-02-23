@@ -40,14 +40,25 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
+/**
+ * Implémentation du client HTTP utilisant les classes natives du JDK (HttpURLConnection).
+ *
+ * <p>C'est l'implémentation par défaut utilisée si aucun autre client HTTP n'est configuré.
+ */
 public class JDKHttpClient implements HttpClient {
 
   private final JDKHttpClientConfig config;
 
+  /** Constructeur par défaut. */
   public JDKHttpClient() {
     this(JDKHttpClientConfig.defaultConfig());
   }
 
+  /**
+   * Constructeur avec configuration.
+   *
+   * @param clientConfig La configuration à utiliser.
+   */
   public JDKHttpClient(JDKHttpClientConfig clientConfig) {
     config = clientConfig;
   }

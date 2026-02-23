@@ -45,8 +45,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 /**
- * An implementation of {@link AbstractAsyncOnlyHttpClient} based on <a
- * href="https://line.github.io/armeria/">Armeria HTTP client</a>.
+ * Implémentation du client HTTP utilisant Armeria.
+ *
+ * <p>Supporte uniquement les appels asynchrones.
  */
 public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
 
@@ -54,10 +55,16 @@ public class ArmeriaHttpClient extends AbstractAsyncOnlyHttpClient {
   private final Map<String, WebClient> httpClients = new HashMap<>();
   private final ReentrantReadWriteLock httpClientsLock = new ReentrantReadWriteLock();
 
+  /** Constructeur par défaut. */
   public ArmeriaHttpClient() {
     this(ArmeriaHttpClientConfig.defaultConfig());
   }
 
+  /**
+   * Constructeur avec configuration.
+   *
+   * @param config La configuration à utiliser.
+   */
   public ArmeriaHttpClient(final ArmeriaHttpClientConfig config) {
     clientBuilder = config.createClientBuilder();
   }
