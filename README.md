@@ -70,7 +70,9 @@ PKCE pkce = PKCEService.defaultInstance().generatePKCE();
 String authUrl = service.createAuthorizationUrlBuilder().pkce(pkce).build();
 
 // 3. Récupération du Token
-OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code, pkce));
+AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
+grant.setPkceCodeVerifier(pkce.getCodeVerifier());
+OAuth2AccessToken token = service.getAccessToken(grant);
 
 // 4. Appel API
 OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");

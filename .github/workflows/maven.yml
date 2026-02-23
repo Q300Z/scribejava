@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  # Étape 1 : Analyse statique et Lintage sous JDK 17 (moderne et compatible Spotless/GJF)
+  # Étape 1 : Analyse statique et Lintage sous JDK 17
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +23,7 @@ jobs:
     - name: Static Analysis (Checkstyle, PMD, Spotless, License)
       run: mvn checkstyle:check pmd:check spotless:check license:check
 
-  # Étape 2 : Compilation sous JDK 8
+  # Étape 2 : Compilation sous JDK 8 et packaging des tests
   build:
     needs: lint
     runs-on: ubuntu-latest
@@ -66,13 +66,12 @@ jobs:
         cache: 'maven'
 
     - name: Download compiled artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/download-artifact@v4
       with:
-        # On utilise une version factice ou on ignore si non trouvé pour ne pas bloquer
-        # Mais ici on télécharge les artefacts compilés au besoin
         name: compiled-jars
 
     - name: Run Tests
+      # On relance mvn install pour être sûr que le repo local est peuplé avec les JARs téléchargés
       run: mvn install -Dmaven.javadoc.skip=true
 
     - name: Mutation Testing (PITest)
