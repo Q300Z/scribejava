@@ -1,0 +1,111 @@
+services:
+  lint:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        JAVA_VERSION: 17
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - /app/target
+      - /app/scribejava-core/target
+      - /app/scribejava-apis/target
+      - /app/scribejava-httpclient-armeria/target
+      - /app/scribejava-httpclient-okhttp/target
+      - /app/scribejava-oauth1/target
+      - /app/scribejava-oidc/target
+    command: checkstyle:check pmd:check spotless:check license:check
+
+  test-jdk8:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        JAVA_VERSION: 8
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - /app/target
+      - /app/scribejava-core/target
+      - /app/scribejava-apis/target
+      - /app/scribejava-httpclient-armeria/target
+      - /app/scribejava-httpclient-okhttp/target
+      - /app/scribejava-oauth1/target
+      - /app/scribejava-oidc/target
+    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+
+  test-jdk11:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        JAVA_VERSION: 11
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - /app/target
+      - /app/scribejava-core/target
+      - /app/scribejava-apis/target
+      - /app/scribejava-httpclient-armeria/target
+      - /app/scribejava-httpclient-okhttp/target
+      - /app/scribejava-oauth1/target
+      - /app/scribejava-oidc/target
+    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+
+  test-jdk17:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        JAVA_VERSION: 17
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - /app/target
+      - /app/scribejava-core/target
+      - /app/scribejava-apis/target
+      - /app/scribejava-httpclient-armeria/target
+      - /app/scribejava-httpclient-okhttp/target
+      - /app/scribejava-oauth1/target
+      - /app/scribejava-oidc/target
+    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+
+  test-jdk21:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        JAVA_VERSION: 21
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - /app/target
+      - /app/scribejava-core/target
+      - /app/scribejava-apis/target
+      - /app/scribejava-httpclient-armeria/target
+      - /app/scribejava-httpclient-okhttp/target
+      - /app/scribejava-oauth1/target
+      - /app/scribejava-oidc/target
+    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+
+  test-jdk25:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+      args:
+        JAVA_VERSION: 25
+    volumes:
+      - .:/app
+      - maven-cache:/root/.m2
+      - /app/target
+      - /app/scribejava-core/target
+      - /app/scribejava-apis/target
+      - /app/scribejava-httpclient-armeria/target
+      - /app/scribejava-httpclient-okhttp/target
+      - /app/scribejava-oauth1/target
+      - /app/scribejava-oidc/target
+    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+
+volumes:
+  maven-cache:

@@ -1,0 +1,11 @@
+# Dockerfile pour reproduire l'environnement CI ScribeJava
+ARG JAVA_VERSION=17
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-jammy
+
+# Installation de Maven et Git
+RUN apt-get update && apt-get install -y maven git && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Point d'entrée pour Maven
+ENTRYPOINT ["mvn"]
