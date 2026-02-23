@@ -35,92 +35,82 @@ import com.github.scribejava.core.oauth2.grant.DeviceCodeGrant;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-/** Handles OAuth 2.0 Device Authorization Grant flow. */
 /**
  * Gère le flux de concession d'autorisation pour les appareils (Device Authorization Grant).
- *
- * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628</a>
  */
 public class OAuth20DeviceFlowHandler {
 
-  private final OAuth20Service service;
+    private final OAuth20Service service;
 
-  /**
-   * Constructeur.
-   *
-   * @param service Le service OAuth 2.0 associé.
-   */
-  public OAuth20DeviceFlowHandler(OAuth20Service service) {
-    this.service = service;
-  }
-
-  /**
-   * Crée la requête pour obtenir les codes d'autorisation d'appareil.
-   *
-   * @param scope La portée demandée.
-   * @return Une {@link OAuthRequest} configurée.
-   */
-  public OAuthRequest createDeviceAuthorizationCodesRequest(String scope) {
-    final OAuthRequest request =
-        new OAuthRequest(Verb.POST, service.getApi().getDeviceAuthorizationEndpoint());
-    request.addParameter(OAuthConstants.CLIENT_ID, service.getApiKey());
-    if (scope != null) {
-      request.addParameter(OAuthConstants.SCOPE, scope);
-    } else if (service.getDefaultScope() != null) {
-      request.addParameter(OAuthConstants.SCOPE, service.getDefaultScope());
+    /**
+     * @param service service
+     */
+    public OAuth20DeviceFlowHandler(OAuth20Service service) {
+        this.service = service;
     }
-    return request;
-  }
 
-  /**
-   * Récupère les codes d'autorisation d'appareil de manière synchrone.
-   *
-   * @param scope La portée demandée.
-   * @return Un objet {@link DeviceAuthorization}.
-   * @throws InterruptedException si le thread est interrompu.
-   * @throws ExecutionException si la requête échoue.
-   * @throws IOException en cas d'erreur réseau.
-   */
-  public DeviceAuthorization getDeviceAuthorizationCodes(String scope)
-      throws InterruptedException, ExecutionException, IOException {
-    final OAuthRequest request = createDeviceAuthorizationCodesRequest(scope);
-
-    try (Response response = service.execute(request)) {
-      if (service.isDebug()) {
-        service.log("got DeviceAuthorizationCodes response");
-        service.log("response status code: %s", response.getCode());
-        service.log("response body: %s", response.getBody());
-      }
-      return service.getApi().getDeviceAuthorizationExtractor().extract(response);
-    }
-  }
-
-  /**
-   * Interroge périodiquement le serveur pour obtenir le jeton d'accès (Polling).
-   *
-   * @param deviceAuthorization L'objet contenant le device_code.
-   * @return Le jeton d'accès {@link OAuth2AccessToken}.
-   * @throws InterruptedException si le thread est interrompu.
-   * @throws ExecutionException si la requête échoue.
-   * @throws IOException en cas d'erreur réseau.
-   */
-  public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(
-      DeviceAuthorization deviceAuthorization)
-      throws InterruptedException, ExecutionException, IOException {
-    long intervalMillis = deviceAuthorization.getIntervalSeconds() * 1000;
-    while (true) {
-      try {
-        return service.getAccessToken(new DeviceCodeGrant(deviceAuthorization.getDeviceCode()));
-      } catch (OAuth2AccessTokenErrorResponse e) {
-        if (e.getError() != OAuth2Error.AUTHORIZATION_PENDING) {
-          if (e.getError() == OAuth2Error.SLOW_DOWN) {
-            intervalMillis += 5000;
-          } else {
-            throw e;
-          }
+    /**
+     * @param scope scope
+     * @return request
+     */
+    public OAuthRequest createDeviceAuthorizationCodesRequest(String scope) {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, service.getApi().getDeviceAuthorizationEndpoint());
+        request.addParameter(OAuthConstants.CLIENT_ID, service.getApiKey());
+        final String effectiveScope = scope != null ? scope : service.getDefaultScope();
+        if (effectiveScope != null) {
+            request.addParameter(OAuthConstants.SCOPE, effectiveScope);
         }
-      }
-      Thread.sleep(intervalMillis);
+        return request;
     }
-  }
+
+    /**
+     * @param scope scope
+     * @return codes
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
+     * @throws IOException IOException
+     */
+    public DeviceAuthorization getDeviceAuthorizationCodes(String scope)
+            throws InterruptedException, ExecutionException, IOException {
+        final OAuthRequest request = createDeviceAuthorizationCodesRequest(scope);
+        try (Response response = service.execute(request)) {
+            return service.getApi().getDeviceAuthorizationExtractor().extract(response);
+        }
+    }
+
+    /**
+     * @param deviceAuthorization deviceAuthorization
+     * @return token
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
+     * @throws IOException IOException
+     */
+    public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(DeviceAuthorization deviceAuthorization)
+            throws InterruptedException, ExecutionException, IOException {
+        long intervalMillis = deviceAuthorization.getIntervalSeconds() * 1000;
+        while (true) {
+            try {
+                return service.getAccessTokenAsync(new DeviceCodeGrant(deviceAuthorization.getDeviceCode())).get();
+            } catch (ExecutionException e) {
+                final Throwable cause = e.getCause();
+                if (cause instanceof OAuth2AccessTokenErrorResponse) {
+                    final OAuth2AccessTokenErrorResponse errorResponse = (OAuth2AccessTokenErrorResponse) cause;
+                    if (errorResponse.getError() != OAuth2Error.AUTHORIZATION_PENDING) {
+                        if (errorResponse.getError() == OAuth2Error.SLOW_DOWN) {
+                            intervalMillis += 5000;
+                        } else {
+                            throw errorResponse;
+                        }
+                    }
+                } else if (cause instanceof IOException) {
+                    throw (IOException) cause;
+                } else if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else {
+                    throw e;
+                }
+            }
+            Thread.sleep(intervalMillis);
+        }
+    }
 }

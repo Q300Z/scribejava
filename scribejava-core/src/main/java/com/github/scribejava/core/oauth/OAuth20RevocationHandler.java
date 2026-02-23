@@ -29,79 +29,71 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Gère la révocation des jetons OAuth 2.0.
- *
- * <p>Cette classe implémente les mécanismes de création et d'envoi de requêtes de révocation.
- *
- * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (OAuth 2.0 Token Revocation)</a>
  */
 public class OAuth20RevocationHandler {
 
-  private final OAuth20Service service;
+    private final OAuth20Service service;
 
-  /**
-   * Constructeur.
-   *
-   * @param service Le service OAuth 2.0 associé.
-   */
-  public OAuth20RevocationHandler(OAuth20Service service) {
-    this.service = service;
-  }
-
-  /**
-   * Crée une requête de révocation de jeton.
-   *
-   * @param tokenToRevoke Le jeton à révoquer.
-   * @param tokenTypeHint Indice sur le type de jeton.
-   * @return La requête {@link OAuthRequest} configurée pour la révocation.
-   */
-  public OAuthRequest createRevokeTokenRequest(String tokenToRevoke, TokenTypeHint tokenTypeHint) {
-    final OAuthRequest request =
-        new OAuthRequest(Verb.POST, service.getApi().getRevokeTokenEndpoint());
-
-    service
-        .getApi()
-        .getClientAuthentication()
-        .addClientAuthentication(request, service.getApiKey(), service.getApiSecret());
-
-    request.addParameter("token", tokenToRevoke);
-    if (tokenTypeHint != null) {
-      request.addParameter("token_type_hint", tokenTypeHint.getValue());
+    /**
+     * @param service service
+     */
+    public OAuth20RevocationHandler(OAuth20Service service) {
+        this.service = service;
     }
 
-    return request;
-  }
-
-  /**
-   * Révoque un jeton de manière synchrone.
-   *
-   * @param tokenToRevoke Le jeton à révoquer.
-   * @param tokenTypeHint Indice sur le type de jeton.
-   * @throws IOException en cas d'erreur réseau.
-   * @throws InterruptedException si le thread est interrompu.
-   * @throws ExecutionException si l'exécution de la requête échoue.
-   */
-  public void revokeToken(String tokenToRevoke, TokenTypeHint tokenTypeHint)
-      throws IOException, InterruptedException, ExecutionException {
-    final OAuthRequest request = createRevokeTokenRequest(tokenToRevoke, tokenTypeHint);
-
-    try (Response response = service.execute(request)) {
-      checkForError(response);
+    /**
+     * @param tokenToRevoke tokenToRevoke
+     * @param tokenTypeHint tokenTypeHint
+     * @return request
+     */
+    public OAuthRequest createRevokeTokenRequest(String tokenToRevoke, TokenTypeHint tokenTypeHint) {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, service.getApi().getRevokeTokenEndpoint());
+        service.getApi().getClientAuthentication().addClientAuthentication(request, service.getApiKey(),
+                service.getApiSecret());
+        request.addParameter("token", tokenToRevoke);
+        if (tokenTypeHint != null) {
+            request.addParameter("token_type_hint", tokenTypeHint.getValue());
+        }
+        return request;
     }
-  }
 
-  /**
-   * Vérifie si la réponse contient une erreur de révocation.
-   *
-   * @param response La réponse HTTP à vérifier.
-   * @throws IOException si une erreur est détectée.
-   */
-  public void checkForError(Response response) throws IOException {
-    if (response.getCode() != 200) {
-      OAuth2AccessTokenJsonExtractor.instance().generateError(response);
+    /**
+     * @param tokenToRevoke tokenToRevoke
+     * @param tokenTypeHint tokenTypeHint
+     * @throws IOException IOException
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
+     */
+    public void revokeToken(String tokenToRevoke, TokenTypeHint tokenTypeHint)
+            throws IOException, InterruptedException, ExecutionException {
+        revokeTokenAsync(tokenToRevoke, tokenTypeHint).get();
     }
-  }
+
+    /**
+     * @param tokenToRevoke tokenToRevoke
+     * @param tokenTypeHint tokenTypeHint
+     * @return CompletableFuture
+     */
+    public CompletableFuture<Void> revokeTokenAsync(String tokenToRevoke, TokenTypeHint tokenTypeHint) {
+        final OAuthRequest request = createRevokeTokenRequest(tokenToRevoke, tokenTypeHint);
+        return service.execute(request, null, response -> {
+            checkForError(response);
+            return null;
+        });
+    }
+
+    /**
+     * @param response response
+     * @throws IOException IOException
+     */
+    public void checkForError(Response response) throws IOException {
+        if (response.getCode() != 200) {
+            OAuth2AccessTokenJsonExtractor.instance().generateError(response);
+        }
+    }
 }
