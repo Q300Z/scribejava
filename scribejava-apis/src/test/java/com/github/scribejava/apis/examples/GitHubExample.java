@@ -30,7 +30,6 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCEService;
 import java.io.IOException;
@@ -47,12 +46,13 @@ import java.util.concurrent.ExecutionException;
  * 4. Échange du code d'autorisation contre un jeton d'accès (Access Token).
  * 5. Appel d'une ressource protégée (/user) pour vérifier l'identité.
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public class GitHubExample {
 
     private static final String CLIENT_ID = "votre_client_id";
     private static final String CLIENT_SECRET = "votre_client_secret";
 
-    protected GitHubExample() {
+    private GitHubExample() {
     }
 
     /**
@@ -93,7 +93,10 @@ public class GitHubExample {
 
         // 4. Échange du code contre un Access Token
         System.out.println("Échange du code contre un Access Token...");
-        final OAuth2AccessToken accessToken = service.getAccessToken(new AuthorizationCodeGrant(code, pkce));
+        final OAuth2AccessToken accessToken = service.getAccessToken(
+                com.github.scribejava.core.model.AccessTokenRequestParams.create(code)
+                        .pkceCodeVerifier(pkce.getCodeVerifier())
+        );
         System.out.println("Jeton obtenu : " + accessToken.getAccessToken());
 
         // 5. Appel d'une ressource protégée

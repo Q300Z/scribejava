@@ -81,7 +81,11 @@ Response response = service.execute(request);
 ### OpenID Connect Discovery
 ```java
 // Découverte automatique des endpoints
-OidcDiscoveryService discovery = new OidcDiscoveryService("https://accounts.google.com");
+OidcDiscoveryService discovery = new OidcDiscoveryService(
+    "https://accounts.google.com",
+    new JDKHttpClient(JDKHttpClientConfig.defaultConfig()),
+    "MonApp/1.0"
+);
 OidcProviderMetadata metadata = discovery.getMetadata();
 OidcService service = (OidcService) new ServiceBuilder(id).build(new DefaultOidcApi20(metadata));
 ```

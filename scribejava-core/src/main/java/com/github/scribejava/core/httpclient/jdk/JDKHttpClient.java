@@ -27,7 +27,6 @@ import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartUtils;
-import com.github.scribejava.core.model.*;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;

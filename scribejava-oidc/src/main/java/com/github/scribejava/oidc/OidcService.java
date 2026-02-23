@@ -62,9 +62,9 @@ import java.util.concurrent.CompletableFuture;
  * final IdToken idToken = service.validateIdToken(token.getIdToken());
  * System.out.println("Sujet : " + idToken.getSubject());
  *
- * // 4. Récupération des informations utilisateur complètes
- * final String userInfo = service.getUserInfo(token);
- * System.out.println("UserInfo : " + userInfo);
+ * // 4. Récupération des informations utilisateur complètes (Asynchrone par défaut)
+ * final StandardClaims claims = service.getUserInfoAsync(token).get();
+ * System.out.println("Email vérifié : " + claims.getEmail());
  * }</pre>
  *
  * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>

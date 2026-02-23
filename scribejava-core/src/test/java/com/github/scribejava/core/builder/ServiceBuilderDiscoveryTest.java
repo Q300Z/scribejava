@@ -25,6 +25,7 @@ package com.github.scribejava.core.builder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import com.github.scribejava.core.oauth.DiscoveredEndpoints;
 import com.github.scribejava.core.oauth.DiscoveryService;
@@ -52,7 +53,7 @@ public class ServiceBuilderDiscoveryTest {
             .httpClient(new JDKHttpClient())
             .discoverFromIssuer(issuer, mockDiscovery)
             .build(
-                new com.github.scribejava.core.builder.api.DefaultApi20() {
+                new DefaultApi20() {
                   @Override
                   public String getAccessTokenEndpoint() {
                     return "fallback";

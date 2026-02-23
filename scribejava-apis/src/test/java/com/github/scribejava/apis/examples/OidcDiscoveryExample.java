@@ -24,16 +24,12 @@
 package com.github.scribejava.apis.examples;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.model.OAuthRequest;
-import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.oidc.DefaultOidcApi20;
 import com.github.scribejava.oidc.IdToken;
 import com.github.scribejava.oidc.OidcDiscoveryService;
 import com.github.scribejava.oidc.OidcProviderMetadata;
 import com.github.scribejava.oidc.OidcService;
-import com.github.scribejava.oidc.OidcToken;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -48,13 +44,14 @@ import java.util.concurrent.ExecutionException;
  * 4. Validation de l'ID Token récupéré.
  * 5. Appel de l'endpoint UserInfo.
  */
+@SuppressWarnings("PMD.SystemPrintln")
 public class OidcDiscoveryExample {
 
     private static final String GOOGLE_ISSUER = "https://accounts.google.com";
     private static final String CLIENT_ID = "votre_client_id.apps.googleusercontent.com";
     private static final String CLIENT_SECRET = "votre_client_secret";
 
-    protected OidcDiscoveryExample() {
+    private OidcDiscoveryExample() {
     }
 
     /**
@@ -70,8 +67,13 @@ public class OidcDiscoveryExample {
 
         // 1. Découverte des métadonnées
         System.out.println("Récupération de la configuration depuis : " + GOOGLE_ISSUER);
-        final OidcDiscoveryService discoveryService = new OidcDiscoveryService(GOOGLE_ISSUER);
-        final OidcProviderMetadata metadata = discoveryService.getMetadata();
+        final OidcDiscoveryService discoveryService = new OidcDiscoveryService(
+                GOOGLE_ISSUER,
+                new com.github.scribejava.core.httpclient.jdk.JDKHttpClient(
+                        com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig.defaultConfig()),
+                "ScribeJavaExample/9.0.0"
+        );
+        final OidcProviderMetadata metadata = discoveryService.getProviderMetadata();
         System.out.println("Métadonnées récupérées (Authorization Endpoint: " + metadata.getAuthorizationEndpoint() + ")");
 
         // 2. Initialisation du service OIDC
@@ -79,7 +81,12 @@ public class OidcDiscoveryExample {
                 .apiSecret(CLIENT_SECRET)
                 .defaultScope("openid profile email")
                 .callback("http://localhost:8080/callback")
-                .build(new DefaultOidcApi20(metadata));
+                .build(new DefaultOidcApi20(metadata) {
+                    @Override
+                    public String getIssuer() {
+                        return GOOGLE_ISSUER;
+                    }
+                });
 
         final Scanner in = new Scanner(System.in, "UTF-8");
 
@@ -90,25 +97,28 @@ public class OidcDiscoveryExample {
         System.out.print("2. Collez le code reçu ici >> ");
         final String code = in.nextLine();
 
-        // 4. Échange du code contre un OidcToken (Access Token + ID Token)
+        // 4. Échange du code contre un jeton (Access Token + ID Token)
         System.out.println("Échange du code...");
-        final OidcToken token = (OidcToken) service.getAccessToken(new AuthorizationCodeGrant(code));
-        System.out.println("ID Token (JWT) : " + token.getIdToken());
+        final com.github.scribejava.core.model.OAuth2AccessToken token = service.getAccessToken(
+                new AuthorizationCodeGrant(code)
+        );
 
         // 5. Validation et lecture de l'ID Token
-        System.out.println("Validation de l'ID Token...");
-        final IdToken idToken = service.validateIdToken(token.getIdToken());
-        System.out.println("Utilisateur identifié (Subject) : " + idToken.getSubject());
-        System.out.println("Email (depuis JWT) : " + idToken.getEmail());
+        if (token instanceof com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken) {
+            final String rawIdToken = ((com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken) token).getOpenIdToken();
+            System.out.println("ID Token (JWT) : " + rawIdToken);
 
-        // 6. Récupération des UserInfo (Appel API)
-        System.out.println("Récupération des UserInfo complètes...");
-        final OAuthRequest request = new OAuthRequest(Verb.GET, metadata.getUserinfoEndpoint());
-        service.signRequest(token, request);
-
-        try (Response response = service.execute(request)) {
-            System.out.println("UserInfo Response : " + response.getBody());
+            System.out.println("Validation de l'ID Token...");
+            final IdToken idToken = service.validateIdToken(rawIdToken);
+            System.out.println("Utilisateur identifié (Subject) : " + idToken.getSubject());
+            System.out.println("Email (depuis JWT) : " + idToken.getClaimsSet().getStringClaim("email"));
         }
+
+        // 6. Récupération des UserInfo (Appel API haut niveau)
+        System.out.println("Récupération des UserInfo complètes...");
+        final com.github.scribejava.oidc.StandardClaims claims = service.getUserInfoAsync(token).get();
+        System.out.println("Nom : " + claims.getName());
+        System.out.println("Email : " + claims.getEmail());
 
         System.out.println("=== Fin de l'exemple ===");
     }

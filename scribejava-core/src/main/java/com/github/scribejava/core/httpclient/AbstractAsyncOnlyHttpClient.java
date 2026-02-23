@@ -26,6 +26,7 @@ package com.github.scribejava.core.httpclient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -64,7 +65,7 @@ public abstract class AbstractAsyncOnlyHttpClient implements HttpClient {
       Map<String, String> headers,
       Verb httpVerb,
       String completeUrl,
-      com.github.scribejava.core.httpclient.multipart.MultipartPayload bodyContents)
+      MultipartPayload bodyContents)
       throws InterruptedException, ExecutionException, IOException {
     return executeAsync(
             userAgent,

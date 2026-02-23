@@ -43,8 +43,13 @@ import java.util.concurrent.ExecutionException;
  * <h3>Exemple de découverte dynamique</h3>
  *
  * <pre>{@code
- * // 1. Initialisation du service de découverte
- * final OidcDiscoveryService discovery = new OidcDiscoveryService("https://accounts.google.com");
+ * // 1. Initialisation du service de découverte (avec le client par défaut du JDK)
+ * final OidcDiscoveryService discovery = new OidcDiscoveryService(
+ *     "https://accounts.google.com",
+ *     new com.github.scribejava.core.httpclient.jdk.JDKHttpClient(
+ *         com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig.defaultConfig()),
+ *     "MonApp/1.0"
+ * );
  *
  * // 2. Récupération des métadonnées
  * final OidcProviderMetadata metadata = discovery.getMetadata();
