@@ -34,6 +34,11 @@ public class SinaWeiboApi extends DefaultApi10a {
 
   protected SinaWeiboApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link SinaWeiboApi}.
+   */
   public static SinaWeiboApi instance() {
     return InstanceHolder.INSTANCE;
   }

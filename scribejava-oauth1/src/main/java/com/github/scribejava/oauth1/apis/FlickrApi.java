@@ -86,6 +86,7 @@ public class FlickrApi extends DefaultApi10a {
     return "https://www.flickr.com/services/oauth/request_token";
   }
 
+  /** Niveaux de permission pour l'API Flickr. */
   public enum FlickrPerm {
     READ,
     WRITE,

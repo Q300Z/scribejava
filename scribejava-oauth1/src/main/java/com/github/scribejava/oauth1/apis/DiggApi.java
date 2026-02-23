@@ -33,6 +33,11 @@ public class DiggApi extends DefaultApi10a {
 
   protected DiggApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link DiggApi}.
+   */
   public static DiggApi instance() {
     return InstanceHolder.INSTANCE;
   }

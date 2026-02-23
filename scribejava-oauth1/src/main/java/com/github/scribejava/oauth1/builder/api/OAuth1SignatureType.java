@@ -23,7 +23,10 @@
  */
 package com.github.scribejava.oauth1.builder.api;
 
+/** Définit l'emplacement de la signature OAuth 1.0a dans la requête HTTP. */
 public enum OAuth1SignatureType {
+  /** La signature est envoyée dans l'en-tête 'Authorization'. */
   HEADER,
+  /** La signature est envoyée comme paramètre dans la QueryString. */
   QUERY_STRING
 }

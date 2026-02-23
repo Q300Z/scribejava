@@ -32,6 +32,11 @@ public class Px500Api extends DefaultApi10a {
 
   protected Px500Api() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link Px500Api}.
+   */
   public static Px500Api instance() {
     return InstanceHolder.INSTANCE;
   }

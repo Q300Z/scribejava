@@ -32,6 +32,11 @@ public class MeetupApi extends DefaultApi10a {
 
   protected MeetupApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link MeetupApi}.
+   */
   public static MeetupApi instance() {
     return InstanceHolder.INSTANCE;
   }

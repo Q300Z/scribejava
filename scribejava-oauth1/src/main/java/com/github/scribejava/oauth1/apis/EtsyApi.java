@@ -46,10 +46,21 @@ public class EtsyApi extends DefaultApi10a {
     scopeAsString = "?scope=" + builder.substring(3);
   }
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link EtsyApi}.
+   */
   public static EtsyApi instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Retourne une instance de l'API avec des portées spécifiques.
+   *
+   * @param scopes Les portées demandées.
+   * @return Une instance de {@link EtsyApi}.
+   */
   public static EtsyApi instance(String... scopes) {
     return scopes == null || scopes.length == 0 ? instance() : new EtsyApi(scopes);
   }

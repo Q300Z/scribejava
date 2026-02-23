@@ -39,6 +39,11 @@ public class SkyrockApi extends DefaultApi10a {
 
   protected SkyrockApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link SkyrockApi}.
+   */
   public static SkyrockApi instance() {
     return InstanceHolder.INSTANCE;
   }

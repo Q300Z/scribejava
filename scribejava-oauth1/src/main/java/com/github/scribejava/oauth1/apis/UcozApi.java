@@ -36,6 +36,11 @@ public class UcozApi extends DefaultApi10a {
 
   protected UcozApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link UcozApi}.
+   */
   public static UcozApi instance() {
     return InstanceHolder.INSTANCE;
   }

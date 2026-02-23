@@ -37,6 +37,11 @@ public class RSASha1SignatureService implements SignatureService {
 
   private final PrivateKey privateKey;
 
+  /**
+   * Constructeur.
+   *
+   * @param privateKey La clé privée RSA à utiliser pour signer.
+   */
   public RSASha1SignatureService(PrivateKey privateKey) {
     this.privateKey = privateKey;
   }

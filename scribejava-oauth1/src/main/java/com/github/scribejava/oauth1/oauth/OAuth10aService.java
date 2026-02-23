@@ -353,6 +353,11 @@ public class OAuth10aService extends OAuthService {
     }
   }
 
+  /**
+   * Retourne l'instance de l'API associée à ce service.
+   *
+   * @return L'instance {@link DefaultApi10a}.
+   */
   public DefaultApi10a getApi() {
     return api;
   }

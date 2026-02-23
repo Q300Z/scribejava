@@ -36,6 +36,11 @@ public class AWeberApi extends DefaultApi10a {
 
   protected AWeberApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link AWeberApi}.
+   */
   public static AWeberApi instance() {
     return InstanceHolder.INSTANCE;
   }

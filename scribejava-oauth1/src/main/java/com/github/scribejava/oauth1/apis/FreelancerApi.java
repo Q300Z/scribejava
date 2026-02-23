@@ -35,6 +35,11 @@ public class FreelancerApi extends DefaultApi10a {
 
   protected FreelancerApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link FreelancerApi}.
+   */
   public static FreelancerApi instance() {
     return InstanceHolder.INSTANCE;
   }
@@ -73,6 +78,7 @@ public class FreelancerApi extends DefaultApi10a {
     private static final FreelancerApi INSTANCE = new FreelancerApi();
   }
 
+  /** Version Sandbox de l'API Freelancer. */
   public static class Sandbox extends FreelancerApi {
 
     private static final String SANDBOX_AUTHORIZATION_URL =
@@ -80,6 +86,11 @@ public class FreelancerApi extends DefaultApi10a {
 
     private Sandbox() {}
 
+    /**
+     * Retourne l'instance unique de la Sandbox.
+     *
+     * @return L'instance {@link Sandbox}.
+     */
     public static Sandbox instance() {
       return InstanceHolder.INSTANCE;
     }

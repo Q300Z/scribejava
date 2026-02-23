@@ -32,6 +32,11 @@ public class TrelloApi extends DefaultApi10a {
 
   protected TrelloApi() {}
 
+  /**
+   * Retourne l'instance unique de l'API.
+   *
+   * @return L'instance {@link TrelloApi}.
+   */
   public static TrelloApi instance() {
     return InstanceHolder.INSTANCE;
   }

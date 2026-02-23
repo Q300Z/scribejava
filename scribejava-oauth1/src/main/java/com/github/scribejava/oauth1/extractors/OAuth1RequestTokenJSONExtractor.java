@@ -27,11 +27,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
 import java.io.IOException;
 
+/** Extracteur JSON pour les jetons de requête OAuth 1.0a (Request Token). */
 public class OAuth1RequestTokenJSONExtractor
     extends AbstractOAuth1JSONTokenExtractor<OAuth1RequestToken> {
 
   protected OAuth1RequestTokenJSONExtractor() {}
 
+  /**
+   * Retourne l'instance unique de l'extracteur.
+   *
+   * @return L'instance {@link OAuth1RequestTokenJSONExtractor}.
+   */
   public static OAuth1RequestTokenJSONExtractor instance() {
     return InstanceHolder.INSTANCE;
   }

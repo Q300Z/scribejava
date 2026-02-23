@@ -25,6 +25,11 @@ package com.github.scribejava.oauth1.apis;
 
 import com.github.scribejava.oauth1.builder.api.DefaultApi10a;
 
+/**
+ * API OAuth 1.0a pour MediaWiki.
+ *
+ * <p>Supporte les wikis de la Wikimedia Foundation et les instances personnalisées.
+ */
 public class MediaWikiApi extends DefaultApi10a {
 
   private final String indexUrl;
