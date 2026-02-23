@@ -48,24 +48,29 @@ import java.util.concurrent.CompletableFuture;
  *
  * <h3>Exemple d'utilisation OpenID Connect</h3>
  *
- * <pre>{@code
+ * <pre>
  * // 1. Construction du service (via Discovery recommandé)
  * final OidcService service = (OidcService) new ServiceBuilder("votre_client_id")
  *     .apiSecret("votre_client_secret")
  *     .defaultScope("openid profile email")
  *     .build(OidcGoogleApi20.instance());
  *
- * // 2. Échange du code contre un jeton OIDC
- * final OidcToken token = (OidcToken) service.getAccessToken(new AuthorizationCodeGrant(code));
+ * // 2. Échange du code contre un jeton (ID Token inclus)
+ * final com.github.scribejava.core.model.OAuth2AccessToken token = service.getAccessToken(
+ *     new com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant(code)
+ * );
  *
  * // 3. Lecture des claims de l'ID Token
- * final IdToken idToken = service.validateIdToken(token.getIdToken());
- * System.out.println("Sujet : " + idToken.getSubject());
+ * if (token instanceof com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken) {
+ *     final String rawIdToken = ((com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken) token).getOpenIdToken();
+ *     final com.github.scribejava.oidc.IdToken idToken = service.validateIdToken(rawIdToken);
+ *     System.out.println("Sujet : " + idToken.getSubject());
+ * }
  *
  * // 4. Récupération des informations utilisateur complètes (Asynchrone par défaut)
- * final StandardClaims claims = service.getUserInfoAsync(token).get();
+ * final com.github.scribejava.oidc.StandardClaims claims = service.getUserInfoAsync(token).get();
  * System.out.println("Email vérifié : " + claims.getEmail());
- * }</pre>
+ * </pre>
  *
  * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html">OpenID Connect Core 1.0</a>
  */

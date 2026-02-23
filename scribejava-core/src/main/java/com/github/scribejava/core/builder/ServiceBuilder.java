@@ -80,6 +80,10 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return this;
   }
 
+  protected com.github.scribejava.core.oauth.AuthorizationRequestConverter getAuthorizationRequestConverter() {
+    return authorizationRequestConverter;
+  }
+
   /**
    * Définit le créateur de preuves DPoP (RFC 9449).
    *

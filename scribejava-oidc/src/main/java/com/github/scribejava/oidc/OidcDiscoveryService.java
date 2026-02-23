@@ -42,7 +42,7 @@ import java.util.concurrent.ExecutionException;
  *
  * <h3>Exemple de découverte dynamique</h3>
  *
- * <pre>{@code
+ * <pre>
  * // 1. Initialisation du service de découverte (avec le client par défaut du JDK)
  * final OidcDiscoveryService discovery = new OidcDiscoveryService(
  *     "https://accounts.google.com",
@@ -52,14 +52,19 @@ import java.util.concurrent.ExecutionException;
  * );
  *
  * // 2. Récupération des métadonnées
- * final OidcProviderMetadata metadata = discovery.getMetadata();
+ * final com.github.scribejava.oidc.OidcProviderMetadata metadata = discovery.getProviderMetadata();
  *
  * // 3. Création dynamique de l'API ScribeJava
- * final DefaultOidcApi20 api = new DefaultOidcApi20(metadata);
+ * final com.github.scribejava.oidc.DefaultOidcApi20 api = new com.github.scribejava.oidc.DefaultOidcApi20(metadata) {
+ *     &#064;Override
+ *     public String getIssuer() {
+ *         return "https://accounts.google.com";
+ *     }
+ * };
  *
  * // 4. Récupération optionnelle des clés publiques (pour validation locale des jetons)
- * final JWKSet jwks = discovery.getJWKSet();
- * }</pre>
+ * final com.nimbusds.jose.jwk.JWKSet jwks = discovery.getJWKSet();
+ * </pre>
  *
  * @see <a href="https://openid.net/specs/openid-connect-discovery-1_0.html">OpenID Connect
  *     Discovery 1.0</a>
