@@ -23,15 +23,17 @@
  */
 package com.github.scribejava.core.httpclient;
 
-/** Interface pour les fournisseurs de clients HTTP. */
+/**
+ * Interface pour les fournisseurs de clients HTTP.
+ */
 public interface HttpClientProvider {
 
-  /**
-   * Crée un client HTTP à partir d'une configuration.
-   *
-   * @param httpClientConfig La configuration du client HTTP.
-   * @return Une instance de {@link HttpClient} ou null si ce fournisseur ne supporte pas cette
-   *     configuration.
-   */
-  HttpClient createClient(HttpClientConfig httpClientConfig);
+    /**
+     * Crée un client HTTP à partir d'une configuration.
+     *
+     * @param httpClientConfig La configuration du client HTTP.
+     * @return Une instance de {@link HttpClient} ou null si ce fournisseur ne supporte pas cette
+     * configuration.
+     */
+    HttpClient createClient(HttpClientConfig httpClientConfig);
 }

@@ -31,115 +31,118 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Utilitaires pour la gestion des requêtes Multipart. */
+/**
+ * Utilitaires pour la gestion des requêtes Multipart.
+ */
 public class MultipartUtils {
 
-  private static final String B_CHARS_NO_SPACE_PATTERN = "0-9a-zA-Z'()+_,-./:=?";
-  private static final String B_CHARS_PATTERN = B_CHARS_NO_SPACE_PATTERN + " ";
-  private static final String BOUNDARY_PATTERN =
-      '[' + B_CHARS_PATTERN + "]{0,69}[" + B_CHARS_NO_SPACE_PATTERN + ']';
-  private static final Pattern BOUNDARY_REGEXP = Pattern.compile(BOUNDARY_PATTERN);
-  private static final Pattern BOUNDARY_FROM_HEADER_REGEXP =
-      Pattern.compile("; boundary=\"?(" + BOUNDARY_PATTERN + ")\"?");
+    private static final String B_CHARS_NO_SPACE_PATTERN = "0-9a-zA-Z'()+_,-./:=?";
+    private static final String B_CHARS_PATTERN = B_CHARS_NO_SPACE_PATTERN + " ";
+    private static final String BOUNDARY_PATTERN =
+            '[' + B_CHARS_PATTERN + "]{0,69}[" + B_CHARS_NO_SPACE_PATTERN + ']';
+    private static final Pattern BOUNDARY_REGEXP = Pattern.compile(BOUNDARY_PATTERN);
+    private static final Pattern BOUNDARY_FROM_HEADER_REGEXP =
+            Pattern.compile("; boundary=\"?(" + BOUNDARY_PATTERN + ")\"?");
 
-  private MultipartUtils() {}
-
-  /**
-   * Vérifie la syntaxe d'un séparateur (boundary).
-   *
-   * @param boundary Le séparateur à vérifier.
-   * @throws IllegalArgumentException si la syntaxe est invalide.
-   */
-  public static void checkBoundarySyntax(String boundary) {
-    if (boundary == null || !BOUNDARY_REGEXP.matcher(boundary).matches()) {
-      throw new IllegalArgumentException(
-          "{'boundary'='"
-              + boundary
-              + "'} has invalid syntax. Should be '"
-              + BOUNDARY_PATTERN
-              + "'.");
+    private MultipartUtils() {
     }
-  }
 
-  /**
-   * Extrait le séparateur de l'en-tête Content-Type.
-   *
-   * @param contentTypeHeader L'en-tête Content-Type.
-   * @return Le séparateur trouvé ou null.
-   */
-  public static String parseBoundaryFromHeader(String contentTypeHeader) {
-    if (contentTypeHeader == null) {
-      return null;
+    /**
+     * Vérifie la syntaxe d'un séparateur (boundary).
+     *
+     * @param boundary Le séparateur à vérifier.
+     * @throws IllegalArgumentException si la syntaxe est invalide.
+     */
+    public static void checkBoundarySyntax(String boundary) {
+        if (boundary == null || !BOUNDARY_REGEXP.matcher(boundary).matches()) {
+            throw new IllegalArgumentException(
+                    "{'boundary'='"
+                            + boundary
+                            + "'} has invalid syntax. Should be '"
+                            + BOUNDARY_PATTERN
+                            + "'.");
+        }
     }
-    final Matcher matcher = BOUNDARY_FROM_HEADER_REGEXP.matcher(contentTypeHeader);
-    return matcher.find() ? matcher.group(1) : null;
-  }
 
-  /**
-   * Génère un séparateur par défaut.
-   *
-   * @return Une chaîne de caractères unique servant de séparateur.
-   */
-  public static String generateDefaultBoundary() {
-    return "----ScribeJava----" + Instant.now().toEpochMilli();
-  }
-
-  /**
-   * Génère le corps de la requête Multipart sous forme de flux de sortie.
-   *
-   * @param multipartPayload Le contenu Multipart.
-   * @return Un {@link ByteArrayOutputStream} contenant les données brutes.
-   * @throws IOException en cas d'erreur d'écriture.
-   */
-  public static ByteArrayOutputStream getPayload(MultipartPayload multipartPayload)
-      throws IOException {
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-    final String preamble = multipartPayload.getPreamble();
-    if (preamble != null) {
-      os.write((preamble + "\r\n").getBytes());
+    /**
+     * Extrait le séparateur de l'en-tête Content-Type.
+     *
+     * @param contentTypeHeader L'en-tête Content-Type.
+     * @return Le séparateur trouvé ou null.
+     */
+    public static String parseBoundaryFromHeader(String contentTypeHeader) {
+        if (contentTypeHeader == null) {
+            return null;
+        }
+        final Matcher matcher = BOUNDARY_FROM_HEADER_REGEXP.matcher(contentTypeHeader);
+        return matcher.find() ? matcher.group(1) : null;
     }
-    final List<BodyPartPayload> bodyParts = multipartPayload.getBodyParts();
-    if (!bodyParts.isEmpty()) {
-      final String boundary = multipartPayload.getBoundary();
-      final byte[] startBoundary = ("--" + boundary + "\r\n").getBytes();
 
-      for (BodyPartPayload bodyPart : bodyParts) {
-        os.write(startBoundary);
+    /**
+     * Génère un séparateur par défaut.
+     *
+     * @return Une chaîne de caractères unique servant de séparateur.
+     */
+    public static String generateDefaultBoundary() {
+        return "----ScribeJava----" + Instant.now().toEpochMilli();
+    }
 
-        final Map<String, String> bodyPartHeaders = bodyPart.getHeaders();
-        if (bodyPartHeaders != null) {
-          bodyPartHeaders.forEach(
-              (key, value) -> {
-                try {
-                  os.write((key + ": " + value + "\r\n").getBytes());
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
+    /**
+     * Génère le corps de la requête Multipart sous forme de flux de sortie.
+     *
+     * @param multipartPayload Le contenu Multipart.
+     * @return Un {@link ByteArrayOutputStream} contenant les données brutes.
+     * @throws IOException en cas d'erreur d'écriture.
+     */
+    public static ByteArrayOutputStream getPayload(MultipartPayload multipartPayload)
+            throws IOException {
+        final ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        final String preamble = multipartPayload.getPreamble();
+        if (preamble != null) {
+            os.write((preamble + "\r\n").getBytes());
+        }
+        final List<BodyPartPayload> bodyParts = multipartPayload.getBodyParts();
+        if (!bodyParts.isEmpty()) {
+            final String boundary = multipartPayload.getBoundary();
+            final byte[] startBoundary = ("--" + boundary + "\r\n").getBytes();
+
+            for (BodyPartPayload bodyPart : bodyParts) {
+                os.write(startBoundary);
+
+                final Map<String, String> bodyPartHeaders = bodyPart.getHeaders();
+                if (bodyPartHeaders != null) {
+                    bodyPartHeaders.forEach(
+                            (key, value) -> {
+                                try {
+                                    os.write((key + ": " + value + "\r\n").getBytes());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
                 }
-              });
-        }
 
-        os.write("\r\n".getBytes());
-        if (bodyPart instanceof MultipartPayload) {
-          getPayload((MultipartPayload) bodyPart).writeTo(os);
-        } else if (bodyPart instanceof ByteArrayBodyPartPayload) {
-          final ByteArrayBodyPartPayload byteArrayBodyPart = (ByteArrayBodyPartPayload) bodyPart;
-          os.write(
-              byteArrayBodyPart.getPayload(),
-              byteArrayBodyPart.getOff(),
-              byteArrayBodyPart.getLen());
-        } else {
-          throw new AssertionError(bodyPart.getClass());
-        }
-        os.write("\r\n".getBytes()); // CRLF for the next (starting or closing) boundary
-      }
+                os.write("\r\n".getBytes());
+                if (bodyPart instanceof MultipartPayload) {
+                    getPayload((MultipartPayload) bodyPart).writeTo(os);
+                } else if (bodyPart instanceof ByteArrayBodyPartPayload) {
+                    final ByteArrayBodyPartPayload byteArrayBodyPart = (ByteArrayBodyPartPayload) bodyPart;
+                    os.write(
+                            byteArrayBodyPart.getPayload(),
+                            byteArrayBodyPart.getOff(),
+                            byteArrayBodyPart.getLen());
+                } else {
+                    throw new AssertionError(bodyPart.getClass());
+                }
+                os.write("\r\n".getBytes()); // CRLF for the next (starting or closing) boundary
+            }
 
-      os.write(("--" + boundary + "--").getBytes());
-      final String epilogue = multipartPayload.getEpilogue();
-      if (epilogue != null) {
-        os.write(("\r\n" + epilogue).getBytes());
-      }
+            os.write(("--" + boundary + "--").getBytes());
+            final String epilogue = multipartPayload.getEpilogue();
+            if (epilogue != null) {
+                os.write(("\r\n" + epilogue).getBytes());
+            }
+        }
+        return os;
     }
-    return os;
-  }
 }

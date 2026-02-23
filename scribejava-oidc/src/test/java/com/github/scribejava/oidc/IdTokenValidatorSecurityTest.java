@@ -23,9 +23,6 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -36,9 +33,13 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests de sécurité pour le validateur de jetons d'identité {@link IdTokenValidator}.
@@ -48,145 +49,161 @@ import org.junit.jupiter.api.Test;
  */
 public class IdTokenValidatorSecurityTest {
 
-  private final String clientId = "client-123";
-  private final String issuer = "https://idp.example.com";
-  private RSAKey rsaJWK;
-  private JWKSet jwkSet;
-  private IdTokenValidator validator;
+    private final String clientId = "client-123";
+    private final String issuer = "https://idp.example.com";
+    private RSAKey rsaJWK;
+    private JWKSet jwkSet;
+    private IdTokenValidator validator;
 
-  /** Initialisation de l'environnement de test et des clés. */
-  @BeforeEach
-  public void setUp() throws Exception {
-    rsaJWK = new RSAKeyGenerator(2048).keyID("kid-1").generate();
-    jwkSet = new JWKSet(rsaJWK.toPublicJWK());
-    validator = new IdTokenValidator(issuer, new ClientID(clientId), JWSAlgorithm.RS256, jwkSet);
-  }
+    /**
+     * Initialisation de l'environnement de test et des clés.
+     */
+    @BeforeEach
+    public void setUp() throws Exception {
+        rsaJWK = new RSAKeyGenerator(2048).keyID("kid-1").generate();
+        jwkSet = new JWKSet(rsaJWK.toPublicJWK());
+        validator = new IdTokenValidator(issuer, new ClientID(clientId), JWSAlgorithm.RS256, jwkSet);
+    }
 
-  /**
-   * Utilitaire de création de jeton signé.
-   *
-   * @param iss Émetteur.
-   * @param aud Audience.
-   * @param exp Date d'expiration.
-   * @return Le jeton sérialisé.
-   */
-  private String createToken(final String iss, final String aud, final Date exp) throws Exception {
-    final JWTClaimsSet claimsSet =
-        new JWTClaimsSet.Builder()
-            .subject("user1")
-            .issuer(iss)
-            .audience(aud)
-            .expirationTime(exp)
-            .issueTime(new Date())
-            .build();
-    final SignedJWT signedJWT =
-        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
-    signedJWT.sign(new RSASSASigner(rsaJWK));
-    return signedJWT.serialize();
-  }
+    /**
+     * Utilitaire de création de jeton signé.
+     *
+     * @param iss Émetteur.
+     * @param aud Audience.
+     * @param exp Date d'expiration.
+     * @return Le jeton sérialisé.
+     */
+    private String createToken(final String iss, final String aud, final Date exp) throws Exception {
+        final JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("user1")
+                        .issuer(iss)
+                        .audience(aud)
+                        .expirationTime(exp)
+                        .issueTime(new Date())
+                        .build();
+        final SignedJWT signedJWT =
+                new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
+        signedJWT.sign(new RSASSASigner(rsaJWK));
+        return signedJWT.serialize();
+    }
 
-  /** Vérifie que le validateur rejette les jetons dont la date d'expiration est passée. */
-  @Test
-  public void shouldRejectExpiredToken() throws Exception {
-    final String token =
-        createToken(issuer, clientId, new Date(System.currentTimeMillis() - 100000));
-    assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
-  }
+    /**
+     * Vérifie que le validateur rejette les jetons dont la date d'expiration est passée.
+     */
+    @Test
+    public void shouldRejectExpiredToken() throws Exception {
+        final String token =
+                createToken(issuer, clientId, new Date(System.currentTimeMillis() - 100000));
+        assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
+    }
 
-  /** Vérifie le rejet d'un jeton destiné à un autre client (audience incorrecte). */
-  @Test
-  public void shouldRejectWrongAudience() throws Exception {
-    final String token =
-        createToken(issuer, "wrong-client", new Date(System.currentTimeMillis() + 10000));
-    assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
-  }
+    /**
+     * Vérifie le rejet d'un jeton destiné à un autre client (audience incorrecte).
+     */
+    @Test
+    public void shouldRejectWrongAudience() throws Exception {
+        final String token =
+                createToken(issuer, "wrong-client", new Date(System.currentTimeMillis() + 10000));
+        assertThrows(OAuthException.class, () -> validator.validate(token, null, 0));
+    }
 
-  /** Vérifie que toute modification de la signature entraîne le rejet du jeton. */
-  @Test
-  public void shouldRejectInvalidSignature() throws Exception {
-    final String token =
-        createToken(issuer, clientId, new Date(System.currentTimeMillis() + 10000));
-    final String tamperedToken =
-        token.substring(0, token.length() - 5) + (token.endsWith("a") ? "b" : "a");
-    assertThrows(OAuthException.class, () -> validator.validate(tamperedToken, null, 0));
-  }
+    /**
+     * Vérifie que toute modification de la signature entraîne le rejet du jeton.
+     */
+    @Test
+    public void shouldRejectInvalidSignature() throws Exception {
+        final String token =
+                createToken(issuer, clientId, new Date(System.currentTimeMillis() + 10000));
+        final String tamperedToken =
+                token.substring(0, token.length() - 5) + (token.endsWith("a") ? "b" : "a");
+        assertThrows(OAuthException.class, () -> validator.validate(tamperedToken, null, 0));
+    }
 
-  /** Vérifie que le champ azp est requis si le jeton contient plusieurs audiences. */
-  @Test
-  public void shouldRejectMultipleAudiencesWithoutAzp() throws Exception {
-    final JWTClaimsSet claimsSet =
-        new JWTClaimsSet.Builder()
-            .subject("user1")
-            .issuer(issuer)
-            .audience(java.util.Arrays.asList(clientId, "other-client"))
-            .issueTime(new Date())
-            .expirationTime(new Date(System.currentTimeMillis() + 10000))
-            .build();
-    final SignedJWT signedJWT =
-        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
-    signedJWT.sign(new RSASSASigner(rsaJWK));
+    /**
+     * Vérifie que le champ azp est requis si le jeton contient plusieurs audiences.
+     */
+    @Test
+    public void shouldRejectMultipleAudiencesWithoutAzp() throws Exception {
+        final JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("user1")
+                        .issuer(issuer)
+                        .audience(java.util.Arrays.asList(clientId, "other-client"))
+                        .issueTime(new Date())
+                        .expirationTime(new Date(System.currentTimeMillis() + 10000))
+                        .build();
+        final SignedJWT signedJWT =
+                new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
+        signedJWT.sign(new RSASSASigner(rsaJWK));
 
-    final OAuthException ex =
-        assertThrows(
-            OAuthException.class, () -> validator.validate(signedJWT.serialize(), null, 0));
-    assertThat(ex.getMessage()).contains("azp");
-  }
+        final OAuthException ex =
+                assertThrows(
+                        OAuthException.class, () -> validator.validate(signedJWT.serialize(), null, 0));
+        assertThat(ex.getMessage()).contains("azp");
+    }
 
-  /** Vérifie la validation réussie avec plusieurs audiences si le champ azp est correct. */
-  @Test
-  public void shouldAcceptMultipleAudiencesWithAzp() throws Exception {
-    final JWTClaimsSet claimsSet =
-        new JWTClaimsSet.Builder()
-            .subject("user1")
-            .issuer(issuer)
-            .audience(java.util.Arrays.asList(clientId, "other-client"))
-            .claim("azp", clientId)
-            .issueTime(new Date())
-            .expirationTime(new Date(System.currentTimeMillis() + 10000))
-            .build();
-    final SignedJWT signedJWT =
-        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
-    signedJWT.sign(new RSASSASigner(rsaJWK));
+    /**
+     * Vérifie la validation réussie avec plusieurs audiences si le champ azp est correct.
+     */
+    @Test
+    public void shouldAcceptMultipleAudiencesWithAzp() throws Exception {
+        final JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("user1")
+                        .issuer(issuer)
+                        .audience(java.util.Arrays.asList(clientId, "other-client"))
+                        .claim("azp", clientId)
+                        .issueTime(new Date())
+                        .expirationTime(new Date(System.currentTimeMillis() + 10000))
+                        .build();
+        final SignedJWT signedJWT =
+                new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
+        signedJWT.sign(new RSASSASigner(rsaJWK));
 
-    final IdToken result = validator.validate(signedJWT.serialize(), null, 0);
-    assertThat(result).isNotNull();
-  }
+        final IdToken result = validator.validate(signedJWT.serialize(), null, 0);
+        assertThat(result).isNotNull();
+    }
 
-  /** Vérifie le rejet si le champ azp ne correspond pas au client ID attendu. */
-  @Test
-  public void shouldRejectAzpMismatch() throws Exception {
-    final JWTClaimsSet claimsSet =
-        new JWTClaimsSet.Builder()
-            .subject("user1")
-            .issuer(issuer)
-            .audience(clientId)
-            .claim("azp", "wrong-client")
-            .issueTime(new Date())
-            .expirationTime(new Date(System.currentTimeMillis() + 10000))
-            .build();
-    final SignedJWT signedJWT =
-        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
-    signedJWT.sign(new RSASSASigner(rsaJWK));
+    /**
+     * Vérifie le rejet si le champ azp ne correspond pas au client ID attendu.
+     */
+    @Test
+    public void shouldRejectAzpMismatch() throws Exception {
+        final JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("user1")
+                        .issuer(issuer)
+                        .audience(clientId)
+                        .claim("azp", "wrong-client")
+                        .issueTime(new Date())
+                        .expirationTime(new Date(System.currentTimeMillis() + 10000))
+                        .build();
+        final SignedJWT signedJWT =
+                new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
+        signedJWT.sign(new RSASSASigner(rsaJWK));
 
-    assertThrows(OAuthException.class, () -> validator.validate(signedJWT.serialize(), null, 0));
-  }
+        assertThrows(OAuthException.class, () -> validator.validate(signedJWT.serialize(), null, 0));
+    }
 
-  /** Vérifie le rejet d'un jeton dont la date d'émission est située dans le futur. */
-  @Test
-  public void shouldRejectTokenIssuedInTheFuture() throws Exception {
-    // Issue time 1 hour in the future
-    final JWTClaimsSet claimsSet =
-        new JWTClaimsSet.Builder()
-            .subject("user1")
-            .issuer(issuer)
-            .audience(clientId)
-            .issueTime(new Date(System.currentTimeMillis() + 3600000))
-            .expirationTime(new Date(System.currentTimeMillis() + 7200000))
-            .build();
-    final SignedJWT signedJWT =
-        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
-    signedJWT.sign(new RSASSASigner(rsaJWK));
+    /**
+     * Vérifie le rejet d'un jeton dont la date d'émission est située dans le futur.
+     */
+    @Test
+    public void shouldRejectTokenIssuedInTheFuture() throws Exception {
+        // Issue time 1 hour in the future
+        final JWTClaimsSet claimsSet =
+                new JWTClaimsSet.Builder()
+                        .subject("user1")
+                        .issuer(issuer)
+                        .audience(clientId)
+                        .issueTime(new Date(System.currentTimeMillis() + 3600000))
+                        .expirationTime(new Date(System.currentTimeMillis() + 7200000))
+                        .build();
+        final SignedJWT signedJWT =
+                new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("kid-1").build(), claimsSet);
+        signedJWT.sign(new RSASSASigner(rsaJWK));
 
-    assertThrows(OAuthException.class, () -> validator.validate(signedJWT.serialize(), null, 0));
-  }
+        assertThrows(OAuthException.class, () -> validator.validate(signedJWT.serialize(), null, 0));
+    }
 }

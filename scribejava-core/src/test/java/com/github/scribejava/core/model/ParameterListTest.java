@@ -23,11 +23,11 @@
  */
 package com.github.scribejava.core.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests unitaires pour la manipulation des listes de paramètres {@link ParameterList}.
@@ -37,82 +37,98 @@ import org.junit.jupiter.api.Test;
  */
 public class ParameterListTest {
 
-  private ParameterList params;
+    private ParameterList params;
 
-  /** Initialisation d'une liste de paramètres vide avant chaque test. */
-  @BeforeEach
-  public void setUp() {
-    this.params = new ParameterList();
-  }
+    /**
+     * Initialisation d'une liste de paramètres vide avant chaque test.
+     */
+    @BeforeEach
+    public void setUp() {
+        this.params = new ParameterList();
+    }
 
-  /** Vérifie que la tentative d'ajout à une URL nulle lève une exception. */
-  @Test
-  public void shouldThrowExceptionWhenAppendingNullMapToQuerystring() {
-    assertThatThrownBy(() -> params.appendTo(null)).isInstanceOf(IllegalArgumentException.class);
-  }
+    /**
+     * Vérifie que la tentative d'ajout à une URL nulle lève une exception.
+     */
+    @Test
+    public void shouldThrowExceptionWhenAppendingNullMapToQuerystring() {
+        assertThatThrownBy(() -> params.appendTo(null)).isInstanceOf(IllegalArgumentException.class);
+    }
 
-  /** Vérifie qu'une liste vide n'altère pas l'URL d'origine. */
-  @Test
-  public void shouldAppendNothingToQuerystringIfGivenEmptyMap() {
-    final String url = "http://www.example.com";
-    assertThat(params.appendTo(url)).isEqualTo(url);
-  }
+    /**
+     * Vérifie qu'une liste vide n'altère pas l'URL d'origine.
+     */
+    @Test
+    public void shouldAppendNothingToQuerystringIfGivenEmptyMap() {
+        final String url = "http://www.example.com";
+        assertThat(params.appendTo(url)).isEqualTo(url);
+    }
 
-  /** Vérifie l'ajout correct de paramètres à une URL sans QueryString. */
-  @Test
-  public void shouldAppendParametersToSimpleUrl() {
-    String url = "http://www.example.com";
-    final String expectedUrl = "http://www.example.com?param1=value1&param2=value%20with%20spaces";
+    /**
+     * Vérifie l'ajout correct de paramètres à une URL sans QueryString.
+     */
+    @Test
+    public void shouldAppendParametersToSimpleUrl() {
+        String url = "http://www.example.com";
+        final String expectedUrl = "http://www.example.com?param1=value1&param2=value%20with%20spaces";
 
-    params.add("param1", "value1");
-    params.add("param2", "value with spaces");
+        params.add("param1", "value1");
+        params.add("param2", "value with spaces");
 
-    url = params.appendTo(url);
-    assertThat(url).isEqualTo(expectedUrl);
-  }
+        url = params.appendTo(url);
+        assertThat(url).isEqualTo(expectedUrl);
+    }
 
-  /** Vérifie l'ajout correct de paramètres à une URL possédant déjà une QueryString. */
-  @Test
-  public void shouldAppendParametersToUrlWithQuerystring() {
-    String url = "http://www.example.com?already=present";
-    final String expectedUrl =
-        "http://www.example.com?already=present&param1=value1&param2=value%20with%20spaces";
+    /**
+     * Vérifie l'ajout correct de paramètres à une URL possédant déjà une QueryString.
+     */
+    @Test
+    public void shouldAppendParametersToUrlWithQuerystring() {
+        String url = "http://www.example.com?already=present";
+        final String expectedUrl =
+                "http://www.example.com?already=present&param1=value1&param2=value%20with%20spaces";
 
-    params.add("param1", "value1");
-    params.add("param2", "value with spaces");
+        params.add("param1", "value1");
+        params.add("param2", "value with spaces");
 
-    url = params.appendTo(url);
-    assertThat(url).isEqualTo(expectedUrl);
-  }
+        url = params.appendTo(url);
+        assertThat(url).isEqualTo(expectedUrl);
+    }
 
-  /** Vérifie le tri lexicographique des paramètres (clé, puis valeur). */
-  @Test
-  public void shouldProperlySortParameters() {
-    params.add("param1", "v1");
-    params.add("param6", "v2");
-    params.add("a_param", "v3");
-    params.add("param2", "v4");
-    assertThat(params.sort().asFormUrlEncodedString())
-        .isEqualTo("a_param=v3&param1=v1&param2=v4&param6=v2");
-  }
+    /**
+     * Vérifie le tri lexicographique des paramètres (clé, puis valeur).
+     */
+    @Test
+    public void shouldProperlySortParameters() {
+        params.add("param1", "v1");
+        params.add("param6", "v2");
+        params.add("a_param", "v3");
+        params.add("param2", "v4");
+        assertThat(params.sort().asFormUrlEncodedString())
+                .isEqualTo("a_param=v3&param1=v1&param2=v4&param6=v2");
+    }
 
-  /** Vérifie le tri correct lorsque plusieurs paramètres ont le même nom. */
-  @Test
-  public void shouldProperlySortParametersWithTheSameName() {
-    params.add("param1", "v1");
-    params.add("param6", "v2");
-    params.add("a_param", "v3");
-    params.add("param1", "v4");
-    assertThat(params.sort().asFormUrlEncodedString())
-        .isEqualTo("a_param=v3&param1=v1&param1=v4&param6=v2");
-  }
+    /**
+     * Vérifie le tri correct lorsque plusieurs paramètres ont le même nom.
+     */
+    @Test
+    public void shouldProperlySortParametersWithTheSameName() {
+        params.add("param1", "v1");
+        params.add("param6", "v2");
+        params.add("a_param", "v3");
+        params.add("param1", "v4");
+        assertThat(params.sort().asFormUrlEncodedString())
+                .isEqualTo("a_param=v3&param1=v1&param1=v4&param6=v2");
+    }
 
-  /** Vérifie que l'opération de tri retourne une nouvelle instance (immutabilité). */
-  @Test
-  public void shouldNotModifyTheOriginalParameterList() {
-    params.add("param1", "v1");
-    params.add("param6", "v2");
+    /**
+     * Vérifie que l'opération de tri retourne une nouvelle instance (immutabilité).
+     */
+    @Test
+    public void shouldNotModifyTheOriginalParameterList() {
+        params.add("param1", "v1");
+        params.add("param6", "v2");
 
-    assertThat(params.sort()).isNotSameAs(params);
-  }
+        assertThat(params.sort()).isNotSameAs(params);
+    }
 }

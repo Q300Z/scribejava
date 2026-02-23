@@ -27,15 +27,19 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.httpclient.HttpClientProvider;
 
-/** Fournisseur de client HTTP par défaut du JDK. */
+/**
+ * Fournisseur de client HTTP par défaut du JDK.
+ */
 public class JDKHttpProvider implements HttpClientProvider {
 
-  /** {@inheritDoc} */
-  @Override
-  public HttpClient createClient(HttpClientConfig config) {
-    if (config instanceof JDKHttpClientConfig) {
-      return new JDKHttpClient((JDKHttpClientConfig) config);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public HttpClient createClient(HttpClientConfig config) {
+        if (config instanceof JDKHttpClientConfig) {
+            return new JDKHttpClient((JDKHttpClientConfig) config);
+        }
+        return null;
     }
-    return null;
-  }
 }

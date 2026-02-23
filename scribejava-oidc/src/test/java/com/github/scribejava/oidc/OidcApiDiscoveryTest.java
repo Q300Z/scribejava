@@ -23,90 +23,97 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
-import java.io.IOException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** Tests de la configuration automatique des points de terminaison via Discovery. */
+import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Tests de la configuration automatique des points de terminaison via Discovery.
+ */
 public class OidcApiDiscoveryTest {
 
-  private MockWebServer server;
-
-  /**
-   * Initialisation du serveur.
-   *
-   * @throws IOException en cas d'erreur.
-   */
-  @BeforeEach
-  public void setUp() throws IOException {
-    server = new MockWebServer();
-    server.start();
-  }
-
-  /**
-   * Arrêt du serveur.
-   *
-   * @throws IOException en cas d'erreur.
-   */
-  @AfterEach
-  public void tearDown() throws IOException {
-    server.shutdown();
-  }
-
-  /** Vérifie que les points de terminaison sont correctement configurés à partir du JSON. */
-  @Test
-  public void shouldConfigureEndpointsAutomatically() throws Exception {
-    final String issuer = server.url("/").toString();
-    final String discoveryJson =
-        "{"
-            + "\"issuer\":\""
-            + issuer
-            + "\","
-            + "\"authorization_endpoint\":\""
-            + issuer
-            + "auth\","
-            + "\"token_endpoint\":\""
-            + issuer
-            + "token\","
-            + "\"jwks_uri\":\""
-            + issuer
-            + "keys\""
-            + "}";
-
-    server.enqueue(new MockResponse().setBody(discoveryJson).setResponseCode(200));
-
-    final TestOidcApi api = new TestOidcApi(issuer);
-    final OidcDiscoveryService discoveryService =
-        new OidcDiscoveryService(issuer, new JDKHttpClient(), "ScribeJava");
-    api.setMetadata(discoveryService.getProviderMetadata());
-
-    assertThat(api.getAuthorizationBaseUrl()).isEqualTo(issuer + "auth");
-    assertThat(api.getAccessTokenEndpoint()).isEqualTo(issuer + "token");
-    assertThat(api.getJwksUri()).isEqualTo(issuer + "keys");
-  }
-
-  /** Classe d'API OIDC factice pour les tests. */
-  public static class TestOidcApi extends DefaultOidcApi20 {
-    private final String issuer;
+    private MockWebServer server;
 
     /**
-     * Constructeur.
+     * Initialisation du serveur.
      *
-     * @param issuer L'émetteur.
+     * @throws IOException en cas d'erreur.
      */
-    public TestOidcApi(final String issuer) {
-      this.issuer = issuer;
+    @BeforeEach
+    public void setUp() throws IOException {
+        server = new MockWebServer();
+        server.start();
     }
 
-    @Override
-    public String getIssuer() {
-      return issuer;
+    /**
+     * Arrêt du serveur.
+     *
+     * @throws IOException en cas d'erreur.
+     */
+    @AfterEach
+    public void tearDown() throws IOException {
+        server.shutdown();
     }
-  }
+
+    /**
+     * Vérifie que les points de terminaison sont correctement configurés à partir du JSON.
+     */
+    @Test
+    public void shouldConfigureEndpointsAutomatically() throws Exception {
+        final String issuer = server.url("/").toString();
+        final String discoveryJson =
+                "{"
+                        + "\"issuer\":\""
+                        + issuer
+                        + "\","
+                        + "\"authorization_endpoint\":\""
+                        + issuer
+                        + "auth\","
+                        + "\"token_endpoint\":\""
+                        + issuer
+                        + "token\","
+                        + "\"jwks_uri\":\""
+                        + issuer
+                        + "keys\""
+                        + "}";
+
+        server.enqueue(new MockResponse().setBody(discoveryJson).setResponseCode(200));
+
+        final TestOidcApi api = new TestOidcApi(issuer);
+        final OidcDiscoveryService discoveryService =
+                new OidcDiscoveryService(issuer, new JDKHttpClient(), "ScribeJava");
+        api.setMetadata(discoveryService.getProviderMetadata());
+
+        assertThat(api.getAuthorizationBaseUrl()).isEqualTo(issuer + "auth");
+        assertThat(api.getAccessTokenEndpoint()).isEqualTo(issuer + "token");
+        assertThat(api.getJwksUri()).isEqualTo(issuer + "keys");
+    }
+
+    /**
+     * Classe d'API OIDC factice pour les tests.
+     */
+    public static class TestOidcApi extends DefaultOidcApi20 {
+        private final String issuer;
+
+        /**
+         * Constructeur.
+         *
+         * @param issuer L'émetteur.
+         */
+        public TestOidcApi(final String issuer) {
+            this.issuer = issuer;
+        }
+
+        @Override
+        public String getIssuer() {
+            return issuer;
+        }
+    }
 }

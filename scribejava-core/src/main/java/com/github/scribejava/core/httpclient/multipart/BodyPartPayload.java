@@ -24,6 +24,7 @@
 package com.github.scribejava.core.httpclient.multipart;
 
 import com.github.scribejava.core.httpclient.HttpClient;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -34,49 +35,51 @@ import java.util.Map;
  */
 public abstract class BodyPartPayload {
 
-  private final Map<String, String> headers;
+    private final Map<String, String> headers;
 
-  /** Constructeur par défaut sans en-tête. */
-  public BodyPartPayload() {
-    this((Map<String, String>) null);
-  }
+    /**
+     * Constructeur par défaut sans en-tête.
+     */
+    public BodyPartPayload() {
+        this((Map<String, String>) null);
+    }
 
-  /**
-   * Constructeur avec un type de contenu (Content-Type).
-   *
-   * @param contentType Le type de contenu de cette partie.
-   */
-  public BodyPartPayload(String contentType) {
-    this(convertContentTypeToHeaders(contentType));
-  }
+    /**
+     * Constructeur avec un type de contenu (Content-Type).
+     *
+     * @param contentType Le type de contenu de cette partie.
+     */
+    public BodyPartPayload(String contentType) {
+        this(convertContentTypeToHeaders(contentType));
+    }
 
-  /**
-   * Constructeur avec une map d'en-têtes.
-   *
-   * @param headers Les en-têtes de cette partie.
-   */
-  public BodyPartPayload(Map<String, String> headers) {
-    this.headers = headers;
-  }
+    /**
+     * Constructeur avec une map d'en-têtes.
+     *
+     * @param headers Les en-têtes de cette partie.
+     */
+    public BodyPartPayload(Map<String, String> headers) {
+        this.headers = headers;
+    }
 
-  /**
-   * Convertit un type de contenu en une map d'en-têtes.
-   *
-   * @param contentType Le type de contenu.
-   * @return Une map contenant l'en-tête Content-Type.
-   */
-  protected static Map<String, String> convertContentTypeToHeaders(String contentType) {
-    return contentType == null
-        ? null
-        : Collections.singletonMap(HttpClient.CONTENT_TYPE, contentType);
-  }
+    /**
+     * Convertit un type de contenu en une map d'en-têtes.
+     *
+     * @param contentType Le type de contenu.
+     * @return Une map contenant l'en-tête Content-Type.
+     */
+    protected static Map<String, String> convertContentTypeToHeaders(String contentType) {
+        return contentType == null
+                ? null
+                : Collections.singletonMap(HttpClient.CONTENT_TYPE, contentType);
+    }
 
-  /**
-   * Retourne les en-têtes de cette partie.
-   *
-   * @return La map des en-têtes.
-   */
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
+    /**
+     * Retourne les en-têtes de cette partie.
+     *
+     * @return La map des en-têtes.
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 }

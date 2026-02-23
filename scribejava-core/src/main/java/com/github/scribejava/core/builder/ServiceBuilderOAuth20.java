@@ -27,6 +27,7 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.oauth.OAuth20Service;
+
 import java.io.OutputStream;
 
 /**
@@ -37,69 +38,69 @@ import java.io.OutputStream;
  */
 public interface ServiceBuilderOAuth20 extends ServiceBuilderCommon {
 
-  @Override
-  ServiceBuilderOAuth20 callback(String callback);
+    @Override
+    ServiceBuilderOAuth20 callback(String callback);
 
-  @Override
-  ServiceBuilderOAuth20 apiKey(String apiKey);
+    @Override
+    ServiceBuilderOAuth20 apiKey(String apiKey);
 
-  @Override
-  ServiceBuilderOAuth20 apiSecret(String apiSecret);
+    @Override
+    ServiceBuilderOAuth20 apiSecret(String apiSecret);
 
-  @Override
-  ServiceBuilderOAuth20 apiSecretIsEmptyStringUnsafe();
+    @Override
+    ServiceBuilderOAuth20 apiSecretIsEmptyStringUnsafe();
 
-  @Override
-  ServiceBuilderOAuth20 httpClientConfig(HttpClientConfig httpClientConfig);
+    @Override
+    ServiceBuilderOAuth20 httpClientConfig(HttpClientConfig httpClientConfig);
 
-  @Override
-  ServiceBuilderOAuth20 httpClient(HttpClient httpClient);
+    @Override
+    ServiceBuilderOAuth20 httpClient(HttpClient httpClient);
 
-  @Override
-  ServiceBuilderOAuth20 userAgent(String userAgent);
+    @Override
+    ServiceBuilderOAuth20 userAgent(String userAgent);
 
-  @Override
-  ServiceBuilderOAuth20 debugStream(OutputStream debugStream);
+    @Override
+    ServiceBuilderOAuth20 debugStream(OutputStream debugStream);
 
-  @Override
-  ServiceBuilderOAuth20 debug();
+    @Override
+    ServiceBuilderOAuth20 debug();
 
-  /**
-   * Définit le type de réponse (response_type).
-   *
-   * @param responseType Le type de réponse (ex: "code").
-   * @return L'instance du constructeur.
-   */
-  ServiceBuilderOAuth20 responseType(String responseType);
+    /**
+     * Définit le type de réponse (response_type).
+     *
+     * @param responseType Le type de réponse (ex: "code").
+     * @return L'instance du constructeur.
+     */
+    ServiceBuilderOAuth20 responseType(String responseType);
 
-  /**
-   * Configures the default OAuth 2.0 scope.<br>
-   *
-   * <p>You can request any uniq scope per each access token request using {@link
-   * com.github.scribejava.core.oauth.AuthorizationUrlBuilder#scope(java.lang.String) }.<br>
-   * <br>
-   *
-   * <p>In case you're requesting always the same scope,<br>
-   * you can just set it here and do not provide scope param nowhere more.
-   *
-   * @param defaultScope The OAuth scope, used as deafult
-   * @return the {@link ServiceBuilder} instance for method chaining
-   */
-  ServiceBuilderOAuth20 defaultScope(String defaultScope);
+    /**
+     * Configures the default OAuth 2.0 scope.<br>
+     *
+     * <p>You can request any uniq scope per each access token request using {@link
+     * com.github.scribejava.core.oauth.AuthorizationUrlBuilder#scope(java.lang.String) }.<br>
+     * <br>
+     *
+     * <p>In case you're requesting always the same scope,<br>
+     * you can just set it here and do not provide scope param nowhere more.
+     *
+     * @param defaultScope The OAuth scope, used as deafult
+     * @return the {@link ServiceBuilder} instance for method chaining
+     */
+    ServiceBuilderOAuth20 defaultScope(String defaultScope);
 
-  /**
-   * Définit la portée par défaut via un {@link ScopeBuilder}.
-   *
-   * @param scopeBuilder Le constructeur de portée.
-   * @return L'instance du constructeur.
-   */
-  ServiceBuilderOAuth20 defaultScope(ScopeBuilder scopeBuilder);
+    /**
+     * Définit la portée par défaut via un {@link ScopeBuilder}.
+     *
+     * @param scopeBuilder Le constructeur de portée.
+     * @return L'instance du constructeur.
+     */
+    ServiceBuilderOAuth20 defaultScope(ScopeBuilder scopeBuilder);
 
-  /**
-   * Construit le service OAuth 2.0.
-   *
-   * @param api L'instance de l'API.
-   * @return Une nouvelle instance de {@link OAuth20Service}.
-   */
-  OAuth20Service build(DefaultApi20 api);
+    /**
+     * Construit le service OAuth 2.0.
+     *
+     * @param api L'instance de l'API.
+     * @return Une nouvelle instance de {@link OAuth20Service}.
+     */
+    OAuth20Service build(DefaultApi20 api);
 }

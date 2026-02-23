@@ -27,37 +27,42 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
 import com.github.scribejava.core.oauth2.bearersignature.BearerSignatureURIQueryParameter;
 
-/** API OAuth 2.0 pour Windows Live (Microsoft). */
+/**
+ * API OAuth 2.0 pour Windows Live (Microsoft).
+ */
 public class LiveApi extends DefaultApi20 {
 
-  /** Constructeur protégé. */
-  protected LiveApi() {}
+    /**
+     * Constructeur protégé.
+     */
+    protected LiveApi() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API Live.
-   *
-   * @return L'instance de {@link LiveApi}.
-   */
-  public static LiveApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API Live.
+     *
+     * @return L'instance de {@link LiveApi}.
+     */
+    public static LiveApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://login.live.com/oauth20_token.srf";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://login.live.com/oauth20_token.srf";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return "https://login.live.com/oauth20_authorize.srf";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return "https://login.live.com/oauth20_authorize.srf";
+    }
 
-  @Override
-  public BearerSignature getBearerSignature() {
-    return BearerSignatureURIQueryParameter.instance();
-  }
+    @Override
+    public BearerSignature getBearerSignature() {
+        return BearerSignatureURIQueryParameter.instance();
+    }
 
-  private static class InstanceHolder {
-    private static final LiveApi INSTANCE = new LiveApi();
-  }
+    private static class InstanceHolder {
+        private static final LiveApi INSTANCE = new LiveApi();
+    }
 }

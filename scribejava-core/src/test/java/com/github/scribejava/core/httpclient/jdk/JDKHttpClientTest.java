@@ -28,8 +28,8 @@ import com.github.scribejava.core.httpclient.HttpClient;
 
 public class JDKHttpClientTest extends AbstractClientTest {
 
-  @Override
-  protected HttpClient createNewClient() {
-    return new JDKHttpClient();
-  }
+    @Override
+    protected HttpClient createNewClient() {
+        return new JDKHttpClient();
+    }
 }

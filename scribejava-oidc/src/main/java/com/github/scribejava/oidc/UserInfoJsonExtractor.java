@@ -26,6 +26,7 @@ package com.github.scribejava.oidc;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.Response;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,53 +38,56 @@ import java.util.Map;
  * <p>Analyse le corps de la réponse HTTP pour construire une instance de {@link StandardClaims}.
  *
  * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">OpenID Connect Core
- *     1.0, Section 5.3 (UserInfo Endpoint)</a>
+ * 1.0, Section 5.3 (UserInfo Endpoint)</a>
  */
 public class UserInfoJsonExtractor {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  /** Constructeur protégé. */
-  protected UserInfoJsonExtractor() {}
-
-  /**
-   * Retourne l'instance unique (singleton) de l'extracteur.
-   *
-   * @return L'instance de {@link UserInfoJsonExtractor}.
-   */
-  public static UserInfoJsonExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
-
-  /**
-   * Extrait les revendications (Claims) à partir de la réponse HTTP.
-   *
-   * @param response La réponse HTTP reçue du point de terminaison UserInfo.
-   * @return Une instance de {@link StandardClaims} contenant les données extraites.
-   * @throws IOException si le corps de la réponse ne peut pas être analysé comme du JSON.
-   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">Section
-   *     5.3.2 (Successful UserInfo Response)</a>
-   */
-  public StandardClaims extract(final Response response) throws IOException {
-    final JsonNode node = OBJECT_MAPPER.readTree(response.getBody());
-    final Map<String, Object> claimsMap = new HashMap<>();
-
-    final Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-    while (fields.hasNext()) {
-      final Map.Entry<String, JsonNode> entry = fields.next();
-      final JsonNode value = entry.getValue();
-      if (value.isBoolean()) {
-        claimsMap.put(entry.getKey(), value.asBoolean());
-      } else if (value.isNumber()) {
-        claimsMap.put(entry.getKey(), value.numberValue());
-      } else {
-        claimsMap.put(entry.getKey(), value.asText());
-      }
+    /**
+     * Constructeur protégé.
+     */
+    protected UserInfoJsonExtractor() {
     }
-    return new StandardClaims(claimsMap);
-  }
 
-  private static class InstanceHolder {
-    private static final UserInfoJsonExtractor INSTANCE = new UserInfoJsonExtractor();
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'extracteur.
+     *
+     * @return L'instance de {@link UserInfoJsonExtractor}.
+     */
+    public static UserInfoJsonExtractor instance() {
+        return InstanceHolder.INSTANCE;
+    }
+
+    /**
+     * Extrait les revendications (Claims) à partir de la réponse HTTP.
+     *
+     * @param response La réponse HTTP reçue du point de terminaison UserInfo.
+     * @return Une instance de {@link StandardClaims} contenant les données extraites.
+     * @throws IOException si le corps de la réponse ne peut pas être analysé comme du JSON.
+     * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">Section
+     * 5.3.2 (Successful UserInfo Response)</a>
+     */
+    public StandardClaims extract(final Response response) throws IOException {
+        final JsonNode node = OBJECT_MAPPER.readTree(response.getBody());
+        final Map<String, Object> claimsMap = new HashMap<>();
+
+        final Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+        while (fields.hasNext()) {
+            final Map.Entry<String, JsonNode> entry = fields.next();
+            final JsonNode value = entry.getValue();
+            if (value.isBoolean()) {
+                claimsMap.put(entry.getKey(), value.asBoolean());
+            } else if (value.isNumber()) {
+                claimsMap.put(entry.getKey(), value.numberValue());
+            } else {
+                claimsMap.put(entry.getKey(), value.asText());
+            }
+        }
+        return new StandardClaims(claimsMap);
+    }
+
+    private static class InstanceHolder {
+        private static final UserInfoJsonExtractor INSTANCE = new UserInfoJsonExtractor();
+    }
 }

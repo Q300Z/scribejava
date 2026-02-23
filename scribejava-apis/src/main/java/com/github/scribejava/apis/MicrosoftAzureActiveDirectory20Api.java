@@ -31,10 +31,10 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
  * Microsoft Azure Active Directory Api v 2.0
  *
  * @see <a
- *     href="https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code">
- *     Understand the OAuth 2.0 authorization code flow in Azure AD | Microsoft Docs</a>
+ * href="https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-protocols-oauth-code">
+ * Understand the OAuth 2.0 authorization code flow in Azure AD | Microsoft Docs</a>
  * @see <a href="https://developer.microsoft.com/en-us/graph/docs/concepts/v1-overview">Microsoft
- *     Graph REST API v1.0 reference</a>
+ * Graph REST API v1.0 reference</a>
  * @see <a href="https://portal.azure.com">https://portal.azure.com</a>
  */
 
@@ -47,52 +47,52 @@ import com.github.scribejava.core.oauth2.bearersignature.BearerSignature;
  */
 public class MicrosoftAzureActiveDirectory20Api extends BaseMicrosoftAzureActiveDirectoryApi {
 
-  /** Constructeur utilisant le tenant par défaut. */
-  protected MicrosoftAzureActiveDirectory20Api() {
-    this(COMMON_TENANT);
-  }
+    /** Constructeur utilisant le tenant par défaut. */
+    protected MicrosoftAzureActiveDirectory20Api() {
+        this(COMMON_TENANT);
+    }
 
-  /**
-   * Constructeur pour un tenant spécifique.
-   *
-   * @param tenant L'identifiant du tenant.
-   */
-  protected MicrosoftAzureActiveDirectory20Api(String tenant) {
-    super(tenant);
-  }
+    /**
+     * Constructeur pour un tenant spécifique.
+     *
+     * @param tenant L'identifiant du tenant.
+     */
+    protected MicrosoftAzureActiveDirectory20Api(String tenant) {
+        super(tenant);
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) pour le tenant par défaut.
-   *
-   * @return L'instance de {@link MicrosoftAzureActiveDirectory20Api}.
-   */
-  public static MicrosoftAzureActiveDirectory20Api instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) pour le tenant par défaut.
+     *
+     * @return L'instance de {@link MicrosoftAzureActiveDirectory20Api}.
+     */
+    public static MicrosoftAzureActiveDirectory20Api instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  /**
-   * Crée une instance pour un tenant personnalisé.
-   *
-   * @param tenant L'identifiant du tenant.
-   * @return Une nouvelle instance de {@link MicrosoftAzureActiveDirectory20Api}.
-   */
-  public static MicrosoftAzureActiveDirectory20Api custom(String tenant) {
-    return new MicrosoftAzureActiveDirectory20Api(tenant);
-  }
+    /**
+     * Crée une instance pour un tenant personnalisé.
+     *
+     * @param tenant L'identifiant du tenant.
+     * @return Une nouvelle instance de {@link MicrosoftAzureActiveDirectory20Api}.
+     */
+    public static MicrosoftAzureActiveDirectory20Api custom(String tenant) {
+        return new MicrosoftAzureActiveDirectory20Api(tenant);
+    }
 
-  @Override
-  public BearerSignature getBearerSignature() {
-    return MicrosoftAzureActiveDirectory20BearerSignature.instance();
-  }
+    @Override
+    public BearerSignature getBearerSignature() {
+        return MicrosoftAzureActiveDirectory20BearerSignature.instance();
+    }
 
-  @Override
-  protected String getEndpointVersionPath() {
-    return "/v2.0";
-  }
+    @Override
+    protected String getEndpointVersionPath() {
+        return "/v2.0";
+    }
 
-  private static class InstanceHolder {
+    private static class InstanceHolder {
 
-    private static final MicrosoftAzureActiveDirectory20Api INSTANCE =
-        new MicrosoftAzureActiveDirectory20Api();
-  }
+        private static final MicrosoftAzureActiveDirectory20Api INSTANCE =
+                new MicrosoftAzureActiveDirectory20Api();
+    }
 }

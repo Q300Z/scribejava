@@ -30,47 +30,50 @@ import com.github.scribejava.oauth1.extractors.OAuth1RequestTokenJSONExtractor;
 import com.github.scribejava.oauth1.model.OAuth1AccessToken;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
 
-/** API OAuth 1.0a pour UcozApi. */
+/**
+ * API OAuth 1.0a pour UcozApi.
+ */
 public class UcozApi extends DefaultApi10a {
-  private static final String AUTHORIZE_URL = "http://uapi.ucoz.com/accounts/oauthauthorizetoken";
+    private static final String AUTHORIZE_URL = "http://uapi.ucoz.com/accounts/oauthauthorizetoken";
 
-  protected UcozApi() {}
+    protected UcozApi() {
+    }
 
-  /**
-   * Retourne l'instance unique de l'API.
-   *
-   * @return L'instance {@link UcozApi}.
-   */
-  public static UcozApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique de l'API.
+     *
+     * @return L'instance {@link UcozApi}.
+     */
+    public static UcozApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "http://uapi.ucoz.com/accounts/oauthgetaccesstoken";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "http://uapi.ucoz.com/accounts/oauthgetaccesstoken";
+    }
 
-  @Override
-  public String getRequestTokenEndpoint() {
-    return "http://uapi.ucoz.com/accounts/oauthgetrequesttoken";
-  }
+    @Override
+    public String getRequestTokenEndpoint() {
+        return "http://uapi.ucoz.com/accounts/oauthgetrequesttoken";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return AUTHORIZE_URL;
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return AUTHORIZE_URL;
+    }
 
-  @Override
-  public TokenExtractor<OAuth1AccessToken> getAccessTokenExtractor() {
-    return OAuth1AccessTokenJSONExtractor.instance();
-  }
+    @Override
+    public TokenExtractor<OAuth1AccessToken> getAccessTokenExtractor() {
+        return OAuth1AccessTokenJSONExtractor.instance();
+    }
 
-  @Override
-  public TokenExtractor<OAuth1RequestToken> getRequestTokenExtractor() {
-    return OAuth1RequestTokenJSONExtractor.instance();
-  }
+    @Override
+    public TokenExtractor<OAuth1RequestToken> getRequestTokenExtractor() {
+        return OAuth1RequestTokenJSONExtractor.instance();
+    }
 
-  private static class InstanceHolder {
-    private static final UcozApi INSTANCE = new UcozApi();
-  }
+    private static class InstanceHolder {
+        private static final UcozApi INSTANCE = new UcozApi();
+    }
 }

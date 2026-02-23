@@ -32,25 +32,26 @@ import com.github.scribejava.core.model.OAuthRequest;
  */
 public class BearerSignatureAuthorizationRequestHeaderField implements BearerSignature {
 
-  protected BearerSignatureAuthorizationRequestHeaderField() {}
+    protected BearerSignatureAuthorizationRequestHeaderField() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de ce type de signature.
-   *
-   * @return L'instance de {@link BearerSignatureAuthorizationRequestHeaderField}.
-   */
-  public static BearerSignatureAuthorizationRequestHeaderField instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de ce type de signature.
+     *
+     * @return L'instance de {@link BearerSignatureAuthorizationRequestHeaderField}.
+     */
+    public static BearerSignatureAuthorizationRequestHeaderField instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public void signRequest(String accessToken, OAuthRequest request) {
-    request.addHeader(OAuthConstants.HEADER, "Bearer " + accessToken);
-  }
+    @Override
+    public void signRequest(String accessToken, OAuthRequest request) {
+        request.addHeader(OAuthConstants.HEADER, "Bearer " + accessToken);
+    }
 
-  private static class InstanceHolder {
+    private static class InstanceHolder {
 
-    private static final BearerSignatureAuthorizationRequestHeaderField INSTANCE =
-        new BearerSignatureAuthorizationRequestHeaderField();
-  }
+        private static final BearerSignatureAuthorizationRequestHeaderField INSTANCE =
+                new BearerSignatureAuthorizationRequestHeaderField();
+    }
 }

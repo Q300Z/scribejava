@@ -23,60 +23,71 @@
  */
 package com.github.scribejava.core.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
 
-/** Tests de l'encodage des requêtes OAuth. */
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Tests de l'encodage des requêtes OAuth.
+ */
 public class OAuthRequestEncodingTest {
 
-  /** Vérifie la gestion correcte des paramètres UTF-8 avec caractères spéciaux. */
-  @Test
-  public void shouldHandleUtf8Parameters() {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    request.addBodyParameter("name", "ScribeJava ✨");
-    request.setCharset(StandardCharsets.UTF_8.name());
+    /**
+     * Vérifie la gestion correcte des paramètres UTF-8 avec caractères spéciaux.
+     */
+    @Test
+    public void shouldHandleUtf8Parameters() {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        request.addBodyParameter("name", "ScribeJava ✨");
+        request.setCharset(StandardCharsets.UTF_8.name());
 
-    final byte[] payload = request.getByteArrayPayload();
-    final String body = new String(payload, StandardCharsets.UTF_8);
+        final byte[] payload = request.getByteArrayPayload();
+        final String body = new String(payload, StandardCharsets.UTF_8);
 
-    // ScribeJava encodes spaces as %20, not +
-    assertThat(body).contains("name=ScribeJava%20%E2%9C%A8");
-  }
+        // ScribeJava encodes spaces as %20, not +
+        assertThat(body).contains("name=ScribeJava%20%E2%9C%A8");
+    }
 
-  /** Vérifie que les paramètres sont toujours encodés en UTF-8 même si le charset est différent. */
-  @Test
-  public void shouldHandleParametersAsUtf8EvenIfCharsetIsDifferent()
-      throws UnsupportedEncodingException {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    request.addBodyParameter("city", "Montréal");
-    // ScribeJava's OAuthEncoder currently enforces UTF-8 for parameter encoding
-    request.setCharset(StandardCharsets.ISO_8859_1.name());
+    /**
+     * Vérifie que les paramètres sont toujours encodés en UTF-8 même si le charset est différent.
+     */
+    @Test
+    public void shouldHandleParametersAsUtf8EvenIfCharsetIsDifferent()
+            throws UnsupportedEncodingException {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        request.addBodyParameter("city", "Montréal");
+        // ScribeJava's OAuthEncoder currently enforces UTF-8 for parameter encoding
+        request.setCharset(StandardCharsets.ISO_8859_1.name());
 
-    final byte[] payload = request.getByteArrayPayload();
-    final String body = new String(payload, StandardCharsets.ISO_8859_1);
+        final byte[] payload = request.getByteArrayPayload();
+        final String body = new String(payload, StandardCharsets.ISO_8859_1);
 
-    // 'é' encoded in UTF-8 then kept as ASCII-safe percent encoding
-    assertThat(body).contains("city=Montr%C3%A9al");
-  }
+        // 'é' encoded in UTF-8 then kept as ASCII-safe percent encoding
+        assertThat(body).contains("city=Montr%C3%A9al");
+    }
 
-  /** Vérifie la normalisation (sanitization) des URLs. */
-  @Test
-  public void shouldSanitizeUrlsCorrectly() {
-    assertThat(new OAuthRequest(Verb.GET, "http://example.com:80/path").getSanitizedUrl())
-        .isEqualTo("http://example.com/path");
-    assertThat(new OAuthRequest(Verb.GET, "https://example.com:443/path").getSanitizedUrl())
-        .isEqualTo("https://example.com/path");
-    assertThat(new OAuthRequest(Verb.GET, "http://example.com/path?query=1").getSanitizedUrl())
-        .isEqualTo("http://example.com/path");
-  }
+    /**
+     * Vérifie la normalisation (sanitization) des URLs.
+     */
+    @Test
+    public void shouldSanitizeUrlsCorrectly() {
+        assertThat(new OAuthRequest(Verb.GET, "http://example.com:80/path").getSanitizedUrl())
+                .isEqualTo("http://example.com/path");
+        assertThat(new OAuthRequest(Verb.GET, "https://example.com:443/path").getSanitizedUrl())
+                .isEqualTo("https://example.com/path");
+        assertThat(new OAuthRequest(Verb.GET, "http://example.com/path?query=1").getSanitizedUrl())
+                .isEqualTo("http://example.com/path");
+    }
 
-  /** Vérifie la présence d'un charset par défaut. */
-  @Test
-  public void shouldRespectDefaultCharset() {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    assertThat(request.getCharset()).isNotNull();
-  }
+    /**
+     * Vérifie la présence d'un charset par défaut.
+     */
+    @Test
+    public void shouldRespectDefaultCharset() {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        assertThat(request.getCharset()).isNotNull();
+    }
 }

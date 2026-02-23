@@ -23,11 +23,12 @@
  */
 package com.github.scribejava.core.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests unitaires pour la gestion des différentes charges utiles (payloads) dans {@link
@@ -37,85 +38,99 @@ import org.junit.jupiter.api.Test;
  */
 public class OAuthRequestPayloadTest {
 
-  /** Vérifie la gestion correcte d'une charge utile sous forme de chaîne (ex: JSON). */
-  @Test
-  public void shouldHandleStringPayload() {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    final String payload = "{\"key\":\"value\"}";
-    request.setPayload(payload);
+    /**
+     * Vérifie la gestion correcte d'une charge utile sous forme de chaîne (ex: JSON).
+     */
+    @Test
+    public void shouldHandleStringPayload() {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        final String payload = "{\"key\":\"value\"}";
+        request.setPayload(payload);
 
-    assertThat(request.getStringPayload()).isEqualTo(payload);
-    // getByteArrayPayload() returns body parameters, not the string payload
-    assertThat(request.getByteArrayPayload()).isEmpty();
-  }
+        assertThat(request.getStringPayload()).isEqualTo(payload);
+        // getByteArrayPayload() returns body parameters, not the string payload
+        assertThat(request.getByteArrayPayload()).isEmpty();
+    }
 
-  /** Vérifie le support des caractères spéciaux et de l'encodage UTF-8 dans les chaînes. */
-  @Test
-  public void shouldHandleSpecialCharactersInStringPayload() {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    final String payload = "{\"key\":\"valué ❤️\"}";
-    request.setPayload(payload);
-    request.setCharset(StandardCharsets.UTF_8.name());
+    /**
+     * Vérifie le support des caractères spéciaux et de l'encodage UTF-8 dans les chaînes.
+     */
+    @Test
+    public void shouldHandleSpecialCharactersInStringPayload() {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        final String payload = "{\"key\":\"valué ❤️\"}";
+        request.setPayload(payload);
+        request.setCharset(StandardCharsets.UTF_8.name());
 
-    assertThat(request.getStringPayload()).isEqualTo(payload);
-    assertThat(request.getByteArrayPayload()).isEmpty();
-  }
+        assertThat(request.getStringPayload()).isEqualTo(payload);
+        assertThat(request.getByteArrayPayload()).isEmpty();
+    }
 
-  /** Vérifie la gestion d'une charge utile binaire brute. */
-  @Test
-  public void shouldHandleByteArrayPayload() {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    final byte[] payload = {0x01, 0x02, 0x03, 0x04};
-    request.setPayload(payload);
+    /**
+     * Vérifie la gestion d'une charge utile binaire brute.
+     */
+    @Test
+    public void shouldHandleByteArrayPayload() {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        final byte[] payload = {0x01, 0x02, 0x03, 0x04};
+        request.setPayload(payload);
 
-    assertThat(request.getStringPayload()).isNull();
-    assertThat(request.getByteArrayPayload()).isEqualTo(payload);
-  }
+        assertThat(request.getStringPayload()).isNull();
+        assertThat(request.getByteArrayPayload()).isEqualTo(payload);
+    }
 
-  /** Vérifie la gestion de l'envoi d'un fichier. */
-  @Test
-  public void shouldHandleFilePayload() {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    final File file = new File("dummy-file");
-    request.setPayload(file);
+    /**
+     * Vérifie la gestion de l'envoi d'un fichier.
+     */
+    @Test
+    public void shouldHandleFilePayload() {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        final File file = new File("dummy-file");
+        request.setPayload(file);
 
-    assertThat(request.getFilePayload()).isEqualTo(file);
-    assertThat(request.getStringPayload()).isNull();
-    // getByteArrayPayload() should still work if body parameters are added
-    request.addBodyParameter("key", "value");
-    assertThat(new String(request.getByteArrayPayload(), StandardCharsets.UTF_8))
-        .isEqualTo("key=value");
-  }
+        assertThat(request.getFilePayload()).isEqualTo(file);
+        assertThat(request.getStringPayload()).isNull();
+        // getByteArrayPayload() should still work if body parameters are added
+        request.addBodyParameter("key", "value");
+        assertThat(new String(request.getByteArrayPayload(), StandardCharsets.UTF_8))
+                .isEqualTo("key=value");
+    }
 
-  /** Vérifie qu'une requête GET ne contient normalement pas de charge utile. */
-  @Test
-  public void shouldHandleNoPayloadForGet() {
-    final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
-    assertThat(request.getStringPayload()).isNull();
-    assertThat(request.getByteArrayPayload()).isEmpty();
-  }
+    /**
+     * Vérifie qu'une requête GET ne contient normalement pas de charge utile.
+     */
+    @Test
+    public void shouldHandleNoPayloadForGet() {
+        final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
+        assertThat(request.getStringPayload()).isNull();
+        assertThat(request.getByteArrayPayload()).isEmpty();
+    }
 
-  /** Vérifie qu'une requête DELETE ne contient normalement pas de charge utile. */
-  @Test
-  public void shouldHandleNoPayloadForDelete() {
-    final OAuthRequest request = new OAuthRequest(Verb.DELETE, "http://example.com");
-    assertThat(request.getStringPayload()).isNull();
-    assertThat(request.getByteArrayPayload()).isEmpty();
-  }
+    /**
+     * Vérifie qu'une requête DELETE ne contient normalement pas de charge utile.
+     */
+    @Test
+    public void shouldHandleNoPayloadForDelete() {
+        final OAuthRequest request = new OAuthRequest(Verb.DELETE, "http://example.com");
+        assertThat(request.getStringPayload()).isNull();
+        assertThat(request.getByteArrayPayload()).isEmpty();
+    }
 
-  /** Vérifie que la définition d'une nouvelle charge utile réinitialise les précédentes. */
-  @Test
-  public void shouldResetPayloadWhenNewOneIsSet() {
-    final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
-    request.setPayload("string-payload");
-    assertThat(request.getStringPayload()).isNotNull();
+    /**
+     * Vérifie que la définition d'une nouvelle charge utile réinitialise les précédentes.
+     */
+    @Test
+    public void shouldResetPayloadWhenNewOneIsSet() {
+        final OAuthRequest request = new OAuthRequest(Verb.POST, "http://example.com");
+        request.setPayload("string-payload");
+        assertThat(request.getStringPayload()).isNotNull();
 
-    request.setPayload(new byte[] {0x01});
-    assertThat(request.getStringPayload()).isNull();
-    assertThat(request.getByteArrayPayload()).containsExactly(0x01);
+        request.setPayload(new byte[]{0x01});
+        assertThat(request.getStringPayload()).isNull();
+        assertThat(request.getByteArrayPayload()).containsExactly(0x01);
 
-    request.setPayload(new File("file"));
-    assertThat(request.getByteArrayPayload()).isEmpty();
-    assertThat(request.getFilePayload()).isNotNull();
-  }
+        request.setPayload(new File("file"));
+        assertThat(request.getByteArrayPayload()).isEmpty();
+        assertThat(request.getFilePayload()).isNotNull();
+    }
 }

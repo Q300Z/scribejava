@@ -35,38 +35,38 @@ import com.github.scribejava.core.utils.Preconditions;
  */
 public class BaseStringExtractorImpl implements BaseStringExtractor {
 
-  protected static final String AMPERSAND_SEPARATED_STRING = "%s&%s&%s";
+    protected static final String AMPERSAND_SEPARATED_STRING = "%s&%s&%s";
 
-  @Override
-  public String extract(OAuthRequest request) {
-    checkPreconditions(request);
-    final String verb = OAuthEncoder.encode(getVerb(request));
-    final String url = OAuthEncoder.encode(getUrl(request));
-    final String params = getSortedAndEncodedParams(request);
-    return String.format(AMPERSAND_SEPARATED_STRING, verb, url, params);
-  }
-
-  protected String getVerb(OAuthRequest request) {
-    return request.getVerb().name();
-  }
-
-  protected String getUrl(OAuthRequest request) {
-    return request.getSanitizedUrl();
-  }
-
-  protected String getSortedAndEncodedParams(OAuthRequest request) {
-    final ParameterList params = new ParameterList();
-    params.addAll(request.getQueryStringParams());
-    params.addAll(request.getBodyParams());
-    params.addAll(new ParameterList(request.getOauthParameters()));
-    return params.sort().asOauthBaseString();
-  }
-
-  protected void checkPreconditions(OAuthRequest request) {
-    Preconditions.checkNotNull(request, "Cannot extract base string from a null object");
-
-    if (request.getOauthParameters() == null || request.getOauthParameters().isEmpty()) {
-      throw new OAuthParametersMissingException(request);
+    @Override
+    public String extract(OAuthRequest request) {
+        checkPreconditions(request);
+        final String verb = OAuthEncoder.encode(getVerb(request));
+        final String url = OAuthEncoder.encode(getUrl(request));
+        final String params = getSortedAndEncodedParams(request);
+        return String.format(AMPERSAND_SEPARATED_STRING, verb, url, params);
     }
-  }
+
+    protected String getVerb(OAuthRequest request) {
+        return request.getVerb().name();
+    }
+
+    protected String getUrl(OAuthRequest request) {
+        return request.getSanitizedUrl();
+    }
+
+    protected String getSortedAndEncodedParams(OAuthRequest request) {
+        final ParameterList params = new ParameterList();
+        params.addAll(request.getQueryStringParams());
+        params.addAll(request.getBodyParams());
+        params.addAll(new ParameterList(request.getOauthParameters()));
+        return params.sort().asOauthBaseString();
+    }
+
+    protected void checkPreconditions(OAuthRequest request) {
+        Preconditions.checkNotNull(request, "Cannot extract base string from a null object");
+
+        if (request.getOauthParameters() == null || request.getOauthParameters().isEmpty()) {
+            throw new OAuthParametersMissingException(request);
+        }
+    }
 }

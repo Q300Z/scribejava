@@ -23,64 +23,75 @@
  */
 package com.github.scribejava.core.extractors;
 
+import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
+import com.github.scribejava.core.model.Response;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
-import com.github.scribejava.core.model.Response;
-import java.io.IOException;
-import org.junit.jupiter.api.Test;
-
-/** Tests de robustesse des extracteurs face à des réponses invalides ou malformées. */
+/**
+ * Tests de robustesse des extracteurs face à des réponses invalides ou malformées.
+ */
 public class ExtractionRobustnessTest {
 
-  /** Vérifie que le rejet d'un JSON malformé lève une exception d'erreur OAuth 2.0. */
-  @Test
-  public void shouldThrowErrorResponseOnMalformedJson() throws IOException {
-    final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
-    final Response response = mock(Response.class);
-    when(response.getBody()).thenReturn("{ invalid json : }");
+    /**
+     * Vérifie que le rejet d'un JSON malformé lève une exception d'erreur OAuth 2.0.
+     */
+    @Test
+    public void shouldThrowErrorResponseOnMalformedJson() throws IOException {
+        final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
+        final Response response = mock(Response.class);
+        when(response.getBody()).thenReturn("{ invalid json : }");
 
-    // ScribeJava v9 encapsulates parsing errors in OAuth2AccessTokenErrorResponse
-    assertThatThrownBy(() -> extractor.extract(response))
-        .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
-  }
+        // ScribeJava v9 encapsulates parsing errors in OAuth2AccessTokenErrorResponse
+        assertThatThrownBy(() -> extractor.extract(response))
+                .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
+    }
 
-  /** Vérifie le rejet d'une réponse JSON valide mais dépourvue de champs obligatoires. */
-  @Test
-  public void shouldThrowErrorResponseOnMissingRequiredField() throws IOException {
-    final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
-    final Response response = mock(Response.class);
-    when(response.getBody()).thenReturn("{\"expires_in\": 3600}");
+    /**
+     * Vérifie le rejet d'une réponse JSON valide mais dépourvue de champs obligatoires.
+     */
+    @Test
+    public void shouldThrowErrorResponseOnMissingRequiredField() throws IOException {
+        final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
+        final Response response = mock(Response.class);
+        when(response.getBody()).thenReturn("{\"expires_in\": 3600}");
 
-    assertThatThrownBy(() -> extractor.extract(response))
-        .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
-  }
+        assertThatThrownBy(() -> extractor.extract(response))
+                .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
+    }
 
-  /** Vérifie que le rejet d'une réponse vide par les préconditions. */
-  @Test
-  public void shouldThrowIllegalArgumentExceptionOnEmptyResponse() throws IOException {
-    final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
-    final Response response = mock(Response.class);
-    when(response.getBody()).thenReturn("");
+    /**
+     * Vérifie que le rejet d'une réponse vide par les préconditions.
+     */
+    @Test
+    public void shouldThrowIllegalArgumentExceptionOnEmptyResponse() throws IOException {
+        final OAuth2AccessTokenJsonExtractor extractor = OAuth2AccessTokenJsonExtractor.instance();
+        final Response response = mock(Response.class);
+        when(response.getBody()).thenReturn("");
 
-    // Triggered by Preconditions.checkEmptyString
-    assertThatThrownBy(() -> extractor.extract(response))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining(
-            "Response body is incorrect. Can't extract a token from an empty string");
-  }
+        // Triggered by Preconditions.checkEmptyString
+        assertThatThrownBy(() -> extractor.extract(response))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(
+                        "Response body is incorrect. Can't extract a token from an empty string");
+    }
 
-  /** Vérifie la robustesse de l'extracteur d'autorisation d'appareil (Device Auth). */
-  @Test
-  public void shouldHandleDeviceAuthMalformedJson() throws IOException {
-    final DeviceAuthorizationJsonExtractor extractor = DeviceAuthorizationJsonExtractor.instance();
-    final Response response = mock(Response.class);
-    when(response.getBody()).thenReturn("not a json");
+    /**
+     * Vérifie la robustesse de l'extracteur d'autorisation d'appareil (Device Auth).
+     */
+    @Test
+    public void shouldHandleDeviceAuthMalformedJson() throws IOException {
+        final DeviceAuthorizationJsonExtractor extractor = DeviceAuthorizationJsonExtractor.instance();
+        final Response response = mock(Response.class);
+        when(response.getBody()).thenReturn("not a json");
 
-    // Device auth still uses OAuth2AccessTokenErrorResponse or similar for consistency
-    assertThatThrownBy(() -> extractor.extract(response))
-        .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
-  }
+        // Device auth still uses OAuth2AccessTokenErrorResponse or similar for consistency
+        assertThatThrownBy(() -> extractor.extract(response))
+                .isInstanceOf(OAuth2AccessTokenErrorResponse.class);
+    }
 }

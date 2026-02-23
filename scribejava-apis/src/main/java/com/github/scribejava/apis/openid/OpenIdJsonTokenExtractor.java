@@ -33,40 +33,43 @@ import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
  */
 public class OpenIdJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
-  /** Constructeur protégé. */
-  protected OpenIdJsonTokenExtractor() {}
+    /**
+     * Constructeur protégé.
+     */
+    protected OpenIdJsonTokenExtractor() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'extracteur.
-   *
-   * @return L'instance de {@link OpenIdJsonTokenExtractor}.
-   */
-  public static OpenIdJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'extracteur.
+     *
+     * @return L'instance de {@link OpenIdJsonTokenExtractor}.
+     */
+    public static OpenIdJsonTokenExtractor instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  protected OpenIdOAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonNode response,
-      String rawResponse) {
-    final JsonNode idToken = response.get("id_token");
-    return new OpenIdOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        idToken == null ? null : idToken.asText(),
-        rawResponse);
-  }
+    @Override
+    protected OpenIdOAuth2AccessToken createToken(
+            String accessToken,
+            String tokenType,
+            Integer expiresIn,
+            String refreshToken,
+            String scope,
+            JsonNode response,
+            String rawResponse) {
+        final JsonNode idToken = response.get("id_token");
+        return new OpenIdOAuth2AccessToken(
+                accessToken,
+                tokenType,
+                expiresIn,
+                refreshToken,
+                scope,
+                idToken == null ? null : idToken.asText(),
+                rawResponse);
+    }
 
-  private static class InstanceHolder {
+    private static class InstanceHolder {
 
-    private static final OpenIdJsonTokenExtractor INSTANCE = new OpenIdJsonTokenExtractor();
-  }
+        private static final OpenIdJsonTokenExtractor INSTANCE = new OpenIdJsonTokenExtractor();
+    }
 }

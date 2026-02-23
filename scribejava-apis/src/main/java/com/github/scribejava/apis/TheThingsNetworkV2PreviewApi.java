@@ -25,32 +25,37 @@ package com.github.scribejava.apis;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 
-/** API OAuth 2.0 pour The Things Network (V2 Preview). */
+/**
+ * API OAuth 2.0 pour The Things Network (V2 Preview).
+ */
 public class TheThingsNetworkV2PreviewApi extends DefaultApi20 {
 
-  /** Constructeur protégé. */
-  protected TheThingsNetworkV2PreviewApi() {}
+    /**
+     * Constructeur protégé.
+     */
+    protected TheThingsNetworkV2PreviewApi() {
+    }
 
-  /**
-   * Retourne l'instance unique (singleton) de l'API TTN V2 Preview.
-   *
-   * @return L'instance de {@link TheThingsNetworkV2PreviewApi}.
-   */
-  public static TheThingsNetworkV2PreviewApi instance() {
-    return InstanceHolder.INSTANCE;
-  }
+    /**
+     * Retourne l'instance unique (singleton) de l'API TTN V2 Preview.
+     *
+     * @return L'instance de {@link TheThingsNetworkV2PreviewApi}.
+     */
+    public static TheThingsNetworkV2PreviewApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
 
-  @Override
-  public String getAccessTokenEndpoint() {
-    return "https://preview.account.thethingsnetwork.org/users/token";
-  }
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://preview.account.thethingsnetwork.org/users/token";
+    }
 
-  @Override
-  public String getAuthorizationBaseUrl() {
-    return "https://preview.account.thethingsnetwork.org/users/authorize";
-  }
+    @Override
+    public String getAuthorizationBaseUrl() {
+        return "https://preview.account.thethingsnetwork.org/users/authorize";
+    }
 
-  private static class InstanceHolder {
-    private static final TheThingsNetworkV2PreviewApi INSTANCE = new TheThingsNetworkV2PreviewApi();
-  }
+    private static class InstanceHolder {
+        private static final TheThingsNetworkV2PreviewApi INSTANCE = new TheThingsNetworkV2PreviewApi();
+    }
 }

@@ -24,6 +24,7 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.utils.StreamUtils;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,176 +39,176 @@ import java.util.Map;
  */
 public class Response implements Closeable {
 
-  private final int code;
-  private final String message;
-  private final Map<String, String> headers;
-  private String body;
-  private InputStream stream;
-  private Closeable[] closeables;
-  private boolean closed;
+    private final int code;
+    private final String message;
+    private final Map<String, String> headers;
+    private String body;
+    private InputStream stream;
+    private Closeable[] closeables;
+    private boolean closed;
 
-  private Response(int code, String message, Map<String, String> headers) {
-    this.code = code;
-    this.message = message;
-    this.headers = headers;
-  }
-
-  /**
-   * Constructeur avec flux de données.
-   *
-   * @param code Le code de statut HTTP.
-   * @param message Le message de statut.
-   * @param headers Le dictionnaire des en-têtes.
-   * @param stream Le flux d'entrée du corps.
-   * @param closeables Objets à fermer lors de la fermeture de la réponse.
-   */
-  public Response(
-      int code,
-      String message,
-      Map<String, String> headers,
-      InputStream stream,
-      Closeable... closeables) {
-    this(code, message, headers);
-    this.stream = stream;
-    this.closeables = closeables;
-  }
-
-  /**
-   * Constructeur avec corps textuel déjà lu.
-   *
-   * @param code Le code de statut HTTP.
-   * @param message Le message de statut.
-   * @param headers Le dictionnaire des en-têtes.
-   * @param body Le contenu du corps sous forme de chaîne.
-   */
-  public Response(int code, String message, Map<String, String> headers, String body) {
-    this(code, message, headers);
-    this.body = body;
-  }
-
-  private String parseBodyContents() throws IOException {
-    if (stream == null) {
-      return null;
+    private Response(int code, String message, Map<String, String> headers) {
+        this.code = code;
+        this.message = message;
+        this.headers = headers;
     }
-    if ("gzip".equals(getHeader("Content-Encoding"))) {
-      body = StreamUtils.getGzipStreamContents(stream);
-    } else {
-      body = StreamUtils.getStreamContents(stream);
+
+    /**
+     * Constructeur avec flux de données.
+     *
+     * @param code       Le code de statut HTTP.
+     * @param message    Le message de statut.
+     * @param headers    Le dictionnaire des en-têtes.
+     * @param stream     Le flux d'entrée du corps.
+     * @param closeables Objets à fermer lors de la fermeture de la réponse.
+     */
+    public Response(
+            int code,
+            String message,
+            Map<String, String> headers,
+            InputStream stream,
+            Closeable... closeables) {
+        this(code, message, headers);
+        this.stream = stream;
+        this.closeables = closeables;
     }
-    return body;
-  }
 
-  /**
-   * Indique si la requête a réussi (code entre 200 et 399).
-   *
-   * @return true si le code de statut est un succès.
-   */
-  public boolean isSuccessful() {
-    return code >= 200 && code < 400;
-  }
-
-  /**
-   * Retourne le corps de la réponse sous forme de chaîne de caractères.
-   *
-   * <p>Cette méthode ferme automatiquement le flux de données sous-jacent.
-   *
-   * @return Le contenu du corps.
-   * @throws IOException en cas d'erreur de lecture.
-   */
-  public String getBody() throws IOException {
-    return body == null ? parseBodyContents() : body;
-  }
-
-  /**
-   * Retourne le flux de données brut de la réponse.
-   *
-   * @return L'{@link InputStream} du corps.
-   */
-  public InputStream getStream() {
-    return stream;
-  }
-
-  /**
-   * Retourne le code de statut HTTP.
-   *
-   * @return Le code (ex: 200, 404).
-   */
-  public int getCode() {
-    return code;
-  }
-
-  /**
-   * Retourne le message de statut HTTP.
-   *
-   * @return Le message textuel (ex: "OK", "Not Found").
-   */
-  public String getMessage() {
-    return message;
-  }
-
-  /**
-   * Retourne l'ensemble des en-têtes de la réponse.
-   *
-   * @return Un dictionnaire des en-têtes HTTP.
-   */
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
-
-  /**
-   * Récupère la valeur d'un en-tête spécifique.
-   *
-   * @param name Le nom de l'en-tête.
-   * @return La valeur de l'en-tête, ou null si absent.
-   */
-  public String getHeader(String name) {
-    return headers.get(name);
-  }
-
-  @Override
-  public String toString() {
-    return "Response{"
-        + "code="
-        + code
-        + ", message='"
-        + message
-        + '\''
-        + ", body='"
-        + body
-        + '\''
-        + ", headers="
-        + headers
-        + '}';
-  }
-
-  /**
-   * Ferme la réponse et libère les ressources associées (flux, connexions).
-   *
-   * @throws IOException en cas d'erreur lors de la fermeture.
-   */
-  @Override
-  public void close() throws IOException {
-    if (closed) {
-      return;
+    /**
+     * Constructeur avec corps textuel déjà lu.
+     *
+     * @param code    Le code de statut HTTP.
+     * @param message Le message de statut.
+     * @param headers Le dictionnaire des en-têtes.
+     * @param body    Le contenu du corps sous forme de chaîne.
+     */
+    public Response(int code, String message, Map<String, String> headers, String body) {
+        this(code, message, headers);
+        this.body = body;
     }
-    IOException ioException = null;
-    if (closeables != null) {
-      for (Closeable closeable : closeables) {
-        if (closeable == null) {
-          continue;
+
+    private String parseBodyContents() throws IOException {
+        if (stream == null) {
+            return null;
         }
-        try {
-          closeable.close();
-        } catch (IOException ioE) {
-          if (ioException != null) {
-            ioException = ioE;
-          }
+        if ("gzip".equals(getHeader("Content-Encoding"))) {
+            body = StreamUtils.getGzipStreamContents(stream);
+        } else {
+            body = StreamUtils.getStreamContents(stream);
         }
-      }
+        return body;
     }
-    if (ioException != null) {
-      throw ioException;
+
+    /**
+     * Indique si la requête a réussi (code entre 200 et 399).
+     *
+     * @return true si le code de statut est un succès.
+     */
+    public boolean isSuccessful() {
+        return code >= 200 && code < 400;
     }
-    closed = true;
-  }
+
+    /**
+     * Retourne le corps de la réponse sous forme de chaîne de caractères.
+     *
+     * <p>Cette méthode ferme automatiquement le flux de données sous-jacent.
+     *
+     * @return Le contenu du corps.
+     * @throws IOException en cas d'erreur de lecture.
+     */
+    public String getBody() throws IOException {
+        return body == null ? parseBodyContents() : body;
+    }
+
+    /**
+     * Retourne le flux de données brut de la réponse.
+     *
+     * @return L'{@link InputStream} du corps.
+     */
+    public InputStream getStream() {
+        return stream;
+    }
+
+    /**
+     * Retourne le code de statut HTTP.
+     *
+     * @return Le code (ex: 200, 404).
+     */
+    public int getCode() {
+        return code;
+    }
+
+    /**
+     * Retourne le message de statut HTTP.
+     *
+     * @return Le message textuel (ex: "OK", "Not Found").
+     */
+    public String getMessage() {
+        return message;
+    }
+
+    /**
+     * Retourne l'ensemble des en-têtes de la réponse.
+     *
+     * @return Un dictionnaire des en-têtes HTTP.
+     */
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    /**
+     * Récupère la valeur d'un en-tête spécifique.
+     *
+     * @param name Le nom de l'en-tête.
+     * @return La valeur de l'en-tête, ou null si absent.
+     */
+    public String getHeader(String name) {
+        return headers.get(name);
+    }
+
+    @Override
+    public String toString() {
+        return "Response{"
+                + "code="
+                + code
+                + ", message='"
+                + message
+                + '\''
+                + ", body='"
+                + body
+                + '\''
+                + ", headers="
+                + headers
+                + '}';
+    }
+
+    /**
+     * Ferme la réponse et libère les ressources associées (flux, connexions).
+     *
+     * @throws IOException en cas d'erreur lors de la fermeture.
+     */
+    @Override
+    public void close() throws IOException {
+        if (closed) {
+            return;
+        }
+        IOException ioException = null;
+        if (closeables != null) {
+            for (Closeable closeable : closeables) {
+                if (closeable == null) {
+                    continue;
+                }
+                try {
+                    closeable.close();
+                } catch (IOException ioE) {
+                    if (ioException != null) {
+                        ioException = ioE;
+                    }
+                }
+            }
+        }
+        if (ioException != null) {
+            throw ioException;
+        }
+        closed = true;
+    }
 }

@@ -24,55 +24,58 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.exceptions.OAuthException;
+
 import java.io.IOException;
 import java.util.Objects;
 
-/** Exception levée lorsqu'une réponse d'erreur est reçue du serveur OAuth. */
+/**
+ * Exception levée lorsqu'une réponse d'erreur est reçue du serveur OAuth.
+ */
 public class OAuthResponseException extends OAuthException {
 
-  private static final long serialVersionUID = 1309424849700276816L;
+    private static final long serialVersionUID = 1309424849700276816L;
 
-  private final transient Response response;
+    private final transient Response response;
 
-  /**
-   * Constructeur à partir d'une réponse brute.
-   *
-   * @param rawResponse La réponse HTTP d'erreur.
-   * @throws IOException en cas d'erreur lors de la lecture du corps de la réponse.
-   */
-  public OAuthResponseException(Response rawResponse) throws IOException {
-    super(rawResponse.getBody());
-    this.response = rawResponse;
-  }
-
-  /**
-   * Retourne la réponse HTTP associée à cette exception.
-   *
-   * @return La réponse {@link Response}.
-   */
-  public Response getResponse() {
-    return response;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 5;
-    hash = 29 * hash + Objects.hashCode(response);
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
+    /**
+     * Constructeur à partir d'une réponse brute.
+     *
+     * @param rawResponse La réponse HTTP d'erreur.
+     * @throws IOException en cas d'erreur lors de la lecture du corps de la réponse.
+     */
+    public OAuthResponseException(Response rawResponse) throws IOException {
+        super(rawResponse.getBody());
+        this.response = rawResponse;
     }
-    if (obj == null) {
-      return false;
+
+    /**
+     * Retourne la réponse HTTP associée à cette exception.
+     *
+     * @return La réponse {@link Response}.
+     */
+    public Response getResponse() {
+        return response;
     }
-    if (getClass() != obj.getClass()) {
-      return false;
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + Objects.hashCode(response);
+        return hash;
     }
-    final OAuthResponseException other = (OAuthResponseException) obj;
-    return Objects.equals(this.response, other.response);
-  }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final OAuthResponseException other = (OAuthResponseException) obj;
+        return Objects.equals(this.response, other.response);
+    }
 }
