@@ -28,14 +28,35 @@ import com.github.scribejava.core.model.DeviceAuthorization;
 import com.github.scribejava.core.model.Response;
 import java.io.IOException;
 
+/**
+ * Extracteur JSON pour les réponses d'autorisation d'appareil (Device Authorization).
+ *
+ * <p>Cette classe analyse la réponse JSON du serveur d'autorisation contenant les codes pour le
+ * flux appareil.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628 (OAuth 2.0 Device Authorization
+ *     Grant)</a>
+ */
 public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
 
   protected DeviceAuthorizationJsonExtractor() {}
 
+  /**
+   * Retourne l'instance unique de l'extracteur.
+   *
+   * @return L'instance {@link DeviceAuthorizationJsonExtractor}.
+   */
   public static DeviceAuthorizationJsonExtractor instance() {
     return InstanceHolder.INSTANCE;
   }
 
+  /**
+   * Extrait les informations d'autorisation d'appareil à partir de la réponse HTTP.
+   *
+   * @param response La réponse HTTP du serveur.
+   * @return Un objet {@link DeviceAuthorization}.
+   * @throws IOException si l'extraction échoue ou si le serveur retourne une erreur.
+   */
   public DeviceAuthorization extract(Response response) throws IOException {
     if (response.getCode() != 200) {
       generateError(response);
@@ -43,6 +64,12 @@ public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor {
     return createDeviceAuthorization(response.getBody());
   }
 
+  /**
+   * Génère une exception d'erreur à partir de la réponse.
+   *
+   * @param response La réponse HTTP.
+   * @throws IOException l'exception d'erreur générée.
+   */
   public void generateError(Response response) throws IOException {
     OAuth2AccessTokenJsonExtractor.instance().generateError(response);
   }

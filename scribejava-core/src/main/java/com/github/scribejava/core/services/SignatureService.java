@@ -39,5 +39,10 @@ public interface SignatureService {
    */
   String getSignature(String baseString, String apiSecret, String tokenSecret);
 
+  /**
+   * Retourne le nom de la méthode de signature (ex: HMAC-SHA1).
+   *
+   * @return Le nom de la méthode.
+   */
   String getSignatureMethod();
 }

@@ -32,7 +32,13 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Custom implementation of {@link TokenExtractor} for OAuth 2.0 */
+/**
+ * Extracteur par défaut des jetons d'accès OAuth 2.0 pour les réponses au format
+ * application/x-www-form-urlencoded.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC 6749, Section 5.1 (Successful
+ *     Response)</a>
+ */
 public class OAuth2AccessTokenExtractor implements TokenExtractor<OAuth2AccessToken> {
 
   private static final Pattern ACCESS_TOKEN_REGEX_PATTERN = Pattern.compile("access_token=([^&]+)");
@@ -44,6 +50,11 @@ public class OAuth2AccessTokenExtractor implements TokenExtractor<OAuth2AccessTo
 
   protected OAuth2AccessTokenExtractor() {}
 
+  /**
+   * Retourne l'instance unique de l'extracteur.
+   *
+   * @return L'instance {@link OAuth2AccessTokenExtractor}.
+   */
   public static OAuth2AccessTokenExtractor instance() {
     return InstanceHolder.INSTANCE;
   }

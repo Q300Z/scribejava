@@ -29,6 +29,12 @@ import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.OutputStream;
 
+/**
+ * Interface pour le constructeur de services OAuth 2.0.
+ *
+ * <p>Fournit des méthodes fluides pour configurer et construire une instance de {@link
+ * OAuth20Service}.
+ */
 public interface ServiceBuilderOAuth20 extends ServiceBuilderCommon {
 
   @Override
@@ -58,6 +64,12 @@ public interface ServiceBuilderOAuth20 extends ServiceBuilderCommon {
   @Override
   ServiceBuilderOAuth20 debug();
 
+  /**
+   * Définit le type de réponse (response_type).
+   *
+   * @param responseType Le type de réponse (ex: "code").
+   * @return L'instance du constructeur.
+   */
   ServiceBuilderOAuth20 responseType(String responseType);
 
   /**
@@ -75,7 +87,19 @@ public interface ServiceBuilderOAuth20 extends ServiceBuilderCommon {
    */
   ServiceBuilderOAuth20 defaultScope(String defaultScope);
 
+  /**
+   * Définit la portée par défaut via un {@link ScopeBuilder}.
+   *
+   * @param scopeBuilder Le constructeur de portée.
+   * @return L'instance du constructeur.
+   */
   ServiceBuilderOAuth20 defaultScope(ScopeBuilder scopeBuilder);
 
+  /**
+   * Construit le service OAuth 2.0.
+   *
+   * @param api L'instance de l'API.
+   * @return Une nouvelle instance de {@link OAuth20Service}.
+   */
   OAuth20Service build(DefaultApi20 api);
 }

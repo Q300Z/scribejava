@@ -48,18 +48,38 @@ public class OAuth2Authorization {
    */
   private String state;
 
+  /**
+   * Retourne le code d'autorisation.
+   *
+   * @return Le code généré par le serveur.
+   */
   public String getCode() {
     return code;
   }
 
+  /**
+   * Définit le code d'autorisation.
+   *
+   * @param code Le code reçu du serveur.
+   */
   public void setCode(String code) {
     this.code = code;
   }
 
+  /**
+   * Retourne la valeur du paramètre state.
+   *
+   * @return La valeur opaque de l'état.
+   */
   public String getState() {
     return state;
   }
 
+  /**
+   * Définit la valeur du paramètre state.
+   *
+   * @param state La valeur de l'état.
+   */
   public void setState(String state) {
     this.state = state;
   }

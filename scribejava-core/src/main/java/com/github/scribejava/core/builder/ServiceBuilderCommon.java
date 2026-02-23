@@ -68,6 +68,12 @@ public interface ServiceBuilderCommon {
    */
   ServiceBuilderCommon apiSecretIsEmptyStringUnsafe();
 
+  /**
+   * Définit la configuration du client HTTP.
+   *
+   * @param httpClientConfig La configuration à utiliser.
+   * @return L'instance du constructeur.
+   */
   ServiceBuilderCommon httpClientConfig(HttpClientConfig httpClientConfig);
 
   /**
@@ -78,9 +84,26 @@ public interface ServiceBuilderCommon {
    */
   ServiceBuilderCommon httpClient(HttpClient httpClient);
 
+  /**
+   * Définit la chaîne User-Agent à utiliser pour les requêtes HTTP.
+   *
+   * @param userAgent La chaîne User-Agent.
+   * @return L'instance du constructeur.
+   */
   ServiceBuilderCommon userAgent(String userAgent);
 
+  /**
+   * Définit le flux de sortie pour le débogage.
+   *
+   * @param debugStream Le flux {@link OutputStream}.
+   * @return L'instance du constructeur.
+   */
   ServiceBuilderCommon debugStream(OutputStream debugStream);
 
+  /**
+   * Active le mode débogage en utilisant {@code System.out}.
+   *
+   * @return L'instance du constructeur.
+   */
   ServiceBuilderCommon debug();
 }

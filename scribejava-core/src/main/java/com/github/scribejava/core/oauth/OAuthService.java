@@ -42,6 +42,12 @@ import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Classe de base abstraite pour tous les services OAuth.
+ *
+ * <p>Cette classe fournit les fonctionnalités communes pour l'exécution des requêtes HTTP, la
+ * gestion de la configuration du client et le support des intercepteurs.
+ */
 public abstract class OAuthService implements Closeable {
 
   private final String apiKey;
@@ -52,6 +58,17 @@ public abstract class OAuthService implements Closeable {
   private final OutputStream debugStream;
   private final List<OAuthRequestInterceptor> interceptors = new ArrayList<>(); // ADDED
 
+  /**
+   * Constructeur.
+   *
+   * @param apiKey La clé API du client.
+   * @param apiSecret Le secret API du client.
+   * @param callback L'URL de rappel.
+   * @param debugStream Flux pour les logs de débogage.
+   * @param userAgent Chaîne User-Agent.
+   * @param httpClientConfig Configuration du client HTTP.
+   * @param httpClient L'implémentation du client HTTP.
+   */
   public OAuthService(
       String apiKey,
       String apiSecret,
@@ -83,38 +100,86 @@ public abstract class OAuthService implements Closeable {
     return null;
   }
 
+  /**
+   * Ajoute un intercepteur de requête.
+   *
+   * @param interceptor L'intercepteur à ajouter.
+   */
   public void addInterceptor(OAuthRequestInterceptor interceptor) { // ADDED
     interceptors.add(interceptor);
   }
 
+  /** {@inheritDoc} */
   @Override
   public void close() throws IOException {
     httpClient.close();
   }
 
+  /**
+   * Retourne la clé API (Client ID).
+   *
+   * @return La clé API.
+   */
   public String getApiKey() {
     return apiKey;
   }
 
+  /**
+   * Retourne le secret API (Client Secret).
+   *
+   * @return Le secret API.
+   */
   public String getApiSecret() {
     return apiSecret;
   }
 
+  /**
+   * Retourne l'URL de rappel (Redirect URI).
+   *
+   * @return L'URL de rappel.
+   */
   public String getCallback() {
     return callback;
   }
 
+  /**
+   * Retourne la version du protocole OAuth supportée par ce service.
+   *
+   * @return La version du protocole (ex: "1.0", "2.0").
+   */
   public abstract String getVersion();
 
+  /**
+   * Exécute une requête OAuth de manière asynchrone.
+   *
+   * @param request La requête à exécuter.
+   * @return Un {@link CompletableFuture} résolvant vers la réponse.
+   */
   public CompletableFuture<Response> executeAsync(OAuthRequest request) {
     return execute(request, null);
   }
 
+  /**
+   * Exécute une requête OAuth de manière asynchrone avec un rappel.
+   *
+   * @param request La requête à exécuter.
+   * @param callback Le rappel à invoquer une fois la réponse reçue.
+   * @return Un {@link CompletableFuture}.
+   */
   public CompletableFuture<Response> execute(
       OAuthRequest request, OAuthAsyncRequestCallback<Response> callback) {
     return execute(request, callback, null);
   }
 
+  /**
+   * Exécute une requête OAuth de manière asynchrone avec un rappel et un convertisseur de réponse.
+   *
+   * @param <R> Le type de l'objet converti.
+   * @param request La requête.
+   * @param callback Le rappel.
+   * @param converter Le convertisseur de réponse.
+   * @return Un {@link CompletableFuture}.
+   */
   public <R> CompletableFuture<R> execute(
       OAuthRequest request,
       OAuthAsyncRequestCallback<R> callback,
@@ -163,6 +228,15 @@ public abstract class OAuthService implements Closeable {
     }
   }
 
+  /**
+   * Exécute une requête OAuth de manière synchrone.
+   *
+   * @param request La requête à exécuter.
+   * @return La réponse reçue.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si l'exécution échoue.
+   * @throws IOException en cas d'erreur réseau.
+   */
   public Response execute(OAuthRequest request)
       throws InterruptedException, ExecutionException, IOException {
     interceptors.forEach(
@@ -200,12 +274,23 @@ public abstract class OAuthService implements Closeable {
     }
   }
 
+  /**
+   * Loggue un message dans le flux de débogage.
+   *
+   * @param message Le message à logguer.
+   */
   public void log(String message) {
     if (debugStream != null) {
       log(message, (Object[]) null);
     }
   }
 
+  /**
+   * Loggue un message formaté dans le flux de débogage.
+   *
+   * @param messagePattern Le motif du message.
+   * @param params Les paramètres du formatage.
+   */
   public void log(String messagePattern, Object... params) {
     final String message =
         params == null || params.length == 0
@@ -219,6 +304,11 @@ public abstract class OAuthService implements Closeable {
     }
   }
 
+  /**
+   * Indique si le mode débogage est activé.
+   *
+   * @return true si activé, false sinon.
+   */
   protected boolean isDebug() {
     return debugStream != null;
   }

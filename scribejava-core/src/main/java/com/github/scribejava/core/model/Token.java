@@ -36,6 +36,12 @@ public abstract class Token implements Serializable {
     this.rawResponse = rawResponse;
   }
 
+  /**
+   * Retourne la réponse brute à partir de laquelle le jeton a été extrait.
+   *
+   * @return La réponse brute.
+   * @throws IllegalStateException si le jeton n'a pas été construit avec une réponse brute.
+   */
   public String getRawResponse() {
     if (rawResponse == null) {
       throw new IllegalStateException(
@@ -44,6 +50,12 @@ public abstract class Token implements Serializable {
     return rawResponse;
   }
 
+  /**
+   * Extrait un paramètre spécifique de la réponse brute.
+   *
+   * @param parameter Le nom du paramètre à extraire.
+   * @return La valeur du paramètre ou null si non trouvé.
+   */
   public String getParameter(String parameter) {
     String value = null;
     for (String str : rawResponse.split("&")) {

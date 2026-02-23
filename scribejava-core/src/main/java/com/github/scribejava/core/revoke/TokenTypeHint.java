@@ -40,6 +40,11 @@ public enum TokenTypeHint {
     this.value = value;
   }
 
+  /**
+   * Retourne la valeur textuelle de l'indice (access_token ou refresh_token).
+   *
+   * @return La valeur de l'indice.
+   */
   public String getValue() {
     return value;
   }

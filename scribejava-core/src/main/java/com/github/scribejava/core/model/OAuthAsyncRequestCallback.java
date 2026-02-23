@@ -23,15 +23,27 @@
  */
 package com.github.scribejava.core.model;
 
+/**
+ * Interface de rappel pour les requêtes OAuth asynchrones.
+ *
+ * @param <T> Le type de la réponse attendue.
+ */
 public interface OAuthAsyncRequestCallback<T> {
 
   /**
-   * Implementations of this method should close provided response in case it implements {@link
-   * java.io.Closeable}
+   * Appelé lorsque la requête s'est terminée avec succès.
    *
-   * @param response response
+   * <p>Les implémentations doivent s'assurer de fermer la réponse si elle implémente {@link
+   * java.io.Closeable}.
+   *
+   * @param response La réponse reçue.
    */
   void onCompleted(T response);
 
+  /**
+   * Appelé lorsqu'une erreur survient lors de l'exécution de la requête.
+   *
+   * @param t L'exception levée.
+   */
   void onThrowable(Throwable t);
 }

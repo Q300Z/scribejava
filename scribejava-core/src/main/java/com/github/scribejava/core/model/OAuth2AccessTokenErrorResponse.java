@@ -38,6 +38,15 @@ public class OAuth2AccessTokenErrorResponse extends OAuthResponseException {
   private final String errorDescription;
   private final URI errorUri;
 
+  /**
+   * Constructeur.
+   *
+   * @param error Le code d'erreur OAuth 2.0.
+   * @param errorDescription Description lisible par l'homme.
+   * @param errorUri URI vers une page d'aide sur l'erreur.
+   * @param rawResponse La réponse HTTP brute.
+   * @throws IOException en cas d'erreur de lecture.
+   */
   public OAuth2AccessTokenErrorResponse(
       OAuth2Error error, String errorDescription, URI errorUri, Response rawResponse)
       throws IOException {
@@ -47,14 +56,29 @@ public class OAuth2AccessTokenErrorResponse extends OAuthResponseException {
     this.errorUri = errorUri;
   }
 
+  /**
+   * Retourne le code d'erreur (error).
+   *
+   * @return Le code d'erreur {@link OAuth2Error}.
+   */
   public OAuth2Error getError() {
     return error;
   }
 
+  /**
+   * Retourne la description de l'erreur (error_description).
+   *
+   * @return La description ou null.
+   */
   public String getErrorDescription() {
     return errorDescription;
   }
 
+  /**
+   * Retourne l'URI de l'erreur (error_uri).
+   *
+   * @return L'URI ou null.
+   */
   public URI getErrorUri() {
     return errorUri;
   }

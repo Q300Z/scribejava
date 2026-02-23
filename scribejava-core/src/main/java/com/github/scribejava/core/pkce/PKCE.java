@@ -40,30 +40,65 @@ public class PKCE {
   private PKCECodeChallengeMethod codeChallengeMethod = PKCECodeChallengeMethod.S256;
   private String codeVerifier;
 
+  /**
+   * Retourne le code challenge.
+   *
+   * @return Le code challenge.
+   */
   public String getCodeChallenge() {
     return codeChallenge;
   }
 
+  /**
+   * Définit le code challenge.
+   *
+   * @param codeChallenge Le code challenge.
+   */
   public void setCodeChallenge(String codeChallenge) {
     this.codeChallenge = codeChallenge;
   }
 
+  /**
+   * Retourne la méthode de challenge utilisée.
+   *
+   * @return La {@link PKCECodeChallengeMethod}.
+   */
   public PKCECodeChallengeMethod getCodeChallengeMethod() {
     return codeChallengeMethod;
   }
 
+  /**
+   * Définit la méthode de challenge.
+   *
+   * @param codeChallengeMethod La méthode.
+   */
   public void setCodeChallengeMethod(PKCECodeChallengeMethod codeChallengeMethod) {
     this.codeChallengeMethod = codeChallengeMethod;
   }
 
+  /**
+   * Retourne le code verifier.
+   *
+   * @return Le code verifier.
+   */
   public String getCodeVerifier() {
     return codeVerifier;
   }
 
+  /**
+   * Définit le code verifier.
+   *
+   * @param codeVerifier Le code verifier.
+   */
   public void setCodeVerifier(String codeVerifier) {
     this.codeVerifier = codeVerifier;
   }
 
+  /**
+   * Retourne les paramètres à ajouter à l'URL d'autorisation pour PKCE.
+   *
+   * @return Une map contenant code_challenge et code_challenge_method.
+   */
   public Map<String, String> getAuthorizationUrlParams() {
     final Map<String, String> params = new HashMap<>();
     params.put(PKCE_CODE_CHALLENGE_PARAM, codeChallenge);

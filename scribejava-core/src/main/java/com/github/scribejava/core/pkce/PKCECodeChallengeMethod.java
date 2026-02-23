@@ -28,6 +28,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+/**
+ * Méthodes de calcul du code_challenge pour PKCE.
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc7636#section-4.2">RFC 7636, Section 4.2 (Client
+ *     Creates the Code Challenge)</a>
+ */
 public enum PKCECodeChallengeMethod {
   S256 {
     @Override
@@ -46,6 +52,13 @@ public enum PKCECodeChallengeMethod {
     }
   };
 
+  /**
+   * Transforme le code_verifier en code_challenge selon la méthode.
+   *
+   * @param codeVerifier Le code verifier d'origine.
+   * @return Le code challenge calculé.
+   * @throws NoSuchAlgorithmException si l'algorithme de hachage n'est pas disponible.
+   */
   public abstract String transform2CodeChallenge(String codeVerifier)
       throws NoSuchAlgorithmException;
 }

@@ -143,11 +143,21 @@ public class OAuth20Service extends OAuthService {
     this.pushedAuthHandler = new OAuth20PushedAuthHandler(this);
   }
 
+  /**
+   * Définit le convertisseur de requête d'autorisation.
+   *
+   * @param authorizationRequestConverter Le convertisseur à utiliser.
+   */
   public void setAuthorizationRequestConverter(
       AuthorizationRequestConverter authorizationRequestConverter) {
     this.authorizationRequestConverter = authorizationRequestConverter;
   }
 
+  /**
+   * Retourne le convertisseur de requête d'autorisation actuel.
+   *
+   * @return Le convertisseur utilisé par ce service.
+   */
   public AuthorizationRequestConverter getAuthorizationRequestConverter() {
     return authorizationRequestConverter;
   }
@@ -237,10 +247,21 @@ public class OAuth20Service extends OAuthService {
     return new AuthorizationUrlBuilder(this);
   }
 
+  /**
+   * Retourne l'instance de l'API associée à ce service.
+   *
+   * @return L'instance {@link DefaultApi20}.
+   */
   public DefaultApi20 getApi() {
     return api;
   }
 
+  /**
+   * Extrait les informations d'autorisation à partir de l'URL de redirection.
+   *
+   * @param redirectLocation L'URL complète de redirection reçue du serveur d'autorisation.
+   * @return Un objet {@link OAuth2Authorization} contenant le code et l'état.
+   */
   public OAuth2Authorization extractAuthorization(String redirectLocation) {
     final OAuth2Authorization authorization = new OAuth2Authorization();
     int end = redirectLocation.indexOf('#');
@@ -269,10 +290,20 @@ public class OAuth20Service extends OAuthService {
     return authorization;
   }
 
+  /**
+   * Retourne le type de réponse configuré pour ce service.
+   *
+   * @return Le type de réponse (ex: "code").
+   */
   public String getResponseType() {
     return responseType;
   }
 
+  /**
+   * Retourne la portée (scope) par défaut configurée pour ce service.
+   *
+   * @return La portée par défaut.
+   */
   public String getDefaultScope() {
     return defaultScope;
   }
@@ -832,15 +863,39 @@ public class OAuth20Service extends OAuthService {
     return revocationHandler.createRevokeTokenRequest(tokenToRevoke, tokenTypeHint);
   }
 
+  /**
+   * Révoque un jeton de manière asynchrone.
+   *
+   * @param tokenToRevoke Le jeton à invalider.
+   * @return Un {@link CompletableFuture} représentant l'opération de révocation.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
   public CompletableFuture<Void> revokeTokenAsync(String tokenToRevoke) {
     return revokeTokenAsync(tokenToRevoke, null);
   }
 
+  /**
+   * Révoque un jeton de manière asynchrone avec un indice de type.
+   *
+   * @param tokenToRevoke Le jeton à invalider.
+   * @param tokenTypeHint Indice sur le type de jeton.
+   * @return Un {@link CompletableFuture}.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
   public CompletableFuture<Void> revokeTokenAsync(
       String tokenToRevoke, TokenTypeHint tokenTypeHint) {
     return revokeToken(tokenToRevoke, null, tokenTypeHint);
   }
 
+  /**
+   * Révoque un jeton de manière synchrone.
+   *
+   * @param tokenToRevoke Le jeton à invalider.
+   * @throws IOException en cas d'erreur réseau.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si l'exécution échoue.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
   public void revokeToken(String tokenToRevoke)
       throws IOException, InterruptedException, ExecutionException {
     revokeToken(tokenToRevoke, (TokenTypeHint) null);
@@ -861,11 +916,28 @@ public class OAuth20Service extends OAuthService {
     revocationHandler.revokeToken(tokenToRevoke, tokenTypeHint);
   }
 
+  /**
+   * Révoque un jeton de manière asynchrone avec un rappel.
+   *
+   * @param tokenToRevoke Le jeton à invalider.
+   * @param callback Le rappel à invoquer après l'opération.
+   * @return Un {@link CompletableFuture}.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
   public CompletableFuture<Void> revokeToken(
       String tokenToRevoke, OAuthAsyncRequestCallback<Void> callback) {
     return revokeToken(tokenToRevoke, callback, null);
   }
 
+  /**
+   * Révoque un jeton de manière asynchrone avec un rappel et un indice de type.
+   *
+   * @param tokenToRevoke Le jeton à invalider.
+   * @param callback Le rappel.
+   * @param tokenTypeHint Indice optionnel sur le type de jeton.
+   * @return Un {@link CompletableFuture}.
+   * @see <a href="https://tools.ietf.org/html/rfc7009">RFC 7009 (Token Revocation)</a>
+   */
   public CompletableFuture<Void> revokeToken(
       String tokenToRevoke, OAuthAsyncRequestCallback<Void> callback, TokenTypeHint tokenTypeHint) {
     final OAuthRequest request = createRevokeTokenRequest(tokenToRevoke, tokenTypeHint);
@@ -893,13 +965,13 @@ public class OAuth20Service extends OAuthService {
   }
 
   /**
-   * Requests a set of verification codes from the authorization server with the default scope
+   * Demande des codes d'autorisation pour le flux appareil (Device Flow) de manière synchrone.
    *
-   * @return DeviceAuthorization
-   * @throws InterruptedException InterruptedException
-   * @throws ExecutionException ExecutionException
-   * @throws IOException IOException
-   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628</a>
+   * @return Un objet {@link DeviceAuthorization} contenant les codes.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si la requête échoue.
+   * @throws IOException en cas d'erreur réseau.
+   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628, Section 3.1</a>
    */
   public DeviceAuthorization getDeviceAuthorizationCodes()
       throws InterruptedException, ExecutionException, IOException {
@@ -907,26 +979,38 @@ public class OAuth20Service extends OAuthService {
   }
 
   /**
-   * Demande un ensemble de codes de vérification au serveur d'autorisation pour le flux appareil.
+   * Demande des codes d'autorisation pour le flux appareil avec une portée spécifique.
    *
-   * @param scope La portée de la demande.
-   * @return Un objet {@link DeviceAuthorization} contenant les codes utilisateur et appareil.
+   * @param scope La portée demandée.
+   * @return Un objet {@link DeviceAuthorization}.
    * @throws InterruptedException si le thread est interrompu.
    * @throws ExecutionException si la requête échoue.
    * @throws IOException en cas d'erreur réseau.
-   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628, Section 3.1 (Device
-   *     Authorization Request)</a>
+   * @see <a href="https://tools.ietf.org/html/rfc8628#section-3.1">RFC 8628, Section 3.1</a>
    */
   public DeviceAuthorization getDeviceAuthorizationCodes(String scope)
       throws InterruptedException, ExecutionException, IOException {
     return deviceFlowHandler.getDeviceAuthorizationCodes(scope);
   }
 
+  /**
+   * Demande des codes d'autorisation appareil de manière asynchrone avec un rappel.
+   *
+   * @param callback Le rappel.
+   * @return Un {@link CompletableFuture}.
+   */
   public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodes(
       OAuthAsyncRequestCallback<DeviceAuthorization> callback) {
     return getDeviceAuthorizationCodes(null, callback);
   }
 
+  /**
+   * Demande des codes d'autorisation appareil de manière asynchrone avec une portée et un rappel.
+   *
+   * @param scope La portée.
+   * @param callback Le rappel.
+   * @return Un {@link CompletableFuture}.
+   */
   public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodes(
       String scope, OAuthAsyncRequestCallback<DeviceAuthorization> callback) {
     final OAuthRequest request = createDeviceAuthorizationCodesRequest(scope);
@@ -945,10 +1029,21 @@ public class OAuth20Service extends OAuthService {
         });
   }
 
+  /**
+   * Demande des codes d'autorisation appareil de manière asynchrone.
+   *
+   * @return Un {@link CompletableFuture}.
+   */
   public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodesAsync() {
     return getDeviceAuthorizationCodesAsync(null);
   }
 
+  /**
+   * Demande des codes d'autorisation appareil de manière asynchrone avec une portée.
+   *
+   * @param scope La portée.
+   * @return Un {@link CompletableFuture}.
+   */
   public CompletableFuture<DeviceAuthorization> getDeviceAuthorizationCodesAsync(String scope) {
     return getDeviceAuthorizationCodes(scope, null);
   }
@@ -965,22 +1060,13 @@ public class OAuth20Service extends OAuthService {
   }
 
   /**
-   * Attempts to get a token from a server.
+   * Obtient un jeton d'accès pour le flux appareil de manière synchrone.
    *
-   * <p>Function {@link
-   * #pollAccessTokenDeviceAuthorizationGrant(com.github.scribejava.core.model.DeviceAuthorization)}
-   * is usually used instead of this.
-   *
-   * @param deviceAuthorization deviceAuthorization
-   * @return token
-   * @throws java.lang.InterruptedException InterruptedException
-   * @throws java.util.concurrent.ExecutionException ExecutionException
-   * @throws java.io.IOException IOException
-   * @throws OAuth2AccessTokenErrorResponse If {@link OAuth2AccessTokenErrorResponse#getError()} is
-   *     {@link com.github.scribejava.core.oauth2.OAuth2Error#AUTHORIZATION_PENDING} or {@link
-   *     com.github.scribejava.core.oauth2.OAuth2Error#SLOW_DOWN}, another attempt should be made
-   *     after a while.
-   * @see #getDeviceAuthorizationCodes()
+   * @param deviceAuthorization Les informations d'autorisation appareil obtenues précédemment.
+   * @return Le jeton d'accès.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si la requête échoue.
+   * @throws IOException en cas d'erreur réseau.
    */
   public OAuth2AccessToken getAccessTokenDeviceAuthorizationGrant(
       DeviceAuthorization deviceAuthorization)
@@ -998,6 +1084,13 @@ public class OAuth20Service extends OAuthService {
     }
   }
 
+  /**
+   * Obtient un jeton d'accès pour le flux appareil de manière asynchrone avec un rappel.
+   *
+   * @param deviceAuthorization Les informations d'autorisation appareil.
+   * @param callback Le rappel.
+   * @return Un {@link CompletableFuture}.
+   */
   public CompletableFuture<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrant(
       DeviceAuthorization deviceAuthorization,
       OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
@@ -1017,22 +1110,25 @@ public class OAuth20Service extends OAuthService {
         });
   }
 
+  /**
+   * Obtient un jeton d'accès pour le flux appareil de manière asynchrone.
+   *
+   * @param deviceAuthorization Les informations d'autorisation appareil.
+   * @return Un {@link CompletableFuture}.
+   */
   public CompletableFuture<OAuth2AccessToken> getAccessTokenDeviceAuthorizationGrantAsync(
       DeviceAuthorization deviceAuthorization) {
     return getAccessTokenDeviceAuthorizationGrant(deviceAuthorization, null);
   }
 
   /**
-   * Periodically tries to get a token from a server (waiting for the user to give consent). Sync
-   * only version. No Async variants yet, one should implement async scenarios themselves.
+   * Interroge périodiquement le serveur pour obtenir un jeton d'accès (Device Flow).
    *
-   * @param deviceAuthorization deviceAuthorization
-   * @return token
-   * @throws java.lang.InterruptedException InterruptedException
-   * @throws java.util.concurrent.ExecutionException ExecutionException
-   * @throws java.io.IOException IOException
-   * @throws OAuth2AccessTokenErrorResponse Indicates OAuth error.
-   * @see #getDeviceAuthorizationCodes()
+   * @param deviceAuthorization Les informations d'autorisation appareil.
+   * @return Le jeton d'accès une fois obtenu.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si la requête échoue.
+   * @throws IOException en cas d'erreur réseau.
    */
   public OAuth2AccessToken pollAccessTokenDeviceAuthorizationGrant(
       DeviceAuthorization deviceAuthorization)
@@ -1040,6 +1136,18 @@ public class OAuth20Service extends OAuthService {
     return deviceFlowHandler.pollAccessTokenDeviceAuthorizationGrant(deviceAuthorization);
   }
 
+  /**
+   * Envoie une requête d'autorisation poussée (PAR) de manière asynchrone.
+   *
+   * @param responseType Type de réponse demandé.
+   * @param apiKey Clé API du client.
+   * @param callback URL de rappel.
+   * @param scope Portée demandée.
+   * @param state État opaque.
+   * @param additionalParams Paramètres additionnels.
+   * @return Un {@link CompletableFuture}.
+   * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126 (OAuth 2.0 PAR)</a>
+   */
   public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(
       String responseType,
       String apiKey,
@@ -1052,19 +1160,16 @@ public class OAuth20Service extends OAuthService {
   }
 
   /**
-   * Envoie une requête d'autorisation poussée (PAR) de manière asynchrone.
+   * Envoie une requête d'autorisation poussée (PAR) de manière asynchrone avec un rappel.
    *
-   * <p>Permet de transmettre les paramètres d'autorisation directement au serveur avant la
-   * redirection du navigateur.
-   *
-   * @param responseType Le type de réponse (ex: "code").
+   * @param responseType Le type de réponse.
    * @param apiKey Le Client ID.
    * @param callback L'URI de redirection.
-   * @param scope La portée demandée.
-   * @param state L'état opaque.
+   * @param scope La portée.
+   * @param state L'état.
    * @param additionalParams Paramètres additionnels.
-   * @param callbackConsumer Rappel optionnel pour le résultat.
-   * @return Un {@link CompletableFuture} résolvant vers {@link PushedAuthorizationResponse}.
+   * @param callbackConsumer Le rappel à invoquer.
+   * @return Un {@link CompletableFuture}.
    * @see <a href="https://tools.ietf.org/html/rfc9126">RFC 9126 (OAuth 2.0 PAR)</a>
    */
   public CompletableFuture<PushedAuthorizationResponse> pushAuthorizationRequestAsync(

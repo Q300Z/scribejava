@@ -38,6 +38,13 @@ public class PushedAuthorizationResponse {
   private final Long expiresIn;
   private final String rawResponse;
 
+  /**
+   * Constructeur.
+   *
+   * @param requestUri L'URI de la requête poussée.
+   * @param expiresIn Durée de validité de l'URI en secondes.
+   * @param rawResponse La réponse JSON brute.
+   */
   public PushedAuthorizationResponse(String requestUri, Long expiresIn, String rawResponse) {
     Preconditions.checkEmptyString(requestUri, "request_uri cannot be null or empty");
     this.requestUri = requestUri;
@@ -45,6 +52,15 @@ public class PushedAuthorizationResponse {
     this.rawResponse = rawResponse;
   }
 
+  /**
+   * Analyse le corps de la réponse JSON pour créer une instance.
+   *
+   * @param responseBody Le corps de la réponse HTTP.
+   * @return Une instance de {@link PushedAuthorizationResponse}.
+   * @throws IOException si l'analyse JSON échoue.
+   * @see <a href="https://tools.ietf.org/html/rfc9126#section-2.2">RFC 9126, Section 2.2
+   *     (Successful Response)</a>
+   */
   public static PushedAuthorizationResponse parse(String responseBody) throws IOException {
     Preconditions.checkEmptyString(
         responseBody, "Response body is incorrect. Can't parse an empty string.");
@@ -65,14 +81,29 @@ public class PushedAuthorizationResponse {
         responseBody);
   }
 
+  /**
+   * Retourne l'URI de la requête (request_uri).
+   *
+   * @return L'URI générée par le serveur.
+   */
   public String getRequestUri() {
     return requestUri;
   }
 
+  /**
+   * Retourne le délai d'expiration (expires_in).
+   *
+   * @return Le délai en secondes.
+   */
   public Long getExpiresIn() {
     return expiresIn;
   }
 
+  /**
+   * Retourne la réponse brute.
+   *
+   * @return La chaîne JSON reçue.
+   */
   public String getRawResponse() {
     return rawResponse;
   }

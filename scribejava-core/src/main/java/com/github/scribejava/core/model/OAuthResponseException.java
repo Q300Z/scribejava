@@ -27,17 +27,29 @@ import com.github.scribejava.core.exceptions.OAuthException;
 import java.io.IOException;
 import java.util.Objects;
 
+/** Exception levée lorsqu'une réponse d'erreur est reçue du serveur OAuth. */
 public class OAuthResponseException extends OAuthException {
 
   private static final long serialVersionUID = 1309424849700276816L;
 
   private final transient Response response;
 
+  /**
+   * Constructeur à partir d'une réponse brute.
+   *
+   * @param rawResponse La réponse HTTP d'erreur.
+   * @throws IOException en cas d'erreur lors de la lecture du corps de la réponse.
+   */
   public OAuthResponseException(Response rawResponse) throws IOException {
     super(rawResponse.getBody());
     this.response = rawResponse;
   }
 
+  /**
+   * Retourne la réponse HTTP associée à cette exception.
+   *
+   * @return La réponse {@link Response}.
+   */
   public Response getResponse() {
     return response;
   }
