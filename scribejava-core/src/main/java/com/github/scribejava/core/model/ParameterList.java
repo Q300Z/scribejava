@@ -124,7 +124,7 @@ public class ParameterList {
   /**
    * Analyse une QueryString et ajoute les paramètres extraits à la liste.
    *
-   * @param queryString La chaîne de requête (ex: "a=1&b=2").
+   * @param queryString La chaîne de requête (ex: "a=1&amp;b=2").
    */
   public void addQuerystring(String queryString) {
     if (queryString != null && !queryString.isEmpty()) {

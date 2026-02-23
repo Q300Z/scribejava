@@ -25,6 +25,7 @@ package com.github.scribejava.core.builder;
 
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
+import com.github.scribejava.core.oauth.OAuthService;
 import java.io.OutputStream;
 
 /**

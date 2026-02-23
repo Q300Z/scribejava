@@ -36,7 +36,9 @@ import org.junit.jupiter.api.Test;
 /** Tests détaillés pour la gestion des payloads Multipart complexes. */
 public class MultipartPayloadDetailedTest {
 
-  /** Vérifie la génération correcte d'un corps Multipart contenant une partie Multipart imbriquée. */
+  /**
+   * Vérifie la génération correcte d'un corps Multipart contenant une partie Multipart imbriquée.
+   */
   @Test
   public void shouldHandleNestedMultipart() throws IOException {
     final String outerBoundary = "outer-boundary";
@@ -62,9 +64,7 @@ public class MultipartPayloadDetailedTest {
     assertThat(result).contains("outer-epilogue");
   }
 
-  /**
-   * Vérifie que l'utilisation du même séparateur pour le parent et l'enfant lève une exception.
-   */
+  /** Vérifie que l'utilisation du même séparateur pour le parent et l'enfant lève une exception. */
   @Test
   public void shouldThrowWhenBoundariesAreSame() {
     final String boundary = "same-boundary";

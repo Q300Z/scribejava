@@ -79,7 +79,9 @@ public class CoreExtractorsEdgeCasesTest {
     assertEquals(5, auth.getIntervalSeconds());
   }
 
-  /** Vérifie que l'absence de paramètres obligatoires dans l'autorisation appareil lève une erreur. */
+  /**
+   * Vérifie que l'absence de paramètres obligatoires dans l'autorisation appareil lève une erreur.
+   */
   @Test(expected = com.github.scribejava.core.exceptions.OAuthException.class)
   public void shouldThrowExceptionWhenRequiredParamMissingInDeviceAuth() throws IOException {
     final String json = "{\"device_code\":\"dc123\"}";
