@@ -49,6 +49,7 @@ graph TD
     subgraph Extensions
         C --> O[scribejava-oidc]
         C --> A[scribejava-apis]
+        C --> I[scribejava-integration-helpers]
     end
     subgraph Transport
         C --> H1[scribejava-httpclient-okhttp]
@@ -181,6 +182,12 @@ Puis ajoutez la dépendance :
     <artifactId>scribejava-core</artifactId>
     <version>9.0.0</version>
 </dependency>
+<!-- Optionnel : Pour faciliter l'intégration (Auto-refresh, Storage) -->
+<dependency>
+    <groupId>com.github.scribejava</groupId>
+    <artifactId>scribejava-integration-helpers</artifactId>
+    <version>9.0.0</version>
+</dependency>
 ```
 
 > 🛠️ **Un problème lors de l'installation ou du build ?** Consultez le **[Guide de Dépannage](./TROUBLESHOOTING.md)**.
@@ -209,8 +216,7 @@ dependencies {
 * 🤝 **[Guide du Contributeur](CONTRIBUTING.md)** - Architecture et Standards.
 * 🛡️ **[Sécurité Avancée (DPoP/PAR)](ADVANCED_SECURITY.md)** - Guide de mise en production.
 * 🛠️ **[Dépannage & Logs](TROUBLESHOOTING.md)** - Solutions aux erreurs et Débogage.
-* 📖 **Modules
-  ** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Catalogue APIs](./scribejava-apis/README.md)
+* 📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Helpers d'Intégration](./scribejava-integration-helpers/README.md) | [Catalogue APIs](./scribejava-apis/README.md)
 * 🎯 **Exemples** :
   * [OAuth 2.0 GitHub avec PKCE](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/GitHubExample.java)
   * [OpenID Connect avec Découverte Dynamique](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/OidcDiscoveryExample.java)

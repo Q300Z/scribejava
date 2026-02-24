@@ -23,6 +23,7 @@
     <module>scribejava-oidc</module>
     <module>scribejava-httpclient-okhttp</module>
     <module>scribejava-httpclient-armeria</module>
+    <module>scribejava-integration-helpers</module>
   </modules>
 
   <licenses>
