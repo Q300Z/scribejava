@@ -51,10 +51,59 @@ graph TD
 ### Ajouter une fonctionnalité
 
 * **Nouveau Grant** : Implémentez `OAuth20Grant` dans `com.github.scribejava.core.oauth2.grant`.
-* **Nouveau Provider** : Étendez `DefaultApi20` dans `scribejava-apis`. **Note** : Privilégiez systématiquement
-  `OAuth2AccessTokenJsonExtractor` pour les nouveaux fournisseurs.
+* **Nouveau Provider (API)** : Voir le [Guide d'ajout d'une API](#-guide-dajout-dun-nouveau-fournisseur-api) ci-dessous.
 * **Tests** : Les nouveaux tests doivent être placés dans le module correspondant. Utilisez `MockWebServer` pour simuler
   les réponses du serveur OAuth.
+
+---
+
+## 🔌 Guide d'ajout d'un nouveau Fournisseur (API)
+
+L'ajout d'un support pour un nouveau service (ex: Slack, Discord, LinkedIn) se fait dans le module `scribejava-apis`.
+
+### 1. Création de la classe API
+Créez une classe dans le package `com.github.scribejava.apis` (ou un sous-package si complexe) héritant de `DefaultApi20`.
+
+```java
+public class MyNewApi extends DefaultApi20 {
+
+    protected MyNewApi() {
+    }
+
+    private static class InstanceHolder {
+        private static final MyNewApi INSTANCE = new MyNewApi();
+    }
+
+    public static MyNewApi instance() {
+        return InstanceHolder.INSTANCE;
+    }
+
+    @Override
+    public String getAccessTokenEndpoint() {
+        return "https://api.monservice.com/oauth/token";
+    }
+
+    @Override
+    protected String getAuthorizationBaseUrl() {
+        return "https://www.monservice.com/oauth/authorize";
+    }
+}
+```
+
+### 2. Bonnes pratiques pour l'API
+*   **Singleton** : Utilisez toujours le pattern `InstanceHolder` pour garantir l'unicité.
+*   **Extracteur** : Par défaut, `DefaultApi20` utilise l'extracteur JSON standard. Si le service renvoie un format exotique, surchargez `getAccessTokenExtractor()`.
+*   **Verbes HTTP** : Si le service exige un `GET` pour le token (rare mais arrive), surchargez `getAccessTokenVerb()`.
+
+### 3. Ajout d'un Exemple
+Créez une classe d'exemple dans `src/test/java/com/github/scribejava/apis/examples/MyNewApiExample.java`.
+Cela permet aux utilisateurs de tester rapidement et sert de documentation vivante.
+
+### 4. Validation & Tests
+*   **ReflectiveApiTest** : Ajoutez votre nouvelle classe à la liste des APIs testées par réflexion pour vérifier que les URLs ne sont pas nulles.
+*   **Unit Tests** : Si votre API a une logique spécifique (ex: signature particulière, paramètres obligatoires), ajoutez un test unitaire dédié.
+
+---
 
 ### Standards & Qualité
 
