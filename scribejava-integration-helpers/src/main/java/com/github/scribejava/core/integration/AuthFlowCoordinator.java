@@ -40,6 +40,7 @@ public class AuthFlowCoordinator<K> {
 
   private final OAuth20Service oauthService;
   private final TokenRepository<K, ExpiringTokenWrapper> repository;
+  private AuthEventListener<K> listener;
 
   /**
    * @param oauthService service
@@ -49,6 +50,13 @@ public class AuthFlowCoordinator<K> {
       OAuth20Service oauthService, TokenRepository<K, ExpiringTokenWrapper> repository) {
     this.oauthService = Objects.requireNonNull(oauthService);
     this.repository = Objects.requireNonNull(repository);
+  }
+
+  /**
+   * @param listener listener
+   */
+  public void setListener(AuthEventListener<K> listener) {
+    this.listener = listener;
   }
 
   /**
@@ -67,7 +75,14 @@ public class AuthFlowCoordinator<K> {
   public AuthResult finishAuthorization(
       K key, String code, String receivedState, String expectedState)
       throws IOException, InterruptedException, ExecutionException {
-    validateState(receivedState, expectedState);
+    try {
+      validateState(key, receivedState, expectedState);
+    } catch (SecurityException e) {
+      if (listener != null) {
+        listener.onCsrfDetected(key, receivedState, expectedState);
+      }
+      throw e;
+    }
 
     final OAuth2AccessToken token = oauthService.getAccessToken(new AuthorizationCodeGrant(code));
     repository.save(key, new ExpiringTokenWrapper(token));
@@ -75,7 +90,7 @@ public class AuthFlowCoordinator<K> {
     return new AuthResult(token);
   }
 
-  private void validateState(String received, String expected) {
+  private void validateState(K key, String received, String expected) {
     if (expected == null || !expected.equals(received)) {
       throw new SecurityException("CSRF Detected! Invalid state parameter.");
     }

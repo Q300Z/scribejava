@@ -41,6 +41,7 @@ public class TokenAutoRenewer<K> {
   private final TokenRepository<K, ExpiringTokenWrapper> repository;
   private final Function<OAuth2AccessToken, OAuth2AccessToken> refreshFunction;
   private final int expirationBufferSeconds;
+  private AuthEventListener<K> listener;
 
   private final ConcurrentHashMap<K, Lock> locks = new ConcurrentHashMap<>();
 
@@ -66,6 +67,13 @@ public class TokenAutoRenewer<K> {
     this.repository = Objects.requireNonNull(repository);
     this.refreshFunction = Objects.requireNonNull(refreshFunction);
     this.expirationBufferSeconds = expirationBufferSeconds;
+  }
+
+  /**
+   * @param listener listener
+   */
+  public void setListener(AuthEventListener<K> listener) {
+    this.listener = listener;
   }
 
   /**
@@ -98,9 +106,20 @@ public class TokenAutoRenewer<K> {
         return wrapper.getToken();
       }
 
-      final OAuth2AccessToken newToken = refreshFunction.apply(wrapper.getToken());
-      repository.save(key, new ExpiringTokenWrapper(newToken));
-      return newToken;
+      try {
+        final OAuth2AccessToken newToken = refreshFunction.apply(wrapper.getToken());
+        final ExpiringTokenWrapper newWrapper = new ExpiringTokenWrapper(newToken);
+        repository.save(key, newWrapper);
+        if (listener != null) {
+          listener.onTokenRefreshed(key, newWrapper);
+        }
+        return newToken;
+      } catch (Exception e) {
+        if (listener != null) {
+          listener.onRefreshFailed(key, e);
+        }
+        throw e;
+      }
     } finally {
       lock.unlock();
     }

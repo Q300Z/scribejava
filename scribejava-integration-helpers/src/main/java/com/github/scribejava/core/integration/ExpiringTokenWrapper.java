@@ -37,6 +37,13 @@ public class ExpiringTokenWrapper {
   private final Instant receivedAt;
   private final Instant expirationInstant;
 
+  /** Constructeur par défaut pour la sérialisation. */
+  protected ExpiringTokenWrapper() {
+    this.token = null;
+    this.receivedAt = null;
+    this.expirationInstant = null;
+  }
+
   /**
    * @param token token
    */
