@@ -13,3 +13,7 @@ nbproject
 
 # Binaries
 target
+
+# Local CI artifacts
+ci-logs/
+docs-output/
