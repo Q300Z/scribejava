@@ -73,6 +73,9 @@ ScribeJava repose sur trois piliers fondamentaux :
 ### 1. OAuth 2.0 Standard (Authorization Code)
 Utilisé pour les applications web et mobiles. **PKCE** est fortement recommandé.
 
+*   **Valeurs obligatoires** : `clientId`, `code` (obtenu après redirection).
+*   **Recommandé** : `apiSecret` (pour les serveurs), `callback` (URL de retour), `PKCE`.
+
 ```java
 // Configuration
 OAuth20Service service = new ServiceBuilder(clientId)
@@ -95,10 +98,13 @@ OAuth2AccessToken token = service.getAccessToken(grant);
 ### 2. OAuth 2.0 Device Flow (RFC 8628)
 Idéal pour les appareils sans clavier ou navigateur (Smart TV, CLI, IoT).
 
+*   **Valeurs obligatoires** : `clientId`, `scope`.
+*   **Fonctionnement** : Pas de secret client ni de callback requis.
+
 ```java
 OAuth20Service service = new ServiceBuilder(clientId).build(GoogleApi20.instance());
 
-// 1. Demande des codes à l'appareil
+// 1. Demande des codes à l'appareil (scope obligatoire pour Google/Microsoft)
 DeviceAuthorization codes = service.getDeviceAuthorizationCodes("email profile");
 System.out.println("Allez sur " + codes.getVerificationUri() + " et entrez " + codes.getUserCode());
 
@@ -108,6 +114,9 @@ OAuth2AccessToken token = service.pollAccessToken(codes);
 
 ### 3. OpenID Connect (OIDC)
 Pour l'identité et la découverte automatique des serveurs.
+
+*   **Valeurs obligatoires** : `issuerUrl` (ex: `https://accounts.google.com`).
+*   **Avantage** : Vous n'avez pas besoin de connaître les URLs d'autorisation ou de token, elles sont découvertes.
 
 ```java
 // Découverte via l'URL de l'issuer
@@ -125,6 +134,8 @@ IdToken idToken = IdToken.parse(token.getOpenIdToken());
 ### 4. OAuth 1.0a (Legacy)
 Pour les anciens services (Twitter v1, Flickr, Tumblr).
 
+*   **Valeurs obligatoires** : `apiKey`, `apiSecret`, `oauth_verifier` (obtenu après redirection).
+
 ```java
 OAuth10aService service = new ServiceBuilder(apiKey)
     .apiSecret(apiSecret)
@@ -136,13 +147,15 @@ OAuth1RequestToken requestToken = service.getRequestToken();
 // 2. URL d'autorisation
 String authUrl = service.getAuthorizationUrl(requestToken);
 
-// 3. Échange contre l'Access Token
+// 3. Échange contre l'Access Token (verifier obligatoire)
 OAuth1AccessToken accessToken = service.getAccessToken(requestToken, oauthVerifier);
 ```
 
 ### 5. Autres Flux (Machine-to-Machine)
-*   **Client Credentials** : `service.getAccessToken(ClientCredentialsGrant.INSTANCE);`
-*   **Resource Owner Password** : `service.getAccessToken(new PasswordGrant(user, pass));`
+*   **Client Credentials** : Requiert `clientId` + `apiSecret`. Utilisé pour les scripts serveurs.
+    `service.getAccessToken(ClientCredentialsGrant.INSTANCE);`
+*   **Resource Owner Password** : Requiert `clientId`, `username`, `password`. (Déconseillé par l'IETF).
+    `service.getAccessToken(new PasswordGrant(user, pass));`
 
 ---
 
