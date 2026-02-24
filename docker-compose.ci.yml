@@ -40,7 +40,7 @@ services:
         JAVA_VERSION: 8
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GID:-1000}
-    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+    command: test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
   test-jdk11:
     <<: *test_volumes
@@ -51,11 +51,11 @@ services:
         JAVA_VERSION: 11
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GID:-1000}
-    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+    command: test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
   test-jdk17:
     <<: *test_volumes
-    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+    command: test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
   test-jdk21:
     <<: *test_volumes
@@ -66,7 +66,7 @@ services:
         JAVA_VERSION: 21
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GID:-1000}
-    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+    command: test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
   test-jdk25:
     <<: *test_volumes
@@ -77,7 +77,7 @@ services:
         JAVA_VERSION: 25
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GID:-1000}
-    command: install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+    command: test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
   docs:
     <<: *test_volumes

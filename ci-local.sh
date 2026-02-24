@@ -33,6 +33,8 @@ if ! docker compose -f docker-compose.ci.yml run --rm setup > "$LOG_DIR/setup.lo
     echo -e "  ${RED}❌ setup : FAILED (voir $LOG_DIR/setup.log)${NC}"
     exit 1
 fi
+# On force la synchronisation disque pour éviter les corruptions de cache en lecture parallèle
+sync
 
 echo -e "${BLUE}🧐 Étape 1 : Lintage et Analyse statique (JDK 17)...${NC}"
 chmod -R 777 target/ 2>/dev/null || true
