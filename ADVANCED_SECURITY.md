@@ -110,4 +110,19 @@ PushedAuthorizationResponse response = service.pushAuthorizationRequestAsync(...
 ```
 
 ---
+
+## 🏗️ 5. Resource Indicators (RFC 8707)
+
+Si votre serveur d'autorisation gère plusieurs ressources (APIs) avec des permissions distinctes, vous pouvez spécifier la ressource cible lors de la demande de jeton.
+
+### Mise en œuvre
+
+```java
+AccessTokenRequestParams params = AccessTokenRequestParams.create(code)
+    .resource("https://api.monservice.com/v1");
+
+OAuth2AccessToken token = service.getAccessToken(params);
+```
+
+---
 [⬅️ Retour à l'accueil](./README.md)

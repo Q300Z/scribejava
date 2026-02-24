@@ -58,43 +58,91 @@ graph TD
 
 ---
 
+## 🧠 Comment ça marche ?
+
+ScribeJava repose sur trois piliers fondamentaux :
+
+1.  **L'API** (`DefaultApi20`, `DefaultApi10a`) : Définit les points de terminaison (URLs) et les verbes HTTP du fournisseur (ex: GitHub, Google).
+2.  **Le Service** (`OAuth20Service`) : Gère la logique d'exécution des requêtes, la signature et l'échange de jetons.
+3.  **Le Grant** (`OAuth20Grant`) : Définit la stratégie d'obtention du jeton (Code, Mot de passe, Device Flow, Client Credentials).
+
+---
+
 ## 🚀 Démarrage Rapide
 
-### OAuth 2.0 avec PKCE (Recommandé)
+### 1. OAuth 2.0 Standard (Authorization Code)
+Utilisé pour les applications web et mobiles. **PKCE** est fortement recommandé.
 
 ```java
-// 1. Initialisation
+// Configuration
 OAuth20Service service = new ServiceBuilder(clientId)
     .apiSecret(clientSecret)
+    .callback("https://mon-app.com/callback")
     .build(GitHubApi.instance());
 
-// 2. PKCE (Sécurité renforcée)
+// Génération de l'URL d'autorisation
 PKCE pkce = PKCEService.defaultInstance().generatePKCE();
-String authUrl = service.createAuthorizationUrlBuilder().pkce(pkce).build();
+String authUrl = service.createAuthorizationUrlBuilder()
+    .pkce(pkce)
+    .build();
 
-// 3. Récupération du Token
+// Échange du code contre un jeton
 AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
 grant.setPkceCodeVerifier(pkce.getCodeVerifier());
 OAuth2AccessToken token = service.getAccessToken(grant);
-
-// 4. Appel API
-OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
-service.signRequest(token, request);
-Response response = service.execute(request);
 ```
 
-### OpenID Connect Discovery
+### 2. OAuth 2.0 Device Flow (RFC 8628)
+Idéal pour les appareils sans clavier ou navigateur (Smart TV, CLI, IoT).
 
 ```java
-// Découverte automatique des endpoints
-OidcDiscoveryService discovery = new OidcDiscoveryService(
-    "https://accounts.google.com",
-    new JDKHttpClient(JDKHttpClientConfig.defaultConfig()),
-    "MonApp/1.0"
-);
-OidcProviderMetadata metadata = discovery.getMetadata();
-OidcService service = (OidcService) new ServiceBuilder(id).build(new DefaultOidcApi20(metadata));
+OAuth20Service service = new ServiceBuilder(clientId).build(GoogleApi20.instance());
+
+// 1. Demande des codes à l'appareil
+DeviceAuthorization codes = service.getDeviceAuthorizationCodes("email profile");
+System.out.println("Allez sur " + codes.getVerificationUri() + " et entrez " + codes.getUserCode());
+
+// 2. Sondage (Polling) jusqu'à validation par l'utilisateur
+OAuth2AccessToken token = service.pollAccessToken(codes);
 ```
+
+### 3. OpenID Connect (OIDC)
+Pour l'identité et la découverte automatique des serveurs.
+
+```java
+// Découverte via l'URL de l'issuer
+OidcDiscoveryService discovery = new OidcDiscoveryService("https://accounts.google.com");
+OidcProviderMetadata metadata = discovery.getMetadata();
+
+OidcService service = (OidcService) new ServiceBuilder(clientId)
+    .build(new DefaultOidcApi20(metadata));
+
+// Le jeton contient un ID Token validable
+OpenIdOAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
+IdToken idToken = IdToken.parse(token.getOpenIdToken());
+```
+
+### 4. OAuth 1.0a (Legacy)
+Pour les anciens services (Twitter v1, Flickr, Tumblr).
+
+```java
+OAuth10aService service = new ServiceBuilder(apiKey)
+    .apiSecret(apiSecret)
+    .build(TwitterApi.instance());
+
+// 1. Obtention du Request Token
+OAuth1RequestToken requestToken = service.getRequestToken();
+
+// 2. URL d'autorisation
+String authUrl = service.getAuthorizationUrl(requestToken);
+
+// 3. Échange contre l'Access Token
+OAuth1AccessToken accessToken = service.getAccessToken(requestToken, oauthVerifier);
+```
+
+### 5. Autres Flux (Machine-to-Machine)
+*   **Client Credentials** : `service.getAccessToken(ClientCredentialsGrant.INSTANCE);`
+*   **Resource Owner Password** : `service.getAccessToken(new PasswordGrant(user, pass));`
 
 ---
 
