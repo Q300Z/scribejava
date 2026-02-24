@@ -186,6 +186,22 @@ String state = stateGenerator.generate(); // 32 octets d'entropie
 // Stockez 'state' en session et comparez-le au retour du serveur.
 ```
 
+### 3. Client Automatisé (Smart Service)
+Exécutez des appels API sans vous soucier des jetons ou de la signature.
+
+```java
+AuthorizedClientService<String> client = new AuthorizedClientService<>(service, renewer);
+Response resp = client.execute(userId, new OAuthRequest(Verb.GET, "https://api.example.com/me"));
+```
+
+### 4. Gestion du Callback
+Validez et terminez le flux d'autorisation en une seule ligne.
+
+```java
+AuthFlowCoordinator<String> coordinator = new AuthFlowCoordinator<>(service, repository);
+AuthResult result = coordinator.finishAuthorization(userId, code, stateFromUrl, stateFromSession);
+```
+
 ---
 
 ## 📦 Installation
