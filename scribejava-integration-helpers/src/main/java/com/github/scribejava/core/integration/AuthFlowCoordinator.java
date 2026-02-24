@@ -28,6 +28,7 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Coordonne la fin du flux d'autorisation (Callback). Gère la validation CSRF, l'échange du code et
@@ -40,6 +41,10 @@ public class AuthFlowCoordinator<K> {
   private final OAuth20Service oauthService;
   private final TokenRepository<K, ExpiringTokenWrapper> repository;
 
+  /**
+   * @param oauthService service
+   * @param repository repository
+   */
   public AuthFlowCoordinator(
       OAuth20Service oauthService, TokenRepository<K, ExpiringTokenWrapper> repository) {
     this.oauthService = Objects.requireNonNull(oauthService);
@@ -56,9 +61,12 @@ public class AuthFlowCoordinator<K> {
    * @return Le résultat de l'authentification.
    * @throws SecurityException Si le state est invalide (Attaque CSRF).
    * @throws IOException En cas d'erreur réseau lors de l'échange.
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
    */
   public AuthResult finishAuthorization(
-      K key, String code, String receivedState, String expectedState) throws IOException {
+      K key, String code, String receivedState, String expectedState)
+      throws IOException, InterruptedException, ExecutionException {
     validateState(receivedState, expectedState);
 
     final OAuth2AccessToken token = oauthService.getAccessToken(new AuthorizationCodeGrant(code));

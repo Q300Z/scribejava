@@ -29,10 +29,16 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 public class AuthResult {
   private final OAuth2AccessToken token;
 
+  /**
+   * @param token token
+   */
   public AuthResult(OAuth2AccessToken token) {
     this.token = token;
   }
 
+  /**
+   * @return token
+   */
   public OAuth2AccessToken getToken() {
     return token;
   }

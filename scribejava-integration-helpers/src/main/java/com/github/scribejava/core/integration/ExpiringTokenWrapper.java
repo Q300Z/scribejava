@@ -37,10 +37,17 @@ public class ExpiringTokenWrapper {
   private final Instant receivedAt;
   private final Instant expirationInstant;
 
+  /**
+   * @param token token
+   */
   public ExpiringTokenWrapper(OAuth2AccessToken token) {
     this(token, Instant.now());
   }
 
+  /**
+   * @param token token
+   * @param receivedAt receivedAt
+   */
   public ExpiringTokenWrapper(OAuth2AccessToken token, Instant receivedAt) {
     this.token = Objects.requireNonNull(token);
     this.receivedAt = Objects.requireNonNull(receivedAt);
@@ -48,22 +55,38 @@ public class ExpiringTokenWrapper {
         token.getExpiresIn() != null ? receivedAt.plusSeconds(token.getExpiresIn()) : Instant.MAX;
   }
 
+  /**
+   * @return token
+   */
   public OAuth2AccessToken getToken() {
     return token;
   }
 
+  /**
+   * @return receivedAt
+   */
   public Instant getReceivedAt() {
     return receivedAt;
   }
 
+  /**
+   * @return expirationInstant
+   */
   public Instant getExpirationInstant() {
     return expirationInstant;
   }
 
+  /**
+   * @return isExpired
+   */
   public boolean isExpired() {
     return isExpired(Instant.now());
   }
 
+  /**
+   * @param at at
+   * @return isExpired
+   */
   public boolean isExpired(Instant at) {
     return at.isAfter(expirationInstant);
   }

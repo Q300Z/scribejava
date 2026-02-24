@@ -26,6 +26,7 @@ package com.github.scribejava.core.integration;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
@@ -41,15 +42,23 @@ public class TokenAutoRenewer<K> {
   private final Function<OAuth2AccessToken, OAuth2AccessToken> refreshFunction;
   private final int expirationBufferSeconds;
 
-  // Verrous par clé pour éviter que plusieurs threads ne rafraîchissent le même utilisateur
   private final ConcurrentHashMap<K, Lock> locks = new ConcurrentHashMap<>();
 
+  /**
+   * @param repository repository
+   * @param refreshFunction refreshFunction
+   */
   public TokenAutoRenewer(
       TokenRepository<K, ExpiringTokenWrapper> repository,
       Function<OAuth2AccessToken, OAuth2AccessToken> refreshFunction) {
-    this(repository, refreshFunction, 60); // 1 minute de buffer par défaut
+    this(repository, refreshFunction, 60);
   }
 
+  /**
+   * @param repository repository
+   * @param refreshFunction refreshFunction
+   * @param expirationBufferSeconds expirationBufferSeconds
+   */
   public TokenAutoRenewer(
       TokenRepository<K, ExpiringTokenWrapper> repository,
       Function<OAuth2AccessToken, OAuth2AccessToken> refreshFunction,
@@ -60,13 +69,12 @@ public class TokenAutoRenewer<K> {
   }
 
   /**
-   * Récupère un jeton valide. S'il est expiré, tente un rafraîchissement.
-   *
-   * @param key clé unique de l'utilisateur.
-   * @return Un jeton valide.
-   * @throws RuntimeException si aucun jeton n'est trouvé ou si le rafraîchissement échoue.
+   * @param key key
+   * @return OAuth2AccessToken
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
    */
-  public OAuth2AccessToken getValidToken(K key) {
+  public OAuth2AccessToken getValidToken(K key) throws InterruptedException, ExecutionException {
     ExpiringTokenWrapper wrapper =
         repository
             .findByKey(key)
@@ -76,20 +84,22 @@ public class TokenAutoRenewer<K> {
       return wrapper.getToken();
     }
 
-    // Besoin de rafraîchir : verrouillage par utilisateur
-    Lock lock = locks.computeIfAbsent(key, k -> new ReentrantLock());
+    final Lock lock = locks.computeIfAbsent(key, k -> new ReentrantLock());
     lock.lock();
     try {
-      // Double check après verrouillage
-      wrapper = repository.findByKey(key).get();
+      // Re-fetch après acquisition du verrou
+      wrapper =
+          repository
+              .findByKey(key)
+              .orElseThrow(
+                  () -> new IllegalStateException("Token vanished while waiting for lock"));
+
       if (!wrapper.isExpiredWithBuffer(expirationBufferSeconds)) {
         return wrapper.getToken();
       }
 
-      // Exécution du rafraîchissement
-      OAuth2AccessToken newToken = refreshFunction.apply(wrapper.getToken());
-      ExpiringTokenWrapper newWrapper = new ExpiringTokenWrapper(newToken);
-      repository.save(key, newWrapper);
+      final OAuth2AccessToken newToken = refreshFunction.apply(wrapper.getToken());
+      repository.save(key, new ExpiringTokenWrapper(newToken));
       return newToken;
     } finally {
       lock.unlock();

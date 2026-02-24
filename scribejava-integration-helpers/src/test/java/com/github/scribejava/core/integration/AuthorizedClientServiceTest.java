@@ -32,12 +32,14 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 
 class AuthorizedClientServiceTest {
 
   @Test
-  void shouldFetchTokenSignAndExecuteRequest() throws IOException {
+  void shouldFetchTokenSignAndExecuteRequest()
+      throws IOException, InterruptedException, ExecutionException {
     // Given
     OAuth20Service mockOauthService = mock(OAuth20Service.class);
     TokenAutoRenewer<String> mockRenewer = mock(TokenAutoRenewer.class);

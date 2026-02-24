@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class TokenAutoRenewerTest {
   }
 
   @Test
-  void shouldReturnExistingTokenIfNotExpired() {
+  void shouldReturnExistingTokenIfNotExpired() throws InterruptedException, ExecutionException {
     // Given
     String key = "user1";
     OAuth2AccessToken token = new OAuth2AccessToken("access", null, 3600, null, null, null);
@@ -66,7 +67,7 @@ class TokenAutoRenewerTest {
   }
 
   @Test
-  void shouldRefreshTokenIfExpired() {
+  void shouldRefreshTokenIfExpired() throws InterruptedException, ExecutionException {
     // Given
     String key = "user1";
     OAuth2AccessToken oldToken = new OAuth2AccessToken("old", null, -10, "refresh", null, null);

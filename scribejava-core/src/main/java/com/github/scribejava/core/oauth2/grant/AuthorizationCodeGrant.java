@@ -57,6 +57,13 @@ public class AuthorizationCodeGrant implements OAuth20Grant {
   }
 
   /**
+   * @return Le code d'autorisation.
+   */
+  public String getCode() {
+    return code;
+  }
+
+  /**
    * Définit le vérificateur de code PKCE (code_verifier).
    *
    * @param pkceCodeVerifier La valeur brute du code_verifier.

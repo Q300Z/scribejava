@@ -58,7 +58,8 @@ class AuthFlowCoordinatorTest {
 
     // Then
     assertThat(result.getToken()).isEqualTo(token);
-    verify(mockService).getAccessToken(argThat(grant -> grant.getCode().equals(code)));
+    verify(mockService)
+        .getAccessToken(argThat((AuthorizationCodeGrant grant) -> grant.getCode().equals(code)));
     verify(mockRepo).save(eq(userId), any(ExpiringTokenWrapper.class));
   }
 

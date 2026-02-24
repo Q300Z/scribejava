@@ -29,42 +29,53 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Service de haut niveau permettant d'exécuter des requêtes authentifiées sans gérer manuellement
  * le cycle de vie du jeton.
  *
- * @param <K> Type de la clé d'identification de l'utilisateur (ex: String, Long).
+ * @param <K> Type de la clé d'identification de l'utilisateur.
  */
 public class AuthorizedClientService<K> {
 
   private final OAuth20Service oauthService;
   private final TokenAutoRenewer<K> renewer;
 
+  /**
+   * @param oauthService service
+   * @param renewer renewer
+   */
   public AuthorizedClientService(OAuth20Service oauthService, TokenAutoRenewer<K> renewer) {
     this.oauthService = Objects.requireNonNull(oauthService);
     this.renewer = Objects.requireNonNull(renewer);
   }
 
   /**
-   * Exécute une requête pour un utilisateur donné. Le jeton est récupéré, rafraîchi si nécessaire,
-   * et la requête est signée avant l'exécution.
-   *
-   * @param key Clé de l'utilisateur.
-   * @param request Requête à exécuter.
-   * @return La réponse du serveur.
-   * @throws IOException En cas d'erreur réseau.
+   * @param key key
+   * @param request request
+   * @return response
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
    */
-  public Response execute(K key, OAuthRequest request) throws IOException {
+  public Response execute(K key, OAuthRequest request)
+      throws IOException, InterruptedException, ExecutionException {
     final OAuth2AccessToken token = renewer.getValidToken(key);
     oauthService.signRequest(token, request);
     return oauthService.execute(request);
   }
 
+  /**
+   * @return oauthService
+   */
   public OAuth20Service getOauthService() {
     return oauthService;
   }
 
+  /**
+   * @return renewer
+   */
   public TokenAutoRenewer<K> getRenewer() {
     return renewer;
   }
