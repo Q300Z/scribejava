@@ -15,9 +15,15 @@ LOG_DIR="ci-logs"
 
 echo -e "${BLUE}🧹 Nettoyage des dossiers de sortie et des dossiers target...${NC}"
 rm -rf docs-output/* ci-logs/*
-find . -name "target" -type d -exec rm -rf {} + 2>/dev/null
+# On essaie de supprimer mais on ne bloque pas si Docker a encore des verrous
+find . -name "target" -type d -exec rm -rf {} + 2>/dev/null || true
+# On s'assure que les dossiers racines existent pour Maven
 mkdir -p "$LOG_DIR"
 mkdir -p "docs-output"
+mkdir -p target scribejava-core/target scribejava-apis/target \
+    scribejava-httpclient-armeria/target scribejava-httpclient-okhttp/target \
+    scribejava-oauth1/target scribejava-oidc/target \
+    scribejava-integration-helpers/target
 
 echo -e "${BLUE}🚀 Préparation : Build des images et Installation locale (JDK 17)...${NC}"
 # On force le build avec les bons arguments de permission
@@ -37,11 +43,15 @@ else
     exit 1
 fi
 
-echo -e "${BLUE}📚 Étape 2 : Génération de la documentation (JDK 17)...${NC}"
-if docker compose -f docker-compose.ci.yml run --rm docs > "$LOG_DIR/docs.log" 2>&1; then
+echo -e "${BLUE}📚 Étape 2 : Génération de la documentation (Local JDK 11)...${NC}"
+export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
+export PATH=$JAVA_HOME/bin:$PATH
+# Pré-création des dossiers pour éviter les erreurs de permission
+mkdir -p scribejava-core/target/classes
+if mvn javadoc:aggregate -Dmaven.javadoc.skip=false -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip > "$LOG_DIR/docs.log" 2>&1; then
     echo -e "  ${GREEN}✅ docs : SUCCESS${NC}"
-    echo -e "  📂 Extraction de la documentation..."
-    docker run --rm -v scribejava_docs-data:/from -v "$(pwd)/docs-output:/to" eclipse-temurin:17-jdk-jammy cp -r /from/. /to/
+    echo -e "  📂 Documentation disponible dans target/site/apidocs"
+    cp -r target/site/apidocs/. docs-output/
 else
     echo -e "  ${RED}❌ docs : FAILED (voir $LOG_DIR/docs.log)${NC}"
 fi
