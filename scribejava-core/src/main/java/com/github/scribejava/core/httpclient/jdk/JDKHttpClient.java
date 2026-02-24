@@ -28,6 +28,7 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.httpclient.multipart.MultipartUtils;
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
+import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
