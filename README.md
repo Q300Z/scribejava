@@ -160,6 +160,34 @@ OAuth1AccessToken accessToken = service.getAccessToken(requestToken, oauthVerifi
 
 ---
 
+## 🛠️ Helpers d'Intégration (Recommandé pour la Production)
+
+Pour les applications réelles, ScribeJava propose un module optionnel `scribejava-integration-helpers` qui gère les tâches complexes automatiquement.
+
+### 1. Auto-rafraîchissement des jetons
+Plus besoin de vérifier manuellement si un jeton est expiré avant chaque appel.
+
+```java
+TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(
+    repository, // Votre implémentation de stockage (DB, Redis)
+    oldToken -> service.refreshAccessToken(oldToken.getRefreshToken())
+);
+
+// Récupère un jeton valide (le rafraîchit si nécessaire de manière thread-safe)
+OAuth2AccessToken validToken = renewer.getValidToken(userId);
+```
+
+### 2. Protection CSRF simplifiée
+Générez et validez des états (`state`) sécurisés.
+
+```java
+StateGenerator stateGenerator = new StateGenerator();
+String state = stateGenerator.generate(); // 32 octets d'entropie
+// Stockez 'state' en session et comparez-le au retour du serveur.
+```
+
+---
+
 ## 📦 Installation
 
 ScribeJava est distribué via **[GitHub Releases](https://github.com/Q300Z/scribejava/releases)**.

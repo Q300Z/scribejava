@@ -57,7 +57,21 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 
 ---
 
-## 4. Débogage & Logs
+## 4. Helpers d'Intégration
+
+### ❌ `IllegalArgumentException: No token found for key`
+
+* **Cause** : Vous tentez d'utiliser `TokenAutoRenewer.getValidToken(key)` pour un utilisateur qui n'a pas encore de jeton stocké dans votre `TokenRepository`.
+* **Solution** : Avant d'utiliser le renewer, assurez-vous que l'utilisateur a effectué le flux d'autorisation complet et que vous avez sauvegardé son premier jeton via `repository.save(key, wrapper)`.
+
+### ❌ `NoSuchMethodError` lors du build (Spotless) sous JDK 25
+
+* **Cause** : Le plugin de formatage Spotless 2.43.0 (utilisant google-java-format 1.17.0) est incompatible avec les API internes du JDK 25.
+* **Solution** : Utilisez le script `./ci-local.sh` qui isole le lintage sur le JDK 17 et ne lance que les tests sur le JDK 25 via Docker.
+
+---
+
+## 5. Débogage & Logs
 
 ### 🔍 Inspecter les échanges réseau
 
