@@ -20,6 +20,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Install dependencies
+        run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
+
       - name: Static Analysis (Checkstyle, PMD, Spotless, License)
         run: mvn checkstyle:check pmd:check spotless:check license:check
 
@@ -71,8 +74,8 @@ jobs:
           name: compiled-jars
 
       - name: Run Tests
-        # On relance mvn install pour être sûr que le repo local est peuplé avec les JARs téléchargés
-        run: mvn install -Dmaven.javadoc.skip=true
+        # On utilise test car les artefacts sont déjà dans le réacteur ou téléchargés
+        run: mvn test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
       - name: Mutation Testing (PITest)
         if: github.event_name == 'pull_request' && matrix.java == '17'
