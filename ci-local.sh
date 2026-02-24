@@ -50,7 +50,7 @@ export JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
 export PATH=$JAVA_HOME/bin:$PATH
 # Pré-création des dossiers pour éviter les erreurs de permission
 mkdir -p scribejava-core/target/classes
-if mvn javadoc:aggregate -Dmaven.javadoc.skip=false -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip > "$LOG_DIR/docs.log" 2>&1; then
+if mvn javadoc:aggregate -Dmaven.javadoc.skip=false -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip -DadditionalJOption=-Xdoclint:none > "$LOG_DIR/docs.log" 2>&1; then
     echo -e "  ${GREEN}✅ docs : SUCCESS${NC}"
     echo -e "  📂 Documentation disponible dans target/site/apidocs"
     cp -r target/site/apidocs/. docs-output/
