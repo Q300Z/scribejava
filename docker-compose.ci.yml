@@ -9,6 +9,15 @@ x-base-config: &base_config
   volumes:
     - .:/app
     - maven-cache:/home/scribeuser/.m2
+    # On masque les dossiers target de l'hôte pour éviter les conflits de permission
+    - /app/target
+    - /app/scribejava-core/target
+    - /app/scribejava-apis/target
+    - /app/scribejava-httpclient-armeria/target
+    - /app/scribejava-httpclient-okhttp/target
+    - /app/scribejava-oauth1/target
+    - /app/scribejava-oidc/target
+    - /app/scribejava-integration-helpers/target
 
 x-test-volumes: &test_volumes
   volumes:
@@ -26,7 +35,7 @@ x-test-volumes: &test_volumes
 services:
   setup:
     <<: *base_config
-    command: clean install -DskipTests -Dmaven.javadoc.skip=true
+    command: install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dspotless.check.skip=true
 
   lint:
     <<: *test_volumes
@@ -108,7 +117,7 @@ services:
       - maven-cache:/home/scribeuser/.m2
       - /app/target
       - docs-data:/app/target/site/apidocs
-    command: javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+    command: javadoc:aggregate -Dmaven.javadoc.skip=false -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
 volumes:
   maven-cache:

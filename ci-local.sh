@@ -13,14 +13,15 @@ NC='\033[0m' # No Color
 # Dossier pour les logs
 LOG_DIR="ci-logs"
 
-echo -e "${BLUE}🧹 Nettoyage des dossiers de sortie...${NC}"
+echo -e "${BLUE}🧹 Nettoyage des dossiers de sortie et des dossiers target...${NC}"
 rm -rf docs-output/* ci-logs/*
+find . -name "target" -type d -exec rm -rf {} + 2>/dev/null
 mkdir -p "$LOG_DIR"
 mkdir -p "docs-output"
 
 echo -e "${BLUE}🚀 Préparation : Build des images et Installation locale (JDK 17)...${NC}"
-# On force le build et on ignore le code de retour car Docker Compose peut être capricieux sur les sorties
-docker compose -f docker-compose.ci.yml build > /dev/null 2>&1
+# On force le build avec les bons arguments de permission
+docker compose -f docker-compose.ci.yml build --build-arg USER_ID=$USER_ID --build-arg GROUP_ID=$GID > /dev/null 2>&1
 
 if ! docker compose -f docker-compose.ci.yml run --rm setup > "$LOG_DIR/setup.log" 2>&1; then
     echo -e "  ${RED}❌ setup : FAILED (voir $LOG_DIR/setup.log)${NC}"
@@ -28,6 +29,7 @@ if ! docker compose -f docker-compose.ci.yml run --rm setup > "$LOG_DIR/setup.lo
 fi
 
 echo -e "${BLUE}🧐 Étape 1 : Lintage et Analyse statique (JDK 17)...${NC}"
+chmod -R 777 target/ 2>/dev/null || true
 if docker compose -f docker-compose.ci.yml run --rm lint > "$LOG_DIR/lint.log" 2>&1; then
     echo -e "  ${GREEN}✅ lint : SUCCESS${NC}"
 else

@@ -23,61 +23,96 @@
  */
 package com.github.scribejava.core.httpclient;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.github.scribejava.core.httpclient.multipart.MultipartPayload;
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
-import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 
+/** Test du client HTTP asynchrone de base. */
 class AbstractAsyncOnlyHttpClientTest {
 
-    @Test
-    void shouldBlockOnAsyncExecute() throws InterruptedException, ExecutionException, IOException {
-        Response mockResponse = mock(Response.class);
-        TestAsyncClient client = new TestAsyncClient(mockResponse);
+  /**
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   * @throws IOException IOException
+   */
+  @Test
+  void shouldBlockOnAsyncExecute() throws InterruptedException, ExecutionException, IOException {
+    Response mockResponse = mock(Response.class);
+    TestAsyncClient client = new TestAsyncClient(mockResponse);
 
-        Response response = client.execute("ua", Collections.emptyMap(), Verb.GET, "url", "body");
+    Response response = client.execute("ua", Collections.emptyMap(), Verb.GET, "url", "body");
 
-        assertThat(response).isEqualTo(mockResponse);
+    assertThat(response).isEqualTo(mockResponse);
+  }
+
+  private static class TestAsyncClient extends AbstractAsyncOnlyHttpClient {
+    private final Response response;
+
+    TestAsyncClient(Response response) {
+      this.response = response;
     }
 
-    private static class TestAsyncClient extends AbstractAsyncOnlyHttpClient {
-        private final Response response;
+    @Override
+    public void close() throws IOException {}
 
-        public TestAsyncClient(Response response) {
-            this.response = response;
-        }
-
-        @Override
-        public void close() throws IOException {}
-
-        @Override
-        public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl, byte[] bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
-            return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
-        }
-
-        @Override
-        public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl, MultipartPayload bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
-            return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
-        }
-
-        @Override
-        public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl, String bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
-            return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
-        }
-
-        @Override
-        public <T> CompletableFuture<T> executeAsync(String userAgent, Map<String, String> headers, Verb httpVerb, String completeUrl, File bodyContents, OAuthAsyncRequestCallback<T> callback, OAuthRequest.ResponseConverter<T> converter) {
-            return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
-        }
+    @Override
+    public <T> CompletableFuture<T> executeAsync(
+        String userAgent,
+        Map<String, String> headers,
+        Verb httpVerb,
+        String completeUrl,
+        byte[] bodyContents,
+        OAuthAsyncRequestCallback<T> callback,
+        OAuthRequest.ResponseConverter<T> converter) {
+      return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
     }
+
+    @Override
+    public <T> CompletableFuture<T> executeAsync(
+        String userAgent,
+        Map<String, String> headers,
+        Verb httpVerb,
+        String completeUrl,
+        MultipartPayload bodyContents,
+        OAuthAsyncRequestCallback<T> callback,
+        OAuthRequest.ResponseConverter<T> converter) {
+      return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> executeAsync(
+        String userAgent,
+        Map<String, String> headers,
+        Verb httpVerb,
+        String completeUrl,
+        String bodyContents,
+        OAuthAsyncRequestCallback<T> callback,
+        OAuthRequest.ResponseConverter<T> converter) {
+      return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
+    }
+
+    @Override
+    public <T> CompletableFuture<T> executeAsync(
+        String userAgent,
+        Map<String, String> headers,
+        Verb httpVerb,
+        String completeUrl,
+        File bodyContents,
+        OAuthAsyncRequestCallback<T> callback,
+        OAuthRequest.ResponseConverter<T> converter) {
+      return (CompletableFuture<T>) CompletableFuture.completedFuture(response);
+    }
+  }
 }

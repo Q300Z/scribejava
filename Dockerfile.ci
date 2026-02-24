@@ -13,6 +13,13 @@ RUN groupadd -g ${GROUP_ID} scribeuser && \
     mkdir -p /home/scribeuser/.m2 && \
     chown -R scribeuser:scribeuser /home/scribeuser/.m2
 
+# Pré-création des dossiers target pour les volumes anonymes
+RUN mkdir -p /app/target /app/scribejava-core/target /app/scribejava-apis/target \
+    /app/scribejava-httpclient-armeria/target /app/scribejava-httpclient-okhttp/target \
+    /app/scribejava-oauth1/target /app/scribejava-oidc/target \
+    /app/scribejava-integration-helpers/target && \
+    chown -R scribeuser:scribeuser /app
+
 USER scribeuser
 WORKDIR /app
 

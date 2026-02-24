@@ -23,19 +23,22 @@
  */
 package com.github.scribejava.core.services;
 
-import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.Test;
+
+/** Test de l'implémentation par défaut du service de timestamp. */
 class TimestampServiceImplTest {
 
-    @Test
-    void shouldGenerateTimestampAndNonce() {
-        TimestampServiceImpl service = new TimestampServiceImpl();
-        
-        String timestamp = service.getTimestampInSeconds();
-        String nonce = service.getNonce();
-        
-        assertThat(timestamp).isNotBlank().matches("\\d+");
-        assertThat(nonce).isNotBlank();
-    }
+  /** Test de la génération du timestamp et du nonce. */
+  @Test
+  void shouldGenerateTimestampAndNonce() {
+    TimestampServiceImpl service = new TimestampServiceImpl();
+
+    String timestamp = service.getTimestampInSeconds();
+    String nonce = service.getNonce();
+
+    assertThat(timestamp).isNotBlank().matches("\\d+");
+    assertThat(nonce).isNotBlank();
+  }
 }

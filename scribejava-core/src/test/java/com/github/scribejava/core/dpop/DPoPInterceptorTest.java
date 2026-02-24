@@ -23,26 +23,29 @@
  */
 package com.github.scribejava.core.dpop;
 
+import static org.mockito.Mockito.*;
+
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
 
+/** Test de l'intercepteur DPoP. */
 class DPoPInterceptorTest {
 
-    @Test
-    void shouldCallProofCreator() {
-        // Given
-        DPoPProofCreator mockCreator = mock(DPoPProofCreator.class);
-        when(mockCreator.createDPoPProof(any(), any())).thenReturn("fake_proof");
-        
-        DPoPInterceptor interceptor = new DPoPInterceptor(mockCreator);
-        OAuthRequest request = new OAuthRequest(Verb.GET, "https://example.com");
+  /** Vérifie l'appel au créateur de preuves. */
+  @Test
+  void shouldCallProofCreator() {
+    // Given
+    DPoPProofCreator mockCreator = mock(DPoPProofCreator.class);
+    when(mockCreator.createDPoPProof(any(), any())).thenReturn("fake_proof");
 
-        // When
-        interceptor.intercept(request);
+    DPoPInterceptor interceptor = new DPoPInterceptor(mockCreator);
+    OAuthRequest request = new OAuthRequest(Verb.GET, "https://example.com");
 
-        // Then
-        verify(mockCreator).createDPoPProof(request, null);
-    }
+    // When
+    interceptor.intercept(request);
+
+    // Then
+    verify(mockCreator).createDPoPProof(request, null);
+  }
 }

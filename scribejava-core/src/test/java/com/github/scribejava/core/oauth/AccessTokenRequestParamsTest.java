@@ -23,28 +23,32 @@
  */
 package com.github.scribejava.core.oauth;
 
-import org.junit.jupiter.api.Test;
-import java.util.Collections;
-import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+
+/** Test des paramètres de requête de jeton d'accès. */
 class AccessTokenRequestParamsTest {
 
-    @Test
-    void shouldMaintainParameters() {
-        String code = "auth_code";
-        String verifier = "pkce_verifier";
-        String scope = "user_info";
-        Map<String, String> extra = Collections.singletonMap("param", "value");
+  /** Vérifie le maintien des paramètres dans l'objet. */
+  @Test
+  void shouldMaintainParameters() {
+    String code = "auth_code";
+    String verifier = "pkce_verifier";
+    String scope = "user_info";
+    Map<String, String> extra = Collections.singletonMap("param", "value");
 
-        AccessTokenRequestParams params = new AccessTokenRequestParams(code)
+    AccessTokenRequestParams params =
+        new AccessTokenRequestParams(code)
             .pkceCodeVerifier(verifier)
             .scope(scope)
             .extraParameters(extra);
 
-        assertThat(params.getCode()).isEqualTo(code);
-        assertThat(params.getPkceCodeVerifier()).isEqualTo(verifier);
-        assertThat(params.getScope()).isEqualTo(scope);
-        assertThat(params.getExtraParameters()).isEqualTo(extra);
-    }
+    assertThat(params.getCode()).isEqualTo(code);
+    assertThat(params.getPkceCodeVerifier()).isEqualTo(verifier);
+    assertThat(params.getScope()).isEqualTo(scope);
+    assertThat(params.getExtraParameters()).isEqualTo(extra);
+  }
 }

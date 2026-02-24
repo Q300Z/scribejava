@@ -99,15 +99,18 @@ public class ExpiringTokenWrapper {
   }
 
   /**
-   * Vérifie si le jeton est expiré ou va l'être dans les prochaines secondes (buffer).
-   *
-   * @param bufferInSeconds Marge de sécurité en secondes.
-   * @return true si expiré avec buffer.
+   * @param bufferInSeconds bufferInSeconds
+   * @return isExpiredWithBuffer
    */
   public boolean isExpiredWithBuffer(int bufferInSeconds) {
     return isExpiredWithBuffer(Instant.now(), bufferInSeconds);
   }
 
+  /**
+   * @param at at
+   * @param bufferInSeconds bufferInSeconds
+   * @return isExpiredWithBuffer
+   */
   public boolean isExpiredWithBuffer(Instant at, int bufferInSeconds) {
     return at.plusSeconds(bufferInSeconds).isAfter(expirationInstant);
   }

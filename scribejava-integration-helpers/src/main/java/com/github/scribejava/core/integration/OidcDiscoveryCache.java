@@ -53,6 +53,7 @@ public class OidcDiscoveryCache {
     return cache.get(providerId);
   }
 
+  /** Vide le cache. */
   public void clear() {
     cache.clear();
   }

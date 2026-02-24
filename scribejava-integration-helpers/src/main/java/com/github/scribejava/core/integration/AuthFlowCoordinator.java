@@ -76,7 +76,7 @@ public class AuthFlowCoordinator<K> {
       K key, String code, String receivedState, String expectedState)
       throws IOException, InterruptedException, ExecutionException {
     try {
-      validateState(key, receivedState, expectedState);
+      validateState(receivedState, expectedState);
     } catch (SecurityException e) {
       if (listener != null) {
         listener.onCsrfDetected(key, receivedState, expectedState);
@@ -90,7 +90,7 @@ public class AuthFlowCoordinator<K> {
     return new AuthResult(token);
   }
 
-  private void validateState(K key, String received, String expected) {
+  private void validateState(String received, String expected) {
     if (expected == null || !expected.equals(received)) {
       throw new SecurityException("CSRF Detected! Invalid state parameter.");
     }
