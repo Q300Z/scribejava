@@ -60,6 +60,13 @@ public class AuthFlowCoordinator<K> {
   }
 
   /**
+   * @return listener
+   */
+  public AuthEventListener<K> getListener() {
+    return listener;
+  }
+
+  /**
    * Termine le flux d'autorisation.
    *
    * @param key Clé de l'utilisateur pour le stockage.

@@ -68,6 +68,9 @@ public class OidcAuthFlowCoordinator<K> extends AuthFlowCoordinator<K> {
 
     // 1. Validation CSRF
     if (context.getState() == null || !context.getState().equals(receivedState)) {
+      if (getListener() != null) {
+        getListener().onCsrfDetected(key, receivedState, context.getState());
+      }
       throw new SecurityException("State mismatch!");
     }
 
