@@ -27,8 +27,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
-import com.nimbusds.jose.jwk.JWKSet;
+import com.github.scribejava.oidc.model.OidcKey;
 import java.io.IOException;
+import java.util.Map;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.After;
@@ -104,16 +105,16 @@ public class OidcDiscoveryServiceTest {
             + "\"kty\":\"RSA\","
             + "\"use\":\"sig\","
             + "\"kid\":\"123\","
-            + "\"n\":\"abc\","
-            + "\"e\":\"AQAB\""
+            + "\"n\":\"vFrIs_Y_nd9Z\"" // Base64 correct simplifié pour test
+            + ",\"e\":\"AQAB\""
             + "}]}";
 
     server.enqueue(new MockResponse().setBody(jwksJson).setResponseCode(200));
 
-    final JWKSet jwkSet = service.getJwks(server.url("/jwks.json").toString());
+    final Map<String, OidcKey> keys = service.getJwks(server.url("/jwks.json").toString());
 
-    assertNotNull(jwkSet);
-    assertNotNull(jwkSet.getKeys().get(0));
-    assertEquals("123", jwkSet.getKeys().get(0).getKeyID());
+    assertNotNull(keys);
+    assertNotNull(keys.get("123"));
+    assertEquals("123", keys.get("123").getKid());
   }
 }

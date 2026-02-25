@@ -36,11 +36,19 @@ public class OidcTestFixture {
 
   private OidcTestFixture() {}
 
+  /**
+   * @param nimbusSet set nimbus
+   * @return map native
+   * @throws Exception erreur
+   */
   public static Map<String, OidcKey> convert(JWKSet nimbusSet) throws Exception {
-    Map<String, OidcKey> map = new HashMap<>();
-    for (JWK jwk : nimbusSet.getKeys()) {
+    final Map<String, OidcKey> map = new HashMap<>();
+    if (nimbusSet == null) {
+      return map;
+    }
+    for (final JWK jwk : nimbusSet.getKeys()) {
       if (jwk instanceof RSAKey) {
-        RSAKey rsa = (RSAKey) jwk;
+        final RSAKey rsa = (RSAKey) jwk;
         map.put(rsa.getKeyID(), new RsaOidcKey(rsa.getKeyID(), "RS256", rsa.toPublicKey()));
       }
     }

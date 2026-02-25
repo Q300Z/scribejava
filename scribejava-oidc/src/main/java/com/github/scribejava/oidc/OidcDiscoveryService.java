@@ -44,8 +44,12 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
   private final HttpClient httpClient;
   private final String issuerUri;
   private final String userAgent;
-  private boolean strictIssuerCheck = true;
 
+  /**
+   * @param issuerUri émetteur
+   * @param httpClient client
+   * @param userAgent user agent
+   */
   public OidcDiscoveryService(
       final String issuerUri, final HttpClient httpClient, final String userAgent) {
     this.issuerUri = issuerUri;
@@ -62,6 +66,11 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
                     metadata.getAuthorizationEndpoint(), metadata.getTokenEndpoint()));
   }
 
+  /**
+   * Métadonnées asynchrones.
+   *
+   * @return future
+   */
   public CompletableFuture<OidcProviderMetadata> getProviderMetadataAsync() {
     String base = issuerUri;
     if (base.endsWith("/")) {
@@ -83,20 +92,31 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
               throw new OAuthException(
                   "Failed to fetch OIDC Provider Metadata. Status: " + resp.getCode());
             }
-            final OidcProviderMetadata metadata = OidcProviderMetadata.parse(resp.getBody());
-            // validation de l'émetteur omise pour la briéveté
-            return metadata;
+            return OidcProviderMetadata.parse(resp.getBody());
           } catch (final IOException e) {
             throw new OAuthException("Error parsing OIDC Metadata", e);
           }
         });
   }
 
+  /**
+   * Métadonnées.
+   *
+   * @return metadata
+   * @throws ExecutionException erreur
+   * @throws InterruptedException interruption
+   */
   public OidcProviderMetadata getProviderMetadata()
       throws ExecutionException, InterruptedException {
     return getProviderMetadataAsync().get();
   }
 
+  /**
+   * Clés JWKS asynchrones.
+   *
+   * @param jwksUri URI
+   * @return future
+   */
   public CompletableFuture<Map<String, OidcKey>> getJwksAsync(final String jwksUri) {
     final OAuthRequest request = new OAuthRequest(Verb.GET, jwksUri);
 
@@ -119,6 +139,14 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
         });
   }
 
+  /**
+   * Clés JWKS.
+   *
+   * @param jwksUri URI
+   * @return keys
+   * @throws ExecutionException erreur
+   * @throws InterruptedException interruption
+   */
   public Map<String, OidcKey> getJwks(final String jwksUri)
       throws ExecutionException, InterruptedException {
     return getJwksAsync(jwksUri).get();

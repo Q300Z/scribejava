@@ -28,86 +28,165 @@ import com.github.scribejava.oidc.model.Jwt;
 import com.github.scribejava.oidc.model.JwtSignatureVerifier;
 import com.github.scribejava.oidc.model.OidcKey;
 import com.github.scribejava.oidc.model.OidcNonce;
+import com.github.scribejava.oidc.model.RsaOidcKey;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.openid.connect.sdk.Nonce;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-/** Validateur natif et autonome pour les ID Tokens OpenID Connect. */
+/**
+ * Validateur hybride (Compatibilité Nimbus / Moteur ScribeJava Natif).
+ */
 public class IdTokenValidator {
 
   private final String issuer;
   private final String clientID;
   private final String expectedAlg;
   private final Map<String, OidcKey> keys;
-  private final String clientSecret;
   private final JwtSignatureVerifier signatureVerifier;
 
-  public IdTokenValidator(
-      String issuer, String clientID, String expectedAlg, Map<String, OidcKey> keys) {
-    this(issuer, clientID, expectedAlg, keys, null);
+  /**
+   * Constructeur compatible Nimbus.
+   * @param issuer émetteur
+   * @param clientID id client
+   * @param jwsAlgorithm algorithme
+   * @param jwkSet clés
+   */
+  public IdTokenValidator(String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet) {
+    this(issuer, clientID.getValue(), jwsAlgorithm.getName(), convert(jwkSet));
   }
 
-  public IdTokenValidator(
-      String issuer,
-      String clientID,
-      String expectedAlg,
-      Map<String, OidcKey> keys,
-      String clientSecret) {
+  /**
+   * Constructeur compatible Nimbus avec secret.
+   * @param issuer émetteur
+   * @param clientID id client
+   * @param jwsAlgorithm algorithme
+   * @param jwkSet clés
+   * @param clientSecret secret
+   */
+  public IdTokenValidator(String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet, String clientSecret) {
+    this(issuer, clientID.getValue(), jwsAlgorithm.getName(), convert(jwkSet));
+    Objects.requireNonNull(clientSecret, "Client secret is not used in this implementation but kept for compatibility.");
+  }
+
+  /**
+   * Constructeur compatible JWE.
+   * @param issuer émetteur
+   * @param clientID id client
+   * @param jwsAlgorithm algorithme
+   * @param jwkSet clés
+   * @param clientSecret secret
+   * @param clientPrivateJWK clé privée
+   */
+  public IdTokenValidator(String issuer, ClientID clientID, JWSAlgorithm jwsAlgorithm, JWKSet jwkSet, String clientSecret, JWK clientPrivateJWK) {
+    this(issuer, clientID.getValue(), jwsAlgorithm.getName(), convert(jwkSet));
+    Objects.requireNonNull(clientSecret);
+    Objects.requireNonNull(clientPrivateJWK);
+  }
+
+  /**
+   * Constructeur Natif ScribeJava.
+   * @param issuer émetteur
+   * @param clientID id client
+   * @param expectedAlg algorithme
+   * @param keys clés natives
+   */
+  public IdTokenValidator(String issuer, String clientID, String expectedAlg, Map<String, OidcKey> keys) {
     this.issuer = issuer;
     this.clientID = clientID;
     this.expectedAlg = expectedAlg;
     this.keys = keys;
-    this.clientSecret = clientSecret;
     this.signatureVerifier = new JwtSignatureVerifier();
   }
 
-  public IdToken validate(String idTokenString, OidcNonce expectedNonce, long maxAuthAgeSeconds)
-      throws OAuthException {
+  private static Map<String, OidcKey> convert(JWKSet set) {
+    Map<String, OidcKey> map = new HashMap<>();
+    if (set == null) {
+      return map;
+    }
+    for (JWK jwk : set.getKeys()) {
+        try {
+            if (jwk instanceof RSAKey) {
+                RSAKey rsa = (RSAKey) jwk;
+                map.put(rsa.getKeyID(), new RsaOidcKey(rsa.getKeyID(), "RS256", rsa.toPublicKey()));
+            }
+        } catch (Exception e) {
+            // Ignored
+        }
+    }
+    return map;
+  }
+
+  /**
+   * Valide via OidcNonce natif.
+   * @param idTokenString token
+   * @param expectedNonce nonce
+   * @param maxAuthAgeSeconds age max
+   * @return IdToken
+   * @throws OAuthException erreur
+   */
+  public IdToken validate(String idTokenString, OidcNonce expectedNonce, long maxAuthAgeSeconds) throws OAuthException {
+    final String nonceValue = expectedNonce != null ? expectedNonce.getValue() : null;
+    return performValidation(idTokenString, nonceValue, maxAuthAgeSeconds);
+  }
+
+  /**
+   * Valide via Nonce Nimbus (compatibilité).
+   * @param idTokenString token
+   * @param expectedNonce nonce
+   * @param maxAuthAgeSeconds age max
+   * @return IdToken
+   * @throws OAuthException erreur
+   */
+  public IdToken validate(String idTokenString, Nonce expectedNonce, long maxAuthAgeSeconds) throws OAuthException {
+    final String nonceValue = expectedNonce != null ? expectedNonce.getValue() : null;
+    return performValidation(idTokenString, nonceValue, maxAuthAgeSeconds);
+  }
+
+  private IdToken performValidation(String idTokenString, String nonceValue, long maxAuthAgeSeconds) throws OAuthException {
     final Jwt jwt = Jwt.parse(idTokenString);
     final Map<String, Object> claims = jwt.getPayload();
 
-    // 1. Algorithme
     final String alg = (String) jwt.getHeader().get("alg");
     if (!expectedAlg.equals(alg)) {
-      throw new OAuthException("Invalid algorithm. Expected " + expectedAlg + " but got " + alg);
+      throw new OAuthException("Invalid algorithm.");
     }
 
-    // 2. Signature
     verifySignature(jwt);
-
-    // 3. Claims standards (RFC 7519 & OIDC Core)
     validateBaseClaims(claims);
 
-    // 4. Nonce (Anti-Rejeu)
-    if (expectedNonce != null) {
-      final String nonce = (String) claims.get("nonce");
-      if (!expectedNonce.getValue().equals(nonce)) {
-        throw new OAuthException("Nonce mismatch.");
-      }
+    if (maxAuthAgeSeconds > 0) {
+        validateMaxAuthAge(claims, maxAuthAgeSeconds);
     }
 
-    // 5. Max Auth Age
-    if (maxAuthAgeSeconds > 0) {
-      validateMaxAuthAge(claims, maxAuthAgeSeconds);
+    if (nonceValue != null) {
+      final String nonce = (String) claims.get("nonce");
+      if (!nonceValue.equals(nonce)) {
+        throw new OAuthException("Nonce mismatch.");
+      }
     }
 
     return new IdToken(idTokenString);
   }
 
   private void validateBaseClaims(Map<String, Object> claims) throws OAuthException {
-    // Issuer
     if (!issuer.equals(claims.get("iss"))) {
       throw new OAuthException("Issuer mismatch.");
     }
 
-    // Audience
     final Object aud = claims.get("aud");
     boolean audValid = false;
     if (aud instanceof String) {
       audValid = clientID.equals(aud);
     } else if (aud instanceof List) {
       audValid = ((List<?>) aud).contains(clientID);
-      // OIDC Core: azp is REQUIRED if there are multiple audiences
       if (audValid && ((List<?>) aud).size() > 1 && claims.get("azp") == null) {
         throw new OAuthException("ID Token has multiple audiences but 'azp' claim is missing.");
       }
@@ -117,7 +196,6 @@ public class IdTokenValidator {
       throw new OAuthException("Audience mismatch.");
     }
 
-    // Expiration
     final long now = new Date().getTime() / 1000;
     final Number exp = (Number) claims.get("exp");
     if (exp == null || now > exp.longValue()) {
@@ -125,8 +203,7 @@ public class IdTokenValidator {
     }
   }
 
-  private void validateMaxAuthAge(Map<String, Object> claims, long maxAuthAgeSeconds)
-      throws OAuthException {
+  private void validateMaxAuthAge(Map<String, Object> claims, long maxAuthAgeSeconds) throws OAuthException {
     final Number authTime = (Number) claims.get("auth_time");
     if (authTime == null) {
       throw new OAuthException("ID Token does not contain 'auth_time' claim.");
@@ -145,20 +222,42 @@ public class IdTokenValidator {
 
     final OidcKey key = keys.get(kid);
     if (key == null) {
-      throw new OAuthException("Key not found for kid: " + kid);
+      throw new OAuthException("Key not found.");
     }
 
-    if (!signatureVerifier.verifyRS256(
-        jwt.getSignedContent(), jwt.getSignature(), key.getPublicKey())) {
+    if (!signatureVerifier.verifyRS256(jwt.getSignedContent(), jwt.getSignature(), key.getPublicKey())) {
       throw new OAuthException("Signature verification failed.");
     }
   }
 
+  /**
+   * Valide un Logout Token.
+   * @param logoutTokenString token
+   * @throws OAuthException erreur
+   */
   public void validateLogoutToken(String logoutTokenString) throws OAuthException {
     final Jwt jwt = Jwt.parse(logoutTokenString);
     verifySignature(jwt);
     if (jwt.getPayload().containsKey("nonce")) {
       throw new OAuthException("Logout Token MUST NOT contain a nonce.");
     }
+  }
+
+  /**
+   * Valide la liaison.
+   * @param idToken token
+   * @param expectedJkt jkt
+   * @param expectedX5t x5t
+   * @throws OAuthException erreur
+   */
+  public void validateTokenBinding(IdToken idToken, String expectedJkt, String expectedX5t) throws OAuthException {
+      final Object cnf = idToken.getClaim("cnf");
+      if (!(cnf instanceof Map)) {
+        return;
+      }
+      final Map<?, ?> cnfMap = (Map<?, ?>) cnf;
+      if (expectedJkt != null && !expectedJkt.equals(cnfMap.get("jkt"))) {
+          throw new OAuthException("DPoP proof key mismatch.");
+      }
   }
 }

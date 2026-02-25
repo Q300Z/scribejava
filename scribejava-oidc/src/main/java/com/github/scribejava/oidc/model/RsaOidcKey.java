@@ -25,11 +25,17 @@ package com.github.scribejava.oidc.model;
 
 import java.security.PublicKey;
 
+/** Implémentation RSA d'une clé OIDC. */
 public class RsaOidcKey implements OidcKey {
   private final String kid;
   private final String alg;
   private final PublicKey publicKey;
 
+  /**
+   * @param kid id
+   * @param alg alg
+   * @param publicKey key
+   */
   public RsaOidcKey(String kid, String alg, PublicKey publicKey) {
     this.kid = kid;
     this.alg = alg;

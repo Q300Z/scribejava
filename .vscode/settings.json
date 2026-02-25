@@ -13,5 +13,6 @@
     "com",
     "org"
   ],
-  "java.format.onType.enabled": true
+  "java.format.onType.enabled": true,
+  "java.configuration.updateBuildConfiguration": "automatic"
 }

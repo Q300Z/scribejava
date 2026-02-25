@@ -27,9 +27,18 @@ import java.security.PublicKey;
 
 /** Abstraction d'une clé publique OIDC (JWK). */
 public interface OidcKey {
+  /**
+   * @return identifiant clé
+   */
   String getKid();
 
+  /**
+   * @return algorithme
+   */
   String getAlg();
 
+  /**
+   * @return clé publique
+   */
   PublicKey getPublicKey();
 }
