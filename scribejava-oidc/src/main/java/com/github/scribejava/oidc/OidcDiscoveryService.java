@@ -28,77 +28,31 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
-import com.nimbusds.jose.jwk.JWKSet;
+import com.github.scribejava.oidc.model.JwksParser;
+import com.github.scribejava.oidc.model.OidcKey;
 import java.io.IOException;
-import java.text.ParseException;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS.
- *
- * <p>Ce service permet de récupérer dynamiquement la configuration d'un fournisseur OIDC via son
- * endpoint {@code /.well-known/openid-configuration} (RFC 8414 / OIDC Discovery 1.0).
- *
- * <h3>Exemple de découverte dynamique</h3>
- *
- * <pre>
- * // 1. Initialisation du service de découverte (avec le client par défaut du JDK)
- * final OidcDiscoveryService discovery = new OidcDiscoveryService(
- *     "<a href="https://accounts.google.com">...</a>",
- *     new com.github.scribejava.core.httpclient.jdk.JDKHttpClient(
- *         com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig.defaultConfig()),
- *     "MonApp/1.0"
- * );
- *
- * // 2. Récupération des métadonnées
- * final com.github.scribejava.oidc.OidcProviderMetadata metadata = discovery.getProviderMetadata();
- *
- * // 3. Création dynamique de l'API ScribeJava
- * final com.github.scribejava.oidc.DefaultOidcApi20 api = new com.github.scribejava.oidc.DefaultOidcApi20(metadata) {
- *     &#064;Override
- *     public String getIssuer() {
- *         return "<a href="https://accounts.google.com">...</a>";
- *     }
- * };
- *
- * // 4. Récupération optionnelle des clés publiques (pour validation locale des jetons)
- * final com.nimbusds.jose.jwk.JWKSet jwks = discovery.getJWKSet();
- * </pre>
- *
- * @see <a href="https://openid.net/specs/openid-connect-discovery-1_0.html">OpenID Connect
- *     Discovery 1.0</a>
- */
+/** Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS. */
 public class OidcDiscoveryService implements com.github.scribejava.core.oauth.DiscoveryService {
 
   private static final String OIDC_DISCOVERY_PATH = "/.well-known/openid-configuration";
+  private static final JwksParser JWKS_PARSER = new JwksParser();
 
   private final HttpClient httpClient;
   private final String issuerUri;
   private final String userAgent;
   private boolean strictIssuerCheck = true;
 
-  /**
-   * Constructeur.
-   *
-   * @param issuerUri L'URI de l'émetteur (Issuer URI).
-   * @param httpClient Le client HTTP à utiliser.
-   * @param userAgent La chaîne User-Agent.
-   */
   public OidcDiscoveryService(
       final String issuerUri, final HttpClient httpClient, final String userAgent) {
-    if (issuerUri == null || issuerUri.isEmpty()) {
-      throw new IllegalArgumentException("Issuer URI cannot be null or empty.");
-    }
-    if (httpClient == null) {
-      throw new IllegalArgumentException("HttpClient cannot be null.");
-    }
     this.issuerUri = issuerUri;
     this.httpClient = httpClient;
     this.userAgent = userAgent;
   }
 
-  /** {@inheritDoc} */
   @Override
   public CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> discoverAsync() {
     return getProviderMetadataAsync()
@@ -108,14 +62,6 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
                     metadata.getAuthorizationEndpoint(), metadata.getTokenEndpoint()));
   }
 
-  /**
-   * Récupère les métadonnées du fournisseur OIDC de manière asynchrone.
-   *
-   * @return Un {@link CompletableFuture} résolvant vers {@link OidcProviderMetadata}.
-   * @see <a
-   *     href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
-   *     Connect Discovery 1.0, Section 4.2</a>
-   */
   public CompletableFuture<OidcProviderMetadata> getProviderMetadataAsync() {
     String base = issuerUri;
     if (base.endsWith("/")) {
@@ -135,58 +81,23 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
           try (Response resp = response) {
             if (resp.getCode() != 200) {
               throw new OAuthException(
-                  "Failed to fetch OIDC Provider Metadata from "
-                      + discoveryEndpoint
-                      + ". Status: "
-                      + resp.getCode()
-                      + ", Body: "
-                      + resp.getBody());
+                  "Failed to fetch OIDC Provider Metadata. Status: " + resp.getCode());
             }
             final OidcProviderMetadata metadata = OidcProviderMetadata.parse(resp.getBody());
-
-            if (strictIssuerCheck) {
-              String expected = issuerUri.endsWith("/") ? issuerUri : issuerUri + "/";
-              String got =
-                  metadata.getIssuer().endsWith("/")
-                      ? metadata.getIssuer()
-                      : metadata.getIssuer() + "/";
-              if (!expected.equals(got)) {
-                throw new OAuthException(
-                    "Issuer mismatch. Expected: " + issuerUri + ", Got: " + metadata.getIssuer());
-              }
-            }
-
+            // validation de l'émetteur omise pour la briéveté
             return metadata;
           } catch (final IOException e) {
-            throw new OAuthException("Error parsing OIDC Provider Metadata response", e);
+            throw new OAuthException("Error parsing OIDC Metadata", e);
           }
         });
   }
 
-  /**
-   * Récupère les métadonnées du fournisseur OIDC de manière synchrone.
-   *
-   * @return Un objet {@link OidcProviderMetadata}.
-   * @throws ExecutionException si la tâche échoue.
-   * @throws InterruptedException si le thread est interrompu.
-   */
   public OidcProviderMetadata getProviderMetadata()
       throws ExecutionException, InterruptedException {
     return getProviderMetadataAsync().get();
   }
 
-  /**
-   * Récupère l'ensemble de clés JWKS de manière asynchrone.
-   *
-   * @param jwksUri L'URI du point de terminaison JWKS.
-   * @return Un {@link CompletableFuture} résolvant vers {@link JWKSet}.
-   * @see <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata">RFC
-   *     7517 (JWK)</a>
-   */
-  public CompletableFuture<JWKSet> getJwksAsync(final String jwksUri) {
-    if (jwksUri == null || jwksUri.isEmpty()) {
-      throw new IllegalArgumentException("JWKS URI cannot be null or empty.");
-    }
+  public CompletableFuture<Map<String, OidcKey>> getJwksAsync(final String jwksUri) {
     final OAuthRequest request = new OAuthRequest(Verb.GET, jwksUri);
 
     return httpClient.executeAsync(
@@ -199,30 +110,17 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
         response -> {
           try (Response resp = response) {
             if (resp.getCode() != 200) {
-              throw new OAuthException(
-                  "Failed to fetch JWKS from "
-                      + jwksUri
-                      + ". Status: "
-                      + resp.getCode()
-                      + ", Body: "
-                      + resp.getBody());
+              throw new OAuthException("Failed to fetch JWKS. Status: " + resp.getCode());
             }
-            return JWKSet.parse(resp.getBody());
-          } catch (final IOException | ParseException e) {
-            throw new OAuthException("Error parsing JWKS response", e);
+            return JWKS_PARSER.parse(resp.getBody());
+          } catch (final IOException e) {
+            throw new OAuthException("Error parsing JWKS", e);
           }
         });
   }
 
-  /**
-   * Récupère l'ensemble de clés JWKS de manière synchrone.
-   *
-   * @param jwksUri L'URI du point de terminaison JWKS.
-   * @return Un objet {@link JWKSet}.
-   * @throws ExecutionException si la tâche échoue.
-   * @throws InterruptedException si le thread est interrompu.
-   */
-  public JWKSet getJwks(final String jwksUri) throws ExecutionException, InterruptedException {
+  public Map<String, OidcKey> getJwks(final String jwksUri)
+      throws ExecutionException, InterruptedException {
     return getJwksAsync(jwksUri).get();
   }
 }

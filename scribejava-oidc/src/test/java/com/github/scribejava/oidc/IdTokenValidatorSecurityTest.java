@@ -35,7 +35,6 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.id.ClientID;
 import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +57,7 @@ public class IdTokenValidatorSecurityTest {
   public void setUp() throws Exception {
     rsaJWK = new RSAKeyGenerator(2048).keyID("kid-1").generate();
     JWKSet jwkSet = new JWKSet(rsaJWK.toPublicJWK());
-    validator = new IdTokenValidator(issuer, new ClientID(clientId), JWSAlgorithm.RS256, jwkSet);
+    validator = new IdTokenValidator(issuer, clientId, "RS256", OidcTestFixture.convert(jwkSet));
   }
 
   /**
