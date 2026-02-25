@@ -38,8 +38,8 @@ import java.util.concurrent.ExecutionException;
  */
 public class AuthFlowCoordinator<K> {
 
-  private final OAuth20Service oauthService;
-  private final TokenRepository<K, ExpiringTokenWrapper> repository;
+  protected final OAuth20Service oauthService;
+  protected final TokenRepository<K, ExpiringTokenWrapper> repository;
   private AuthEventListener<K> listener;
 
   /**

@@ -23,36 +23,41 @@
  */
 package com.github.scribejava.core.integration;
 
-import java.security.SecureRandom;
-import java.util.Base64;
+import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.oidc.StandardClaims;
 
-/** Générateur de paramètres 'state' sécurisés pour la protection CSRF. */
-public class StateGenerator {
+/** Résultat d'une authentification OIDC réussie. */
+public class OidcAuthResult extends AuthResult {
 
-  private static final int DEFAULT_ENTROPY_BYTES = 32;
-  private final SecureRandom random = new SecureRandom();
-  private final int entropyBytes;
-
-  /** entropy default. */
-  public StateGenerator() {
-    this(DEFAULT_ENTROPY_BYTES);
-  }
+  private final StandardClaims userInfoClaims;
 
   /**
-   * @param entropyBytes entropyBytes
+   * @param token token
+   * @param userInfoClaims claims
    */
-  public StateGenerator(int entropyBytes) {
-    this.entropyBytes = entropyBytes;
+  public OidcAuthResult(OAuth2AccessToken token, StandardClaims userInfoClaims) {
+    super(token);
+    this.userInfoClaims = userInfoClaims;
+  }
+
+  @Override
+  public OAuth2AccessToken getToken() {
+    return super.getToken();
   }
 
   /**
-   * Génère une chaîne aléatoire sécurisée encodée en URL-safe Base64.
+   * Retourne l'email consolidé.
    *
-   * @return le state.
+   * @return Email de l'utilisateur.
    */
-  public String generate() {
-    byte[] bytes = new byte[entropyBytes];
-    random.nextBytes(bytes);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+  public String getEmail() {
+    return userInfoClaims != null ? userInfoClaims.getEmail().orElse(null) : null;
+  }
+
+  /**
+   * @return claims
+   */
+  public StandardClaims getUserInfoClaims() {
+    return userInfoClaims;
   }
 }
