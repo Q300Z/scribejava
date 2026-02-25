@@ -153,6 +153,41 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.1.0</version>
+          <executions>
+            <execution>
+              <id>enforce-banned-dependencies</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <bannedDependencies>
+                    <excludes>
+                      <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+                      <exclude>com.nimbusds:nimbus-jose-jwt</exclude>
+                      <exclude>com.nimbusds:oauth2-oidc-sdk</exclude>
+                      <exclude>org.json:json</exclude>
+                    </excludes>
+                    <includes>
+                      <include>com.fasterxml.jackson.core:jackson-databind:*:*:provided</include>
+                      <include>com.fasterxml.jackson.core:jackson-databind:*:*:test</include>
+                      <include>com.nimbusds:nimbus-jose-jwt:*:*:test</include>
+                      <include>com.nimbusds:oauth2-oidc-sdk:*:*:test</include>
+                      <include>org.json:json:*:*:provided</include>
+                      <include>org.json:json:*:*:test</include>
+                    </includes>
+                    <message>Runtime dependencies on Jackson, Nimbus or org.json are BANNED. Use native ScribeJava alternatives.</message>
+                  </bannedDependencies>
+                </rules>
+                <fail>true</fail>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <version>5.1.8</version>

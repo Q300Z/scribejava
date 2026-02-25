@@ -55,5 +55,6 @@
 
   <properties>
     <java.release>8</java.release>
+    <enforcer.skip>true</enforcer.skip>
   </properties>
 </project>
