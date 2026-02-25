@@ -23,6 +23,7 @@
  */
 package com.github.scribejava.core.utils;
 
+import com.github.scribejava.core.exceptions.OAuthException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,63 +31,97 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** Utilitaire JSON natif pour ScribeJava (Zéro Dépendance). */
+/** Utilitaire JSON natif robuste pour ScribeJava (Zéro Dépendance). */
 public final class JsonUtils {
+
+  private static final int MAX_DEPTH = 32;
 
   private JsonUtils() {}
 
+  // Regex supportant les guillemets échappés dans les clés et les valeurs
   private static final Pattern JSON_TOKEN_PATTERN =
       Pattern.compile(
-          "\"([^\"]*)\"\\s*:\\s*("
-              + "\"[^\"]*\"|"
-              + "-?\\d+(?:\\.\\d+)?|"
-              + "true|false|null|"
-              + "\\[[^\\]]*\\]|"
-              + "\\{[^}]*\\}"
+          "\"((?:\\\\\"|[^\"])*)\"\\s*:\\s*("
+              + "\"((?:\\\\\"|[^\"])*)\"|"
+              + "(-?\\d+(?:\\.\\d+)?)|"
+              + "(true|false|null)|"
+              + "(\\[[^\\]]*\\])|"
+              + "(\\{[^}]*\\})"
               + ")");
 
+  private static final Pattern UNICODE_PATTERN = Pattern.compile("\\\\u([0-9a-fA-F]{4})");
+
   /**
-   * Parse une chaîne JSON plate.
+   * Parse une chaîne JSON plate ou simple.
    *
    * @param json chaîne
    * @return Map
    */
   public static Map<String, Object> parse(String json) {
+    return parse(json, 0);
+  }
+
+  private static Map<String, Object> parse(String json, int depth) {
+    if (depth > MAX_DEPTH) {
+      throw new OAuthException("JSON nesting limit exceeded (max " + MAX_DEPTH + ")");
+    }
     final Map<String, Object> result = new LinkedHashMap<>();
-    if (json == null) {
+    if (json == null || json.trim().isEmpty()) {
       return result;
     }
     final Matcher matcher = JSON_TOKEN_PATTERN.matcher(json);
     while (matcher.find()) {
-      final String key = matcher.group(1);
-      final String val = matcher.group(2).trim();
-      result.put(key, parseValue(val));
+      final String key = unescape(matcher.group(1));
+      final String fullVal = matcher.group(2).trim();
+
+      if (fullVal.startsWith("\"")) {
+        result.put(key, unescape(matcher.group(3)));
+      } else if (matcher.group(4) != null) { // Number
+        result.put(key, parseNumber(matcher.group(4)));
+      } else if (matcher.group(5) != null) { // Boolean/Null
+        result.put(key, parseLiteral(matcher.group(5)));
+      } else if (matcher.group(6) != null) { // Array
+        result.put(key, parseArray(matcher.group(6)));
+      } else if (matcher.group(7) != null) { // Object
+        result.put(key, parse(matcher.group(7), depth + 1));
+      }
     }
     return result;
   }
 
-  private static Object parseValue(String val) {
-    if (val.startsWith("\"")) {
-      return val.substring(1, val.length() - 1);
-    } else if ("true".equals(val)) {
-      return Boolean.TRUE;
-    } else if ("false".equals(val)) {
-      return Boolean.FALSE;
-    } else if ("null".equals(val)) {
+  private static String unescape(String val) {
+    if (val == null) {
       return null;
-    } else if (val.startsWith("[")) {
-      return parseArray(val);
-    } else if (val.startsWith("{")) {
-      return parse(val);
-    } else {
-      try {
-        if (val.contains(".")) {
-          return Double.parseDouble(val);
-        }
-        return Long.parseLong(val);
-      } catch (NumberFormatException e) {
-        return val;
+    }
+    String result = val.replace("\\\"", "\"").replace("\\\\", "\\");
+    final Matcher matcher = UNICODE_PATTERN.matcher(result);
+    final StringBuffer sb = new StringBuffer();
+    while (matcher.find()) {
+      final int code = Integer.parseInt(matcher.group(1), 16);
+      matcher.appendReplacement(sb, new String(Character.toChars(code)));
+    }
+    matcher.appendTail(sb);
+    return sb.toString();
+  }
+
+  private static Object parseLiteral(String val) {
+    if ("true".equals(val)) {
+      return Boolean.TRUE;
+    }
+    if ("false".equals(val)) {
+      return Boolean.FALSE;
+    }
+    return null;
+  }
+
+  private static Object parseNumber(String val) {
+    try {
+      if (val.contains(".")) {
+        return Double.parseDouble(val);
       }
+      return Long.parseLong(val);
+    } catch (NumberFormatException e) {
+      return val;
     }
   }
 
@@ -97,7 +132,12 @@ public final class JsonUtils {
       return list;
     }
     for (String part : content.split(",")) {
-      list.add(parseValue(part.trim()));
+      final String p = part.trim();
+      if (p.startsWith("\"")) {
+        list.add(unescape(p.substring(1, p.length() - 1)));
+      } else {
+        list.add(parseLiteral(p));
+      }
     }
     return list;
   }
@@ -116,7 +156,7 @@ public final class JsonUtils {
       if (!first) {
         sb.append(',');
       }
-      sb.append('"').append(entry.getKey()).append("\":");
+      sb.append('"').append(escape(entry.getKey())).append("\":");
       appendValue(sb, entry.getValue());
       first = false;
     }
@@ -125,8 +165,10 @@ public final class JsonUtils {
   }
 
   private static void appendValue(StringBuilder sb, Object val) {
-    if (val instanceof String) {
-      sb.append('"').append(val.toString().replace("\"", "\\\"")).append('"');
+    if (val == null) {
+      sb.append("null");
+    } else if (val instanceof String) {
+      sb.append('"').append(escape(val.toString())).append('"');
     } else if (val instanceof Map) {
       sb.append(toJson((Map<String, Object>) val));
     } else if (val instanceof List) {
@@ -143,5 +185,12 @@ public final class JsonUtils {
     } else {
       sb.append(val);
     }
+  }
+
+  private static String escape(String val) {
+    if (val == null) {
+      return null;
+    }
+    return val.replace("\\", "\\\\").replace("\"", "\\\"");
   }
 }

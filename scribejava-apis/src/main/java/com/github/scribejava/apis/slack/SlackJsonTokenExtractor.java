@@ -24,9 +24,11 @@
 package com.github.scribejava.apis.slack;
 
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
+import com.github.scribejava.core.model.JsonObject;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import java.util.Map;
 
-/** Extracteur JSON pour Slack. */
+/** Extracteur JSON pour Slack (Supporte les champs additionnels). */
 public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
   protected SlackJsonTokenExtractor() {}
@@ -36,19 +38,19 @@ public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
   }
 
   @Override
-  protected SlackOAuth2AccessToken createToken(
+  protected OAuth2AccessToken createToken(
       String accessToken,
       String tokenType,
       Integer expiresIn,
       String refreshToken,
       String scope,
-      Map<String, Object> response,
+      JsonObject json,
       String rawResponse) {
 
-    final Object authedUser = response.get("authed_user");
+    final Map<String, Object> authedUser = json.getMap("authed_user");
     String userAccessToken = null;
-    if (authedUser instanceof Map) {
-      userAccessToken = (String) ((Map<?, ?>) authedUser).get("access_token");
+    if (authedUser != null) {
+      userAccessToken = (String) authedUser.get("access_token");
     }
 
     return new SlackOAuth2AccessToken(

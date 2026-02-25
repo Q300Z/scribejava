@@ -21,41 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.oidc.model;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
-  protected PolarJsonTokenExtractor() {}
+/** Tests pour le support des clés Elliptic Curve (EC). */
+public class OidcEcKeysDetailedTest {
 
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
+  /**
+   * Vérifie le parsing d'une clé EC P-256.
+   *
+   * @throws Exception en cas d'échec cryptographique
+   */
+  @Test
+  public void shouldParseEcP256Key() throws Exception {
+    final Map<String, Object> jwk = new HashMap<>();
+    jwk.put("kty", "EC");
+    jwk.put("crv", "P-256");
+    jwk.put("x", "f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU");
+    jwk.put("y", "x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0");
+    jwk.put("kid", "key1");
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
-  }
-
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+    final JwksParser parser = new JwksParser();
+    final PublicKey key = parser.parseKey(jwk).getPublicKey();
+    assertThat(key).isInstanceOf(ECPublicKey.class);
+    assertThat(((ECPublicKey) key).getParams().getCurve().getField().getFieldSize()).isEqualTo(256);
   }
 }

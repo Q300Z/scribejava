@@ -24,9 +24,10 @@
 package com.github.scribejava.apis.openid;
 
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import java.util.Map;
+import com.github.scribejava.core.model.JsonObject;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 
-/** Extracteur JSON pour OpenID Connect. */
+/** Extracteur JSON pour OpenID. */
 public class OpenIdJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
   protected OpenIdJsonTokenExtractor() {}
@@ -36,13 +37,13 @@ public class OpenIdJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
   }
 
   @Override
-  protected OpenIdOAuth2AccessToken createToken(
+  protected OAuth2AccessToken createToken(
       String accessToken,
       String tokenType,
       Integer expiresIn,
       String refreshToken,
       String scope,
-      Map<String, Object> response,
+      JsonObject json,
       String rawResponse) {
     return new OpenIdOAuth2AccessToken(
         accessToken,
@@ -50,7 +51,7 @@ public class OpenIdJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
         expiresIn,
         refreshToken,
         scope,
-        (String) response.get("id_token"),
+        json.getString("id_token"),
         rawResponse);
   }
 

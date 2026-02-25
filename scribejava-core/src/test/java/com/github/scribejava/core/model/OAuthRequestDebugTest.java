@@ -21,41 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.core.model;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+import org.junit.jupiter.api.Test;
 
-  protected PolarJsonTokenExtractor() {}
+/** Tests DX : Debugging sécurisé avec redaction des secrets. */
+public class OAuthRequestDebugTest {
 
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
+  @Test
+  public void shouldRedactSecretsInDebugString() {
+    final OAuthRequest request = new OAuthRequest(Verb.POST, "https://server.com/token");
+    request.addParameter("client_id", "my-id");
+    request.addParameter("client_secret", "SUPER_SECRET_KEY");
+    request.addHeader("Authorization", "Bearer MY_SECRET_TOKEN");
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
-  }
+    final String debug = request.toDebugString();
 
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+    assertThat(debug).contains("client_id=my-id");
+    assertThat(debug).contains("client_secret=[REDACTED]");
+    assertThat(debug).contains("Authorization=Bearer [REDACTED]");
+    assertThat(debug).doesNotContain("SUPER_SECRET_KEY");
+    assertThat(debug).doesNotContain("MY_SECRET_TOKEN");
   }
 }

@@ -21,41 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.oidc;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
-  protected PolarJsonTokenExtractor() {}
+/** Tests DX : Fluent API et Optionals pour OIDC. */
+public class OidcDxFluentApiTest {
 
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
+  @Test
+  public void shouldAccessClaimsFluently() {
+    // Header: {"alg":"none"} -> eyJhbGciOiJub25lIn0
+    // Payload: {"sub":"123", "given_name":"John"} -> eyJzdWIiOiIxMjMiLCJnaXZlbl9uYW1lIjoiSm9obiJ9
+    final String rawToken = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjMiLCJnaXZlbl9uYW1lIjoiSm9obiJ9.sig";
+    final IdToken token = new IdToken(rawToken);
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
-  }
+    // Test Point 1 : Fluent Access
+    final StandardClaims claims = token.getStandardClaims();
+    assertThat(claims.getGivenName()).contains("John");
+    assertThat(claims.getFamilyName()).isEmpty(); // Test Point 5 : Optional vide au lieu de null
 
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+    // Test Point 5 : Getters de base en Optional
+    final Optional<Object> sub = token.getClaimOptional("sub");
+    assertThat(sub).contains("123");
+    assertThat(token.getClaimOptional("absent")).isEmpty();
   }
 }

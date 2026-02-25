@@ -21,41 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.core.exceptions;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+import org.junit.jupiter.api.Test;
 
-  protected PolarJsonTokenExtractor() {}
+/** Tests de couverture pour les exceptions. */
+public class ExceptionsBoilerplateTest {
 
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
+  /** Vérifie les constructeurs de OAuthException. */
+  @Test
+  public void shouldCoverOAuthException() {
+    final Exception cause = new RuntimeException("root");
+    final OAuthException ex1 = new OAuthException("msg");
+    final OAuthException ex2 = new OAuthException("msg", cause);
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
-  }
-
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+    assertThat(ex1.getMessage()).isEqualTo("msg");
+    assertThat(ex2.getCause()).isEqualTo(cause);
   }
 }

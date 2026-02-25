@@ -290,6 +290,51 @@ public class OAuthRequest {
   }
 
   /**
+   * Retourne une représentation lisible de la requête avec masquage des secrets.
+   *
+   * @return String
+   */
+  public String toDebugString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(getVerb()).append(' ').append(getUrl()).append('\n');
+
+    sb.append("Headers:\n");
+    for (final Map.Entry<String, String> entry : headers.entrySet()) {
+      String val = entry.getValue();
+      if ("Authorization".equalsIgnoreCase(entry.getKey())) {
+        if (val.startsWith("Bearer ") || val.startsWith("bearer ")) {
+          val = val.substring(0, 7) + "[REDACTED]";
+        } else {
+          val = "[REDACTED]";
+        }
+      }
+      sb.append("  ").append(entry.getKey()).append('=').append(val).append('\n');
+    }
+
+    sb.append("Parameters:\n");
+    appendParams(sb, querystringParams, "Query");
+    appendParams(sb, bodyParams, "Body");
+
+    return sb.toString();
+  }
+
+  private void appendParams(StringBuilder sb, ParameterList params, String type) {
+    if (params.isEmpty()) {
+      return;
+    }
+    sb.append("  ").append(type).append(":\n");
+    for (final Parameter p : params.getParams()) {
+      String val = p.getValue();
+      if (p.getKey().contains("secret")
+          || p.getKey().contains("token")
+          || "code".equals(p.getKey())) {
+        val = "[REDACTED]";
+      }
+      sb.append("    ").append(p.getKey()).append('=').append(val).append('\n');
+    }
+  }
+
+  /**
    * @return Le verbe HTTP.
    */
   public Verb getVerb() {

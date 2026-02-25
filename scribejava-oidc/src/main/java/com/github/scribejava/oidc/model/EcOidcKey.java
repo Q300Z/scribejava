@@ -21,41 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.oidc.model;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import java.security.PublicKey;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+/** Implémentation Elliptic Curve (EC) d'une clé OIDC. */
+public class EcOidcKey implements OidcKey {
+  private final String kid;
+  private final String alg;
+  private final PublicKey publicKey;
 
-  protected PolarJsonTokenExtractor() {}
-
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
+  public EcOidcKey(String kid, String alg, PublicKey publicKey) {
+    this.kid = kid;
+    this.alg = alg;
+    this.publicKey = publicKey;
   }
 
   @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
+  public String getKid() {
+    return kid;
   }
 
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+  @Override
+  public String getAlg() {
+    return alg;
+  }
+
+  @Override
+  public PublicKey getPublicKey() {
+    return publicKey;
   }
 }

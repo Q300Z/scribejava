@@ -26,12 +26,15 @@ package com.github.scribejava.oidc;
 import com.github.scribejava.core.model.Token;
 import com.github.scribejava.oidc.model.Jwt;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /** Représentation d'un ID Token OpenID Connect natif. */
 public class IdToken extends Token {
 
   private static final long serialVersionUID = -543543543543L;
   private final Map<String, Object> claims;
+  private transient StandardClaims standardClaims;
 
   /**
    * @param rawIdToken chaîne brute
@@ -56,8 +59,48 @@ public class IdToken extends Token {
     return claims.get(name);
   }
 
+  /**
+   * Retourne une revendication de manière sécurisée.
+   *
+   * @param name nom
+   * @return Optional
+   */
+  public Optional<Object> getClaimOptional(String name) {
+    return Optional.ofNullable(claims.get(name));
+  }
+
+  /**
+   * Retourne les revendications standards typées.
+   *
+   * @return StandardClaims
+   */
+  public synchronized StandardClaims getStandardClaims() {
+    if (standardClaims == null) {
+      standardClaims = new StandardClaims(claims);
+    }
+    return standardClaims;
+  }
+
   @Override
   public String toString() {
     return "IdToken{rawIdToken='" + getRawResponse() + "'}";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof IdToken)) {
+      return false;
+    }
+    final IdToken idToken = (IdToken) o;
+    return Objects.equals(getRawResponse(), idToken.getRawResponse())
+        && Objects.equals(claims, idToken.claims);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getRawResponse(), claims);
   }
 }

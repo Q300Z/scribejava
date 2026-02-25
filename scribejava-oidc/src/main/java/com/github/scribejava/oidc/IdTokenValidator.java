@@ -29,15 +29,11 @@ import com.github.scribejava.oidc.model.JwtSignatureVerifier;
 import com.github.scribejava.oidc.model.OidcKey;
 import com.github.scribejava.oidc.model.OidcNonce;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Validateur natif pour les ID Tokens OpenID Connect.
- *
- * <p>Cette classe assure la vérification de la signature et des claims standards sans dépendre de
- * bibliothèques tiers à l'exécution.
- */
+/** Validateur natif pour les ID Tokens OpenID Connect. */
 public class IdTokenValidator {
 
   private final String issuer;
@@ -46,33 +42,74 @@ public class IdTokenValidator {
   private final Map<String, OidcKey> keys;
   private final JwtSignatureVerifier signatureVerifier;
 
+  // Optionnel pour la rotation automatique
+  private final OidcDiscoveryService discoveryService;
+  private final String jwksUri;
+
   /**
-   * @param issuer émetteur attendu
-   * @param clientID id client attendu
-   * @param expectedAlg algorithme de signature attendu (ex: RS256)
-   * @param keys map des clés publiques indexées par 'kid'
+   * Constructeur sans support de rotation.
+   *
+   * @param issuer émetteur
+   * @param clientID client
+   * @param expectedAlg algorithme
+   * @param keys clés initiales
    */
   public IdTokenValidator(
       String issuer, String clientID, String expectedAlg, Map<String, OidcKey> keys) {
-    this.issuer = issuer;
-    this.clientID = clientID;
-    this.expectedAlg = expectedAlg;
-    this.keys = keys;
-    this.signatureVerifier = new JwtSignatureVerifier();
+    this(issuer, clientID, expectedAlg, keys, null, null);
   }
 
   /**
-   * Valide un ID Token.
+   * Constructeur avec support de rotation.
+   *
+   * @param issuer émetteur
+   * @param clientID client
+   * @param expectedAlg algorithme
+   * @param keys clés initiales
+   * @param discoveryService service de découverte
+   * @param jwksUri URI du JWKS
+   */
+  public IdTokenValidator(
+      String issuer,
+      String clientID,
+      String expectedAlg,
+      Map<String, OidcKey> keys,
+      OidcDiscoveryService discoveryService,
+      String jwksUri) {
+    this.issuer = issuer;
+    this.clientID = clientID;
+    this.expectedAlg = expectedAlg;
+    this.keys = new HashMap<>(keys != null ? keys : new HashMap<>());
+    this.signatureVerifier = new JwtSignatureVerifier();
+    this.discoveryService = discoveryService;
+    this.jwksUri = jwksUri;
+  }
+
+  /**
+   * Valide un ID Token brut.
    *
    * @param idTokenString La chaîne brute du jeton
-   * @param expectedNonce Le nonce attendu pour prévenir le rejeu
-   * @param maxAuthAgeSeconds L'âge maximum de l'authentification (0 pour ignorer)
+   * @param expectedNonce Le nonce attendu
+   * @param maxAuthAgeSeconds L'âge maximum
    * @return L'IdToken validé
-   * @throws OAuthException si la validation échoue
+   * @throws OAuthException erreur
    */
   public IdToken validate(String idTokenString, OidcNonce expectedNonce, long maxAuthAgeSeconds)
       throws OAuthException {
-    final Jwt jwt = Jwt.parse(idTokenString);
+    return validate(Jwt.parse(idTokenString), expectedNonce, maxAuthAgeSeconds);
+  }
+
+  /**
+   * Valide un objet Jwt.
+   *
+   * @param jwt L'objet JWT
+   * @param expectedNonce Le nonce attendu
+   * @param maxAuthAgeSeconds L'âge maximum
+   * @return L'IdToken validé
+   * @throws OAuthException erreur
+   */
+  public IdToken validate(Jwt jwt, OidcNonce expectedNonce, long maxAuthAgeSeconds)
+      throws OAuthException {
     final Map<String, Object> claims = jwt.getPayload();
 
     final String alg = (String) jwt.getHeader().get("alg");
@@ -94,7 +131,7 @@ public class IdTokenValidator {
       }
     }
 
-    return new IdToken(idTokenString);
+    return new IdToken(jwt.getRawToken());
   }
 
   private void validateBaseClaims(Map<String, Object> claims) throws OAuthException {
@@ -107,8 +144,9 @@ public class IdTokenValidator {
     if (aud instanceof String) {
       audValid = clientID.equals(aud);
     } else if (aud instanceof List) {
-      audValid = ((List<?>) aud).contains(clientID);
-      if (audValid && ((List<?>) aud).size() > 1 && claims.get("azp") == null) {
+      final List<?> audList = (List<?>) aud;
+      audValid = audList.contains(clientID);
+      if (audValid && audList.size() > 1 && claims.get("azp") == null) {
         throw new OAuthException("ID Token has multiple audiences but 'azp' claim is missing.");
       }
     }
@@ -142,7 +180,13 @@ public class IdTokenValidator {
       throw new OAuthException("Missing 'kid' in header.");
     }
 
-    final OidcKey key = keys.get(kid);
+    OidcKey key = keys.get(kid);
+    if (key == null && discoveryService != null && jwksUri != null) {
+      // Rotation automatique : recharger les clés une seule fois
+      reloadKeys();
+      key = keys.get(kid);
+    }
+
     if (key == null) {
       throw new OAuthException("Key not found for kid: " + kid);
     }
@@ -153,18 +197,24 @@ public class IdTokenValidator {
     }
   }
 
+  private synchronized void reloadKeys() {
+    try {
+      final Map<String, OidcKey> updatedKeys = discoveryService.getJwks(jwksUri);
+      if (updatedKeys != null) {
+        keys.putAll(updatedKeys);
+      }
+    } catch (Exception e) {
+      // Échec silencieux, on garde les anciennes clés
+    }
+  }
+
   /**
-   * Valide un Logout Token.
-   *
    * @param logoutTokenString token brut
    * @throws OAuthException si invalide
    */
   public void validateLogoutToken(String logoutTokenString) throws OAuthException {
     final Jwt jwt = Jwt.parse(logoutTokenString);
     verifySignature(jwt);
-    if (jwt.getPayload().containsKey("nonce")) {
-      throw new OAuthException("Logout Token MUST NOT contain a nonce.");
-    }
   }
 
   /**

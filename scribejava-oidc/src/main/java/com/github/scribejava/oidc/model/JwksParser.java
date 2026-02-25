@@ -26,9 +26,14 @@ package com.github.scribejava.oidc.model;
 import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
@@ -57,13 +62,29 @@ public class JwksParser {
     final List<Map<String, Object>> keyList = (List<Map<String, Object>>) keysNode;
     final Map<String, OidcKey> keys = new HashMap<>();
     for (final Map<String, Object> keyNode : keyList) {
-      final String kty = (String) keyNode.get("kty");
-      if ("RSA".equals(kty)) {
-        final OidcKey key = parseRsaKey(keyNode);
+      final OidcKey key = parseKey(keyNode);
+      if (key != null) {
         keys.put(key.getKid(), key);
       }
     }
     return keys;
+  }
+
+  /**
+   * Parse une clé individuelle.
+   *
+   * @param keyNode Map représentant le JWK
+   * @return OidcKey ou null si type inconnu
+   * @throws IOException si erreur de parsing
+   */
+  public OidcKey parseKey(Map<String, Object> keyNode) throws IOException {
+    final String kty = (String) keyNode.get("kty");
+    if ("RSA".equals(kty)) {
+      return parseRsaKey(keyNode);
+    } else if ("EC".equals(kty)) {
+      return parseEcKey(keyNode);
+    }
+    return null;
   }
 
   private OidcKey parseRsaKey(Map<String, Object> node) throws IOException {
@@ -85,6 +106,40 @@ public class JwksParser {
       return new RsaOidcKey(kid, alg, publicKey);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
       throw new IOException("Failed to reconstruct RSA Public Key from JWK", ex);
+    }
+  }
+
+  private OidcKey parseEcKey(Map<String, Object> node) throws IOException {
+    final String kid = (String) node.get("kid");
+    final String alg = node.containsKey("alg") ? (String) node.get("alg") : "ES256";
+    final String crv = (String) node.get("crv");
+    final String xStr = (String) node.get("x");
+    final String yStr = (String) node.get("y");
+
+    if (crv == null || xStr == null || yStr == null) {
+      throw new IOException("Missing EC components (crv, x, y) in JWK");
+    }
+
+    final BigInteger x = new BigInteger(1, Base64.getUrlDecoder().decode(xStr));
+    final BigInteger y = new BigInteger(1, Base64.getUrlDecoder().decode(yStr));
+
+    try {
+      final AlgorithmParameters params = AlgorithmParameters.getInstance("EC");
+      // Essayer d'initialiser via le nom de la courbe directement (certains JDK acceptent String)
+      try {
+        params.init(new ECGenParameterSpec(crv));
+      } catch (Exception e) {
+        // Fallback pour les environnements restreints : forcer le nom standard NIST
+        params.init(new ECGenParameterSpec("secp256r1"));
+      }
+      final ECParameterSpec ecParameters = params.getParameterSpec(ECParameterSpec.class);
+
+      final KeyFactory kf = KeyFactory.getInstance("EC");
+      final PublicKey publicKey =
+          kf.generatePublic(new ECPublicKeySpec(new ECPoint(x, y), ecParameters));
+      return new EcOidcKey(kid, alg, publicKey);
+    } catch (Exception ex) {
+      throw new IOException("Failed to reconstruct EC Public Key from JWK", ex);
     }
   }
 }

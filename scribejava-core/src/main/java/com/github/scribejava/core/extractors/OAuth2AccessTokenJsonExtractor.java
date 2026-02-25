@@ -23,6 +23,7 @@
  */
 package com.github.scribejava.core.extractors;
 
+import com.github.scribejava.core.model.JsonObject;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.OAuthConstants;
@@ -32,7 +33,6 @@ import com.github.scribejava.core.utils.JsonUtils;
 import com.github.scribejava.core.utils.Preconditions;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 import java.util.Optional;
 
 /** Implémentation JSON native robuste de {@link TokenExtractor} pour OAuth 2.0. */
@@ -40,6 +40,9 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
 
   protected OAuth2AccessTokenJsonExtractor() {}
 
+  /**
+   * @return L'instance singleton.
+   */
   public static OAuth2AccessTokenJsonExtractor instance() {
     return InstanceHolder.INSTANCE;
   }
@@ -64,10 +67,10 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
    */
   public void generateError(Response response) throws IOException {
     final String responseBody = response.getBody();
-    final Map<String, Object> responseMap = JsonUtils.parse(responseBody);
+    final JsonObject json = new JsonObject(JsonUtils.parse(responseBody));
 
     final URI errorUri =
-        Optional.ofNullable(getAsString(responseMap.get("error_uri")))
+        Optional.ofNullable(json.getString("error_uri"))
             .map(
                 uri -> {
                   try {
@@ -79,7 +82,7 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
             .orElse(null);
 
     final OAuth2Error errorCode =
-        Optional.ofNullable(getAsString(responseMap.get("error")))
+        Optional.ofNullable(json.getString("error"))
             .map(
                 error -> {
                   try {
@@ -90,53 +93,57 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
                 })
             .orElse(null);
 
-    final String errorDescription = getAsString(responseMap.get("error_description"));
+    final String errorDescription = json.getString("error_description");
 
     throw new OAuth2AccessTokenErrorResponse(errorCode, errorDescription, errorUri, response);
   }
 
   @Override
   protected OAuth2AccessToken createToken(String rawResponse) throws IOException {
-    final Map<String, Object> response = JsonUtils.parse(rawResponse);
+    final JsonObject json = new JsonObject(JsonUtils.parse(rawResponse));
 
-    final Object expiresInObj = response.get("expires_in");
-    Integer expiresIn = null;
-    if (expiresInObj instanceof Number) {
-      expiresIn = ((Number) expiresInObj).intValue();
-    } else if (expiresInObj instanceof String) {
-      try {
-        expiresIn = Integer.parseInt((String) expiresInObj);
-      } catch (NumberFormatException e) {
-        expiresIn = null;
-      }
+    final Long expiresIn = json.getLong("expires_in");
+    final String refreshToken = json.getString(OAuthConstants.REFRESH_TOKEN);
+    final String scope = json.getString(OAuthConstants.SCOPE);
+    final String tokenType = json.getString("token_type");
+
+    final String accessToken = json.getString(OAuthConstants.ACCESS_TOKEN);
+    if (accessToken == null) {
+      throw new IOException("Missing required parameter: " + OAuthConstants.ACCESS_TOKEN);
     }
 
-    final String refreshToken = getAsString(response.get(OAuthConstants.REFRESH_TOKEN));
-    final String scope = getAsString(response.get(OAuthConstants.SCOPE));
-    final String tokenType = getAsString(response.get("token_type"));
-    final Object accessTokenObj =
-        extractRequiredParameter(response, OAuthConstants.ACCESS_TOKEN, rawResponse);
-    final String accessToken =
-        accessTokenObj instanceof String ? (String) accessTokenObj : String.valueOf(accessTokenObj);
-
     return createToken(
-        accessToken, tokenType, expiresIn, refreshToken, scope, response, rawResponse);
+        accessToken,
+        tokenType,
+        expiresIn != null ? expiresIn.intValue() : null,
+        refreshToken,
+        scope,
+        json,
+        rawResponse);
   }
 
+  /**
+   * Méthode de création de jeton personnalisable.
+   *
+   * @param accessToken jeton d'accès
+   * @param tokenType type
+   * @param expiresIn expiration
+   * @param refreshToken jeton de rafraîchissement
+   * @param scope portée
+   * @param json objet JSON complet
+   * @param rawResponse réponse brute
+   * @return Le jeton OAuth 2.0.
+   */
   protected OAuth2AccessToken createToken(
       String accessToken,
       String tokenType,
       Integer expiresIn,
       String refreshToken,
       String scope,
-      Map<String, Object> response,
+      JsonObject json,
       String rawResponse) {
     return new OAuth2AccessToken(
         accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
-  }
-
-  private String getAsString(Object obj) {
-    return obj instanceof String ? (String) obj : null;
   }
 
   private static class InstanceHolder {

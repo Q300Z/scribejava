@@ -26,10 +26,17 @@ package com.github.scribejava.core.model;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
 
-/** Représentation d'une réponse de requête d'autorisation poussée (PAR). */
-public class PushedAuthorizationResponse {
+/**
+ * Pushed Authorization Response
+ *
+ * @see <a href="https://tools.ietf.org/html/rfc9126#section-2.2">rfc9126</a>
+ */
+public class PushedAuthorizationResponse implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final String requestUri;
   private final Integer expiresIn;
@@ -39,22 +46,26 @@ public class PushedAuthorizationResponse {
     this.expiresIn = expiresIn;
   }
 
-  /**
-   * Parse la réponse.
-   *
-   * @param body corps
-   * @return objet
-   * @throws IOException erreur
-   */
   public static PushedAuthorizationResponse parse(String body) throws IOException {
     final Map<String, Object> response = JsonUtils.parse(body);
+
     final String requestUri = (String) response.get("request_uri");
     if (requestUri == null) {
       throw new OAuthException(
-          "Response body is incorrect. Can't extract 'request_uri' from: '" + body + "'");
+          "Response body is incorrect. Can't extract a 'request_uri' from this: '" + body + "'");
     }
-    final Number expiresInNum = (Number) response.get("expires_in");
-    final Integer expiresIn = expiresInNum != null ? expiresInNum.intValue() : null;
+
+    final Object expiresInObj = response.get("expires_in");
+    Integer expiresIn = null;
+    if (expiresInObj instanceof Number) {
+      expiresIn = ((Number) expiresInObj).intValue();
+    } else if (expiresInObj instanceof String) {
+      try {
+        expiresIn = Integer.parseInt((String) expiresInObj);
+      } catch (NumberFormatException e) {
+        expiresIn = null;
+      }
+    }
 
     return new PushedAuthorizationResponse(requestUri, expiresIn);
   }
@@ -65,5 +76,15 @@ public class PushedAuthorizationResponse {
 
   public Integer getExpiresIn() {
     return expiresIn;
+  }
+
+  @Override
+  public String toString() {
+    return "PushedAuthorizationResponse{"
+        + "'requestUri'='"
+        + requestUri
+        + "', 'expiresIn'='"
+        + expiresIn
+        + "'}";
   }
 }

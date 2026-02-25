@@ -21,41 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.oidc;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import static org.mockito.Mockito.mock;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+import com.github.scribejava.core.dpop.DPoPProofCreator;
+import org.junit.jupiter.api.Test;
 
-  protected PolarJsonTokenExtractor() {}
+/** Tests DX : Support DPoP simplifié. */
+public class OidcDPoPDxTest {
 
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
-  }
+  /** Vérifie la configuration fluide de DPoP. */
+  @Test
+  public void shouldConfigureDPoPFluently() {
+    final DPoPProofCreator mockCreator = mock(DPoPProofCreator.class);
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
-  }
+    // Point 4 : DX DPoP
+    final OidcServiceBuilder builder = new OidcServiceBuilder("client-id");
+    builder.dpop(mockCreator);
 
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+    // Le test passe si la compilation et l'exécution de l'API fluide fonctionnent
   }
 }

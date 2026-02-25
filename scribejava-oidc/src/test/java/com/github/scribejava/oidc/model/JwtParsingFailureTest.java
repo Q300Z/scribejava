@@ -21,41 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.oidc.model;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+import com.github.scribejava.core.exceptions.OAuthException;
+import org.junit.jupiter.api.Test;
 
-  protected PolarJsonTokenExtractor() {}
+/** Tests d'échec de parsing JWT (TDD). */
+public class JwtParsingFailureTest {
 
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
+  @Test
+  public void shouldFailOnInvalidSegmentsCount() {
+    assertThatExceptionOfType(OAuthException.class)
+        .isThrownBy(() -> Jwt.parse("one.two"))
+        .withMessageContaining("Invalid JWT");
   }
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
+  @Test
+  public void shouldFailOnInvalidBase64() {
+    assertThatExceptionOfType(OAuthException.class)
+        .isThrownBy(() -> Jwt.parse("invalid!base64.payload.signature"));
   }
 
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+  @Test
+  public void shouldFailOnInvalidJsonInside() {
+    // Header valide (ey...) mais payload corrompu
+    assertThatExceptionOfType(OAuthException.class)
+        .isThrownBy(() -> Jwt.parse("eyJhbGciOiJSUzI1NiJ9.bm90LWpzb24.signature"));
   }
 }

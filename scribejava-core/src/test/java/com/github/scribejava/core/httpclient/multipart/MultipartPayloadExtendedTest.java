@@ -21,41 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.core.httpclient.multipart;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import static org.assertj.core.api.Assertions.assertThat;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
-  protected PolarJsonTokenExtractor() {}
+/** Tests étendus pour les payloads multipart. */
+public class MultipartPayloadExtendedTest {
 
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
+  /** Vérifie l'ajout d'une partie simple. */
+  @Test
+  public void shouldHandleBodyPart() {
+    final MultipartPayload payload = new MultipartPayload();
+    final BodyPartPayload part =
+        new ByteArrayBodyPartPayload(
+            new byte[0],
+            Collections.singletonMap("Content-Disposition", "form-data; name=\"foo\""));
+    payload.addBodyPart(part);
+
+    assertThat(payload.getBodyParts()).hasSize(1);
+    assertThat(payload.getBoundary()).isNotNull();
   }
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
-  }
+  /** Vérifie le support des multiparts imbriqués. */
+  @Test
+  public void shouldHandleNestedMultipart() {
+    final MultipartPayload parent = new MultipartPayload("parent_boundary");
+    final MultipartPayload child = new MultipartPayload("child_boundary");
 
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+    parent.addBodyPart(child);
+    assertThat(parent.getBodyParts()).contains(child);
   }
 }

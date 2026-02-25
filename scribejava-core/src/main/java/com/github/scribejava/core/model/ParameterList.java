@@ -25,7 +25,12 @@ package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.utils.OAuthEncoder;
 import com.github.scribejava.core.utils.Preconditions;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /** Représente une liste de paramètres HTTP (QueryString ou corps de formulaire). */
@@ -156,6 +161,15 @@ public class ParameterList {
    */
   public int size() {
     return params.size();
+  }
+
+  /**
+   * Vérifie si la liste est vide.
+   *
+   * @return true si vide.
+   */
+  public boolean isEmpty() {
+    return params.isEmpty();
   }
 
   /**

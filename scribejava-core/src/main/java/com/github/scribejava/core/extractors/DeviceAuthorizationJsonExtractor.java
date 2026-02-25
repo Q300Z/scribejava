@@ -28,7 +28,7 @@ import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
 import java.util.Map;
 
-/** Extracteur JSON natif pour l'autorisation d'appareil (Device Flow). */
+/** Extracteur JSON natif pour le Device Flow (RFC 8628). */
 public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor<DeviceAuthorization> {
 
   protected DeviceAuthorizationJsonExtractor() {}
@@ -45,24 +45,29 @@ public class DeviceAuthorizationJsonExtractor extends AbstractJsonExtractor<Devi
     final String userCode = (String) extractRequiredParameter(response, "user_code", body);
     final String verificationUri =
         (String) extractRequiredParameter(response, "verification_uri", body);
-
-    final Number expiresInNum = (Number) extractRequiredParameter(response, "expires_in", body);
-    final int expiresIn = expiresInNum.intValue();
+    final int expiresIn = parseAsInt(response.get("expires_in"));
 
     final DeviceAuthorization deviceAuthorization =
         new DeviceAuthorization(deviceCode, userCode, verificationUri, expiresIn);
 
-    final String verificationUriComplete = (String) response.get("verification_uri_complete");
-    if (verificationUriComplete != null) {
-      deviceAuthorization.setVerificationUriComplete(verificationUriComplete);
-    }
+    deviceAuthorization.setVerificationUriComplete(
+        (String) response.get("verification_uri_complete"));
 
-    final Number intervalNum = (Number) response.get("interval");
-    if (intervalNum != null) {
-      deviceAuthorization.setIntervalSeconds(intervalNum.intValue());
+    final Object intervalObj = response.get("interval");
+    if (intervalObj != null) {
+      deviceAuthorization.setIntervalSeconds(parseAsInt(intervalObj));
     }
 
     return deviceAuthorization;
+  }
+
+  private int parseAsInt(Object obj) {
+    if (obj instanceof Number) {
+      return ((Number) obj).intValue();
+    } else if (obj instanceof String) {
+      return Integer.parseInt((String) obj);
+    }
+    throw new IllegalArgumentException("Invalid type for integer parameter: " + obj.getClass());
   }
 
   private static class InstanceHolder {

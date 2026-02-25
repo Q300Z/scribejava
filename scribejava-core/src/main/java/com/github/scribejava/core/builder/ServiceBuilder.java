@@ -101,6 +101,17 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return this;
   }
 
+  /**
+   * Active le support DPoP.
+   *
+   * @param creator Le créateur de preuves DPoP.
+   * @return L'instance actuelle du builder.
+   */
+  public ServiceBuilder dpop(com.github.scribejava.core.dpop.DPoPProofCreator creator) {
+    this.dpopProofCreator = creator;
+    return this;
+  }
+
   @Override
   public ServiceBuilder callback(String callback) {
     this.callback = callback;
@@ -155,6 +166,12 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return this;
   }
 
+  /**
+   * Définit le client HTTP à utiliser.
+   *
+   * @param httpClient Le client HTTP.
+   * @return L'instance actuelle du builder.
+   */
   public ServiceBuilder httpClient(HttpClient httpClient) {
     this.httpClient = httpClient;
     return this;

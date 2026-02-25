@@ -33,6 +33,7 @@ import com.github.scribejava.oidc.model.OidcKey;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 /** Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS. */
@@ -40,6 +41,9 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
 
   private static final String OIDC_DISCOVERY_PATH = "/.well-known/openid-configuration";
   private static final JwksParser JWKS_PARSER = new JwksParser();
+
+  // Cache simple (Statique pour être partagé entre les instances du même émetteur si besoin)
+  private static final Map<String, OidcProviderMetadata> METADATA_CACHE = new ConcurrentHashMap<>();
 
   private final HttpClient httpClient;
   private final String issuerUri;
@@ -72,6 +76,11 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
    * @return future
    */
   public CompletableFuture<OidcProviderMetadata> getProviderMetadataAsync() {
+    final OidcProviderMetadata cached = METADATA_CACHE.get(issuerUri);
+    if (cached != null) {
+      return CompletableFuture.completedFuture(cached);
+    }
+
     String base = issuerUri;
     if (base.endsWith("/")) {
       base = base.substring(0, base.length() - 1);
@@ -104,11 +113,17 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
                   "Issuer mismatch. Expected: " + issuerUri + ", Got: " + metadata.getIssuer());
             }
 
+            METADATA_CACHE.put(issuerUri, metadata);
             return metadata;
           } catch (final IOException e) {
             throw new OAuthException("Error parsing OIDC Metadata", e);
           }
         });
+  }
+
+  /** Vide le cache des métadonnées (pour tests ou rafraîchissement forcé). */
+  public static void clearCache() {
+    METADATA_CACHE.clear();
   }
 
   /**

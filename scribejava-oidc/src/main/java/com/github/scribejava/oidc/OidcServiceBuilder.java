@@ -21,41 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.apis.polar;
+package com.github.scribejava.oidc;
 
-import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
-import com.github.scribejava.core.model.JsonObject;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.httpclient.HttpClient;
 
-/** Extracteur JSON pour Polar. */
-public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
+/** Builder spécifique pour les services OpenID Connect (Support Discovery). */
+public class OidcServiceBuilder extends ServiceBuilder {
 
-  protected PolarJsonTokenExtractor() {}
-
-  public static PolarJsonTokenExtractor instance() {
-    return InstanceHolder.INSTANCE;
+  /**
+   * Constructeur.
+   *
+   * @param apiKey Client ID
+   */
+  public OidcServiceBuilder(String apiKey) {
+    super(apiKey);
   }
 
-  @Override
-  protected OAuth2AccessToken createToken(
-      String accessToken,
-      String tokenType,
-      Integer expiresIn,
-      String refreshToken,
-      String scope,
-      JsonObject json,
-      String rawResponse) {
-    return new PolarOAuth2AccessToken(
-        accessToken,
-        tokenType,
-        expiresIn,
-        refreshToken,
-        scope,
-        json.getString("x_athlete_id"),
-        rawResponse);
-  }
-
-  private static class InstanceHolder {
-    private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
+  /**
+   * Configure automatiquement les endpoints via OIDC Discovery.
+   *
+   * @param issuerUri L'URI de l'émetteur
+   * @param httpClient Le client HTTP pour faire la requête
+   * @param userAgent Le user agent
+   * @return this
+   */
+  public OidcServiceBuilder baseOnDiscovery(
+      String issuerUri, HttpClient httpClient, String userAgent) {
+    discoverFromIssuer(issuerUri, new OidcDiscoveryService(issuerUri, httpClient, userAgent));
+    return this;
   }
 }
