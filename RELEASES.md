@@ -2,8 +2,8 @@
 
 ## v9.1.0 - OIDC Enterprise Edition (Février 2026)
 **Nouveautés majeures :**
-*   **Module `integration-helpers`** : Orchestration automatisée pour la production.
-*   **OIDC Enterprise** : Coordinateur avec validation Nonce, JWT et Fallback UserInfo.
+*   **OIDC Autonome** : Moteur de validation JWT et gestion des clés (JWKS) 100% natifs (Zéro dépendance Nimbus à l'exécution).
+*   **Module `integration-helpers`** : Orchestration automatisée pour la production via `OidcAuthFlowCoordinator`.
 *   **Auto-Rafraîchissement** : `AuthorizedClientService` gère les jetons expirés de manière thread-safe.
 *   **Observabilité** : Interface `AuthEventListener` pour l'audit et le logging.
 *   **Matrix CI** : Validation certifiée sur tous les JDK de 8 à 25.

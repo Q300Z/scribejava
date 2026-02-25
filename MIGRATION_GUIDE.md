@@ -1,10 +1,29 @@
 # ⚡ Guide de Migration ScribeJava
 
-## v9.0 ➡️ v9.1 (Nouveauté recommandée)
+## v9.0 ➡️ v9.1 (OIDC Enterprise & Autonomie)
 
-La version 9.1 introduit le module `scribejava-integration-helpers`. Il ne casse rien mais simplifie tout.
+### 🛡️ Autonomie OIDC (Zéro Dépendance Runtime)
+Le module `scribejava-oidc` ne dépend plus de Nimbus à l'exécution. Les types ont été simplifiés pour utiliser le JDK.
 
-### Migration vers le Coordinateur Automatisé
+#### Validation des jetons
+L'API de `IdTokenValidator` a été modifiée pour être native.
+
+**Ancien code (v9.0) :**
+```java
+// Nécessitait des classes Nimbus (ClientID, JWKSet, Nonce)
+IdTokenValidator validator = new IdTokenValidator(issuer, new ClientID(clientId), JWSAlgorithm.RS256, jwkSet);
+validator.validate(token, new Nonce(expectedNonce), 0);
+```
+
+**Nouveau code (v9.1) :**
+```java
+// Utilise des String et des types natifs ScribeJava (OidcKey, OidcNonce)
+Map<String, OidcKey> keys = discovery.getJwks(jwksUri);
+IdTokenValidator validator = new IdTokenValidator(issuer, clientId, "RS256", keys);
+validator.validate(token, new OidcNonce(expectedNonce), 0);
+```
+
+### 🤖 Migration vers le Coordinateur Automatisé
 Si vous gériez manuellement les sessions et les validations :
 
 **Avant (Manuel) :**

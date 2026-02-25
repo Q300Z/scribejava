@@ -95,15 +95,20 @@ OAuth2AccessToken token = service.getAccessToken(grant);
 ```
 
 ### 2. OpenID Connect (OIDC) "Enterprise Ready"
-Utilisez notre coordinateur spécialisé pour automatiser les validations de sécurité (Nonce, JWT, Fallback UserInfo).
+Utilisez notre coordinateur spécialisé ou l'API native pour une autonomie totale (Zero-Dependency).
 
 ```java
-// Coordinateur spécialisé OIDC
-OidcAuthFlowCoordinator<String> coordinator = new OidcAuthFlowCoordinator<>(oidcService, repository);
+// 1. Découverte dynamique des endpoints et des clés (Natif)
+OidcDiscoveryService discovery = new OidcDiscoveryService(issuer, httpClient, userAgent);
+OidcProviderMetadata metadata = discovery.getProviderMetadata();
+Map<String, OidcKey> keys = discovery.getJwks(metadata.getJwksUri());
 
-// Termine le flux, valide le Nonce, le JWT et récupère l'email (automatiquement via UserInfo si absent du token)
+// 2. Initialisation du Validateur (Natif ScribeJava)
+IdTokenValidator validator = new IdTokenValidator(metadata.getIssuer(), clientId, "RS256", keys);
+
+// 3. Orchestration via Coordinateur (Helpers)
+OidcAuthFlowCoordinator<String> coordinator = new OidcAuthFlowCoordinator<>(oidcService, repository);
 OidcAuthResult result = coordinator.finishAuthorization(userId, code, state, sessionContext);
-System.out.println("Email vérifié : " + result.getEmail());
 ```
 
 ---
