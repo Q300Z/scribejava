@@ -92,7 +92,19 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
               throw new OAuthException(
                   "Failed to fetch OIDC Provider Metadata. Status: " + resp.getCode());
             }
-            return OidcProviderMetadata.parse(resp.getBody());
+            final OidcProviderMetadata metadata = OidcProviderMetadata.parse(resp.getBody());
+
+            final String expected = issuerUri.endsWith("/") ? issuerUri : issuerUri + "/";
+            final String got =
+                metadata.getIssuer().endsWith("/")
+                    ? metadata.getIssuer()
+                    : metadata.getIssuer() + "/";
+            if (!expected.equals(got)) {
+              throw new OAuthException(
+                  "Issuer mismatch. Expected: " + issuerUri + ", Got: " + metadata.getIssuer());
+            }
+
+            return metadata;
           } catch (final IOException e) {
             throw new OAuthException("Error parsing OIDC Metadata", e);
           }

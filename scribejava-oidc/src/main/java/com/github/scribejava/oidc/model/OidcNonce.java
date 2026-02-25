@@ -44,7 +44,8 @@ public class OidcNonce implements Serializable {
 
   /**
    * @param value La valeur brute du nonce.
-   * @throws IllegalArgumentException si la valeur est nulle, vide ou trop courte (< 16 chars).
+   * @throws IllegalArgumentException si la valeur est nulle, vide ou trop courte (moins de 16
+   *     chars).
    */
   public OidcNonce(String value) {
     if (value == null || value.trim().isEmpty()) {

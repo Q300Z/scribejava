@@ -23,45 +23,27 @@
  */
 package com.github.scribejava.core.extractors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth2.OAuth2Error;
+import com.github.scribejava.core.utils.JsonUtils;
 import com.github.scribejava.core.utils.Preconditions;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.Optional;
 
-/**
- * Implémentation JSON par défaut de {@link TokenExtractor} pour OAuth 2.0.
- *
- * @see <a href="http://tools.ietf.org/html/rfc6749#section-5.1">RFC 6749, Section 5.1 (Successful
- *     Response)</a>
- */
+/** Implémentation JSON native robuste de {@link TokenExtractor} pour OAuth 2.0. */
 public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2AccessToken> {
 
-  /** Constructeur protégé. */
   protected OAuth2AccessTokenJsonExtractor() {}
 
-  /**
-   * Retourne l'instance unique (singleton) de l'extracteur.
-   *
-   * @return L'instance de {@link OAuth2AccessTokenJsonExtractor}.
-   */
   public static OAuth2AccessTokenJsonExtractor instance() {
     return InstanceHolder.INSTANCE;
   }
 
-  /**
-   * Extrait le jeton d'accès de la réponse HTTP.
-   *
-   * @param response La réponse du serveur d'autorisation.
-   * @return Un objet {@link OAuth2AccessToken}.
-   * @throws IOException en cas d'erreur de lecture ou si le code de statut n'est pas 200.
-   */
   @Override
   public OAuth2AccessToken extract(Response response) throws IOException {
     final String body = response.getBody();
@@ -75,25 +57,17 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
   }
 
   /**
-   * Analyse la réponse d'erreur au format JSON et lève une exception dédiée.
+   * Analyse la réponse d'erreur.
    *
-   * @param response La réponse contenant l'erreur.
-   * @throws IOException toujours, sous forme de {@link OAuth2AccessTokenErrorResponse}.
-   * @see <a href="http://tools.ietf.org/html/rfc6749#section-5.2">RFC 6749, Section 5.2 (Error
-   *     Response)</a>
+   * @param response réponse
+   * @throws IOException erreur
    */
   public void generateError(Response response) throws IOException {
     final String responseBody = response.getBody();
-    final JsonNode responseBodyJson;
-    try {
-      responseBodyJson = OBJECT_MAPPER.readTree(responseBody);
-    } catch (JsonProcessingException ex) {
-      throw new OAuth2AccessTokenErrorResponse(null, null, null, response);
-    }
+    final Map<String, Object> responseMap = JsonUtils.parse(responseBody);
 
     final URI errorUri =
-        Optional.ofNullable(responseBodyJson.get("error_uri"))
-            .map(JsonNode::asText)
+        Optional.ofNullable(getAsString(responseMap.get("error_uri")))
             .map(
                 uri -> {
                   try {
@@ -105,8 +79,7 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
             .orElse(null);
 
     final OAuth2Error errorCode =
-        Optional.ofNullable(responseBodyJson.get("error"))
-            .map(JsonNode::asText)
+        Optional.ofNullable(getAsString(responseMap.get("error")))
             .map(
                 error -> {
                   try {
@@ -117,30 +90,34 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
                 })
             .orElse(null);
 
-    final String errorDescription =
-        Optional.ofNullable(responseBodyJson.get("error_description"))
-            .map(JsonNode::asText)
-            .orElse(null);
+    final String errorDescription = getAsString(responseMap.get("error_description"));
 
     throw new OAuth2AccessTokenErrorResponse(errorCode, errorDescription, errorUri, response);
   }
 
   @Override
   protected OAuth2AccessToken createToken(String rawResponse) throws IOException {
-    final JsonNode response = OBJECT_MAPPER.readTree(rawResponse);
+    final Map<String, Object> response = JsonUtils.parse(rawResponse);
 
-    final Integer expiresIn =
-        Optional.ofNullable(response.get("expires_in")).map(JsonNode::asInt).orElse(null);
-    final String refreshToken =
-        Optional.ofNullable(response.get(OAuthConstants.REFRESH_TOKEN))
-            .map(JsonNode::asText)
-            .orElse(null);
-    final String scope =
-        Optional.ofNullable(response.get(OAuthConstants.SCOPE)).map(JsonNode::asText).orElse(null);
-    final String tokenType =
-        Optional.ofNullable(response.get("token_type")).map(JsonNode::asText).orElse(null);
+    final Object expiresInObj = response.get("expires_in");
+    Integer expiresIn = null;
+    if (expiresInObj instanceof Number) {
+      expiresIn = ((Number) expiresInObj).intValue();
+    } else if (expiresInObj instanceof String) {
+      try {
+        expiresIn = Integer.parseInt((String) expiresInObj);
+      } catch (NumberFormatException e) {
+        expiresIn = null;
+      }
+    }
+
+    final String refreshToken = getAsString(response.get(OAuthConstants.REFRESH_TOKEN));
+    final String scope = getAsString(response.get(OAuthConstants.SCOPE));
+    final String tokenType = getAsString(response.get("token_type"));
+    final Object accessTokenObj =
+        extractRequiredParameter(response, OAuthConstants.ACCESS_TOKEN, rawResponse);
     final String accessToken =
-        extractRequiredParameter(response, OAuthConstants.ACCESS_TOKEN, rawResponse).asText();
+        accessTokenObj instanceof String ? (String) accessTokenObj : String.valueOf(accessTokenObj);
 
     return createToken(
         accessToken, tokenType, expiresIn, refreshToken, scope, response, rawResponse);
@@ -152,10 +129,14 @@ public class OAuth2AccessTokenJsonExtractor extends AbstractJsonExtractor<OAuth2
       Integer expiresIn,
       String refreshToken,
       String scope,
-      JsonNode response,
+      Map<String, Object> response,
       String rawResponse) {
     return new OAuth2AccessToken(
         accessToken, tokenType, expiresIn, refreshToken, scope, rawResponse);
+  }
+
+  private String getAsString(Object obj) {
+    return obj instanceof String ? (String) obj : null;
   }
 
   private static class InstanceHolder {

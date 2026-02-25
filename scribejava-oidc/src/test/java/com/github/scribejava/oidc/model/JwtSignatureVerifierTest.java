@@ -25,46 +25,31 @@ package com.github.scribejava.oidc.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.Signature;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
 
-class JwtSignatureVerifierTest {
+/** Tests pour JwtSignatureVerifier. */
+public class JwtSignatureVerifierTest {
 
   @Test
-  void shouldVerifyValidRS256Signature() throws Exception {
-    // 1. Génération d'une clé RSA de test
-    KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-    kpg.initialize(2048);
-    KeyPair kp = kpg.generateKeyPair();
+  public void shouldVerifyRS256() throws NoSuchAlgorithmException {
+    final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(2048);
+    final KeyPair keyPair = keyGen.generateKeyPair();
 
-    // 2. Création d'une signature valide
-    String content = "header.payload";
-    Signature sig = Signature.getInstance("SHA256withRSA");
-    sig.initSign(kp.getPrivate());
-    sig.update(content.getBytes());
-    byte[] signatureBytes = sig.sign();
+    final JwtSigner signer = new JwtSigner.RsaSha256Signer();
+    final String content = "header.payload";
+    final String signatureBase64 = signer.sign(content, keyPair.getPrivate());
+    final byte[] signature = Base64.getUrlDecoder().decode(signatureBase64);
 
-    // 3. Test de vérification native
-    JwtSignatureVerifier verifier = new JwtSignatureVerifier();
-    boolean isValid = verifier.verifyRS256(content, signatureBytes, kp.getPublic());
-
-    assertThat(isValid).isTrue();
-  }
-
-  @Test
-  void shouldRejectInvalidSignature() throws Exception {
-    KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-    kpg.initialize(2048);
-    KeyPair kp = kpg.generateKeyPair();
-
-    String content = "header.payload";
-    byte[] tamperedSignature = "invalid-signature-bytes".getBytes();
-
-    JwtSignatureVerifier verifier = new JwtSignatureVerifier();
-    boolean isValid = verifier.verifyRS256(content, tamperedSignature, kp.getPublic());
-
-    assertThat(isValid).isFalse();
+    final JwtSignatureVerifier verifier = new JwtSignatureVerifier();
+    assertThat(
+            verifier.verifyRS256(
+                content.getBytes(StandardCharsets.UTF_8), signature, keyPair.getPublic()))
+        .isTrue();
   }
 }

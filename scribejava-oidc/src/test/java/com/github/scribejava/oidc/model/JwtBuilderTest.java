@@ -21,22 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.oidc;
+package com.github.scribejava.oidc.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import org.junit.jupiter.api.Test;
 
-/** Tests pour le Logout OIDC. */
-public class OidcLogoutTest {
+/** Tests pour {@link JwtBuilder}. */
+public class JwtBuilderTest {
 
+  /**
+   * Test complet de construction et signature.
+   *
+   * @throws Exception erreur
+   */
   @Test
-  public void shouldTestLogoutServiceCreation() {
-    final DefaultOidcApi20 api = mock(DefaultOidcApi20.class);
-    final OidcService service =
-        new OidcService(
-            api, "key", "secret", "callback", null, null, null, "userAgent", null, null);
-    assertThat(service).isNotNull();
+  public void shouldBuildAndSignJwt() throws Exception {
+    final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+    kpg.initialize(2048);
+    final KeyPair kp = kpg.generateKeyPair();
+
+    final String jwtString =
+        new JwtBuilder()
+            .header("kid", "key-1")
+            .claim("iss", "https://idp.com")
+            .claim("sub", "user-123")
+            .buildAndSign(new JwtSigner.RsaSha256Signer(), kp.getPrivate());
+
+    assertThat(jwtString).contains(".");
+    final String[] parts = jwtString.split("\\.");
+    assertThat(parts).hasSize(3);
+
+    final Jwt jwt = Jwt.parse(jwtString);
+    assertThat(jwt.getHeader().get("kid")).isEqualTo("key-1");
+    assertThat(jwt.getPayload().get("sub")).isEqualTo("user-123");
+
+    final JwtSignatureVerifier verifier = new JwtSignatureVerifier();
+    assertThat(verifier.verifyRS256(jwt.getSignedContent(), jwt.getSignature(), kp.getPublic()))
+        .isTrue();
   }
 }

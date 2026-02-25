@@ -21,22 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.oidc;
+package com.github.scribejava.oidc.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import com.github.scribejava.core.utils.JsonUtils;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+/** Sérialiseur natif pour JWT. */
+public class JwtSerializer {
 
-/** Tests pour le Logout OIDC. */
-public class OidcLogoutTest {
+  private JwtSerializer() {}
 
-  @Test
-  public void shouldTestLogoutServiceCreation() {
-    final DefaultOidcApi20 api = mock(DefaultOidcApi20.class);
-    final OidcService service =
-        new OidcService(
-            api, "key", "secret", "callback", null, null, null, "userAgent", null, null);
-    assertThat(service).isNotNull();
+  /**
+   * Sérialise une Map en JSON encodé Base64URL.
+   *
+   * @param claims claims
+   * @return String
+   */
+  public static String serialize(Map<String, Object> claims) {
+    final String json = JsonUtils.toJson(claims);
+    return Base64.getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(json.getBytes(StandardCharsets.UTF_8));
   }
 }

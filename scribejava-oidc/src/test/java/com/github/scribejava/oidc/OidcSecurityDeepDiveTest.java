@@ -51,6 +51,11 @@ public class OidcSecurityDeepDiveTest {
   private RSAKey rsaKey;
   private Map<String, OidcKey> keys;
 
+  /**
+   * Initialisation des clés et du validateur.
+   *
+   * @throws Exception en cas d'erreur
+   */
   @BeforeEach
   public void setUp() throws Exception {
     rsaKey = new RSAKeyGenerator(2048).keyID("rsa-1").generate();
@@ -58,6 +63,11 @@ public class OidcSecurityDeepDiveTest {
     keys.put(rsaKey.getKeyID(), new RsaOidcKey(rsaKey.getKeyID(), "RS256", rsaKey.toPublicKey()));
   }
 
+  /**
+   * Vérifie que le rejet d'un jeton expiré fonctionne.
+   *
+   * @throws Exception en cas d'erreur
+   */
   @Test
   public void shouldRejectExpiredToken() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -72,6 +82,11 @@ public class OidcSecurityDeepDiveTest {
         OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
   }
 
+  /**
+   * Vérifie la gestion de plusieurs audiences avec azp.
+   *
+   * @throws Exception en cas d'erreur
+   */
   @Test
   public void shouldHandleMultipleAudiencesWithAzp() throws Exception {
     final JWTClaimsSet claimsSet =
@@ -88,6 +103,11 @@ public class OidcSecurityDeepDiveTest {
     assertThat(validatedToken).isNotNull();
   }
 
+  /**
+   * Vérifie le rejet de plusieurs audiences sans azp.
+   *
+   * @throws Exception en cas d'erreur
+   */
   @Test
   public void shouldRejectMultipleAudiencesWithoutAzp() throws Exception {
     final JWTClaimsSet claimsSet =

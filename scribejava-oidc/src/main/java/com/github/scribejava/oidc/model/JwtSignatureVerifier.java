@@ -26,26 +26,22 @@ package com.github.scribejava.oidc.model;
 import java.security.PublicKey;
 import java.security.Signature;
 
-/**
- * Validateur de signature pour les JSON Web Tokens.
- *
- * <p>Utilise exclusivement les API natives de sécurité Java pour éviter les dépendances externes.
- */
+/** Validateur de signature pour les JSON Web Tokens natif. */
 public class JwtSignatureVerifier {
 
   /**
    * Vérifie une signature RS256.
    *
-   * @param content Le contenu signé (header.payload).
+   * @param signedContent Le contenu signé (bytes).
    * @param signature La signature brute.
    * @param publicKey La clé publique de l'émetteur.
    * @return true si la signature est valide.
    */
-  public boolean verifyRS256(String content, byte[] signature, PublicKey publicKey) {
+  public boolean verifyRS256(byte[] signedContent, byte[] signature, PublicKey publicKey) {
     try {
       final Signature sig = Signature.getInstance("SHA256withRSA");
       sig.initVerify(publicKey);
-      sig.update(content.getBytes());
+      sig.update(signedContent);
       return sig.verify(signature);
     } catch (Exception e) {
       return false;

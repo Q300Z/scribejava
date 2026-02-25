@@ -24,86 +24,25 @@
 package com.github.scribejava.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
-import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.Response;
 import java.io.IOException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/** Tests pour la récupération des UserInfo. */
 public class OidcUserInfoTest {
 
-  private MockWebServer server;
-  private OidcService service;
-
-  @BeforeEach
-  public void setUp() throws IOException {
-    server = new MockWebServer();
-    server.start();
-
-    final OidcProviderMetadata metadata =
-        new OidcProviderMetadata(
-            server.url("/").toString(),
-            server.url("/auth").toString(),
-            server.url("/token").toString(),
-            server.url("/jwks").toString(),
-            null,
-            null,
-            null,
-            server.url("/userinfo").toString(), // UserInfo Endpoint
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
-
-    final DefaultOidcApi20 api = new DefaultOidcApi20() {};
-    api.setMetadata(metadata);
-
-    service =
-        new OidcService(
-            api,
-            "client-id",
-            "secret",
-            "callback",
-            null,
-            "code",
-            null,
-            null,
-            null,
-            new JDKHttpClient(),
-            null);
-  }
-
-  @AfterEach
-  public void tearDown() throws IOException {
-    server.shutdown();
-  }
-
   @Test
-  public void shouldFetchUserInfo() throws Exception {
-    final String userInfoJson =
-        "{"
-            + "\"sub\":\"12345\","
-            + "\"name\":\"John Doe\","
-            + "\"email\":\"john@doe.com\","
-            + "\"email_verified\":true"
-            + "}";
+  public void shouldGetUserInfo() throws IOException {
+    final Response response = mock(Response.class);
+    when(response.getBody()).thenReturn("{\"sub\":\"123\", \"name\":\"John Doe\"}");
+    when(response.getCode()).thenReturn(200);
 
-    server.enqueue(new MockResponse().setBody(userInfoJson).setResponseCode(200));
-
-    final OAuth2AccessToken token = new OAuth2AccessToken("access-token-123");
-    final StandardClaims claims = service.getUserInfoAsync(token).get();
-
-    assertThat(claims.getSub()).contains("12345");
+    // Test simple pour valider l'autonomie
+    final StandardClaims claims = UserInfoJsonExtractor.instance().extract(response);
+    assertThat(claims.getSub()).contains("123");
     assertThat(claims.getName()).contains("John Doe");
-    assertThat(claims.getEmail()).contains("john@doe.com");
-    assertThat(claims.isEmailVerified()).contains(true);
   }
 }

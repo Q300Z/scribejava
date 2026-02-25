@@ -23,64 +23,69 @@
  */
 package com.github.scribejava.oidc.model;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
+import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.utils.JsonUtils;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
-/**
- * Représentation native d'un JSON Web Token (JWT).
- *
- * <p>Permet de parser et d'accéder aux composants d'un jeton sans dépendre de bibliothèques tiers
- * complexes de gestion de session.
- */
+/** Représentation native et autonome d'un JSON Web Token (JWT). */
 public class Jwt {
-
-  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private final Map<String, Object> header;
   private final Map<String, Object> payload;
   private final byte[] signature;
+  private final String rawToken;
   private final String signedContent;
 
-  private Jwt(
+  public Jwt(
       Map<String, Object> header,
       Map<String, Object> payload,
       byte[] signature,
+      String rawToken,
       String signedContent) {
     this.header = header;
     this.payload = payload;
     this.signature = signature;
+    this.rawToken = rawToken;
     this.signedContent = signedContent;
   }
 
   /**
-   * Parse une chaîne brute en objet Jwt.
+   * Parse un jeton JWT sérialisé.
    *
-   * @param rawToken Le token au format header.payload.signature.
-   * @return Une instance de {@link Jwt}.
-   * @throws IllegalArgumentException si le format est invalide.
+   * @param rawToken Le jeton au format String.
+   * @return Une instance de Jwt.
    */
   public static Jwt parse(String rawToken) {
+    if (rawToken == null) {
+      throw new OAuthException("JWT token cannot be null");
+    }
     final String[] parts = rawToken.split("\\.");
     if (parts.length != 3) {
-      throw new IllegalArgumentException("Invalid JWT format. Expected 3 parts separated by dots.");
+      throw new OAuthException("Invalid JWT format. Expected 3 parts but found " + parts.length);
     }
 
     try {
-      final Map<String, Object> header = MAPPER.readValue(decode(parts[0]), Map.class);
-      final Map<String, Object> payload = MAPPER.readValue(decode(parts[1]), Map.class);
-      final byte[] signature = decode(parts[2]);
+      final Base64.Decoder decoder = Base64.getUrlDecoder();
+      final String headerJson = new String(decoder.decode(parts[0]), StandardCharsets.UTF_8);
+      final String payloadJson = new String(decoder.decode(parts[1]), StandardCharsets.UTF_8);
+      final byte[] signature = decoder.decode(parts[2]);
       final String signedContent = parts[0] + "." + parts[1];
 
-      return new Jwt(header, payload, signature, signedContent);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Failed to parse JWT JSON content.", e);
+      return new Jwt(
+          JsonUtils.parse(headerJson),
+          JsonUtils.parse(payloadJson),
+          signature,
+          rawToken,
+          signedContent);
+    } catch (Exception ex) {
+      throw new OAuthException("Failed to parse JWT: " + ex.getMessage(), ex);
     }
   }
 
-  private static byte[] decode(String part) {
-    return Base64.getUrlDecoder().decode(part);
+  public byte[] getSignedContent() {
+    return signedContent.getBytes(StandardCharsets.UTF_8);
   }
 
   public Map<String, Object> getHeader() {
@@ -95,7 +100,7 @@ public class Jwt {
     return signature;
   }
 
-  public String getSignedContent() {
-    return signedContent;
+  public String getRawToken() {
+    return rawToken;
   }
 }

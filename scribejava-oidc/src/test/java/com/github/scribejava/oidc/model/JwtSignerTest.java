@@ -21,22 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.oidc;
+package com.github.scribejava.oidc.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import org.junit.jupiter.api.Test;
 
-/** Tests pour le Logout OIDC. */
-public class OidcLogoutTest {
+/** Tests pour JwtSigner. */
+public class JwtSignerTest {
 
   @Test
-  public void shouldTestLogoutServiceCreation() {
-    final DefaultOidcApi20 api = mock(DefaultOidcApi20.class);
-    final OidcService service =
-        new OidcService(
-            api, "key", "secret", "callback", null, null, null, "userAgent", null, null);
-    assertThat(service).isNotNull();
+  public void shouldSignRS256() throws NoSuchAlgorithmException {
+    final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(2048);
+    final KeyPair keyPair = keyGen.generateKeyPair();
+
+    final JwtSigner signer = new JwtSigner.RsaSha256Signer();
+    final String signature = signer.sign("header.payload", keyPair.getPrivate());
+
+    assertThat(signature).isNotNull();
+    assertThat(signature).isNotEmpty();
   }
 }

@@ -23,58 +23,20 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
-import java.io.IOException;
-import java.util.Collections;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import com.github.scribejava.core.utils.JsonUtils;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
 
+/** Tests pour l'enregistrement dynamique. */
 public class OidcRegistrationTest {
 
-  private MockWebServer server;
-  private OidcRegistrationService service;
-
-  @Before
-  public void setUp() throws IOException {
-    server = new MockWebServer();
-    server.start();
-    service = new OidcRegistrationService(new JDKHttpClient(), "ScribeJava-Test");
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    server.shutdown();
-  }
-
   @Test
-  public void shouldRegisterClient() throws Exception {
-    final String registrationResponse =
-        "{"
-            + "\"client_id\":\"generated-client-id\","
-            + "\"client_secret\":\"generated-client-secret\","
-            + "\"client_id_issued_at\":1577836800"
-            + "}";
-
-    server.enqueue(new MockResponse().setBody(registrationResponse).setResponseCode(201));
-
-    final JsonNode result =
-        service
-            .registerClientAsync(
-                server.url("/register").toString(),
-                Collections.singletonList("https://client.example.com/cb"),
-                "My App",
-                "private_key_jwt")
-            .get();
-
-    assertNotNull(result);
-    assertEquals("generated-client-id", result.get("client_id").asText());
-    assertEquals("generated-client-secret", result.get("client_secret").asText());
+  public void shouldParseRegistrationResponse() {
+    final String body = "{\"client_id\":\"123\", \"client_secret\":\"abc\"}";
+    final Map<String, Object> response = JsonUtils.parse(body);
+    assertThat(response.get("client_id")).isEqualTo("123");
+    assertThat(response.get("client_secret")).isEqualTo("abc");
   }
 }

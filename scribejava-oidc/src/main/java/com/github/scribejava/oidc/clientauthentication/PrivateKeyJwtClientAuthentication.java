@@ -26,63 +26,35 @@ package com.github.scribejava.oidc.clientauthentication;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import java.util.Date;
+import com.github.scribejava.oidc.model.JwtBuilder;
+import com.github.scribejava.oidc.model.JwtSigner;
+import java.security.PrivateKey;
 import java.util.UUID;
 
-/**
- * Authentification du client via un jeton porteur JSON Web Token (JWT).
- *
- * <p>Implémente la méthode d'authentification {@code private_key_jwt} permettant une sécurité
- * renforcée en prouvant la possession d'une clé privée au lieu d'utiliser un secret partagé.
- *
- * <ul>
- *   <li><b>RFC 7523:</b> JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication (Section
- *       2.2)
- *   <li><b>OpenID Connect Core 1.0:</b> Section 9 (Client Authentication)
- * </ul>
- */
+/** Authentification du client via un jeton porteur JSON Web Token (JWT). */
 public class PrivateKeyJwtClientAuthentication implements ClientAuthentication {
 
   private static final int EXPIRATION_TIMEOUT_MS = 5 * 60 * 1000;
   private final String clientId;
   private final String audience;
-  private final JWK privateJWK;
-  private final JWSAlgorithm jwsAlgorithm;
+  private final PrivateKey privateKey;
+  private final String keyId;
+  private final JwtSigner signer;
 
   /**
-   * Constructeur.
-   *
-   * @param clientId L'identifiant du client (Client ID).
-   * @param audience L'audience attendue par le serveur (typiquement l'URL du point de terminaison
-   *     de jeton).
-   * @param privateJWK La clé privée du client au format JWK.
-   * @param jwsAlgorithm L'algorithme de signature à utiliser (ex: RS256, ES256).
-   * @throws IllegalArgumentException si la clé fournie n'est pas une clé privée.
+   * @param clientId client id
+   * @param audience audience
+   * @param privateKey clé privée
+   * @param keyId id de la clé (facultatif)
+   * @param signer signataire
    */
   public PrivateKeyJwtClientAuthentication(
-      final String clientId,
-      final String audience,
-      final JWK privateJWK,
-      final JWSAlgorithm jwsAlgorithm) {
+      String clientId, String audience, PrivateKey privateKey, String keyId, JwtSigner signer) {
     this.clientId = clientId;
     this.audience = audience;
-    this.privateJWK = privateJWK;
-    this.jwsAlgorithm = jwsAlgorithm;
-
-    if (!privateJWK.isPrivate()) {
-      throw new IllegalArgumentException("JWK must contain a private key.");
-    }
+    this.privateKey = privateKey;
+    this.keyId = keyId;
+    this.signer = signer;
   }
 
   @Override
@@ -105,36 +77,24 @@ public class PrivateKeyJwtClientAuthentication implements ClientAuthentication {
   }
 
   private String createAssertion() {
-    final JWSHeader header =
-        new JWSHeader.Builder(jwsAlgorithm).keyID(privateJWK.getKeyID()).build();
-
     final long now = System.currentTimeMillis();
-    final JWTClaimsSet claimsSet =
-        new JWTClaimsSet.Builder()
-            .issuer(clientId)
-            .subject(clientId)
-            .audience(audience)
-            .expirationTime(new Date(now + EXPIRATION_TIMEOUT_MS))
-            .issueTime(new Date(now))
-            .jwtID(UUID.randomUUID().toString())
-            .build();
+    final JwtBuilder builder =
+        new JwtBuilder()
+            .claim("iss", clientId)
+            .claim("sub", clientId)
+            .claim("aud", audience)
+            .claim("exp", (now + EXPIRATION_TIMEOUT_MS) / 1000)
+            .claim("iat", now / 1000)
+            .claim("jti", UUID.randomUUID().toString());
 
-    final SignedJWT signedJWT = new SignedJWT(header, claimsSet);
-
-    try {
-      final JWSSigner signer;
-      if (privateJWK instanceof RSAKey) {
-        signer = new RSASSASigner((RSAKey) privateJWK);
-      } else if (privateJWK instanceof ECKey) {
-        signer = new ECDSASigner((ECKey) privateJWK);
-      } else {
-        throw new OAuthException("Unsupported JWK type: " + privateJWK.getClass().getName());
-      }
-      signedJWT.sign(signer);
-    } catch (final JOSEException e) {
-      throw new OAuthException("Error signing client assertion JWT", e);
+    if (keyId != null) {
+      builder.header("kid", keyId);
     }
 
-    return signedJWT.serialize();
+    try {
+      return builder.buildAndSign(signer, privateKey);
+    } catch (OAuthException e) {
+      throw new OAuthException("Error signing client assertion JWT", e);
+    }
   }
 }

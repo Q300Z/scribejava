@@ -21,22 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.github.scribejava.oidc;
+package com.github.scribejava.oidc.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import java.security.PrivateKey;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+/** Constructeur fluide pour JWT natif. */
+public class JwtBuilder {
 
-/** Tests pour le Logout OIDC. */
-public class OidcLogoutTest {
+  private final Map<String, Object> header = new LinkedHashMap<>();
+  private final Map<String, Object> payload = new LinkedHashMap<>();
 
-  @Test
-  public void shouldTestLogoutServiceCreation() {
-    final DefaultOidcApi20 api = mock(DefaultOidcApi20.class);
-    final OidcService service =
-        new OidcService(
-            api, "key", "secret", "callback", null, null, null, "userAgent", null, null);
-    assertThat(service).isNotNull();
+  public JwtBuilder header(String name, Object value) {
+    header.put(name, value);
+    return this;
+  }
+
+  public JwtBuilder payload(String name, Object value) {
+    payload.put(name, value);
+    return this;
+  }
+
+  public JwtBuilder claim(String name, Object value) {
+    return payload(name, value);
+  }
+
+  public String buildAndSign(JwtSigner signer, PrivateKey privateKey) {
+    header.put("alg", signer.getAlgorithm());
+    final String hBase64 = JwtSerializer.serialize(header);
+    final String pBase64 = JwtSerializer.serialize(payload);
+    final String content = hBase64 + "." + pBase64;
+    final String signature = signer.sign(content, privateKey);
+    return content + "." + signature;
   }
 }

@@ -23,39 +23,25 @@
  */
 package com.github.scribejava.oidc;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Service gérant l'enregistrement dynamique des clients (Dynamic Client Registration).
- *
- * <p>Permet à un client de s'enregistrer automatiquement auprès d'un fournisseur OpenID en
- * fournissant ses métadonnées (URIs de redirection, nom, méthode d'authentification).
- *
- * @see <a href="http://openid.net/specs/openid-connect-registration-1_0.html">OpenID Connect
- *     Dynamic Client Registration 1.0</a>
- * @see <a href="https://tools.ietf.org/html/rfc7591">RFC 7591 (OAuth 2.0 Dynamic Client
- *     Registration Protocol)</a>
- */
+/** Service gérant l'enregistrement dynamique des clients (Dynamic Client Registration) natif. */
 public class OidcRegistrationService {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private final HttpClient httpClient;
   private final String userAgent;
 
   /**
-   * Constructeur.
-   *
    * @param httpClient Le client HTTP à utiliser.
    * @param userAgent La chaîne User-Agent.
    */
@@ -72,24 +58,22 @@ public class OidcRegistrationService {
    * @param clientName Nom convivial du client.
    * @param tokenEndpointAuthMethod Méthode d'authentification souhaitée au point de terminaison de
    *     jeton.
-   * @return Un {@link CompletableFuture} contenant la réponse du serveur sous forme de {@link
-   *     JsonNode}.
+   * @return Un {@link CompletableFuture} contenant la réponse du serveur sous forme de Map.
    */
-  public CompletableFuture<JsonNode> registerClientAsync(
+  public CompletableFuture<Map<String, Object>> registerClientAsync(
       final String registrationEndpoint,
       final List<String> redirectUris,
       final String clientName,
       final String tokenEndpointAuthMethod) {
-    final ObjectNode registrationRequest = OBJECT_MAPPER.createObjectNode();
-    final ArrayNode redirectUrisNode = registrationRequest.putArray("redirect_uris");
-    redirectUris.forEach(redirectUrisNode::add);
+    final Map<String, Object> registrationRequest = new HashMap<>();
+    registrationRequest.put("redirect_uris", redirectUris);
     registrationRequest.put("client_name", clientName);
     if (tokenEndpointAuthMethod != null) {
       registrationRequest.put("token_endpoint_auth_method", tokenEndpointAuthMethod);
     }
 
     final OAuthRequest request = new OAuthRequest(Verb.POST, registrationEndpoint);
-    request.setPayload(registrationRequest.toString());
+    request.setPayload(JsonUtils.toJson(registrationRequest));
     request.addHeader("Content-Type", "application/json");
 
     return httpClient.executeAsync(
@@ -108,7 +92,7 @@ public class OidcRegistrationService {
                       + ", Body: "
                       + resp.getBody());
             }
-            return OBJECT_MAPPER.readTree(resp.getBody());
+            return JsonUtils.parse(resp.getBody());
           } catch (final IOException e) {
             throw new OAuthException("Error parsing registration response", e);
           }

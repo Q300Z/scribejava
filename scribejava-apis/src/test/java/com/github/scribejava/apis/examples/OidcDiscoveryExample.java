@@ -108,8 +108,8 @@ public class OidcDiscoveryExample {
 
       System.out.println("Validation de l'ID Token...");
       final IdToken idToken = service.validateIdToken(token, null);
-      System.out.println("Utilisateur identifié (Subject) : " + idToken.getSubject());
-      System.out.println("Email (depuis JWT) : " + idToken.getClaimsSet().getStringClaim("email"));
+      System.out.println("Utilisateur identifié (Subject) : " + idToken.getClaim("sub"));
+      System.out.println("Email (depuis JWT) : " + idToken.getClaim("email"));
     }
 
     // 6. Récupération des UserInfo (Appel API haut niveau)

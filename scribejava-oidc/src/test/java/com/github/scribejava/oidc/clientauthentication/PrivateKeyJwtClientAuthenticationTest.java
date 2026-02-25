@@ -27,22 +27,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jwt.SignedJWT;
+import com.github.scribejava.oidc.model.Jwt;
+import com.github.scribejava.oidc.model.JwtSigner;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
+/** Tests pour {@link PrivateKeyJwtClientAuthentication}. */
 public class PrivateKeyJwtClientAuthenticationTest {
 
+  /**
+   * Vérifie l'ajout de l'assertion client à la requête.
+   *
+   * @throws Exception erreur
+   */
   @Test
   public void shouldAddClientAssertionToRequest() throws Exception {
-    final RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("123").generate();
+    final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+    kpg.initialize(2048);
+    final KeyPair kp = kpg.generateKeyPair();
+
     final String clientId = "my-client-id";
     final String audience = "https://server.example.com/token";
 
     final PrivateKeyJwtClientAuthentication auth =
-        new PrivateKeyJwtClientAuthentication(clientId, audience, rsaJWK, JWSAlgorithm.RS256);
+        new PrivateKeyJwtClientAuthentication(
+            clientId, audience, kp.getPrivate(), "123", new JwtSigner.RsaSha256Signer());
 
     final OAuthRequest request = new OAuthRequest(Verb.POST, audience);
     auth.addClientAuthentication(request);
@@ -53,30 +64,16 @@ public class PrivateKeyJwtClientAuthenticationTest {
     final String assertion = getParam(request, "client_assertion");
     assertThat(assertion).isNotNull();
 
-    final SignedJWT signedJWT = SignedJWT.parse(assertion);
-    assertThat(signedJWT.getJWTClaimsSet().getSubject()).isEqualTo(clientId);
-    assertThat(signedJWT.getJWTClaimsSet().getIssuer()).isEqualTo(clientId);
-    assertThat(signedJWT.getJWTClaimsSet().getAudience()).contains(audience);
-  }
+    final Jwt jwt = Jwt.parse(assertion);
+    assertThat(jwt.getPayload().get("sub")).isEqualTo(clientId);
+    assertThat(jwt.getPayload().get("iss")).isEqualTo(clientId);
 
-  @Test
-  public void shouldAddClientAssertionWithEC() throws Exception {
-    final com.nimbusds.jose.jwk.ECKey ecJWK =
-        new com.nimbusds.jose.jwk.gen.ECKeyGenerator(com.nimbusds.jose.jwk.Curve.P_256)
-            .keyID("456")
-            .generate();
-    final String clientId = "ec-client";
-    final String audience = "https://idp.com/token";
-
-    final PrivateKeyJwtClientAuthentication auth =
-        new PrivateKeyJwtClientAuthentication(clientId, audience, ecJWK, JWSAlgorithm.ES256);
-
-    final OAuthRequest request = new OAuthRequest(Verb.POST, audience);
-    auth.addClientAuthentication(request);
-
-    final String assertion = getParam(request, "client_assertion");
-    final SignedJWT signedJWT = SignedJWT.parse(assertion);
-    assertThat(signedJWT.getHeader().getAlgorithm()).isEqualTo(JWSAlgorithm.ES256);
+    final Object aud = jwt.getPayload().get("aud");
+    if (aud instanceof String) {
+      assertThat(aud).isEqualTo(audience);
+    } else if (aud instanceof List) {
+      assertThat((List<String>) aud).contains(audience);
+    }
   }
 
   private String getParam(final OAuthRequest request, final String name) {

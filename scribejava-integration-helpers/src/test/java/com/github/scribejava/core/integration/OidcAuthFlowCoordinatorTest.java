@@ -80,9 +80,9 @@ class OidcAuthFlowCoordinatorTest {
     IdToken idToken = mock(IdToken.class);
 
     // StandardClaims is immutable
-    StandardClaims initialClaims = new StandardClaims(Collections.emptyMap());
+    Map<String, Object> initialMap = Collections.emptyMap();
 
-    when(idToken.getStandardClaims()).thenReturn(initialClaims);
+    when(idToken.getClaims()).thenReturn(initialMap);
     when(mockOidcService.getAccessToken(any(OAuth20Grant.class))).thenReturn(token);
     when(mockOidcService.validateIdToken(any(), any())).thenReturn(idToken);
 

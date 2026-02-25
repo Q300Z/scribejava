@@ -24,33 +24,24 @@
 package com.github.scribejava.apis.google;
 
 import com.github.scribejava.core.extractors.DeviceAuthorizationJsonExtractor;
+import com.github.scribejava.core.model.DeviceAuthorization;
+import java.io.IOException;
 
-/**
- * Extracteur JSON pour la réponse d'autorisation d'appareil (Device Authorization) de Google.
- *
- * @see <a href="https://tools.ietf.org/html/rfc8628">RFC 8628</a>
- */
+/** Extracteur JSON spécifique à Google pour le Device Flow. */
 public class GoogleDeviceAuthorizationJsonExtractor extends DeviceAuthorizationJsonExtractor {
 
-  /** Constructeur protégé. */
   protected GoogleDeviceAuthorizationJsonExtractor() {}
 
-  /**
-   * Retourne l'instance unique (singleton) de l'extracteur.
-   *
-   * @return L'instance de {@link GoogleDeviceAuthorizationJsonExtractor}.
-   */
   public static GoogleDeviceAuthorizationJsonExtractor instance() {
-    return GoogleDeviceAuthorizationJsonExtractor.InstanceHolder.INSTANCE;
+    return InstanceHolder.INSTANCE;
   }
 
   @Override
-  protected String getVerificationUriParamName() {
-    return "verification_url";
+  protected DeviceAuthorization createToken(String body) throws IOException {
+    return super.createToken(body);
   }
 
   private static class InstanceHolder {
-
     private static final GoogleDeviceAuthorizationJsonExtractor INSTANCE =
         new GoogleDeviceAuthorizationJsonExtractor();
   }

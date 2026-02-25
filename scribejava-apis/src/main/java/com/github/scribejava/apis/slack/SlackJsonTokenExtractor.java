@@ -23,22 +23,16 @@
  */
 package com.github.scribejava.apis.slack;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
+import java.util.Map;
 
-/** Extracteur JSON pour les jetons Slack. */
+/** Extracteur JSON pour Slack. */
 public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
-  /** Constructeur protégé. */
   protected SlackJsonTokenExtractor() {}
 
-  /**
-   * Retourne l'instance unique (singleton) de l'extracteur.
-   *
-   * @return L'instance de {@link SlackJsonTokenExtractor}.
-   */
   public static SlackJsonTokenExtractor instance() {
-    return SlackJsonTokenExtractor.InstanceHolder.INSTANCE;
+    return InstanceHolder.INSTANCE;
   }
 
   @Override
@@ -48,14 +42,13 @@ public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
       Integer expiresIn,
       String refreshToken,
       String scope,
-      JsonNode response,
+      Map<String, Object> response,
       String rawResponse) {
-    final String userAccessToken;
-    final JsonNode userAccessTokenNode = response.get("authed_user").get("access_token");
-    if (userAccessTokenNode == null) {
-      userAccessToken = "";
-    } else {
-      userAccessToken = userAccessTokenNode.asText();
+
+    final Object authedUser = response.get("authed_user");
+    String userAccessToken = null;
+    if (authedUser instanceof Map) {
+      userAccessToken = (String) ((Map<?, ?>) authedUser).get("access_token");
     }
 
     return new SlackOAuth2AccessToken(
@@ -63,7 +56,6 @@ public class SlackJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
   }
 
   private static class InstanceHolder {
-
     private static final SlackJsonTokenExtractor INSTANCE = new SlackJsonTokenExtractor();
   }
 }

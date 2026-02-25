@@ -24,123 +24,40 @@
 package com.github.scribejava.oidc;
 
 import com.github.scribejava.core.model.Token;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import java.text.ParseException;
+import com.github.scribejava.oidc.model.Jwt;
 import java.util.Map;
 
-/**
- * Représente un jeton d'identité (ID Token) OpenID Connect.
- *
- * <p>Le jeton d'identité est un jeton de sécurité qui contient des revendications (claims) sur
- * l'authentification d'un utilisateur final par un serveur d'autorisation. Il est représenté sous
- * forme de JSON Web Token (JWT).
- *
- * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">OpenID Connect Core
- *     1.0, Section 2 (ID Token)</a>
- */
+/** Représentation d'un ID Token OpenID Connect natif. */
 public class IdToken extends Token {
 
-  private static final long serialVersionUID = 1L;
-  private final String rawToken;
-  private final JWTClaimsSet claimsSet;
+  private static final long serialVersionUID = -543543543543L;
+  private final Map<String, Object> claims;
 
   /**
-   * Construit un ID Token à partir de sa représentation textuelle brute (JWT).
-   *
-   * @param rawToken Le jeton au format JWT sérialisé.
-   * @throws com.github.scribejava.core.exceptions.OAuthException si le jeton ne peut pas être
-   *     analysé.
+   * @param rawIdToken chaîne brute
    */
-  public IdToken(final String rawToken) {
-    super(rawToken);
-    this.rawToken = rawToken;
-    try {
-      this.claimsSet = SignedJWT.parse(rawToken).getJWTClaimsSet();
-    } catch (final ParseException e) {
-      throw new com.github.scribejava.core.exceptions.OAuthException("Failed to parse ID Token", e);
-    }
+  public IdToken(String rawIdToken) {
+    super(rawIdToken);
+    this.claims = Jwt.parse(rawIdToken).getPayload();
   }
 
   /**
-   * Retourne la réponse brute du jeton.
-   *
-   * @return Le jeton sous sa forme brute.
-   */
-  @Override
-  public String getRawResponse() {
-    return rawToken;
-  }
-
-  /**
-   * Retourne l'ensemble des revendications (Claims) contenues dans le jeton.
-   *
-   * @return L'instance de {@link JWTClaimsSet}.
-   */
-  public JWTClaimsSet getClaimsSet() {
-    return claimsSet;
-  }
-
-  /**
-   * Retourne l'identifiant du sujet (End-User).
-   *
-   * @return La valeur de la revendication "sub".
-   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">Section 2, Claim
-   *     "sub"</a>
-   */
-  public String getSubject() {
-    return claimsSet.getSubject();
-  }
-
-  /**
-   * Retourne l'identifiant de l'émetteur (Issuer).
-   *
-   * @return La valeur de la revendication "iss".
-   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">Section 2, Claim
-   *     "iss"</a>
-   */
-  public String getIssuer() {
-    return claimsSet.getIssuer();
-  }
-
-  /**
-   * Retourne la valeur de nonce utilisée pour atténuer les attaques par rejeu.
-   *
-   * @return La valeur de la revendication "nonce", ou null si absente.
-   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">Section 2, Claim
-   *     "nonce"</a>
-   */
-  public String getNonce() {
-    return (String) claimsSet.getClaim("nonce");
-  }
-
-  /**
-   * Retourne les revendications standards extraites du jeton.
-   *
-   * @return Une instance de {@link StandardClaims}.
-   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Section 5.1
-   *     (Standard Claims)</a>
-   */
-  public StandardClaims getStandardClaims() {
-    return new StandardClaims(claimsSet.getClaims());
-  }
-
-  /**
-   * Retourne une revendication spécifique par son nom.
-   *
-   * @param name Le nom de la revendication.
-   * @return La valeur de la revendication, ou null si elle n'existe pas.
-   */
-  public Object getClaim(final String name) {
-    return claimsSet.getClaim(name);
-  }
-
-  /**
-   * Retourne toutes les revendications sous forme de Map.
-   *
-   * @return Un dictionnaire contenant les noms et valeurs des revendications.
+   * @return les revendications (claims)
    */
   public Map<String, Object> getClaims() {
-    return claimsSet.getClaims();
+    return claims;
+  }
+
+  /**
+   * @param name nom du claim
+   * @return valeur
+   */
+  public Object getClaim(String name) {
+    return claims.get(name);
+  }
+
+  @Override
+  public String toString() {
+    return "IdToken{rawIdToken='" + getRawResponse() + "'}";
   }
 }

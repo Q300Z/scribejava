@@ -20,24 +20,25 @@
       <artifactId>scribejava-core</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <!-- Optional or Test Only dependencies -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <scope>provided</scope>
+      <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
-    </dependency>
-    <!-- JWT and JWKS management for OIDC -->
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
       <version>${nimbus-jose-jwt.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>oauth2-oidc-sdk</artifactId>
       <version>11.33</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

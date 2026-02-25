@@ -23,29 +23,27 @@
  */
 package com.github.scribejava.oauth1.extractors;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.github.scribejava.core.utils.JsonUtils;
 import com.github.scribejava.oauth1.model.OAuth1RequestToken;
 import java.io.IOException;
+import java.util.Map;
 
-/** Extracteur JSON pour les jetons de requête OAuth 1.0a (Request Token). */
+/** Extracteur JSON natif pour OAuth 1.0a Request Token. */
 public class OAuth1RequestTokenJSONExtractor
     extends AbstractOAuth1JSONTokenExtractor<OAuth1RequestToken> {
 
-  /**
-   * Retourne l'instance unique de l'extracteur.
-   *
-   * @return L'instance {@link OAuth1RequestTokenJSONExtractor}.
-   */
+  protected OAuth1RequestTokenJSONExtractor() {}
+
   public static OAuth1RequestTokenJSONExtractor instance() {
     return InstanceHolder.INSTANCE;
   }
 
   @Override
   protected OAuth1RequestToken createToken(String body) throws IOException {
-    final JsonNode node = OBJECT_MAPPER.readTree(body);
+    final Map<String, Object> response = JsonUtils.parse(body);
     return new OAuth1RequestToken(
-        extractRequiredParameter(node, "oauth_token", body).asText(),
-        extractRequiredParameter(node, "oauth_token_secret", body).asText(),
+        (String) extractRequiredParameter(response, "oauth_token", body),
+        (String) extractRequiredParameter(response, "oauth_token_secret", body),
         body);
   }
 

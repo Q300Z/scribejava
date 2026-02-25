@@ -27,11 +27,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
-import com.nimbusds.jwt.SignedJWT;
+import com.github.scribejava.oidc.model.Jwt;
 import org.junit.jupiter.api.Test;
 
+/** Tests pour {@link DefaultDPoPProofCreator}. */
 public class DPoPInterceptorTest {
 
+  /**
+   * Vérifie la création d'une preuve DPoP valide.
+   *
+   * @throws Exception erreur
+   */
   @Test
   public void shouldCreateValidDPoPProof() throws Exception {
     final DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator();
@@ -45,11 +51,10 @@ public class DPoPInterceptorTest {
     final String dpopHeader = request.getHeaders().get("DPoP");
     assertThat(dpopHeader).isNotNull();
 
-    final SignedJWT signedJWT = SignedJWT.parse(dpopHeader);
-    assertThat(signedJWT.getJWTClaimsSet().getStringClaim("htm")).isEqualTo("POST");
-    assertThat(signedJWT.getJWTClaimsSet().getStringClaim("htu"))
-        .isEqualTo("https://resource.example.com/api/user");
-    assertThat(signedJWT.getJWTClaimsSet().getJWTID()).isNotNull();
-    assertThat(signedJWT.getHeader().getJWK()).isNotNull();
+    final Jwt jwt = Jwt.parse(dpopHeader);
+    assertThat(jwt.getPayload().get("htm")).isEqualTo("POST");
+    assertThat(jwt.getPayload().get("htu")).isEqualTo("https://resource.example.com/api/user");
+    assertThat(jwt.getPayload().get("jti")).isNotNull();
+    assertThat(jwt.getHeader().get("jwk")).isNotNull();
   }
 }

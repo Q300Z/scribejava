@@ -24,170 +24,72 @@
 package com.github.scribejava.oidc.jar;
 
 import com.github.scribejava.core.exceptions.OAuthException;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import java.util.Date;
+import com.github.scribejava.oidc.model.JwtBuilder;
+import com.github.scribejava.oidc.model.JwtSigner;
+import java.security.PrivateKey;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-/**
- * Service de création d'objets de requête signés (Request Objects).
- *
- * <p>Implémente le mécanisme JAR (JWT-Secured Authorization Request) permettant de garantir
- * l'intégrité et l'authenticité des paramètres d'autorisation.
- *
- * <ul>
- *   <li><b>RFC 9101:</b> The OAuth 2.0 Authorization Framework: JWT-Secured Authorization Request
- *       (JAR)
- *   <li><b>OpenID Connect Core 1.0:</b> Section 6 (Passing Request Parameters as JWTs)
- * </ul>
- */
+/** Service de création d'objets de requête signés (Request Objects) natif. */
 public class RequestObjectService {
 
   private final String clientId;
   private final String audience;
-  private final Supplier<JWK> signingJWKSupplier;
-  private final JWSAlgorithm jwsAlgorithm;
-  private final JWK encryptionJWK;
-  private final com.nimbusds.jose.JWEAlgorithm jweAlgorithm;
-  private final com.nimbusds.jose.EncryptionMethod encryptionMethod;
+  private final Supplier<PrivateKey> signingKeySupplier;
+  private final String keyId;
+  private final JwtSigner signer;
 
   /**
-   * Constructeur simple pour la signature seule.
-   *
-   * @param clientId L'identifiant du client (iss).
-   * @param audience L'audience du serveur d'autorisation (aud).
-   * @param signingJWK La clé de signature au format JWK.
-   * @param jwsAlgorithm L'algorithme de signature.
-   */
-  public RequestObjectService(
-      String clientId, String audience, JWK signingJWK, JWSAlgorithm jwsAlgorithm) {
-    this(clientId, audience, () -> signingJWK, jwsAlgorithm, null, null, null);
-  }
-
-  /**
-   * Constructeur complet supportant la signature et le chiffrement.
-   *
-   * @param clientId L'identifiant du client.
-   * @param audience L'audience attendue.
-   * @param signingJWKSupplier Fournisseur de la clé de signature.
-   * @param jwsAlgorithm L'algorithme de signature.
-   * @param encryptionJWK La clé de chiffrement du serveur.
-   * @param jweAlgorithm L'algorithme de chiffrement JWE.
-   * @param encryptionMethod La méthode de chiffrement du contenu.
+   * @param clientId client id
+   * @param audience audience
+   * @param signingKeySupplier fournisseur clé privée
+   * @param keyId id clé
+   * @param signer signataire
    */
   public RequestObjectService(
       String clientId,
       String audience,
-      Supplier<JWK> signingJWKSupplier,
-      JWSAlgorithm jwsAlgorithm,
-      JWK encryptionJWK,
-      com.nimbusds.jose.JWEAlgorithm jweAlgorithm,
-      com.nimbusds.jose.EncryptionMethod encryptionMethod) {
+      Supplier<PrivateKey> signingKeySupplier,
+      String keyId,
+      JwtSigner signer) {
     this.clientId = clientId;
     this.audience = audience;
-    this.signingJWKSupplier = signingJWKSupplier;
-    this.jwsAlgorithm = jwsAlgorithm;
-    this.encryptionJWK = encryptionJWK;
-    this.jweAlgorithm = jweAlgorithm;
-    this.encryptionMethod = encryptionMethod;
+    this.signingKeySupplier = signingKeySupplier;
+    this.keyId = keyId;
+    this.signer = signer;
   }
 
   /**
-   * Crée un objet de requête JWT (Request Object) à partir des paramètres d'autorisation fournis.
+   * Crée un objet de requête JWT (Request Object).
    *
-   * @param authorizationParams Le dictionnaire des paramètres d'autorisation classiques.
-   * @return Le jeton JWT sérialisé (signé et optionnellement chiffré).
-   * @throws OAuthException en cas d'erreur lors de la signature ou du chiffrement.
+   * @param authorizationParams paramètres
+   * @return JWT
    */
   public String createRequestObject(Map<String, String> authorizationParams) {
-    final JWK signingJWK = signingJWKSupplier.get();
-    if (signingJWK == null) {
-      throw new OAuthException("Signing JWK supplier returned null");
+    final PrivateKey privateKey = signingKeySupplier.get();
+    if (privateKey == null) {
+      throw new OAuthException("Private key is missing for signing Request Object.");
     }
-    if (!signingJWK.isPrivate()) {
-      throw new IllegalArgumentException("JWK must contain a private key for signing.");
+    final long now = System.currentTimeMillis() / 1000;
+
+    final JwtBuilder builder =
+        new JwtBuilder()
+            .claim("iss", clientId)
+            .claim("aud", audience)
+            .claim("iat", now)
+            .claim("jti", UUID.randomUUID().toString());
+
+    if (keyId != null) {
+      builder.header("kid", keyId);
     }
 
-    final JWSHeader header =
-        new JWSHeader.Builder(jwsAlgorithm)
-            .keyID(signingJWK.getKeyID())
-            .type(com.nimbusds.jose.JOSEObjectType.JWT)
-            .build();
+    authorizationParams.forEach(builder::claim);
 
-    final JWTClaimsSet.Builder claimsBuilder =
-        new JWTClaimsSet.Builder()
-            .issuer(clientId)
-            .audience(audience)
-            .issueTime(new Date())
-            .jwtID(UUID.randomUUID().toString());
-
-    // Add all authorization parameters as claims
-    authorizationParams.forEach(claimsBuilder::claim);
-
-    // Ensure client_id is present in claims as per RFC 9101
     if (!authorizationParams.containsKey("client_id")) {
-      claimsBuilder.claim("client_id", clientId);
+      builder.claim("client_id", clientId);
     }
 
-    final SignedJWT signedJWT = new SignedJWT(header, claimsBuilder.build());
-
-    try {
-      final JWSSigner signer;
-      if (signingJWK instanceof RSAKey) {
-        signer = new RSASSASigner((RSAKey) signingJWK);
-      } else if (signingJWK instanceof ECKey) {
-        signer = new ECDSASigner((ECKey) signingJWK);
-      } else {
-        throw new OAuthException("Unsupported JWK type: " + signingJWK.getClass().getName());
-      }
-      signedJWT.sign(signer);
-    } catch (JOSEException e) {
-      throw new OAuthException("Error signing Request Object JWT", e);
-    }
-
-    if (encryptionJWK != null && jweAlgorithm != null && encryptionMethod != null) {
-      return encrypt(signedJWT);
-    }
-
-    return signedJWT.serialize();
-  }
-
-  private String encrypt(SignedJWT signedJWT) {
-    try {
-      final com.nimbusds.jose.JWEHeader jweHeader =
-          new com.nimbusds.jose.JWEHeader.Builder(jweAlgorithm, encryptionMethod)
-              .contentType("JWT") // Nested JWT
-              .keyID(encryptionJWK.getKeyID())
-              .build();
-
-      final com.nimbusds.jose.JWEObject jweObject =
-          new com.nimbusds.jose.JWEObject(jweHeader, new com.nimbusds.jose.Payload(signedJWT));
-
-      final com.nimbusds.jose.JWEEncrypter encrypter;
-      if (encryptionJWK instanceof RSAKey) {
-        encrypter = new com.nimbusds.jose.crypto.RSAEncrypter((RSAKey) encryptionJWK);
-      } else if (encryptionJWK instanceof ECKey) {
-        encrypter = new com.nimbusds.jose.crypto.ECDHEncrypter((ECKey) encryptionJWK);
-      } else {
-        throw new OAuthException(
-            "Unsupported Encryption JWK type: " + encryptionJWK.getClass().getName());
-      }
-
-      jweObject.encrypt(encrypter);
-      return jweObject.serialize();
-    } catch (JOSEException e) {
-      throw new OAuthException("Error encrypting Request Object JWT", e);
-    }
+    return builder.buildAndSign(signer, privateKey);
   }
 }

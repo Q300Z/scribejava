@@ -23,8 +23,7 @@
  */
 package com.github.scribejava.oidc.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
@@ -34,16 +33,11 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Parseur natif pour les ensembles de clés (JWKS).
- *
- * <p>Supporte l'extraction des clés RSA (n, e) et ECDSA.
- */
+/** Parseur natif pour les ensembles de clés (JWKS). */
 public class JwksParser {
-
-  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   /**
    * Parse un corps JSON JWKS.
@@ -52,16 +46,18 @@ public class JwksParser {
    * @return Une Map liant kid à OidcKey.
    * @throws IOException si le parsing échoue.
    */
+  @SuppressWarnings("unchecked")
   public Map<String, OidcKey> parse(String json) throws IOException {
-    final JsonNode root = MAPPER.readTree(json);
-    final JsonNode keysNode = root.get("keys");
-    if (keysNode == null || !keysNode.isArray()) {
+    final Map<String, Object> root = JsonUtils.parse(json);
+    final Object keysNode = root.get("keys");
+    if (!(keysNode instanceof List)) {
       throw new IOException("Invalid JWKS: 'keys' array missing.");
     }
 
+    final List<Map<String, Object>> keyList = (List<Map<String, Object>>) keysNode;
     final Map<String, OidcKey> keys = new HashMap<>();
-    for (final JsonNode keyNode : keysNode) {
-      final String kty = keyNode.get("kty").asText();
+    for (final Map<String, Object> keyNode : keyList) {
+      final String kty = (String) keyNode.get("kty");
       if ("RSA".equals(kty)) {
         final OidcKey key = parseRsaKey(keyNode);
         keys.put(key.getKid(), key);
@@ -70,11 +66,15 @@ public class JwksParser {
     return keys;
   }
 
-  private OidcKey parseRsaKey(JsonNode node) throws IOException {
-    final String kid = node.get("kid").asText();
-    final String alg = node.has("alg") ? node.get("alg").asText() : "RS256";
-    final String nStr = node.get("n").asText();
-    final String eStr = node.get("e").asText();
+  private OidcKey parseRsaKey(Map<String, Object> node) throws IOException {
+    final String kid = (String) node.get("kid");
+    final String alg = node.containsKey("alg") ? (String) node.get("alg") : "RS256";
+    final String nStr = (String) node.get("n");
+    final String eStr = (String) node.get("e");
+
+    if (nStr == null || eStr == null) {
+      throw new IOException("Missing RSA components (n, e) in JWK");
+    }
 
     final BigInteger n = new BigInteger(1, Base64.getUrlDecoder().decode(nStr));
     final BigInteger e = new BigInteger(1, Base64.getUrlDecoder().decode(eStr));

@@ -26,132 +26,96 @@ package com.github.scribejava.oidc.dpop;
 import com.github.scribejava.core.dpop.DPoPProofCreator;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.OAuthRequest;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
+import com.github.scribejava.oidc.model.JwtBuilder;
+import com.github.scribejava.oidc.model.JwtSigner;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Date;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-/**
- * Implémentation par défaut de {@link DPoPProofCreator} utilisant la bibliothèque Nimbus JOSE+JWT.
- *
- * <p>Implémente la spécification <b>RFC 9449:</b> OAuth 2.0 Demonstrating Proof of Possession
- * (DPoP).
- *
- * <p>Ce créateur génère un jeton JWT de preuve DPoP incluant les revendications {@code htm}
- * (méthode HTTP), {@code htu} (URI cible HTTP) et optionnellement {@code ath} (empreinte du jeton
- * d'accès) pour lier la requête à un jeton spécifique.
- *
- * @see <a href="https://tools.ietf.org/html/rfc9449">RFC 9449 (DPoP)</a>
- */
+/** Implémentation par défaut de {@link DPoPProofCreator} native ScribeJava. */
 public class DefaultDPoPProofCreator implements DPoPProofCreator {
 
-  private final JWK dpopJWK;
-  private final JWSAlgorithm jwsAlgorithm;
+  private final PrivateKey privateKey;
+  private final PublicKey publicKey;
+  private final JwtSigner signer;
 
-  /**
-   * Constructeur par défaut générant une paire de clés RSA 2048 bits éphémère.
-   *
-   * @throws OAuthException si la génération de la clé échoue.
-   */
+  /** Constructeur par défaut générant une paire de clés RSA 2048 bits éphémère. */
   public DefaultDPoPProofCreator() {
     try {
       final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
       keyGen.initialize(2048);
       final KeyPair keyPair = keyGen.generateKeyPair();
-      dpopJWK =
-          new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
-              .privateKey((RSAPrivateKey) keyPair.getPrivate())
-              .keyUse(KeyUse.SIGNATURE)
-              .keyID(UUID.randomUUID().toString())
-              .build();
-      jwsAlgorithm = JWSAlgorithm.RS256;
+      this.privateKey = keyPair.getPrivate();
+      this.publicKey = keyPair.getPublic();
+      this.signer = new JwtSigner.RsaSha256Signer();
     } catch (final NoSuchAlgorithmException e) {
       throw new OAuthException("Failed to generate RSA key pair for DPoP", e);
     }
   }
 
   /**
-   * Constructeur utilisant une clé JWK existante.
-   *
-   * @param dpopJWK La clé privée à utiliser pour signer les preuves DPoP.
-   * @param jwsAlgorithm L'algorithme de signature à utiliser.
-   * @throws IllegalArgumentException si la clé fournie n'est pas une clé privée.
+   * @param privateKey clé privée
+   * @param publicKey clé publique (pour le claim jwk du header)
+   * @param signer signataire
    */
-  public DefaultDPoPProofCreator(final JWK dpopJWK, final JWSAlgorithm jwsAlgorithm) {
-    if (!dpopJWK.isPrivate()) {
-      throw new IllegalArgumentException("DPoP JWK must contain a private key for signing.");
-    }
-    this.dpopJWK = dpopJWK;
-    this.jwsAlgorithm = jwsAlgorithm;
+  public DefaultDPoPProofCreator(PrivateKey privateKey, PublicKey publicKey, JwtSigner signer) {
+    this.privateKey = privateKey;
+    this.publicKey = publicKey;
+    this.signer = signer;
   }
 
-  /**
-   * Crée une preuve DPoP pour la requête donnée.
-   *
-   * @param request La requête HTTP à protéger.
-   * @param accessToken Le jeton d'accès associé (optionnel, utilisé pour la revendication {@code
-   *     ath}).
-   * @return Le jeton JWT de preuve DPoP sérialisé.
-   */
   @Override
   public String createDPoPProof(final OAuthRequest request, final String accessToken) {
-    final JWSHeader header =
-        new JWSHeader.Builder(jwsAlgorithm)
-            .jwk(dpopJWK.toPublicJWK())
-            .type(new com.nimbusds.jose.JOSEObjectType("dpop+jwt"))
-            .build();
-
-    final JWTClaimsSet.Builder claimsBuilder =
-        new JWTClaimsSet.Builder()
-            .jwtID(UUID.randomUUID().toString())
-            .issueTime(new Date())
+    final long now = System.currentTimeMillis() / 1000;
+    final JwtBuilder builder =
+        new JwtBuilder()
+            .header("typ", "dpop+jwt")
+            .header("jwk", createPublicJwkMap())
+            .claim("jti", UUID.randomUUID().toString())
+            .claim("iat", now)
             .claim("htm", request.getVerb().name())
             .claim("htu", request.getCompleteUrl());
 
     if (accessToken != null && !accessToken.isEmpty()) {
-      try {
-        final String ath =
-            com.nimbusds.jose.util.Base64URL.encode(
-                    java.security.MessageDigest.getInstance("SHA-256")
-                        .digest(accessToken.getBytes(StandardCharsets.UTF_8)))
-                .toString();
-        claimsBuilder.claim("ath", ath);
-      } catch (final NoSuchAlgorithmException e) {
-        throw new OAuthException("SHA-256 algorithm not found for 'ath' claim in DPoP", e);
-      }
+      builder.claim("ath", computeThumbprint(accessToken));
     }
 
-    final JWTClaimsSet claims = claimsBuilder.build();
-    final SignedJWT signedJWT = new SignedJWT(header, claims);
+    return builder.buildAndSign(signer, privateKey);
+  }
 
+  private Map<String, Object> createPublicJwkMap() {
+    if (publicKey instanceof RSAPublicKey) {
+      final RSAPublicKey rsaPub = (RSAPublicKey) publicKey;
+      final Map<String, Object> jwk = new HashMap<>();
+      jwk.put("kty", "RSA");
+      jwk.put("n", encode(rsaPub.getModulus().toByteArray()));
+      jwk.put("e", encode(rsaPub.getPublicExponent().toByteArray()));
+      jwk.put("use", "sig");
+      return jwk;
+    }
+    throw new OAuthException("Unsupported public key type for DPoP JWK header");
+  }
+
+  private String computeThumbprint(String accessToken) {
     try {
-      if (dpopJWK instanceof RSAKey) {
-        signedJWT.sign(new RSASSASigner((RSAKey) dpopJWK));
-      } else if (dpopJWK instanceof ECKey) {
-        signedJWT.sign(new ECDSASigner((ECKey) dpopJWK));
-      } else {
-        throw new OAuthException(
-            "Unsupported JWK type for DPoP signing: " + dpopJWK.getClass().getName());
-      }
-    } catch (final JOSEException e) {
-      throw new OAuthException("Error signing DPoP proof JWT", e);
+      final byte[] hash =
+          MessageDigest.getInstance("SHA-256").digest(accessToken.getBytes(StandardCharsets.UTF_8));
+      return encode(hash);
+    } catch (NoSuchAlgorithmException e) {
+      throw new OAuthException("SHA-256 not available", e);
     }
+  }
 
-    return signedJWT.serialize();
+  private String encode(byte[] bytes) {
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
   }
 }

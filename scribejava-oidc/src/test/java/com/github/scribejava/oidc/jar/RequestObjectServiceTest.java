@@ -25,24 +25,34 @@ package com.github.scribejava.oidc.jar;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jwt.SignedJWT;
+import com.github.scribejava.oidc.model.Jwt;
+import com.github.scribejava.oidc.model.JwtSigner;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
+/** Tests pour {@link RequestObjectService}. */
 public class RequestObjectServiceTest {
 
+  /**
+   * Vérifie la création d'un Request Object signé.
+   *
+   * @throws Exception erreur
+   */
   @Test
   public void shouldCreateSignedRequestObject() throws Exception {
-    final RSAKey rsaJWK = new RSAKeyGenerator(2048).keyID("123").generate();
+    final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+    kpg.initialize(2048);
+    final KeyPair kp = kpg.generateKeyPair();
+
     final String clientId = "my-client-id";
     final String audience = "https://server.example.com";
 
     final RequestObjectService service =
-        new RequestObjectService(clientId, audience, rsaJWK, JWSAlgorithm.RS256);
+        new RequestObjectService(
+            clientId, audience, kp::getPrivate, "123", new JwtSigner.RsaSha256Signer());
 
     final Map<String, String> params = new HashMap<>();
     params.put("response_type", "code");
@@ -52,10 +62,9 @@ public class RequestObjectServiceTest {
     final String requestObject = service.createRequestObject(params);
     assertThat(requestObject).isNotNull();
 
-    final SignedJWT signedJWT = SignedJWT.parse(requestObject);
-    assertThat(signedJWT.getJWTClaimsSet().getClaim("client_id")).isEqualTo(clientId);
-    assertThat(signedJWT.getJWTClaimsSet().getClaim("response_type")).isEqualTo("code");
-    assertThat(signedJWT.getJWTClaimsSet().getClaim("scope")).isEqualTo("openid profile");
-    assertThat(signedJWT.getJWTClaimsSet().getAudience().get(0)).isEqualTo(audience);
+    final Jwt jwt = Jwt.parse(requestObject);
+    assertThat(jwt.getPayload().get("client_id")).isEqualTo(clientId);
+    assertThat(jwt.getPayload().get("response_type")).isEqualTo("code");
+    assertThat(jwt.getPayload().get("scope")).isEqualTo("openid profile");
   }
 }

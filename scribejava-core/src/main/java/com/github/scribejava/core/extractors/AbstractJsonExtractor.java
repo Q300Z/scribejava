@@ -23,26 +23,19 @@
  */
 package com.github.scribejava.core.extractors;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Token;
 import com.github.scribejava.core.utils.Preconditions;
 import java.io.IOException;
+import java.util.Map;
 
 /**
- * Base abstraite pour tous les extracteurs de données au format JSON.
+ * Base abstraite pour tous les extracteurs de données au format JSON natif.
  *
- * <p>Utilise la bibliothèque Jackson pour analyser les réponses HTTP et extraire les informations
- * nécessaires.
- *
- * @param <T> Type de jeton extrait par cet extracteur.
+ * @param <T> Type de jeton extrait.
  */
 public abstract class AbstractJsonExtractor<T extends Token> implements TokenExtractor<T> {
-
-  /** Instance partagée du mappeur d'objets Jackson. */
-  protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override
   public T extract(Response response) throws IOException {
@@ -55,19 +48,20 @@ public abstract class AbstractJsonExtractor<T extends Token> implements TokenExt
   protected abstract T createToken(String body) throws IOException;
 
   /**
-   * Extrait un paramètre obligatoire d'un nœud JSON.
+   * Extrait un paramètre obligatoire d'une Map JSON.
    *
-   * @param errorNode Le nœud JSON à analyser.
+   * @param responseMap La map JSON à analyser.
    * @param parameterName Le nom du paramètre attendu.
    * @param rawResponse La réponse brute (utilisée pour le message d'erreur).
-   * @return Le {@link JsonNode} correspondant au paramètre.
+   * @return La valeur.
    * @throws OAuthException si le paramètre est absent ou nul.
    */
-  protected static JsonNode extractRequiredParameter(
-      JsonNode errorNode, String parameterName, String rawResponse) throws OAuthException {
-    final JsonNode value = errorNode.get(parameterName);
+  protected static Object extractRequiredParameter(
+      Map<String, Object> responseMap, String parameterName, String rawResponse)
+      throws OAuthException {
+    final Object value = responseMap.get(parameterName);
 
-    if (value == null || value.isNull()) {
+    if (value == null) {
       throw new OAuthException(
           "Response body is incorrect. Can't extract a '"
               + parameterName

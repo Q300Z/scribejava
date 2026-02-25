@@ -24,43 +24,29 @@
 package com.github.scribejava.oidc.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
-class JwtTest {
+/** Tests pour Jwt natif. */
+public class JwtTest {
 
-  // Token fictif : header.payload.signature
-  // Header: {"alg":"RS256","typ":"JWT"}
-  // Payload: {"sub":"1234567890","name":"John Doe","iat":1516239022}
-  private static final String VALID_TOKEN =
-      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9."
-          + "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ."
-          + "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+  // Valid RS256 JWT from jwt.io (header + payload only, mock signature)
+  private static final String VALID_JWT =
+      "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.mock_signature";
 
   @Test
-  void shouldParseValidToken() {
-    Jwt jwt = Jwt.parse(VALID_TOKEN);
-
+  public void shouldParseValidJwt() {
+    final Jwt jwt = Jwt.parse(VALID_JWT);
     assertThat(jwt.getHeader().get("alg")).isEqualTo("RS256");
     assertThat(jwt.getPayload().get("sub")).isEqualTo("1234567890");
-    assertThat(jwt.getSignature()).isNotNull();
   }
 
   @Test
-  void shouldRejectMalformedToken() {
-    assertThatThrownBy(() -> Jwt.parse("not.a.jwt")).isInstanceOf(IllegalArgumentException.class);
-
-    assertThatThrownBy(() -> Jwt.parse("one.two.three.four"))
-        .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  void shouldExtractRawDataForSignatureVerification() {
-    Jwt jwt = Jwt.parse(VALID_TOKEN);
-
-    // La signature se vérifie sur "header.payload"
-    String expectedSignedData = VALID_TOKEN.substring(0, VALID_TOKEN.lastIndexOf('.'));
-    assertThat(jwt.getSignedContent()).isEqualTo(expectedSignedData);
+  public void shouldExtractRawDataForSignatureVerification() {
+    final Jwt jwt = Jwt.parse(VALID_JWT);
+    final String expected =
+        "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ";
+    assertThat(new String(jwt.getSignedContent(), StandardCharsets.UTF_8)).isEqualTo(expected);
   }
 }

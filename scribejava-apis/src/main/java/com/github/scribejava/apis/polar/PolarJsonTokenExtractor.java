@@ -23,30 +23,20 @@
  */
 package com.github.scribejava.apis.polar;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.github.scribejava.core.extractors.OAuth2AccessTokenJsonExtractor;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.oauth2.OAuth2Error;
+import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Extracteur JSON pour les jetons Polar.
- *
- * @see <a href="https://www.polar.com/accesslink-api/#token-endpoint">Polar Token Endpoint
- *     Documentation</a>
- */
+/** Extracteur JSON pour les jetons Polar. */
 public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
 
-  /** Constructeur protégé. */
   protected PolarJsonTokenExtractor() {}
 
-  /**
-   * Retourne l'instance unique (singleton) de l'extracteur.
-   *
-   * @return L'instance de {@link PolarJsonTokenExtractor}.
-   */
   public static PolarJsonTokenExtractor instance() {
     return InstanceHolder.INSTANCE;
   }
@@ -58,7 +48,7 @@ public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
       Integer expiresIn,
       String refreshToken,
       String scope,
-      JsonNode response,
+      Map<String, Object> response,
       String rawResponse) {
     return new PolarOAuth2AccessToken(
         accessToken,
@@ -66,39 +56,38 @@ public class PolarJsonTokenExtractor extends OAuth2AccessTokenJsonExtractor {
         expiresIn,
         refreshToken,
         scope,
-        response.get("x_user_id").asText(),
+        (String) response.get("x_user_id"),
         rawResponse);
   }
 
   @Override
   public void generateError(Response response) throws IOException {
-    final JsonNode errorNode;
-    try {
-      errorNode =
-          OAuth2AccessTokenJsonExtractor.OBJECT_MAPPER
-              .readTree(response.getBody())
-              .get("errors")
-              .get(0);
-    } catch (JsonProcessingException ex) {
+    final String body = response.getBody();
+    final Map<String, Object> responseMap = JsonUtils.parse(body);
+    final Object errors = responseMap.get("errors");
+
+    Map<String, Object> errorNode = null;
+    if (errors instanceof List && !((List<?>) errors).isEmpty()) {
+      errorNode = (Map<String, Object>) ((List<?>) errors).get(0);
+    }
+
+    if (errorNode == null) {
       throw new OAuth2AccessTokenErrorResponse(null, null, null, response);
     }
 
+    final String errorType = (String) errorNode.get("errorType");
     OAuth2Error errorCode;
     try {
-      errorCode =
-          OAuth2Error.parseFrom(
-              extractRequiredParameter(errorNode, "errorType", response.getBody()).asText());
+      errorCode = OAuth2Error.parseFrom(errorType);
     } catch (IllegalArgumentException iaE) {
-      // non oauth standard error code
       errorCode = null;
     }
 
     throw new OAuth2AccessTokenErrorResponse(
-        errorCode, errorNode.get("message").asText(), null, response);
+        errorCode, (String) errorNode.get("message"), null, response);
   }
 
   private static class InstanceHolder {
-
     private static final PolarJsonTokenExtractor INSTANCE = new PolarJsonTokenExtractor();
   }
 }

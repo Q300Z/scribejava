@@ -25,56 +25,37 @@ package com.github.scribejava.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import java.util.Date;
+import com.github.scribejava.oidc.model.JwtBuilder;
+import com.github.scribejava.oidc.model.JwtSigner;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import org.junit.jupiter.api.Test;
 
+/** Tests pour {@link IdToken} natif. */
 public class IdTokenTest {
 
-  private static final int KEY_SIZE = 2048;
-  private static final int EXPIRATION_MS = 60 * 1000;
-
+  /**
+   * Vérifie l'extraction des claims depuis un token généré.
+   *
+   * @throws Exception erreur
+   */
   @Test
-  public void shouldParseIdToken() throws Exception {
-    // Generate RSA key for signing
-    final RSAKey rsaJWK = new RSAKeyGenerator(KEY_SIZE).keyID("123").generate();
-    final JWSSigner signer = new RSASSASigner(rsaJWK);
+  public void shouldExtractClaims() throws Exception {
+    final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+    kpg.initialize(2048);
+    final KeyPair kp = kpg.generateKeyPair();
 
-    // Prepare JWT with claims
-    final JWTClaimsSet claimsSet =
-        new JWTClaimsSet.Builder()
-            .subject("alice")
-            .issuer("https://c2id.com")
-            .audience("123")
-            .expirationTime(new Date(new Date().getTime() + EXPIRATION_MS))
-            .issueTime(new Date())
-            .claim("name", "Alice Doe")
-            .claim("email", "alice@doe.com")
-            .claim("email_verified", true)
+    final String rawToken =
+        new JwtBuilder()
+            .claim("sub", "123")
+            .claim("iss", "https://idp.com")
             .claim("nonce", "xyz")
-            .build();
+            .buildAndSign(new JwtSigner.RsaSha256Signer(), kp.getPrivate());
 
-    final SignedJWT signedJWT =
-        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("123").build(), claimsSet);
-    signedJWT.sign(signer);
-
-    final String rawToken = signedJWT.serialize();
-
-    // Test IdToken
     final IdToken idToken = new IdToken(rawToken);
 
-    assertThat(idToken.getIssuer()).isEqualTo("https://c2id.com");
-    assertThat(idToken.getSubject()).isEqualTo("alice");
-    assertThat(idToken.getNonce()).isEqualTo("xyz");
-    assertThat(idToken.getStandardClaims().getName()).contains("Alice Doe");
-    assertThat(idToken.getStandardClaims().getEmail()).contains("alice@doe.com");
-    assertThat(idToken.getStandardClaims().isEmailVerified()).contains(true);
+    assertThat(idToken.getClaim("sub")).isEqualTo("123");
+    assertThat(idToken.getClaim("iss")).isEqualTo("https://idp.com");
+    assertThat(idToken.getClaim("nonce")).isEqualTo("xyz");
   }
 }

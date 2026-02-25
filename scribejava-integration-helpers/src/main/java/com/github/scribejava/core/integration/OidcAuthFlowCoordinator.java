@@ -89,7 +89,7 @@ public class OidcAuthFlowCoordinator<K> extends AuthFlowCoordinator<K> {
     final IdToken idToken = oidcService.validateIdToken(token, expectedNonce);
 
     // 4. Extraction des Claims et Fallback UserInfo
-    StandardClaims claims = idToken.getStandardClaims();
+    StandardClaims claims = new StandardClaims(idToken.getClaims());
     if (!claims.getEmail().isPresent()) {
       claims = oidcService.getUserInfoAsync(token).get();
     }

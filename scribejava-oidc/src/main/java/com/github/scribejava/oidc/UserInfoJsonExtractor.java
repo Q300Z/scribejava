@@ -23,34 +23,16 @@
  */
 package com.github.scribejava.oidc;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-/**
- * Extracteur pour la réponse JSON du point de terminaison UserInfo d'OpenID Connect.
- *
- * <p>Analyse le corps de la réponse HTTP pour construire une instance de {@link StandardClaims}.
- *
- * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfo">OpenID Connect Core
- *     1.0, Section 5.3 (UserInfo Endpoint)</a>
- */
+/** Extracteur JSON natif pour UserInfo OpenID Connect. */
 public class UserInfoJsonExtractor {
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-  /** Constructeur protégé. */
   protected UserInfoJsonExtractor() {}
 
-  /**
-   * Retourne l'instance unique (singleton) de l'extracteur.
-   *
-   * @return L'instance de {@link UserInfoJsonExtractor}.
-   */
   public static UserInfoJsonExtractor instance() {
     return InstanceHolder.INSTANCE;
   }
@@ -58,28 +40,12 @@ public class UserInfoJsonExtractor {
   /**
    * Extrait les revendications (Claims) à partir de la réponse HTTP.
    *
-   * @param response La réponse HTTP reçue du point de terminaison UserInfo.
-   * @return Une instance de {@link StandardClaims} contenant les données extraites.
-   * @throws IOException si le corps de la réponse ne peut pas être analysé comme du JSON.
-   * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">Section
-   *     5.3.2 (Successful UserInfo Response)</a>
+   * @param response La réponse HTTP.
+   * @return Les revendications extraites.
+   * @throws IOException si le corps ne peut pas être analysé.
    */
   public StandardClaims extract(final Response response) throws IOException {
-    final JsonNode node = OBJECT_MAPPER.readTree(response.getBody());
-    final Map<String, Object> claimsMap = new HashMap<>();
-
-    final Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-    while (fields.hasNext()) {
-      final Map.Entry<String, JsonNode> entry = fields.next();
-      final JsonNode value = entry.getValue();
-      if (value.isBoolean()) {
-        claimsMap.put(entry.getKey(), value.asBoolean());
-      } else if (value.isNumber()) {
-        claimsMap.put(entry.getKey(), value.numberValue());
-      } else {
-        claimsMap.put(entry.getKey(), value.asText());
-      }
-    }
+    final Map<String, Object> claimsMap = JsonUtils.parse(response.getBody());
     return new StandardClaims(claimsMap);
   }
 
