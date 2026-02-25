@@ -24,6 +24,7 @@
 package com.github.scribejava.oidc;
 
 import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.oidc.model.OidcNonce;
 import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -132,7 +133,7 @@ public class IdTokenValidator {
    * @return L'instance de {@link IdToken} validée.
    * @throws OAuthException si une règle de validation n'est pas respectée.
    */
-  public IdToken validate(String idTokenString, Nonce expectedNonce, long maxAuthAgeSeconds)
+  public IdToken validate(String idTokenString, OidcNonce expectedNonce, long maxAuthAgeSeconds)
       throws OAuthException {
     try {
       final String tokenToValidate = decryptIfEncrypted(idTokenString);
@@ -140,7 +141,10 @@ public class IdTokenValidator {
       if (tokenToValidate.split("\\.").length == 3) {
         final SignedJWT signedJWT = SignedJWT.parse(tokenToValidate);
         verifySignature(signedJWT);
-        final IDTokenClaimsSet claimsSet = validator.validate(signedJWT, expectedNonce);
+
+        final Nonce nimbusNonce =
+            expectedNonce != null ? new Nonce(expectedNonce.getValue()) : null;
+        final IDTokenClaimsSet claimsSet = validator.validate(signedJWT, nimbusNonce);
         if (claimsSet.getAudience().size() > 1 && claimsSet.getAuthorizedParty() == null) {
           throw new OAuthException("ID Token has multiple audiences but 'azp' claim is missing.");
         }

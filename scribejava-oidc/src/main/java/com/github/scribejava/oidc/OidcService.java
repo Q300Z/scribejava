@@ -32,7 +32,7 @@ import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthConstants;
 import com.github.scribejava.core.model.ParameterList;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.nimbusds.openid.connect.sdk.Nonce;
+import com.github.scribejava.oidc.model.OidcNonce;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
@@ -127,7 +127,8 @@ public class OidcService extends OAuth20Service {
    * @see <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation">OIDC
    *     Core, Section 3.1.3.7</a>
    */
-  public IdToken validateIdToken(final OAuth2AccessToken accessToken, final Nonce expectedNonce) {
+  public IdToken validateIdToken(
+      final OAuth2AccessToken accessToken, final OidcNonce expectedNonce) {
     try {
       final JsonNode node = OBJECT_MAPPER.readTree(accessToken.getRawResponse());
       final JsonNode idTokenNode = node.get("id_token");

@@ -25,6 +25,7 @@ package com.github.scribejava.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.scribejava.oidc.model.OidcNonce;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.*;
 import com.nimbusds.jose.jwk.Curve;
@@ -36,7 +37,6 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.ClientID;
-import com.nimbusds.openid.connect.sdk.Nonce;
 import java.util.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +51,7 @@ public class OidcCryptoMatrixTest {
 
   private static final String ISSUER = "https://issuer.example.com";
   private static final ClientID CLIENT_ID = new ClientID("client-id");
+  private static final String SECURE_NONCE = "nonce1234567890123456";
   private RSAKey rsaKey;
   private ECKey ecKey;
 
@@ -67,7 +68,7 @@ public class OidcCryptoMatrixTest {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.RS256);
     final IdTokenValidator validator =
         new IdTokenValidator(ISSUER, CLIENT_ID, JWSAlgorithm.RS256, new JWKSet(rsaKey));
-    final IdToken token = validator.validate(signedJWT.serialize(), new Nonce("nonce123"), 0);
+    final IdToken token = validator.validate(signedJWT.serialize(), new OidcNonce(SECURE_NONCE), 0);
     assertThat(token).isNotNull();
   }
 
@@ -77,7 +78,7 @@ public class OidcCryptoMatrixTest {
     final SignedJWT signedJWT = createSignedJWT(ecKey, JWSAlgorithm.ES256);
     final IdTokenValidator validator =
         new IdTokenValidator(ISSUER, CLIENT_ID, JWSAlgorithm.ES256, new JWKSet(ecKey));
-    final IdToken token = validator.validate(signedJWT.serialize(), new Nonce("nonce123"), 0);
+    final IdToken token = validator.validate(signedJWT.serialize(), new OidcNonce(SECURE_NONCE), 0);
     assertThat(token).isNotNull();
   }
 
@@ -91,7 +92,7 @@ public class OidcCryptoMatrixTest {
 
     final IdTokenValidator validator =
         new IdTokenValidator(ISSUER, CLIENT_ID, JWSAlgorithm.HS256, new JWKSet(), hmacSecret);
-    final IdToken token = validator.validate(signedJWT.serialize(), new Nonce("nonce123"), 0);
+    final IdToken token = validator.validate(signedJWT.serialize(), new OidcNonce(SECURE_NONCE), 0);
     assertThat(token).isNotNull();
   }
 
@@ -108,7 +109,7 @@ public class OidcCryptoMatrixTest {
     final IdTokenValidator validator =
         new IdTokenValidator(
             ISSUER, CLIENT_ID, JWSAlgorithm.RS256, new JWKSet(rsaKey), null, rsaKey);
-    final IdToken token = validator.validate(jwe.serialize(), new Nonce("nonce123"), 0);
+    final IdToken token = validator.validate(jwe.serialize(), new OidcNonce(SECURE_NONCE), 0);
     assertThat(token).isNotNull();
   }
 
@@ -124,7 +125,7 @@ public class OidcCryptoMatrixTest {
     final IdTokenValidator validator =
         new IdTokenValidator(
             ISSUER, CLIENT_ID, JWSAlgorithm.RS256, new JWKSet(rsaKey), null, ecKey);
-    final IdToken token = validator.validate(jwe.serialize(), new Nonce("nonce123"), 0);
+    final IdToken token = validator.validate(jwe.serialize(), new OidcNonce(SECURE_NONCE), 0);
     assertThat(token).isNotNull();
   }
 
@@ -134,7 +135,7 @@ public class OidcCryptoMatrixTest {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.PS256);
     final IdTokenValidator validator =
         new IdTokenValidator(ISSUER, CLIENT_ID, JWSAlgorithm.PS256, new JWKSet(rsaKey));
-    final IdToken token = validator.validate(signedJWT.serialize(), new Nonce("nonce123"), 0);
+    final IdToken token = validator.validate(signedJWT.serialize(), new OidcNonce(SECURE_NONCE), 0);
     assertThat(token).isNotNull();
   }
 
@@ -151,7 +152,7 @@ public class OidcCryptoMatrixTest {
     final IdTokenValidator validator =
         new IdTokenValidator(
             ISSUER, CLIENT_ID, JWSAlgorithm.RS256, new JWKSet(rsaKey), null, rsaKey);
-    final IdToken token = validator.validate(jwe.serialize(), new Nonce("nonce123"), 0);
+    final IdToken token = validator.validate(jwe.serialize(), new OidcNonce(SECURE_NONCE), 0);
     assertThat(token).isNotNull();
   }
 
@@ -178,6 +179,6 @@ public class OidcCryptoMatrixTest {
         .subject("user123")
         .expirationTime(new Date(new Date().getTime() + 3600000))
         .issueTime(new Date())
-        .claim("nonce", "nonce123");
+        .claim("nonce", SECURE_NONCE);
   }
 }

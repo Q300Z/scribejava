@@ -49,7 +49,8 @@ class OidcAuthFlowCoordinatorTest {
     OidcService mockOidcService = mock(OidcService.class);
     TokenRepository<String, ExpiringTokenWrapper> mockRepo = mock(TokenRepository.class);
 
-    AuthSessionContext sessionContext = new AuthSessionContext("state", "nonce", new PKCE());
+    AuthSessionContext sessionContext =
+        new AuthSessionContext("state", "nonce1234567890123456", new PKCE());
     OAuth2AccessToken token = mock(OAuth2AccessToken.class);
 
     // Fix ambiguity: use the specific grant type method
@@ -72,7 +73,8 @@ class OidcAuthFlowCoordinatorTest {
     // Given
     OidcService mockOidcService = mock(OidcService.class);
     TokenRepository<String, ExpiringTokenWrapper> mockRepo = mock(TokenRepository.class);
-    AuthSessionContext sessionContext = new AuthSessionContext("state", "nonce", new PKCE());
+    AuthSessionContext sessionContext =
+        new AuthSessionContext("state", "nonce1234567890123456", new PKCE());
 
     OAuth2AccessToken token = mock(OAuth2AccessToken.class);
     IdToken idToken = mock(IdToken.class);

@@ -28,6 +28,7 @@ import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.oidc.IdToken;
 import com.github.scribejava.oidc.OidcService;
 import com.github.scribejava.oidc.StandardClaims;
+import com.github.scribejava.oidc.model.OidcNonce;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
@@ -83,9 +84,9 @@ public class OidcAuthFlowCoordinator<K> extends AuthFlowCoordinator<K> {
     final OAuth2AccessToken token = oidcService.getAccessToken(grant);
 
     // 3. Validation de l'ID Token et du Nonce
-    // ScribeJava v9 utilise sa propre classe Nonce ou une String selon la méthode
-    final IdToken idToken =
-        oidcService.validateIdToken(token, null); // On laisse le service valider
+    final OidcNonce expectedNonce =
+        context.getNonce() != null ? new OidcNonce(context.getNonce()) : null;
+    final IdToken idToken = oidcService.validateIdToken(token, expectedNonce);
 
     // 4. Extraction des Claims et Fallback UserInfo
     StandardClaims claims = idToken.getStandardClaims();
