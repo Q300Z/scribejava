@@ -21,7 +21,7 @@ jobs:
           cache: 'maven'
 
       - name: Install dependencies
-        run: mvn install jar:test-jar -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
+        run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
 
       - name: Static Analysis (Checkstyle, PMD, Spotless, License)
         run: mvn checkstyle:check pmd:check spotless:check license:check

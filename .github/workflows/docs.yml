@@ -23,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Install artifacts (including tests)
-        run: mvn install jar:test-jar -DskipTests -Dmaven.javadoc.skip=true
+        run: mvn install -DskipTests -Dmaven.javadoc.skip=true
 
       - name: Generate Javadoc
         run: mvn javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false -DadditionalJOption=-Xdoclint:none -DadditionalJOption=-Xdoclint:none

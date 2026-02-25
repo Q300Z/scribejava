@@ -24,7 +24,7 @@ jobs:
           cache: 'maven'
 
       - name: Install dependencies (including tests)
-        run: mvn install jar:test-jar -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
+        run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
 
       - name: Build with Maven
         run: mvn package -DskipTests -Dmaven.javadoc.skip=true
