@@ -26,7 +26,7 @@ jobs:
         run: mvn install -DskipTests -Dmaven.javadoc.skip=true
 
       - name: Generate Javadoc
-        run: mvn javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false -X
+        run: mvn javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false
 
       - name: Deploy Javadoc
         uses: peaceiris/actions-gh-pages@v3
