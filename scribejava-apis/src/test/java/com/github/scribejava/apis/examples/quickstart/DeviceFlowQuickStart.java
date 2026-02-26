@@ -33,36 +33,44 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * [QUICKSTART] Device Authorization Flow (RFC 8628).
- * 
- * Ce flux est conçu pour les appareils n'ayant pas de navigateur local 
- * (Smart TV, IoT, Terminaux console). L'utilisateur autorise l'accès 
- * depuis un autre appareil (Smartphone/PC).
+ *
+ * <p>Ce flux est conçu pour les appareils n'ayant pas de navigateur local (Smart TV, IoT, Terminaux
+ * console). L'utilisateur autorise l'accès depuis un autre appareil (Smartphone/PC).
  */
 @SuppressWarnings("PMD.SystemPrintln")
-public class DeviceFlowQuickStart {
+public final class DeviceFlowQuickStart {
 
-    private static final String CLIENT_ID = "votre_client_id";
+  private static final String CLIENT_ID = "votre_client_id";
 
-    public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+  private DeviceFlowQuickStart() {}
 
-        final OAuth20Service service = new ServiceBuilder(CLIENT_ID)
-                .build(GitHubApi.instance());
+  /**
+   * Point d'entrée de l'exemple.
+   *
+   * @param args arguments
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   */
+  public static void main(String[] args)
+      throws IOException, InterruptedException, ExecutionException {
 
-        System.out.println("=== QuickStart : Device Flow (RFC 8628) ===");
+    final OAuth20Service service = new ServiceBuilder(CLIENT_ID).build(GitHubApi.instance());
 
-        // 1. Demande des codes au serveur
-        System.out.println("Récupération des codes...");
-        final DeviceAuthorization codes = service.getDeviceAuthorizationCodes();
+    System.out.println("=== QuickStart : Device Flow (RFC 8628) ===");
 
-        System.out.println("1. Allez sur : " + codes.getVerificationUri());
-        System.out.println("2. Entrez le code suivant : " + codes.getUserCode());
-        System.out.println("
-En attente de votre autorisation (polling)...");
+    // 1. Demande des codes au serveur
+    System.out.println("Récupération des codes...");
+    final DeviceAuthorization codes = service.getDeviceAuthorizationCodes();
 
-        // 2. Scrutation (Polling) jusqu'à validation par l'utilisateur
-        final OAuth2AccessToken token = service.pollAccessTokenDeviceAuthorizationGrant(codes);
+    System.out.println("1. Allez sur : " + codes.getVerificationUri());
+    System.out.println("2. Entrez le code suivant : " + codes.getUserCode());
+    System.out.println("\nEn attente de votre autorisation (polling)...");
 
-        System.out.println("Succès ! Autorisation accordée.");
-        System.out.println("Access Token : " + token.getAccessToken());
-    }
+    // 2. Scrutation (Polling) jusqu'à validation par l'utilisateur
+    final OAuth2AccessToken token = service.pollAccessTokenDeviceAuthorizationGrant(codes);
+
+    System.out.println("Succès ! Autorisation accordée.");
+    System.out.println("Access Token : " + token.getAccessToken());
+  }
 }

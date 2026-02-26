@@ -24,67 +24,74 @@
 package com.github.scribejava.apis.examples.quickstart;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.Verb;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.oidc.IdToken;
-import com.github.scribejava.oidc.OidcKey;
-import com.github.scribejava.oidc.OidcProviderMetadata;
+import com.github.scribejava.oidc.OidcDiscoveryService;
+import com.github.scribejava.oidc.OidcGoogleApi20;
 import com.github.scribejava.oidc.OidcService;
 import com.github.scribejava.oidc.OidcServiceBuilder;
-import com.github.scribejava.oidc.discovery.OidcDiscoveryService;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 /**
  * [QUICKSTART] OpenID Connect (OIDC) avec Découverte Dynamique.
- * 
- * Cet exemple montre l'autonomie totale de ScribeJava (Zéro-Dépendance) :
- * 1. Découverte automatique des URLs (RFC 8414).
- * 2. Échange du code.
- * 3. Validation native de l'ID Token (RSA/EC) via java.security.
+ *
+ * <p>Cet exemple montre l'autonomie totale de ScribeJava (Zéro-Dépendance) : 1. Découverte
+ * automatique des URLs (RFC 8414). 2. Échange du code. 3. Validation native de l'ID Token (RSA/EC)
+ * via java.security.
  */
 @SuppressWarnings("PMD.SystemPrintln")
-public class OidcQuickStart {
+public final class OidcQuickStart {
 
-    private static final String ISSUER = "https://accounts.google.com"; // Ex: Google
-    private static final String CLIENT_ID = "votre_client_id";
-    private static final String CLIENT_SECRET = "votre_client_secret";
+  private static final String ISSUER = "https://accounts.google.com"; // Ex: Google
+  private static final String CLIENT_ID = "votre_client_id";
+  private static final String CLIENT_SECRET = "votre_client_secret";
 
-    public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
+  private OidcQuickStart() {}
 
-        System.out.println("=== QuickStart : OpenID Connect (Natif) ===");
+  /**
+   * Point d'entrée de l'exemple.
+   *
+   * @param args arguments
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   */
+  public static void main(String[] args)
+      throws IOException, InterruptedException, ExecutionException {
 
-        // 1. Découverte dynamique des métadonnées du fournisseur
-        System.out.println("Découverte de l'émetteur : " + ISSUER);
-        final OidcDiscoveryService discovery = new OidcDiscoveryService(ISSUER);
-        final OidcProviderMetadata metadata = discovery.getProviderMetadata();
+    System.out.println("=== QuickStart : OpenID Connect (Natif) ===");
 
-        // 2. Configuration du service via le builder spécialisé OIDC
-        final OidcService service = new OidcServiceBuilder(CLIENT_ID)
+    // 1. Découverte dynamique des métadonnées du fournisseur
+    System.out.println("Découverte de l'émetteur : " + ISSUER);
+    final OidcDiscoveryService discovery = new OidcDiscoveryService(ISSUER, null, null);
+    discovery.getProviderMetadata();
+
+    // 2. Configuration du service via le builder spécialisé OIDC
+    // baseOnDiscovery() va configurer les endpoints de l'API passée à build()
+    final OidcService service =
+        (OidcService)
+            new OidcServiceBuilder(CLIENT_ID)
                 .apiSecret(CLIENT_SECRET)
                 .callback("http://localhost:8080/callback")
                 .scopes("openid", "profile", "email")
-                .build(metadata); // Utilise les URLs découvertes
+                .discoverFromIssuer(ISSUER, discovery)
+                .build(OidcGoogleApi20.instance());
 
-        // 3. Flux d'autorisation interactif
-        final String authUrl = service.getAuthorizationUrl();
-        System.out.println("1. Connectez-vous ici : " + authUrl);
-        System.out.print("2. Collez le code ici >> ");
-        final String code = new Scanner(System.in, "UTF-8").nextLine();
+    // 3. Flux d'autorisation interactif
+    final String authUrl = service.getAuthorizationUrl();
+    System.out.println("1. Connectez-vous ici : " + authUrl);
+    System.out.print("2. Collez le code ici >> ");
+    final String code = new Scanner(System.in, "UTF-8").nextLine();
 
-        // 4. Obtention et Validation des jetons
-        final OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
-        
-        // Récupération des clés publiques du fournisseur pour valider la signature
-        final Map<String, OidcKey> keys = discovery.getJwks(metadata.getJwksUri());
-        
-        // Validation native (Signature, Issuer, Audience, Expiration)
-        final IdToken idToken = service.validateIdToken(token, null, keys);
-        
-        System.out.println("Authentification réussie pour : " + idToken.getClaims().get("email"));
-        System.out.println("Nom : " + idToken.getClaims().get("name"));
-    }
+    // 4. Obtention et Validation des jetons
+    final OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
+
+    // Validation native (Signature, Issuer, Audience, Expiration)
+    final IdToken idToken = service.validateIdToken(token, null);
+
+    System.out.println("Authentification réussie pour : " + idToken.getClaims().get("email"));
+    System.out.println("Nom : " + idToken.getClaims().get("name"));
+  }
 }

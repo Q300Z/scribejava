@@ -39,58 +39,72 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * [QUICKSTART] Flux OAuth 2.0 Standard avec PKCE.
- * 
- * Cet exemple montre comment utiliser ScribeJava pour une connexion interactive 
- * en ligne de commande. Il utilise le protocole PKCE (RFC 7636) qui est la norme 
- * de sécurité actuelle pour TOUS les clients (Publics et Confidentiels).
+ *
+ * <p>Cet exemple montre comment utiliser ScribeJava pour une connexion interactive en ligne de
+ * commande. Il utilise le protocole PKCE (RFC 7636) qui est la norme de sécurité actuelle pour TOUS
+ * les clients (Publics et Confidentiels).
  */
 @SuppressWarnings("PMD.SystemPrintln")
-public class OAuth20QuickStart {
+public final class OAuth20QuickStart {
 
-    private static final String CLIENT_ID = "votre_client_id";
-    private static final String CLIENT_SECRET = "votre_client_secret";
+  private static final String CLIENT_ID = "votre_client_id";
+  private static final String CLIENT_SECRET = "votre_client_secret";
 
-    public static void main(String[] args) throws IOException, InterruptedException, ExecutionException {
-        
-        // 1. Initialisation du service ScribeJava
-        final OAuth20Service service = new ServiceBuilder(CLIENT_ID)
-                .apiSecret(CLIENT_SECRET)
-                .callback("http://localhost:8080/callback")
-                .defaultScope("read:user")
-                .build(GitHubApi.instance());
+  private OAuth20QuickStart() {}
 
-        System.out.println("=== QuickStart : OAuth 2.0 + PKCE ===");
+  /**
+   * Point d'entrée de l'exemple.
+   *
+   * @param args arguments
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   */
+  public static void main(String[] args)
+      throws IOException, InterruptedException, ExecutionException {
 
-        // 2. Préparation du PKCE (Proof Key for Code Exchange)
-        final PKCE pkce = PKCEService.defaultInstance().generatePKCE();
-        
-        // 3. Génération de l'URL d'autorisation
-        final String authUrl = service.createAuthorizationUrlBuilder()
-                .pkce(pkce)
-                .state("secret_random_state") // Anti-CSRF
-                .build();
+    // 1. Initialisation du service ScribeJava
+    final OAuth20Service service =
+        new ServiceBuilder(CLIENT_ID)
+            .apiSecret(CLIENT_SECRET)
+            .callback("http://localhost:8080/callback")
+            .defaultScope("read:user")
+            .build(GitHubApi.instance());
 
-        System.out.println("1. Connectez-vous via cette URL :");
-        System.out.println(authUrl);
-        
-        System.out.print("2. Collez le code reçu après redirection >> ");
-        final String code = new Scanner(System.in, "UTF-8").nextLine();
+    System.out.println("=== QuickStart : OAuth 2.0 + PKCE ===");
 
-        // 4. Échange du code contre un jeton d'accès
-        System.out.println("Échange du code...");
-        final AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
-        grant.setPkceCodeVerifier(pkce.getCodeVerifier());
-        
-        final OAuth2AccessToken token = service.getAccessToken(grant);
-        System.out.println("Succès ! Token obtenu : " + token.getAccessToken());
+    // 2. Préparation du PKCE (Proof Key for Code Exchange)
+    final PKCE pkce = PKCEService.defaultInstance().generatePKCE();
 
-        // 5. Exécution d'une requête signée
-        final OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
-        service.signRequest(token, request);
+    // 3. Génération de l'URL d'autorisation
+    final String authUrl =
+        service
+            .createAuthorizationUrlBuilder()
+            .pkce(pkce)
+            .state("secret_random_state") // Anti-CSRF
+            .build();
 
-        try (Response response = service.execute(request)) {
-            System.out.println("Réponse de l'API :");
-            System.out.println(response.getBody());
-        }
+    System.out.println("1. Connectez-vous via cette URL :");
+    System.out.println(authUrl);
+
+    System.out.print("2. Collez le code reçu après redirection >> ");
+    final String code = new Scanner(System.in, "UTF-8").nextLine();
+
+    // 4. Échange du code contre un jeton d'accès
+    System.out.println("Échange du code...");
+    final AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
+    grant.setPkceCodeVerifier(pkce.getCodeVerifier());
+
+    final OAuth2AccessToken token = service.getAccessToken(grant);
+    System.out.println("Succès ! Token obtenu : " + token.getAccessToken());
+
+    // 5. Exécution d'une requête signée
+    final OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
+    service.signRequest(token, request);
+
+    try (Response response = service.execute(request)) {
+      System.out.println("Réponse de l'API :");
+      System.out.println(response.getBody());
     }
+  }
 }
