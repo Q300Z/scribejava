@@ -205,6 +205,7 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 * 🛡️ **[Sécurité Avancée (DPoP/PAR)](ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
 * 🔐 **[Guide des Fonctionnalités OIDC](OIDC_FEATURES_GUIDE.md)** - Discovery, JWT natif et Logout.
 * 📖 **[Guide d'Intégration Helpers](INTEGRATION_HELPERS_GUIDE.md)** - Orchestration, Auto-refresh et multi-tenant.
+* 📖 **[Catalogue des Fonctionnalités](FEATURES_CATALOG.md)** - Liste exhaustive par module.
 * 📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Integration Helpers](./scribejava-integration-helpers/README.md)
 * 🎯 **Exemples** :
   * [OpenID Connect avec Découverte Dynamique](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/OidcDiscoveryExample.java)

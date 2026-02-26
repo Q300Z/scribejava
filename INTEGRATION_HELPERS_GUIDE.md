@@ -1,72 +1,81 @@
-# 🛠️ Guide d'Intégration ScribeJava Helpers
+# 🛠️ Guide d'Intégration : ScribeJava Helpers
 
-Le module `scribejava-integration-helpers` fournit une couche d'orchestration de haut niveau. Il automatise les tâches répétitives et sécurise les flux d'authentification pour les environnements de production.
+Le module `scribejava-integration-helpers` fournit une couche d'orchestration de haut niveau. Il automatise les tâches complexes (rafraîchissement, synchronisation, validation OIDC) pour permettre aux développeurs de se concentrer sur la logique métier.
 
 ---
 
-## 🏗️ Architecture Globale
+## 🏗️ Architecture Opérationnelle
 
-Le module repose sur trois piliers :
-1. **L'Orchestration du Flux** : Sécurisation de la redirection et du callback.
-2. **La Gestion de Session** : Stockage et rafraîchissement automatique des jetons.
-3. **L'Observabilité** : Audit et monitoring des événements critiques.
+Le module est structuré autour de quatre piliers :
+1. **Sécurisation du Flux** : Gestion du `state`, du `nonce` et du `PKCE`.
+2. **Coordination du Callback** : Validation et échange automatique du code.
+3. **Gestion de Session** : Persistance et calcul d'expiration des jetons.
+4. **Exécution Transparente** : Appels API avec auto-refresh thread-safe.
 
 ---
 
 ## 1. Sécurisation du Flux d'Autorisation
 
-### A. Préparation de la Redirection (`StateGenerator` & `AuthSessionContext`)
-Avant de rediriger l'utilisateur vers le fournisseur (IDP), vous devez générer et stocker un contexte de sécurité.
+### Préparation de la Redirection (`AuthSessionContext`)
+Avant d'envoyer l'utilisateur vers le fournisseur, vous devez générer des secrets pour protéger la session.
 
 ```java
-StateGenerator stateGen = new StateGenerator();
-String state = stateGen.generate(); // 32 octets d'entropie (Base64URL)
-String nonce = stateGen.generate(); // Optionnel (requis pour OIDC)
-PKCE pkce = service.generatePKCE(); // Optionnel (recommandé)
+StateGenerator gen = new StateGenerator();
+String state = gen.generate();
+String nonce = gen.generate();
+PKCE pkce = service.generatePKCE();
 
-// Stockez cet objet dans votre session HTTP ou un cookie sécurisé
+// Cet objet doit être persisté temporairement (ex: Session HTTP ou Cookie chiffré)
 AuthSessionContext context = new AuthSessionContext(state, nonce, pkce);
-session.setAttribute("OAUTH_CONTEXT", context);
+saveInSession(context);
 
-// Générez l'URL avec ces paramètres
-String url = service.getAuthorizationUrl(pkce, state);
-```
-
-### B. Traitement du Callback (`AuthFlowCoordinator`)
-Le coordinateur simplifie la réception du code, valide le `state` (protection CSRF) et récupère le jeton.
-
-```java
-// Pour OAuth 2.0 Standard
-AuthFlowCoordinator<String> coordinator = new AuthFlowCoordinator<>(service, repository);
-
-// Pour OpenID Connect (Gère auto la validation du Nonce et de l'ID Token)
-OidcAuthFlowCoordinator<String> oidcCoordinator = new OidcAuthFlowCoordinator<>(oidcService, repository);
-
-AuthResult result = oidcCoordinator.finishAuthorization(
-    userId, 
-    codeRecu, 
-    stateRecu, 
-    contextPrecedemmentSauve
-);
+String authUrl = service.getAuthorizationUrl(pkce, state);
 ```
 
 ---
 
-## 2. Gestion Intelligente des Jetons
+## 2. Traitement du Callback (`AuthFlowCoordinator`)
 
-### A. Persistance (`TokenRepository`)
-Vous devez implémenter cette interface pour l'adapter à votre infrastructure (SQL, Redis, NoSQL).
+Le coordinateur automatise la validation de sécurité et l'obtention du jeton final.
+
+### Version OIDC (Recommandée)
+L' `OidcAuthFlowCoordinator` effectue des vérifications critiques :
+- Validation du `state` (Anti-CSRF).
+- Validation de l'ID Token (Signature, émetteur, audience).
+- Validation du `nonce` (Anti-rejeu).
+- **Fallback UserInfo** : Si l'email est manquant dans l'ID Token, il interroge automatiquement l'API UserInfo.
 
 ```java
-public class MyDatabaseRepository implements TokenRepository<String, ExpiringTokenWrapper> {
-    public Optional<ExpiringTokenWrapper> findByKey(String userId) { ... }
-    public void save(String userId, ExpiringTokenWrapper token) { ... }
-    public void deleteByKey(String userId) { ... }
+OidcAuthFlowCoordinator<String> coordinator = new OidcAuthFlowCoordinator<>(oidcService, tokenRepository);
+coordinator.setListener(myListener); // Pour l'audit
+
+OidcAuthResult result = coordinator.finishAuthorization(
+    userId, 
+    codeFromRequest, 
+    stateFromRequest, 
+    savedContextFromSession
+);
+
+StandardClaims user = result.getUserInfoClaims();
+```
+
+---
+
+## 3. Gestion Automatisée des Jetons
+
+### Persistance (`TokenRepository`)
+ScribeJava fournit l'interface, vous fournissez l'implémentation (Redis, JDBC, JPA, etc.).
+
+```java
+public class MyRepo implements TokenRepository<String, ExpiringTokenWrapper> {
+    // findByKey, save, deleteByKey...
 }
 ```
 
-### B. Rafraîchissement Transparent (`TokenAutoRenewer`)
-Le `TokenAutoRenewer` résout le problème des jetons expirés de manière **thread-safe**. Si deux requêtes concurrentes détectent un jeton expiré, une seule effectuera l'appel réseau de rafraîchissement.
+### Rafraîchissement Thread-Safe (`TokenAutoRenewer`)
+Le `TokenAutoRenewer` est conçu pour les environnements à forte concurrence. 
+- **Verrouillage Intelligent** : Si 10 requêtes concurrentes détectent que le jeton est expiré, **un seul appel réseau** de rafraîchissement est fait. Les 9 autres attendent et réutilisent le nouveau jeton.
+- **Buffer d'Expiration** : Par défaut, il rafraîchit le jeton s'il expire dans moins de 60 secondes pour éviter les échecs en plein milieu d'une requête.
 
 ```java
 TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(
@@ -75,62 +84,57 @@ TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(
 );
 ```
 
-### C. Client API Automatisé (`AuthorizedClientService`)
-C'est le point d'entrée recommandé pour vos appels métier. Il combine le service et le renewer.
+### Exécution du Client (`AuthorizedClientService`)
+C'est l'outil ultime pour le développeur. Il masque toute la complexité d'OAuth.
 
 ```java
 AuthorizedClientService<String> client = new AuthorizedClientService<>(service, renewer);
 
-// Exécution transparente : Récupération -> Refresh (si besoin) -> Signature -> Envoi
-Response resp = client.execute(userId, new OAuthRequest(Verb.GET, "https://api.com/user"));
+// Vous ne vous souciez plus de rien :
+// Le service récupère le jeton, le rafraîchit si besoin, signe la requête et l'envoie.
+Response resp = client.execute(userId, new OAuthRequest(Verb.GET, "https://api.github.com/user"));
 ```
 
 ---
 
-## 3. Support Multi-Tenant (`OAuthServiceRegistry`)
+## 4. Multi-Tenant (`OAuthServiceRegistry`)
 
-Si votre application supporte plusieurs fournisseurs (ex: Connexion via Google ET GitHub), utilisez le registre pour centraliser vos services.
+Pour les applications supportant plusieurs méthodes de connexion (Google + GitHub + Azure).
 
 ```java
 OAuthServiceRegistry<String> registry = new OAuthServiceRegistry<>();
-registry.register("google", googleAuthorizedService);
-registry.register("github", githubAuthorizedService);
+registry.register("google", googleClientService);
+registry.register("github", githubClientService);
 
-// Utilisation
+// Récupération facile par ID
 AuthorizedClientService<String> srv = registry.getService("google");
 ```
 
 ---
 
-## 📈 4. Observabilité & Audit (`AuthEventListener`)
+## 📈 5. Monitoring & Audit (`AuthEventListener`)
 
-Branchez-vous sur le cycle de vie pour surveiller la santé de votre intégration.
+Indispensable pour la conformité et le débogage en production.
 
 ```java
-service.setListener(new AuthEventListener<String>() {
+public class MyAuditListener implements AuthEventListener<String> {
     @Override
-    public void onTokenRefreshed(String userId, ExpiringTokenWrapper newToken) {
-        log.info("Jeton rafraîchi pour : " + userId);
+    public void onTokenRefreshed(String key, ExpiringTokenWrapper newToken) {
+        // Loggez le renouvellement pour les stats
     }
 
     @Override
-    public void onCsrfDetected(String userId, String got, String expected) {
-        log.error("ATTENTION : Tentative CSRF détectée !");
+    public void onCsrfDetected(String key, String got, String expected) {
+        // Alerte critique : tentative d'attaque
     }
-    
-    @Override
-    public void onRefreshFailed(String userId, Exception e) {
-        log.error("Échec rafraîchissement. L'utilisateur doit se reconnecter.");
-    }
-});
+}
 ```
 
 ---
 
-## 💡 Résumé des Bénéfices
-| Feature | Problème résolu |
+## 💡 Résumé Technologique
+| Composant | Rôle |
 | :--- | :--- |
-| **`ExpiringTokenWrapper`** | Évite les erreurs 401 en anticipant l'expiration (buffer de 60s). |
-| **`TokenAutoRenewer`** | Évite les "Refresh Storms" (rafraîchissements multiples simultanés). |
-| **`OidcAuthFlowCoordinator`** | Garantit une validation cryptographique conforme aux specs OIDC. |
-| **`StateGenerator`** | Empêche les attaques par fixation de session et CSRF. |
+| **`ExpiringTokenWrapper`** | Calcule l'instant `T` d'expiration dès réception du jeton. |
+| **`StateGenerator`** | Utilise `SecureRandom` pour garantir une entropie cryptographique. |
+| **`OidcAuthResult`** | Fusionne les données du jeton et les claims utilisateur validés. |
