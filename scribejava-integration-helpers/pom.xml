@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.github.scribejava</groupId>
         <artifactId>scribejava</artifactId>
-        <version>9.1.1-SNAPSHOT</version>
+        <version>9.2.0</version>
     </parent>
 
     <artifactId>scribejava-integration-helpers</artifactId>
