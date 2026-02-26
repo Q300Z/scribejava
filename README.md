@@ -104,16 +104,22 @@ ScribeJava v9.1 intègre des outils industriels pour la production :
 ```
 
 ---
+## 💡 F.A.Q Technique
 
-## 🛠️ Développement & Qualité Industrielle
+### Comment est générée l'URL d'autorisation ?
+Elle est assemblée dynamiquement par le service en combinant l'URL de base du fournisseur avec les paramètres `client_id`, `redirect_uri` et `response_type`. Vous pouvez y ajouter vos propres paramètres via une `Map` ou le builder :
+```java
+service.createAuthorizationUrlBuilder()
+       .additionalParameters(myMap)
+       .build();
+```
 
-Consultez nos guides détaillés pour maîtriser l'écosystème :
-- 📖 **[Catalogue des Fonctionnalités](FEATURES_CATALOG.md)** : Liste exhaustive par module.
-- 🏗️ **[Documentation CI/CD](CI_DOCUMENTATION.md)** : Tout sur la qualité multi-JDK et les releases.
-- 🏗️ **[Guide de Contribution](CONTRIBUTING.md)** : Comment ajouter une API ou une feature.
-- 🔐 **[Sécurité Avancée](ADVANCED_SECURITY.md)** : DPoP, PAR, Chiffrement EC.
-- ⚡ **[Guide de Migration](MIGRATION_GUIDE.md)** : Passer de la v8 à la v9.1.
-- 📖 **[Dépannage](TROUBLESHOOTING.md)** : Erreurs courantes et solutions.
+### Comment fonctionne le PKCE ?
+ScribeJava génère un `code_verifier` aléatoire et calcule son `code_challenge` (SHA-256). Le challenge est envoyé dans l'URL d'autorisation, et le verifier est envoyé lors de l'échange final pour prouver que vous êtes bien l'initiateur de la requête.
+
+### Peut-on s'authentifier uniquement via l'Issuer URL ?
+**Oui.** Grâce au module OIDC, la méthode `.baseOnDiscovery(issuerUrl)` se charge de télécharger le fichier `.well-known/openid-configuration`, d'extraire les URLs d'autorisation/token et de configurer le service automatiquement sans aucune saisie manuelle d'URL.
 
 ---
 ⭐ **Soutenez-nous !** Mettez une étoile sur le projet pour nous aider à grandir.
+
