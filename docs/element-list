@@ -36,3 +36,4 @@ com.github.scribejava.oidc.builder
 com.github.scribejava.oidc.clientauthentication
 com.github.scribejava.oidc.dpop
 com.github.scribejava.oidc.jar
+com.github.scribejava.oidc.model
