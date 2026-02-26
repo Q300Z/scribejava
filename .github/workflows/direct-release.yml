@@ -1,7 +1,6 @@
-name: Direct Release (Manual)
+name: Direct Release
 
-on:
-  workflow_dispatch: {}
+on: [workflow_dispatch]
 
 permissions:
   contents: write
@@ -31,7 +30,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: 1. Analyse (Calculate Bump)
+      - name: Bump
         id: bump
         run: |
           npm install -g conventional-recommended-bump semver conventional-changelog-angular
@@ -40,17 +39,16 @@ jobs:
           NEW_VER=$(semver $CURRENT_VER -i $BUMP_TYPE)
           echo "new_version=$NEW_VER" >> $GITHUB_OUTPUT
 
-      - name: 2. Update (Maven Version Set)
+      - name: Version
         run: |
           NEW_VER=${{ steps.bump.outputs.new_version }}
           mvn versions:set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
           mvn versions:commit
 
-      - name: 3. Build & Package (Unified JAR: Classes + Javadoc)
+      - name: Build
         run: |
           mvn clean package -DskipTests
           mkdir dist
-          # Collecte sélective des JARs principaux uniquement
           cp scribejava-core/target/*.jar dist/ 2>/dev/null || true
           cp scribejava-oidc/target/*.jar dist/ 2>/dev/null || true
           cp scribejava-apis/target/*.jar dist/ 2>/dev/null || true
@@ -58,17 +56,15 @@ jobs:
           cp scribejava-httpclient-okhttp/target/*.jar dist/ 2>/dev/null || true
           cp scribejava-httpclient-armeria/target/*.jar dist/ 2>/dev/null || true
           cp scribejava-integration-helpers/target/*.jar dist/ 2>/dev/null || true
-          
-          # Suppression des doublons (sources, tests)
           rm -f dist/*-sources.jar dist/*-tests.jar dist/original-*.jar
 
-      - name: 4. Changelog (Latest version only)
+      - name: Changelog
         run: |
           npm install -g conventional-changelog-cli conventional-changelog-angular
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
           conventional-changelog -p angular -r 1 > release_notes.txt
 
-      - name: 5. Tag & Push
+      - name: Push
         run: |
           NEW_VER=${{ steps.bump.outputs.new_version }}
           git add .
@@ -76,7 +72,7 @@ jobs:
           git tag -a v$NEW_VER -m "Release v$NEW_VER"
           git push origin master --tags
 
-      - name: 6. GitHub Release (Clean Assets)
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
