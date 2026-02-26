@@ -1,119 +1,107 @@
-# ⚙️ Guide de Référence ScribeJava Core
+# ⚙️ Guide de Référence : ScribeJava Core
 
-Le module `scribejava-core` est le socle de la bibliothèque. Il fournit une implémentation robuste et performante d'OAuth 2.0, conçue selon les principes SOLID et sans aucune dépendance externe au runtime.
+Le module `scribejava-core` est le socle de la bibliothèque. Il fournit une implémentation robuste d'OAuth 2.0, conçue selon les principes SOLID et optimisée pour la production industrielle.
 
 ---
 
-## 🏗️ 1. Initialisation & Construction (`ServiceBuilder`)
+## 🏗️ 1. Configuration Avancée (`ServiceBuilder`)
 
-Le `ServiceBuilder` est votre point d'entrée unique. Il permet de configurer le client de manière fluide.
+Le `ServiceBuilder` utilise une interface fluide pour configurer votre service sans complexité.
 
-### Configuration de base
+### Options du Builder
+- **`.scopes(String...)`** : Support des varargs pour une déclaration propre.
+- **`.discoverFromIssuer(url, service)`** : Active la découverte automatique (OIDC/RFC 8414).
+- **`.pkce(true)`** : Active automatiquement le challenge PKCE (RFC 7636).
+- **`.dpop(proofCreator)`** : Active le mécanisme DPoP (RFC 9449).
+- **`.debug()`** : Active les logs détaillés sur `System.out`.
+
 ```java
-OAuth20Service service = new ServiceBuilder("my-client-id")
-    .apiSecret("my-secret")
-    .callback("https://my-app.com/callback")
-    .scopes("profile", "email") // Nouveau : support des varargs
+OAuth20Service service = new ServiceBuilder("client-id")
+    .apiSecret("secret")
+    .scopes("openid", "profile", "email")
+    .httpClientConfig(JDKHttpClientConfig.defaultConfig()) // Tuning timeouts
     .build(GitHubApi.instance());
 ```
-
-### Options Avancées du Builder
-- **`.pkce(true)`** : Active automatiquement le flux PKCE (recommandé).
-- **`.userAgent(string)`** : Définit une signature personnalisée pour vos appels réseau.
-- **`.httpClientConfig(config)`** : Permet de régler les timeouts, proxies, et SSL.
-- **`.dpop(proofCreator)`** : Active le mécanisme DPoP pour lier les jetons au client.
 
 ---
 
 ## 🔑 2. Système de Concession (`Grants`)
 
-ScribeJava utilise le patron de conception **Strategy** pour gérer les différents flux d'obtention de jetons.
+ScribeJava v9 sépare la logique d'obtention de jetons via le patron **Strategy**.
 
-### Flux Standards
+### Utilisation des Grants
 ```java
-// Authorization Code
-service.getAccessToken(new AuthorizationCodeGrant(code, pkce));
+// Authorization Code (Standard)
+service.getAccessToken(new AuthorizationCodeGrant(code));
 
-// Client Credentials
-service.getAccessToken(new ClientCredentialsGrant("optional-scope"));
+// Client Credentials (Machine-to-Machine)
+service.getAccessToken(new ClientCredentialsGrant());
 
-// Password Grant
+// Password Grant (Legacy/Trust)
 service.getAccessToken(new PasswordGrant("user", "pass"));
 
-// Refresh Token
-service.refreshAccessToken("my-refresh-token");
+// Device Code (Appareils sans navigateur)
+service.pollAccessTokenDeviceAuthorizationGrant(deviceAuth);
 ```
 
 ---
 
-## 🛰️ 3. Requêtes & Debugging (`OAuthRequest`)
+## 🛰️ 3. Maîtrise des Requêtes (`OAuthRequest`)
 
-L'objet `OAuthRequest` est une abstraction puissante du protocole HTTP.
+L'objet `OAuthRequest` est une abstraction complète de la couche HTTP.
 
-### Manipulation des Payloads
-ScribeJava supporte nativement plusieurs types de corps de requête :
-- **Textuel** : `.setPayload(String)` (ex: JSON, XML).
+### Payloads Intelligents
+- **Textuel** : `.setPayload(String)` (JSON, XML).
 - **Binaire** : `.setPayload(byte[])`.
 - **Fichier** : `.setPayload(File)`.
-- **Multipart** : `.setMultipartPayload(multipart)` pour l'envoi de fichiers complexes.
+- **Multipart** : `.addBodyPart(new ByteArrayBodyPartPayload(...))` pour l'envoi de fichiers et données de formulaire mixtes.
 
-### Outils de Diagnostic (DX Premium)
-Plus besoin de deviner ce qui est envoyé au serveur :
-- **`toCurlCommand()`** : Génère une commande shell prête à l'emploi (secrets masqués par défaut).
-- **`toDebugString()`** : Affiche un résumé structuré de la requête pour vos logs.
+### Diagnostic Premium (DX)
+Ne devinez plus le contenu de vos requêtes :
+- **`toCurlCommand()`** : Génère une commande `curl` prête à l'emploi avec masquage automatique des secrets (`[REDACTED]`).
+- **`toDebugString()`** : Résumé structuré pour vos fichiers de logs.
 
 ---
 
 ## 🛡️ 4. Résilience & Observabilité
 
-Conçu pour la production, le moteur Core intègre des mécanismes de survie réseau.
-
 ### Auto-Retry
-Gérez les erreurs transitoires sans code supplémentaire.
+Gérez les erreurs réseau transitoires (HTTP 429, 5xx) de manière transparente.
 ```java
-// Tente 3 fois avec un délai de 500ms entre chaque essai (cible 429 et 5xx)
-service.setRetryPolicy(new OAuthRetryPolicy(3, 500));
+service.setRetryPolicy(new OAuthRetryPolicy(3, 1000)); // 3 essais, 1s de pause
 ```
 
-### Logging Structuré (`OAuthLogger`)
-Branchez votre propre système de surveillance (SLF4J, ELK, Datadog).
-```java
-service.setLogger(new OAuthLogger() {
-    public void logRequest(OAuthRequest req) { ... }
-    public void logResponse(Response resp) { ... }
-});
-```
-
-### Gestion des Quotas (`RateLimitListener`)
-Soyez notifié dès qu'un serveur d'API renvoie des informations de limite.
+### Rate Limiting
+Soyez notifié en temps réel de l'état de vos quotas d'API.
 ```java
 service.setRateLimitListener((remaining, resetAt, response) -> {
-    if (remaining < 10) warn("Quota presque épuisé !");
+    log.info("Requêtes restantes : " + remaining);
 });
 ```
+
+### Logging Structuré
+Branchez votre infrastructure de logs (SLF4J, Log4j2) via l'interface `OAuthLogger`.
 
 ---
 
-## 🏗️ 5. Moteur JSON Natif
+## 🏗️ 5. Moteur JSON Natif (Zéro-Dépendance)
 
-Pour rester **Zero-Dependency**, ScribeJava embarque son propre moteur JSON sécurisé.
+ScribeJava embarque son propre moteur JSON ultra-sécurisé :
+- **`JsonBuilder`** : Génération fluide et sécurisée (échappement automatique).
+- **`JsonObject`** : Accès typé aux données (`getInstant`, `getLong`, `getStringList`).
+- **`JsonUtils`** : Parsing récursif performant supportant l'Unicode.
 
-- **`JsonBuilder`** : Pour créer vos requêtes sans erreurs de syntaxe ni injection.
-  ```java
-  String json = new JsonBuilder().add("id", 1).add("active", true).build();
-  ```
-- **`JsonObject`** : Pour lire les réponses de manière sûre.
-  ```java
-  JsonObject json = new JsonObject(parsedMap);
-  Optional<Instant> exp = json.getInstant("expires_at");
-  ```
+```java
+String json = new JsonBuilder().add("id", 123).add("tags", Arrays.asList("a", "b")).build();
+JsonObject obj = new JsonObject(JsonUtils.parse(responseBody));
+```
 
 ---
 
 ## ❌ 6. Hiérarchie des Exceptions
 
-Le Core définit un typage précis pour faciliter le traitement des erreurs :
+Traitement différencié selon la nature de l'erreur :
 - **`OAuthNetworkException`** : Problème physique (DNS, Timeout, Connexion).
-- **`OAuthResponseException`** : Erreur retournée par le serveur (401, 403, 400).
-- **`OAuthProtocolException`** : Non-conformité aux spécifications.
-- **`OAuthRateLimitException`** : Dépassement de quota (HTTP 429).
+- **`OAuthResponseException`** : Le serveur a répondu une erreur (401, 400). Accès aux détails via `getErrorDetails()`.
+- **`OAuthProtocolException`** : Réponse malformée ou non-conforme.
+- **`OAuthRateLimitException`** : HTTP 429 détecté.
