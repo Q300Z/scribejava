@@ -1,17 +1,13 @@
-name: Direct Release
+name: Direct Release (Manual)
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch: # Déclenchement manuel uniquement via l'interface Actions
 
 permissions:
   contents: write
 
 jobs:
   release:
-    # On ne déclenche pas la release si le commit est déjà un commit de release
-    if: "!contains(github.event.head_commit.message, 'chore(release)')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,7 +41,7 @@ jobs:
           CURRENT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           echo "Current version: $CURRENT_VER"
           
-          # Calcul du type de bump (patch, minor, major)
+          # Calcul du type de bump (patch, minor, major) basé sur les commits depuis le dernier tag
           BUMP_TYPE=$(conventional-recommended-bump -p angular)
           echo "Bump type: $BUMP_TYPE"
           
