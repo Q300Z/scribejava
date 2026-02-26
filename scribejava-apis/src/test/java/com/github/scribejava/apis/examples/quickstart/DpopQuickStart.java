@@ -43,8 +43,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * [QUICKSTART] Sécurité Avancée DPoP (RFC 9449).
  *
- * <p>Le DPoP (Demonstrating Proof-of-Possession) lie cryptographiquement le jeton à la clé privée du
- * client. Si le jeton est volé, il est inutilisable sans la clé privée.
+ * <p>Le DPoP (Demonstrating Proof-of-Possession) lie cryptographiquement le jeton à la clé privée
+ * du client. Si le jeton est volé, il est inutilisable sans la clé privée.
  */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class DpopQuickStart {
