@@ -201,6 +201,7 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 
 ## 📚 Documentation & Exemples
 
+* 🚀 **[Démarrage Rapide (Quick Start)](docs/QUICKSTART.md)** - Exemples complets pour CLI (OAuth2, OIDC, M2M).
 * ⚡ **[Guide de Migration](docs/MIGRATION_GUIDE.md)** - Passer de la v8 à la v9.
 * ⚙️ **[Guide ScribeJava Core](docs/CORE_FEATURES_GUIDE.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
 * 🛡️ **[Sécurité Avancée (DPoP/PAR)](docs/ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
