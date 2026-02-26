@@ -23,9 +23,9 @@
  */
 package com.github.scribejava.apis.examples.quickstart;
 
+import com.github.scribejava.core.model.OAuthLogger;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.oauth.OAuthLogger;
 import java.util.Scanner;
 
 /** Utilitaires partagés pour les QuickStarts. */

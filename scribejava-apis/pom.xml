@@ -56,6 +56,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.github.scribejava</groupId>
+      <artifactId>scribejava-integration-helpers</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-resolver</artifactId>
       <version>5.0.0.Alpha2</version>

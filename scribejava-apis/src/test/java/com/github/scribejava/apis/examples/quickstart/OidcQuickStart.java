@@ -33,7 +33,6 @@ import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.oidc.IdToken;
 import com.github.scribejava.oidc.OidcDiscoveryService;
 import com.github.scribejava.oidc.OidcGoogleApi20;
-import com.github.scribejava.oidc.OidcProviderMetadata;
 import com.github.scribejava.oidc.OidcService;
 import com.github.scribejava.oidc.OidcServiceBuilder;
 import com.github.scribejava.oidc.StandardClaims;
@@ -73,7 +72,7 @@ public final class OidcQuickStart {
     discovery.setLogger(verboseLogger());
 
     System.out.println("Découverte de l'émetteur : " + ISSUER);
-    final OidcProviderMetadata metadata = discovery.getProviderMetadata();
+    discovery.getProviderMetadata();
 
     // 2. Configuration du Service avec Résilience
     final OidcService service =

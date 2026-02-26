@@ -36,7 +36,6 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import java.io.IOException;
-import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
@@ -44,8 +43,8 @@ import java.util.concurrent.ExecutionException;
 /**
  * [QUICKSTART] Sécurité Avancée DPoP (RFC 9449).
  *
- * <p>Le DPoP (Demonstrating Proof-of-Possession) lie cryptographiquement le jeton à la clé privée
- * du client. Si le jeton est volé, il est inutilisable sans la clé privée.
+ * <p>Le DPoP (Demonstrating Proof-of-Possession) lie cryptographiquement le jeton à la clé privée du
+ * client. Si le jeton est volé, il est inutilisable sans la clé privée.
  */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class DpopQuickStart {
@@ -55,13 +54,22 @@ public final class DpopQuickStart {
 
   private DpopQuickStart() {}
 
+  /**
+   * Point d'entrée.
+   *
+   * @param args args
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   * @throws NoSuchAlgorithmException NoSuchAlgorithmException
+   */
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException, NoSuchAlgorithmException {
 
     // 1. Génération d'une paire de clés RSA pour la preuve de possession
     final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
     keyGen.initialize(2048);
-    final KeyPair keyPair = keyGen.generateKeyPair();
+    keyGen.generateKeyPair();
 
     // 2. Initialisation du service avec le créateur de preuves DPoP
     // ScribeJava gérera automatiquement les en-têtes 'DPoP' dans les requêtes.
