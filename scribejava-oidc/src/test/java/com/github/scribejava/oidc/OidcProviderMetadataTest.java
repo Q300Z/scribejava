@@ -23,35 +23,44 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.scribejava.core.model.JsonBuilder;
 import java.io.IOException;
-import org.junit.Test;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
+/** Tests de parsing des métadonnées OIDC. */
 public class OidcProviderMetadataTest {
 
-  private static final String JSON_CONFIG =
-      "{"
-          + "\"issuer\":\"https://server.example.com\","
-          + "\"authorization_endpoint\":\"https://server.example.com/authorize\","
-          + "\"token_endpoint\":\"https://server.example.com/token\","
-          + "\"jwks_uri\":\"https://server.example.com/jwks.json\","
-          + "\"response_types_supported\":[\"code\",\"id_token\"],"
-          + "\"subject_types_supported\":[\"public\"],"
-          + "\"id_token_signing_alg_values_supported\":[\"RS256\"]"
-          + "}";
-
+  /**
+   * Vérifie le parsing à partir d'un JSON construit via JsonBuilder.
+   *
+   * @throws IOException en cas d'erreur
+   */
   @Test
   public void shouldParseMetadataFromJson() throws IOException {
-    final OidcProviderMetadata metadata = OidcProviderMetadata.parse(JSON_CONFIG);
+    final String json =
+        new JsonBuilder()
+            .add("issuer", "https://server.example.com")
+            .add("authorization_endpoint", "https://server.example.com/authorize")
+            .add("token_endpoint", "https://server.example.com/token")
+            .add("jwks_uri", "https://server.example.com/jwks.json")
+            .add("response_types_supported", Arrays.asList("code", "id_token"))
+            .add("subject_types_supported", Arrays.asList("public"))
+            .add("id_token_signing_alg_values_supported", Arrays.asList("RS256"))
+            .build();
 
-    assertNotNull(metadata);
-    assertEquals("https://server.example.com", metadata.getIssuer());
-    assertEquals("https://server.example.com/authorize", metadata.getAuthorizationEndpoint());
-    assertEquals("https://server.example.com/token", metadata.getTokenEndpoint());
-    assertEquals("https://server.example.com/jwks.json", metadata.getJwksUri());
-    assertTrue(metadata.getResponseTypesSupported().contains("code"));
-    assertTrue(metadata.getSubjectTypesSupported().contains("public"));
-    assertTrue(metadata.getIdTokenSigningAlgValuesSupported().contains("RS256"));
+    final OidcProviderMetadata metadata = OidcProviderMetadata.parse(json);
+
+    assertThat(metadata).isNotNull();
+    assertThat(metadata.getIssuer()).isEqualTo("https://server.example.com");
+    assertThat(metadata.getAuthorizationEndpoint())
+        .isEqualTo("https://server.example.com/authorize");
+    assertThat(metadata.getTokenEndpoint()).isEqualTo("https://server.example.com/token");
+    assertThat(metadata.getJwksUri()).isEqualTo("https://server.example.com/jwks.json");
+    assertThat(metadata.getResponseTypesSupported()).contains("code");
+    assertThat(metadata.getSubjectTypesSupported()).contains("public");
+    assertThat(metadata.getIdTokenSigningAlgValuesSupported()).contains("RS256");
   }
 }

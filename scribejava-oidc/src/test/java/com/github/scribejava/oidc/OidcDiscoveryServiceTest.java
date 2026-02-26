@@ -23,18 +23,19 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
+import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.oidc.model.OidcKey;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests du service de découverte (Discovery) OIDC. */
 public class OidcDiscoveryServiceTest {
@@ -47,7 +48,7 @@ public class OidcDiscoveryServiceTest {
    *
    * @throws IOException en cas d'erreur.
    */
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     server = new MockWebServer();
     server.start();
@@ -61,60 +62,66 @@ public class OidcDiscoveryServiceTest {
    *
    * @throws IOException en cas d'erreur.
    */
-  @After
+  @AfterEach
   public void tearDown() throws IOException {
     server.shutdown();
   }
 
-  /** Vérifie la récupération des métadonnées du fournisseur. */
+  /**
+   * Vérifie la récupération des métadonnées du fournisseur via JsonBuilder.
+   *
+   * @throws Exception en cas d'erreur
+   */
   @Test
   public void shouldFetchMetadata() throws Exception {
     final String json =
-        "{"
-            + "\"issuer\":\""
-            + server.url("/")
-            + "\","
-            + "\"authorization_endpoint\":\""
-            + server.url("/authorize")
-            + "\","
-            + "\"token_endpoint\":\""
-            + server.url("/token")
-            + "\","
-            + "\"jwks_uri\":\""
-            + server.url("/jwks.json")
-            + "\","
-            + "\"response_types_supported\":[\"code\"],"
-            + "\"subject_types_supported\":[\"public\"],"
-            + "\"id_token_signing_alg_values_supported\":[\"RS256\"]"
-            + "}";
+        new JsonBuilder()
+            .add("issuer", server.url("/").toString())
+            .add("authorization_endpoint", server.url("/authorize").toString())
+            .add("token_endpoint", server.url("/token").toString())
+            .add("jwks_uri", server.url("/jwks.json").toString())
+            .add("response_types_supported", Collections.singletonList("code"))
+            .add("subject_types_supported", Collections.singletonList("public"))
+            .add("id_token_signing_alg_values_supported", Collections.singletonList("RS256"))
+            .build();
 
     server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
 
     final OidcProviderMetadata metadata = service.getProviderMetadata();
 
-    assertNotNull(metadata);
-    assertEquals(server.url("/").toString(), metadata.getIssuer());
-    assertEquals(server.url("/token").toString(), metadata.getTokenEndpoint());
+    assertThat(metadata).isNotNull();
+    assertThat(metadata.getIssuer()).isEqualTo(server.url("/").toString());
+    assertThat(metadata.getTokenEndpoint()).isEqualTo(server.url("/token").toString());
   }
 
-  /** Vérifie la récupération des clés JWKS. */
+  /**
+   * Vérifie la récupération des clés JWKS via JsonBuilder.
+   *
+   * @throws Exception en cas d'erreur
+   */
   @Test
   public void shouldFetchJwks() throws Exception {
     final String jwksJson =
-        "{\"keys\":[{"
-            + "\"kty\":\"RSA\","
-            + "\"use\":\"sig\","
-            + "\"kid\":\"123\","
-            + "\"n\":\"vFrIs_Y_nd9Z\"" // Base64 correct simplifié pour test
-            + ",\"e\":\"AQAB\""
-            + "}]}";
+        new JsonBuilder()
+            .add(
+                "keys",
+                Collections.singletonList(
+                    new JsonBuilder()
+                        .add("kty", "RSA")
+                        .add("use", "sig")
+                        .add("kid", "123")
+                        .add(
+                            "n",
+                            "AKZdf_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_")
+                        .add("e", "AQAB")))
+            .build();
 
     server.enqueue(new MockResponse().setBody(jwksJson).setResponseCode(200));
 
     final Map<String, OidcKey> keys = service.getJwks(server.url("/jwks.json").toString());
 
-    assertNotNull(keys);
-    assertNotNull(keys.get("123"));
-    assertEquals("123", keys.get("123").getKid());
+    assertThat(keys).isNotNull();
+    assertThat(keys.get("123")).isNotNull();
+    assertThat(keys.get("123").getKid()).isEqualTo("123");
   }
 }

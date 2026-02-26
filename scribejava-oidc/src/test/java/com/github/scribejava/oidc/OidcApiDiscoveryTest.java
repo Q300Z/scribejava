@@ -26,6 +26,7 @@ package com.github.scribejava.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
+import com.github.scribejava.core.model.JsonBuilder;
 import java.io.IOException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -59,25 +60,21 @@ public class OidcApiDiscoveryTest {
     server.shutdown();
   }
 
-  /** Vérifie que les points de terminaison sont correctement configurés à partir du JSON. */
+  /**
+   * Vérifie que les points de terminaison sont correctement configurés à partir du JSON.
+   *
+   * @throws Exception en cas d'erreur
+   */
   @Test
   public void shouldConfigureEndpointsAutomatically() throws Exception {
     final String issuer = server.url("/").toString();
     final String discoveryJson =
-        "{"
-            + "\"issuer\":\""
-            + issuer
-            + "\","
-            + "\"authorization_endpoint\":\""
-            + issuer
-            + "auth\","
-            + "\"token_endpoint\":\""
-            + issuer
-            + "token\","
-            + "\"jwks_uri\":\""
-            + issuer
-            + "keys\""
-            + "}";
+        new JsonBuilder()
+            .add("issuer", issuer)
+            .add("authorization_endpoint", issuer + "auth")
+            .add("token_endpoint", issuer + "token")
+            .add("jwks_uri", issuer + "keys")
+            .build();
 
     server.enqueue(new MockResponse().setBody(discoveryJson).setResponseCode(200));
 

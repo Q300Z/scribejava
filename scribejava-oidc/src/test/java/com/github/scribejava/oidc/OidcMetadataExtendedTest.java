@@ -23,52 +23,65 @@
  */
 package com.github.scribejava.oidc;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.scribejava.core.model.JsonBuilder;
 import java.io.IOException;
-import org.junit.Test;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 
+/** Tests étendus pour les métadonnées OIDC. */
 public class OidcMetadataExtendedTest {
 
+  /**
+   * Vérifie le parsing d'un objet de métadonnées complet via JsonBuilder.
+   *
+   * @throws IOException en cas d'erreur
+   */
   @Test
   public void shouldParseCompleteMetadata() throws IOException {
     final String json =
-        "{"
-            + "\"issuer\":\"https://idp.com\","
-            + "\"authorization_endpoint\":\"https://idp.com/auth\","
-            + "\"token_endpoint\":\"https://idp.com/token\","
-            + "\"jwks_uri\":\"https://idp.com/keys\","
-            + "\"response_types_supported\":[\"code\", \"id_token\"],"
-            + "\"subject_types_supported\":[\"public\"],"
-            + "\"id_token_signing_alg_values_supported\":[\"RS256\"],"
-            + "\"userinfo_endpoint\":\"https://idp.com/userinfo\","
-            + "\"registration_endpoint\":\"https://idp.com/register\","
-            + "\"scopes_supported\":[\"openid\", \"profile\"],"
-            + "\"response_modes_supported\":[\"query\", \"form_post\"],"
-            + "\"grant_types_supported\":[\"authorization_code\", \"refresh_token\"],"
-            + "\"revocation_endpoint\":\"https://idp.com/revoke\","
-            + "\"introspection_endpoint\":\"https://idp.com/introspect\","
-            + "\"pushed_authorization_request_endpoint\":\"https://idp.com/par\","
-            + "\"dpop_signing_alg_values_supported\":[\"RS256\", \"ES256\"]"
-            + "}";
+        new JsonBuilder()
+            .add("issuer", "https://idp.com")
+            .add("authorization_endpoint", "https://idp.com/auth")
+            .add("token_endpoint", "https://idp.com/token")
+            .add("jwks_uri", "https://idp.com/keys")
+            .add("response_types_supported", Arrays.asList("code", "id_token"))
+            .add("subject_types_supported", Arrays.asList("public"))
+            .add("id_token_signing_alg_values_supported", Arrays.asList("RS256"))
+            .add("userinfo_endpoint", "https://idp.com/userinfo")
+            .add("registration_endpoint", "https://idp.com/register")
+            .add("scopes_supported", Arrays.asList("openid", "profile"))
+            .add("response_modes_supported", Arrays.asList("query", "form_post"))
+            .add("grant_types_supported", Arrays.asList("authorization_code", "refresh_token"))
+            .add("revocation_endpoint", "https://idp.com/revoke")
+            .add("introspection_endpoint", "https://idp.com/introspect")
+            .add("pushed_authorization_request_endpoint", "https://idp.com/par")
+            .add("dpop_signing_alg_values_supported", Arrays.asList("RS256", "ES256"))
+            .build();
 
     final OidcProviderMetadata metadata = OidcProviderMetadata.parse(json);
-    assertEquals("https://idp.com", metadata.getIssuer());
-    assertEquals("https://idp.com/auth", metadata.getAuthorizationEndpoint());
-    assertEquals("https://idp.com/userinfo", metadata.getUserinfoEndpoint());
-    assertEquals("https://idp.com/register", metadata.getRegistrationEndpoint());
-    assertEquals("https://idp.com/revoke", metadata.getRevocationEndpoint());
-    assertEquals("https://idp.com/introspect", metadata.getIntrospectionEndpoint());
-    assertEquals("https://idp.com/par", metadata.getPushedAuthorizationRequestEndpoint());
-    assertTrue(metadata.getDpopSigningAlgValuesSupported().contains("ES256"));
-    assertTrue(metadata.getScopesSupported().contains("profile"));
+    assertThat(metadata.getIssuer()).isEqualTo("https://idp.com");
+    assertThat(metadata.getAuthorizationEndpoint()).isEqualTo("https://idp.com/auth");
+    assertThat(metadata.getUserinfoEndpoint()).isEqualTo("https://idp.com/userinfo");
+    assertThat(metadata.getRegistrationEndpoint()).isEqualTo("https://idp.com/register");
+    assertThat(metadata.getRevocationEndpoint()).isEqualTo("https://idp.com/revoke");
+    assertThat(metadata.getIntrospectionEndpoint()).isEqualTo("https://idp.com/introspect");
+    assertThat(metadata.getPushedAuthorizationRequestEndpoint()).isEqualTo("https://idp.com/par");
+    assertThat(metadata.getDpopSigningAlgValuesSupported()).contains("ES256");
+    assertThat(metadata.getScopesSupported()).contains("profile");
   }
 
+  /**
+   * Vérifie le comportement avec un objet JSON vide.
+   *
+   * @throws IOException en cas d'erreur
+   */
   @Test
   public void shouldHandleEmptyMetadata() throws IOException {
-    final String json = "{}";
+    final String json = new JsonBuilder().build();
     final OidcProviderMetadata metadata = OidcProviderMetadata.parse(json);
-    assertNull(metadata.getIssuer());
-    assertTrue(metadata.getScopesSupported().isEmpty());
+    assertThat(metadata.getIssuer()).isNull();
+    assertThat(metadata.getScopesSupported()).isEmpty();
   }
 }
