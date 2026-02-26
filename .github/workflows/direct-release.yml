@@ -1,6 +1,9 @@
 name: Direct Release (Manual)
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
@@ -8,6 +11,8 @@ permissions:
 
 jobs:
   release:
+    # On évite les boucles infinies
+    if: "!contains(github.event.head_commit.message, 'chore(release)')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,22 +55,19 @@ jobs:
         run: |
           mvn clean package -DskipTests
           mkdir dist
-          # On ne collecte QUE les JARs principaux (pas de -sources, pas de -tests)
+          # On ne collecte QUE les JARs principaux
           find . -name "*.jar" \
             -not -name "*-sources.jar" \
             -not -name "*-tests.jar" \
             -not -path "*/target/test-classes/*" \
             -not -path "*/target/classes/*" \
             -exec cp {} dist/ \;
-          # Nettoyage Maven
           rm -f dist/original-*.jar
 
       - name: 4. Changelog (Latest version only)
         run: |
           npm install -g conventional-changelog-cli conventional-changelog-angular
-          # On génère le changelog complet pour le fichier CHANGELOG.md
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
-          # On génère UNIQUEMENT les notes de la nouvelle version pour GitHub
           conventional-changelog -p angular -r 1 > release_notes.txt
 
       - name: 5. Tag & Push
