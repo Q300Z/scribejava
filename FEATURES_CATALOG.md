@@ -5,71 +5,43 @@ Ce document répertorie l'ensemble des capacités exploitables par module. Scrib
 ---
 
 ## ⚙️ 1. Module `scribejava-core` (Le Moteur)
-C'est le socle obligatoire. Il gère le protocole OAuth 2.0 et l'infrastructure commune.
 
-### 🛡️ Sécurité & Protocoles
-- **OAuth 2.0 (RFC 6749)** : Support complet des flux *Authorization Code*, *Client Credentials*, *Password*, et *Refresh Token*.
-- **PKCE (RFC 7636)** : Protection contre l'interception de code, activable via `.pkce(true)`.
-- **DPoP (RFC 9449)** : Preuve de possession de jeton pour lier mathématiquement un token à un client.
-- **PAR (RFC 9126)** : Envoi sécurisé des paramètres d'autorisation via POST au lieu de l'URL.
+### 🔗 Construction de l'URL d'autorisation
+C'est le point de départ de tout flux utilisateur. ScribeJava offre une flexibilité totale :
+- **Simple** : `service.getAuthorizationUrl()` génère l'URL standard.
+- **Paramètres personnalisés** : Ajoutez des paramètres spécifiques au fournisseur (ex: `prompt`, `access_type`) via une `Map<String, String>`.
+  ```java
+  Map<String, String> params = new HashMap<>();
+  params.put("prompt", "select_account");
+  String url = service.getAuthorizationUrl(params);
+  ```
+- **Builder Fluide** : Utilisez `service.createAuthorizationUrlBuilder()` pour chaîner les options (`state`, `scopes`, `additionalParameters`).
 
-### 🛰️ Observabilité & Diagnostic
-- **`OAuthLogger`** : Interface pour injecter votre propre système de logs (SLF4J, Logback, etc.).
-- **`toCurlCommand()`** : Génère une commande shell pour reproduire une requête (secrets masqués auto).
-- **`OAuthRetryPolicy`** : Politique de réessai automatique configurable (429, 5xx).
-- **`RateLimitListener`** : Détection automatique des en-têtes de quota (`X-RateLimit-*`).
-- **`OAuthNetworkException`** : Typage précis des erreurs physiques (DNS, Timeout) vs logiques.
-
-### 🏗️ Manipulation de Données
-- **`JsonBuilder`** : Génération fluide et sécurisée de JSON sans concaténation.
-- **`JsonObject`** : Accès type-safe aux réponses JSON avec support des `Optional`.
+### 🛡️ Sécurité & PKCE (RFC 7636)
+Le PKCE est géré de manière transparente pour sécuriser les échanges :
+1. **Génération** : `PKCE pkce = service.generatePKCE()` crée le `code_verifier` (secret) et le `code_challenge`.
+2. **Autorisation** : Passez l'objet `pkce` à `getAuthorizationUrl()`. ScribeJava inclut automatiquement le challenge dans l'URL.
+3. **Échange** : Passez le même objet à `AuthorizationCodeGrant`. ScribeJava envoie le verifier au serveur pour prouver l'identité du client.
 
 ---
 
 ## 🔐 2. Module `scribejava-oidc` (Identité Enterprise)
-Extension native pour OpenID Connect 1.0, sans aucune dépendance externe (Zéro Nimbus).
 
-### 🛰️ Automatisation
-- **Auto-Discovery** : Configuration automatique du service via l'URL `/.well-known/openid-configuration`.
-- **Metadata Caching** : Mise en cache intelligente des points de terminaison pour la performance.
-- **JWKS Auto-Rotation** : Gestion et rechargement automatique des clés publiques du fournisseur.
+### 🛰️ Automatisation via OIDC Discovery
+La fonctionnalité la plus puissante pour les administrateurs système.
+- **Concept** : Fournissez uniquement l'URL de l'émetteur (Issuer), ex: `https://accounts.google.com`.
+- **Action** : Le `OidcServiceBuilder` télécharge le JSON `openid-configuration`, découvre les endpoints et configure le service automatiquement.
+- **Avantage** : Aucune URL d'API n'est écrite en dur dans votre code. Si le fournisseur déplace ses services, votre application s'adapte dynamiquement.
+  ```java
+  builder.baseOnDiscovery(issuerUri, httpClient, userAgent);
+  ```
 
 ### 🛡️ Validation & Cryptographie
-- **`IdTokenValidator`** : Vérification native (RSA/EC) de la signature, de l'émetteur, de l'audience et de l'expiration.
-- **Support Courbes Elliptiques** : Validation des signatures **ES256** native au JDK.
-- **Protection Nonce** : Gestion intégrée contre les attaques par rejeu.
-
-### 👤 Données Utilisateur
-- **`StandardClaims`** : Accès typé aux informations profil (email, name, picture, etc.).
-- **`UserInfo`** : Support de l'extraction des claims depuis le point de terminaison dédié.
+- **`IdTokenValidator`** : Vérification native (RSA/EC) sans dépendances externes.
+- **Support Courbes Elliptiques** : Validation des signatures **ES256** (NIST P-256).
 
 ---
 
 ## 🛠️ 3. Module `scribejava-integration-helpers` (Orchestration)
-Outils de haut niveau pour les applications en production (Spring, Quarkus, etc.).
-
-- **`TokenAutoRenewer`** : Rafraîchissement automatique et thread-safe des jetons expirés.
-- **`AuthorizedClientService`** : Exécute des requêtes signées en gérant tout le cycle de vie (refresh + execute) de manière transparente.
-- **`AuthFlowCoordinator`** : Coordonne la réception du callback, valide le `state` (CSRF) et persiste le jeton.
-- **`StateGenerator`** : Génération cryptographique de paramètres de sécurité.
-
----
-
-## 🔌 4. Module `scribejava-apis` (Catalogue)
-Plus de **50 configurations pré-remplies** pour les services populaires :
-- **Big Tech** : Google, Microsoft (Azure/Entra ID), GitHub, Facebook, LinkedIn.
-- **Services** : Slack, Discord, Dropbox, Dropbox, GitLab, etc.
-
----
-
-## 🚀 5. Modules de Transport (`httpclient-*`)
-Choix du moteur réseau selon vos contraintes :
-- **JDK (Par défaut)** : Inclus dans `core`, 100% natif, zéro dépendance.
-- **OkHttp** : Pour une intégration avec l'écosystème Square.
-- **Armeria** : Pour les architectures réactives (non-bloquantes) haute performance.
-
----
-
-## 📚 Documentation Embarquée
-- **Javadoc Interne** : Chaque JAR contient ses fichiers HTML `/apidocs`. L'aide contextuelle est disponible hors-ligne directement dans votre IDE.
-- **Exemples de code** : Chaque classe majeure contient des exemples `{@code ...}` intégrés à sa Javadoc.
+- **`TokenAutoRenewer`** : Rafraîchissement automatique et thread-safe.
+- **`AuthorizedClientService`** : Exécute des requêtes signées en gérant tout le cycle de vie.
