@@ -1,0 +1,84 @@
+name: Direct Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # On ne déclenche pas la release si le commit est déjà un commit de release
+    if: "!contains(github.event.head_commit.message, 'chore(release)')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 1. Analyse (Calculate Bump)
+        id: bump
+        run: |
+          # Installation des outils de calcul
+          npm install -g conventional-recommended-bump semver
+          
+          # Récupération de la version actuelle du pom.xml
+          CURRENT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          echo "Current version: $CURRENT_VER"
+          
+          # Calcul du type de bump (patch, minor, major)
+          BUMP_TYPE=$(conventional-recommended-bump -p angular)
+          echo "Bump type: $BUMP_TYPE"
+          
+          # Calcul de la nouvelle version
+          NEW_VER=$(semver $CURRENT_VER -i $BUMP_TYPE)
+          echo "new_version=$NEW_VER" >> $GITHUB_OUTPUT
+          echo "Calculated version: $NEW_VER"
+
+      - name: 2. Update (Maven Version Set)
+        run: |
+          NEW_VER=${{ steps.bump.outputs.new_version }}
+          mvn versions:set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
+          mvn versions:commit
+
+      - name: 3. Changelog (Generate)
+        run: |
+          npm install -g conventional-changelog-cli
+          # Génère le changelog et l'ajoute au fichier (incremental)
+          conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+
+      - name: 4. Tag & Push
+        run: |
+          NEW_VER=${{ steps.bump.outputs.new_version }}
+          git add .
+          git commit -m "chore(release): $NEW_VER [skip ci]"
+          git tag -a v$NEW_VER -m "Release v$NEW_VER"
+          git push origin master --tags
+
+      - name: 5. GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VER=${{ steps.bump.outputs.new_version }}
+          # On extrait la dernière entrée du changelog pour le corps de la release
+          sed -n '/^#/,/^#/p' CHANGELOG.md | sed '1d;$d' > release_notes.txt
+          gh release create v$NEW_VER --title "v$NEW_VER" --notes-file release_notes.txt
