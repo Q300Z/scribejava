@@ -24,8 +24,11 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.core.oauth2.OAuth2Error;
+import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 /** Exception levée lorsqu'une réponse d'erreur est reçue du serveur OAuth. */
 public class OAuthResponseException extends OAuthException {
@@ -33,6 +36,7 @@ public class OAuthResponseException extends OAuthException {
   private static final long serialVersionUID = 1309424849700276816L;
 
   private final transient Response response;
+  private transient JsonObject errorDetails;
 
   /**
    * Constructeur à partir d'une réponse brute.
@@ -54,6 +58,34 @@ public class OAuthResponseException extends OAuthException {
     return response;
   }
 
+  /**
+   * Retourne les détails de l'erreur sous forme d'objet JSON typé.
+   *
+   * @return Optional JsonObject
+   */
+  public synchronized Optional<JsonObject> getErrorDetails() {
+    if (errorDetails == null) {
+      try {
+        final String body = response.getBody();
+        if (body != null && body.trim().startsWith("{")) {
+          errorDetails = new JsonObject(JsonUtils.parse(body));
+        }
+      } catch (Exception e) {
+        // Échec silencieux, on ne renvoie rien
+      }
+    }
+    return Optional.ofNullable(errorDetails);
+  }
+
+  /**
+   * Retourne le code d'erreur standardisé.
+   *
+   * @return Optional OAuth2Error
+   */
+  public Optional<OAuth2Error> getOAuth2Error() {
+    return getErrorDetails().map(details -> details.getString("error")).map(OAuth2Error::parseFrom);
+  }
+
   @Override
   public int hashCode() {
     int hash = 5;
@@ -66,10 +98,7 @@ public class OAuthResponseException extends OAuthException {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     final OAuthResponseException other = (OAuthResponseException) obj;

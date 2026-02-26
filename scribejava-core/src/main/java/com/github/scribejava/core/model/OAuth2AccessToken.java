@@ -24,7 +24,9 @@
 package com.github.scribejava.core.model;
 
 import com.github.scribejava.core.utils.Preconditions;
+import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Représente un jeton d'accès (Access Token) OAuth 2.0.
@@ -36,35 +38,12 @@ public class OAuth2AccessToken extends Token {
 
   private static final long serialVersionUID = 8901381135476613449L;
 
-  /** Le jeton d'accès délivré par le serveur d'autorisation. */
   private final String accessToken;
-
-  /**
-   * Le type de jeton (ex: Bearer).
-   *
-   * @see <a href="http://tools.ietf.org/html/rfc6749#section-7.1">RFC 6749, Section 7.1 (Access
-   *     Token Types)</a>
-   */
   private final String tokenType;
-
-  /** La durée de vie en secondes du jeton d'accès. */
   private final Integer expiresIn;
-
-  /**
-   * Le jeton de renouvellement (Refresh Token).
-   *
-   * @see <a href="http://tools.ietf.org/html/rfc6749#section-6">RFC 6749, Section 6 (Refreshing an
-   *     Access Token)</a>
-   */
   private final String refreshToken;
-
-  /**
-   * La portée (scope) du jeton d'accès.
-   *
-   * @see <a href="http://tools.ietf.org/html/rfc6749#section-3.3">RFC 6749, Section 3.3 (Access
-   *     Token Scope)</a>
-   */
   private final String scope;
+  private final Instant receivedAt;
 
   /**
    * Constructeur simple.
@@ -109,6 +88,7 @@ public class OAuth2AccessToken extends Token {
     this.expiresIn = expiresIn;
     this.refreshToken = refreshToken;
     this.scope = scope;
+    this.receivedAt = Instant.now();
   }
 
   /**
@@ -146,6 +126,27 @@ public class OAuth2AccessToken extends Token {
     return scope;
   }
 
+  /**
+   * Calcule la date d'expiration absolue.
+   *
+   * @return Optional Instant
+   */
+  public Optional<Instant> getExpiresAt() {
+    if (expiresIn == null) {
+      return Optional.empty();
+    }
+    return Optional.of(receivedAt.plusSeconds(expiresIn));
+  }
+
+  /**
+   * Vérifie si le jeton est expiré.
+   *
+   * @return true si expiré.
+   */
+  public boolean isExpired() {
+    return getExpiresAt().map(at -> Instant.now().isAfter(at)).orElse(false);
+  }
+
   @Override
   public int hashCode() {
     int hash = 7;
@@ -162,25 +163,14 @@ public class OAuth2AccessToken extends Token {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
     final OAuth2AccessToken other = (OAuth2AccessToken) obj;
-    if (!Objects.equals(accessToken, other.getAccessToken())) {
-      return false;
-    }
-    if (!Objects.equals(tokenType, other.getTokenType())) {
-      return false;
-    }
-    if (!Objects.equals(refreshToken, other.getRefreshToken())) {
-      return false;
-    }
-    if (!Objects.equals(scope, other.getScope())) {
-      return false;
-    }
-    return Objects.equals(expiresIn, other.getExpiresIn());
+    return Objects.equals(accessToken, other.getAccessToken())
+        && Objects.equals(tokenType, other.getTokenType())
+        && Objects.equals(refreshToken, other.getRefreshToken())
+        && Objects.equals(scope, other.getScope())
+        && Objects.equals(expiresIn, other.getExpiresIn());
   }
 }

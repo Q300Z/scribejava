@@ -290,6 +290,64 @@ public class OAuthRequest {
   }
 
   /**
+   * Retourne une commande cURL prête à l'emploi (secrets masqués par défaut).
+   *
+   * @return String
+   */
+  public String toCurlCommand() {
+    return toCurlCommand(true);
+  }
+
+  /**
+   * Retourne une commande cURL prête à l'emploi.
+   *
+   * @param redactSecrets true pour masquer les secrets.
+   * @return String
+   */
+  public String toCurlCommand(boolean redactSecrets) {
+    final StringBuilder sb = new StringBuilder("curl -X ");
+    sb.append(getVerb()).append(" '").append(getCompleteUrl()).append('\'');
+
+    for (final Map.Entry<String, String> entry : headers.entrySet()) {
+      String val = entry.getValue();
+      if (redactSecrets && "Authorization".equalsIgnoreCase(entry.getKey())) {
+        if (val.startsWith("Bearer ") || val.startsWith("bearer ")) {
+          val = val.substring(0, 7) + "[REDACTED]";
+        } else {
+          val = "[REDACTED]";
+        }
+      }
+      sb.append(" -H '").append(entry.getKey()).append(": ").append(val).append('\'');
+    }
+
+    if (verb.isPermitBody()) {
+      if (stringPayload != null) {
+        sb.append(" --data '").append(stringPayload).append('\'');
+      } else if (!bodyParams.isEmpty()) {
+        sb.append(" --data '");
+        boolean first = true;
+        for (final Parameter p : bodyParams.getParams()) {
+          if (!first) {
+            sb.append('&');
+          }
+          String val = p.getValue();
+          if (redactSecrets
+              && (p.getKey().contains("secret")
+                  || p.getKey().contains("token")
+                  || "code".equals(p.getKey()))) {
+            val = "[REDACTED]";
+          }
+          sb.append(p.getKey()).append('=').append(val);
+          first = false;
+        }
+        sb.append('\'');
+      }
+    }
+
+    return sb.toString();
+  }
+
+  /**
    * Retourne une représentation lisible de la requête avec masquage des secrets.
    *
    * @return String

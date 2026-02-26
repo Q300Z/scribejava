@@ -52,6 +52,14 @@ public interface ServiceBuilderOAuth20 extends ServiceBuilderCommon {
   ServiceBuilderOAuth20 responseType(String responseType);
 
   /**
+   * Définit les portées (scopes) de manière fluide.
+   *
+   * @param scopes Liste des portées.
+   * @return L'instance du constructeur.
+   */
+  ServiceBuilderOAuth20 scopes(String... scopes);
+
+  /**
    * Construit le service OAuth 2.0.
    *
    * @param api L'instance de l'API.

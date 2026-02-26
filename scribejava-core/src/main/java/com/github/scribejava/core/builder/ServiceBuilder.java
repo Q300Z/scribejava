@@ -42,7 +42,7 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
   private String scope;
   private OutputStream debugStream;
   private String responseType = "code";
-  private String userAgent;
+  private String userAgent = "ScribeJava/9.1.0 (Zero-Dependency)";
 
   private HttpClientConfig httpClientConfig;
   private HttpClient httpClient;
@@ -133,6 +133,15 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
   public ServiceBuilder defaultScope(String defaultScope) {
     Preconditions.checkEmptyString(defaultScope, "Invalid OAuth scope");
     this.scope = defaultScope;
+    return this;
+  }
+
+  @Override
+  public ServiceBuilder scopes(String... scopes) {
+    Preconditions.checkNotNull(scopes, "scopes can't be null");
+    if (scopes.length > 0) {
+      this.scope = String.join(" ", scopes);
+    }
     return this;
   }
 
