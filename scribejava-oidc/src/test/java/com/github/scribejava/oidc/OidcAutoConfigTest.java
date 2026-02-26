@@ -25,8 +25,6 @@ package com.github.scribejava.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -35,7 +33,6 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
@@ -53,7 +50,6 @@ public class OidcAutoConfigTest {
     final HttpClient httpClient = mock(HttpClient.class);
     final String issuer = "https://server.com";
 
-    // Zéro JSON manuel ici !
     final String json =
         new JsonBuilder()
             .add("issuer", issuer)
@@ -65,30 +61,29 @@ public class OidcAutoConfigTest {
     when(response.getCode()).thenReturn(200);
     when(response.getBody()).thenReturn(json);
 
-    // Mock Discovery avec levée d'ambiguïté
+    // Mock Discovery robuste supportant thenApply()
     doAnswer(
             invocation -> {
               final OAuthRequest.ResponseConverter<?> converter = invocation.getArgument(6);
-              return CompletableFuture.completedFuture(converter.convert(response));
+              final Object result = converter != null ? converter.convert(response) : response;
+              return CompletableFuture.completedFuture(result);
             })
         .when(httpClient)
-        .executeAsync(any(), any(), eq(Verb.GET), any(), (byte[]) isNull(), any(), any());
+        .executeAsync(any(), any(), any(), any(), (byte[]) any(), any(), any());
 
-    // Point 2 : Auto-Config Magique
     final OidcServiceBuilder builder = new OidcServiceBuilder("client-id");
     builder.baseOnDiscovery(issuer, httpClient, "ua");
 
-    // Implémentation concrète minimale pour le test
     final DefaultOidcApi20 api =
         new DefaultOidcApi20() {
           @Override
           public String getAccessTokenEndpoint() {
-            return null; // Sera écrasé par discovery
+            return null;
           }
 
           @Override
           public String getAuthorizationBaseUrl() {
-            return null; // Sera écrasé par discovery
+            return null;
           }
         };
 

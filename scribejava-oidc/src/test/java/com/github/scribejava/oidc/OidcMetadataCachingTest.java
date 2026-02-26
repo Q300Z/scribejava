@@ -26,7 +26,6 @@ package com.github.scribejava.oidc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -61,14 +60,15 @@ public class OidcMetadataCachingTest {
     when(response.getCode()).thenReturn(200);
     when(response.getBody()).thenReturn(json);
 
-    // Mock complexe pour simuler l'exécution asynchrone du handler
+    // Mock Discovery robuste supportant thenApply()
     doAnswer(
             invocation -> {
               final OAuthRequest.ResponseConverter<?> converter = invocation.getArgument(6);
-              return CompletableFuture.completedFuture(converter.convert(response));
+              final Object result = converter != null ? converter.convert(response) : response;
+              return CompletableFuture.completedFuture(result);
             })
         .when(httpClient)
-        .executeAsync(any(), any(), eq(Verb.GET), any(), (byte[]) isNull(), any(), any());
+        .executeAsync(any(), any(), eq(Verb.GET), any(), (byte[]) any(), any(), any());
 
     final OidcDiscoveryService service = new OidcDiscoveryService(issuer, httpClient, "ua");
     OidcDiscoveryService.clearCache();
@@ -80,6 +80,6 @@ public class OidcMetadataCachingTest {
 
     assertThat(meta1).isSameAs(meta2);
     verify(httpClient, times(1))
-        .executeAsync(any(), any(), eq(Verb.GET), any(), (byte[]) isNull(), any(), any());
+        .executeAsync(any(), any(), eq(Verb.GET), any(), (byte[]) any(), any(), any());
   }
 }
