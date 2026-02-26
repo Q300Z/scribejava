@@ -34,8 +34,8 @@ jobs:
       - name: 1. Analyse (Calculate Bump)
         id: bump
         run: |
-          # Installation des outils de calcul
-          npm install -g conventional-recommended-bump semver
+          # Installation des outils de calcul et du preset angular
+          npm install -g conventional-recommended-bump semver conventional-changelog-angular
           
           # Récupération de la version actuelle du pom.xml
           CURRENT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
@@ -58,7 +58,7 @@ jobs:
 
       - name: 3. Changelog (Generate)
         run: |
-          npm install -g conventional-changelog-cli
+          npm install -g conventional-changelog-cli conventional-changelog-angular
           # Génère le changelog et l'ajoute au fichier (incremental)
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
 
