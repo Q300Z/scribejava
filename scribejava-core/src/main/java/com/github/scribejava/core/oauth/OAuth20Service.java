@@ -62,6 +62,7 @@ public class OAuth20Service extends OAuthService
   private final OAuth20PushedAuthHandler pushedAuthHandler;
   private final List<AuthorizationRequestInterceptor> authorizationRequestInterceptors;
   private AuthorizationRequestConverter authorizationRequestConverter = params -> params;
+  private OAuthEventListener eventListener;
 
   /**
    * @param api api
@@ -134,6 +135,15 @@ public class OAuth20Service extends OAuthService
         httpClientConfig,
         httpClient,
         null);
+  }
+
+  /**
+   * Définit l'écouteur d'événements OAuth.
+   *
+   * @param eventListener L'écouteur.
+   */
+  public void setEventListener(OAuthEventListener eventListener) {
+    this.eventListener = eventListener;
   }
 
   /**
@@ -241,7 +251,18 @@ public class OAuth20Service extends OAuthService
 
   private CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(
       OAuth20Grant grant, OAuthAsyncRequestCallback<OAuth2AccessToken> callback) {
-    return sendAccessTokenRequestAsync(grant.createRequest(this), callback);
+    final OAuthRequest request = grant.createRequest(this);
+    if (eventListener != null) {
+      eventListener.onTokenRequested(request);
+    }
+    return sendAccessTokenRequestAsync(request, callback)
+        .thenApply(
+            token -> {
+              if (eventListener != null) {
+                eventListener.onTokenReceived(token);
+              }
+              return token;
+            });
   }
 
   /**
@@ -575,6 +596,9 @@ public class OAuth20Service extends OAuthService
   private void handleExecutionException(ExecutionException e)
       throws IOException, ExecutionException {
     final Throwable cause = e.getCause();
+    if (eventListener != null) {
+      eventListener.onError(cause);
+    }
     if (cause instanceof IOException) {
       throw (IOException) cause;
     }

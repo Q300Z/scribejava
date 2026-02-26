@@ -23,12 +23,14 @@
  */
 package com.github.scribejava.core.oauth;
 
+import com.github.scribejava.core.exceptions.OAuthNetworkException;
 import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.httpclient.HttpClientProvider;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig;
 import com.github.scribejava.core.model.OAuthAsyncRequestCallback;
+import com.github.scribejava.core.model.OAuthLogger;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import java.io.Closeable;
@@ -42,12 +44,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Classe de base abstraite pour tous les services OAuth.
- *
- * <p>Cette classe fournit les fonctionnalités communes pour l'exécution des requêtes HTTP, la
- * gestion de la configuration du client et le support des intercepteurs.
- */
+/** Classe de base abstraite pour tous les services OAuth. */
 public abstract class OAuthService implements Closeable {
 
   private final String apiKey;
@@ -56,19 +53,11 @@ public abstract class OAuthService implements Closeable {
   private final String userAgent;
   private final HttpClient httpClient;
   private final OutputStream debugStream;
-  private final List<OAuthRequestInterceptor> interceptors = new ArrayList<>(); // ADDED
+  private final List<OAuthRequestInterceptor> interceptors = new ArrayList<>();
+  private OAuthLogger logger;
+  private OAuthRetryPolicy retryPolicy;
+  private RateLimitListener rateLimitListener;
 
-  /**
-   * Constructeur.
-   *
-   * @param apiKey La clé API du client.
-   * @param apiSecret Le secret API du client.
-   * @param callback L'URL de rappel.
-   * @param debugStream Flux pour les logs de débogage.
-   * @param userAgent Chaîne User-Agent.
-   * @param httpClientConfig Configuration du client HTTP.
-   * @param httpClient L'implémentation du client HTTP.
-   */
   public OAuthService(
       String apiKey,
       String apiSecret,
@@ -100,35 +89,31 @@ public abstract class OAuthService implements Closeable {
     return null;
   }
 
-  /** {@inheritDoc} */
+  public void setLogger(OAuthLogger logger) {
+    this.logger = logger;
+  }
+
+  public void setRetryPolicy(OAuthRetryPolicy retryPolicy) {
+    this.retryPolicy = retryPolicy;
+  }
+
+  public void setRateLimitListener(RateLimitListener rateLimitListener) {
+    this.rateLimitListener = rateLimitListener;
+  }
+
   @Override
   public void close() throws IOException {
     httpClient.close();
   }
 
-  /**
-   * Retourne la clé API (Client ID).
-   *
-   * @return La clé API.
-   */
   public String getApiKey() {
     return apiKey;
   }
 
-  /**
-   * Retourne le secret API (Client Secret).
-   *
-   * @return Le secret API.
-   */
   public String getApiSecret() {
     return apiSecret;
   }
 
-  /**
-   * Retourne l'URL de rappel (Redirect URI).
-   *
-   * @return L'URL de rappel.
-   */
   public String getCallback() {
     return callback;
   }
@@ -159,9 +144,93 @@ public abstract class OAuthService implements Closeable {
       OAuthAsyncRequestCallback<R> callback,
       OAuthRequest.ResponseConverter<R> converter) {
 
-    interceptors.forEach(
-        interceptor -> interceptor.intercept(request)); // ADDED: Execute interceptors
+    interceptors.forEach(interceptor -> interceptor.intercept(request));
+    if (logger != null) {
+      logger.logRequest(request);
+    }
 
+    final CompletableFuture<R> future = executeInternalAsync(request, callback, converter);
+
+    return future.thenApply(
+        result -> {
+          if (result instanceof Response) {
+            final Response resp = (Response) result;
+            checkRateLimits(resp);
+            if (logger != null) {
+              logger.logResponse(resp);
+            }
+          }
+          return result;
+        });
+  }
+
+  /**
+   * Exécute une requête OAuth de manière synchrone.
+   *
+   * @param request La requête à exécuter.
+   * @return La réponse reçue.
+   * @throws InterruptedException si le thread est interrompu.
+   * @throws ExecutionException si l'exécution échoue.
+   * @throws IOException en cas d'erreur réseau.
+   */
+  public Response execute(OAuthRequest request)
+      throws InterruptedException, ExecutionException, IOException {
+    interceptors.forEach(interceptor -> interceptor.intercept(request));
+    if (logger != null) {
+      logger.logRequest(request);
+    }
+
+    int attempts = 0;
+    Response response = null;
+    final int maxAttempts = retryPolicy != null ? retryPolicy.getMaxAttempts() : 1;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      try {
+        response = executeOnce(request);
+        if (response != null) {
+          checkRateLimits(response);
+        }
+        if (retryPolicy == null
+            || response == null
+            || !retryPolicy.shouldRetry(response)
+            || attempts >= maxAttempts) {
+          break;
+        }
+        Thread.sleep(retryPolicy.getDelayMs());
+      } catch (IOException e) {
+        if (retryPolicy == null || attempts >= maxAttempts) {
+          throw new OAuthNetworkException(e);
+        }
+        Thread.sleep(retryPolicy.getDelayMs());
+      }
+    }
+
+    if (logger != null && response != null) {
+      logger.logResponse(response);
+    }
+    return response;
+  }
+
+  private void checkRateLimits(Response response) {
+    if (rateLimitListener == null) {
+      return;
+    }
+    final String remaining = response.getHeader("X-RateLimit-Remaining");
+    final String reset = response.getHeader("X-RateLimit-Reset");
+    if (remaining != null && reset != null) {
+      try {
+        rateLimitListener.onRateLimit(Integer.parseInt(remaining), Long.parseLong(reset), response);
+      } catch (NumberFormatException e) {
+        // Ignored
+      }
+    }
+  }
+
+  private <R> CompletableFuture<R> executeInternalAsync(
+      OAuthRequest request,
+      OAuthAsyncRequestCallback<R> callback,
+      OAuthRequest.ResponseConverter<R> converter) {
     final File filePayload = request.getFilePayload();
     if (filePayload != null) {
       return httpClient.executeAsync(
@@ -202,20 +271,8 @@ public abstract class OAuthService implements Closeable {
     }
   }
 
-  /**
-   * Exécute une requête OAuth de manière synchrone.
-   *
-   * @param request La requête à exécuter.
-   * @return La réponse reçue.
-   * @throws InterruptedException si le thread est interrompu.
-   * @throws ExecutionException si l'exécution échoue.
-   * @throws IOException en cas d'erreur réseau.
-   */
-  public Response execute(OAuthRequest request)
+  private Response executeOnce(OAuthRequest request)
       throws InterruptedException, ExecutionException, IOException {
-    interceptors.forEach(
-        interceptor -> interceptor.intercept(request)); // ADDED: Execute interceptors
-
     final File filePayload = request.getFilePayload();
     if (filePayload != null) {
       return httpClient.execute(
@@ -248,33 +305,23 @@ public abstract class OAuthService implements Closeable {
     }
   }
 
-  /**
-   * Loggue un message dans le flux de débogage.
-   *
-   * @param message Le message à logguer.
-   */
   public void log(String message) {
     if (debugStream != null) {
       log(message, (Object[]) null);
     }
   }
 
-  /**
-   * Loggue un message formaté dans le flux de débogage.
-   *
-   * @param messagePattern Le motif du message.
-   * @param params Les paramètres du formatage.
-   */
   public void log(String messagePattern, Object... params) {
     final String message =
         params == null || params.length == 0
             ? messagePattern
             : String.format(messagePattern, params);
-    final String messageWithNewline = message + '\n';
     try {
-      debugStream.write(messageWithNewline.getBytes(StandardCharsets.UTF_8));
-    } catch (IOException | RuntimeException e) {
-      throw new RuntimeException("there were problems while writting to the debug stream", e);
+      if (debugStream != null) {
+        debugStream.write((message + '\n').getBytes(StandardCharsets.UTF_8));
+      }
+    } catch (IOException e) {
+      throw new RuntimeException("Problems writing to debug stream", e);
     }
   }
 
