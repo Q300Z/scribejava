@@ -99,7 +99,7 @@ ScribeJava v9.1 intègre des outils industriels pour la production :
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-core</artifactId>
-    <version>9.2.0</version>
+    <version>9.2.3</version>
 </dependency>
 ```
 
@@ -108,6 +108,7 @@ ScribeJava v9.1 intègre des outils industriels pour la production :
 ## 🛠️ Développement & Qualité Industrielle
 
 Consultez nos guides détaillés pour maîtriser l'écosystème :
+- 📖 **[Catalogue des Fonctionnalités](FEATURES_CATALOG.md)** : Liste exhaustive par module.
 - 🏗️ **[Documentation CI/CD](CI_DOCUMENTATION.md)** : Tout sur la qualité multi-JDK et les releases.
 - 🏗️ **[Guide de Contribution](CONTRIBUTING.md)** : Comment ajouter une API ou une feature.
 - 🔐 **[Sécurité Avancée](ADVANCED_SECURITY.md)** : DPoP, PAR, Chiffrement EC.
