@@ -23,37 +23,42 @@
  */
 package com.github.scribejava.apis.examples.quickstart;
 
+import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.config;
+import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.readInput;
+import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.verboseLogger;
+
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.oauth.OAuthRetryPolicy;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.oidc.IdToken;
 import com.github.scribejava.oidc.OidcDiscoveryService;
 import com.github.scribejava.oidc.OidcGoogleApi20;
+import com.github.scribejava.oidc.OidcProviderMetadata;
 import com.github.scribejava.oidc.OidcService;
 import com.github.scribejava.oidc.OidcServiceBuilder;
+import com.github.scribejava.oidc.StandardClaims;
 import java.io.IOException;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 /**
- * [QUICKSTART] OpenID Connect (OIDC) avec Découverte Dynamique.
+ * [QUICKSTART] OpenID Connect (OIDC) - Version Enterprise.
  *
- * <p>Cet exemple montre l'autonomie totale de ScribeJava (Zéro-Dépendance) : 1. Découverte
- * automatique des URLs (RFC 8414). 2. Échange du code. 3. Validation native de l'ID Token (RSA/EC)
- * via java.security.
+ * <p>Cette version améliorée utilise : 1. La découverte dynamique. 2. Un logging verbeux pour le
+ * debug. 3. Une politique de Retry pour la résilience. 4. L'accès typé aux claims utilisateur.
  */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class OidcQuickStart {
 
-  private static final String ISSUER = "https://accounts.google.com"; // Ex: Google
-  private static final String CLIENT_ID = "votre_client_id";
-  private static final String CLIENT_SECRET = "votre_client_secret";
+  private static final String ISSUER = config("SCRIBE_ISSUER", "https://accounts.google.com");
+  private static final String CLIENT_ID = config("SCRIBE_CLIENT_ID", "votre_client_id");
+  private static final String CLIENT_SECRET = config("SCRIBE_CLIENT_SECRET", "votre_client_secret");
 
   private OidcQuickStart() {}
 
   /**
-   * Point d'entrée de l'exemple.
+   * Point d'entrée.
    *
-   * @param args arguments
+   * @param args args
    * @throws IOException IOException
    * @throws InterruptedException InterruptedException
    * @throws ExecutionException ExecutionException
@@ -61,15 +66,16 @@ public final class OidcQuickStart {
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException {
 
-    System.out.println("=== QuickStart : OpenID Connect (Natif) ===");
+    System.out.println("=== QuickStart Enterprise : OpenID Connect ===");
 
-    // 1. Découverte dynamique des métadonnées du fournisseur
-    System.out.println("Découverte de l'émetteur : " + ISSUER);
+    // 1. Découverte (utilisant le logger verbeux pour voir l'appel .well-known)
     final OidcDiscoveryService discovery = new OidcDiscoveryService(ISSUER, null, null);
-    discovery.getProviderMetadata();
+    discovery.setLogger(verboseLogger());
 
-    // 2. Configuration du service via le builder spécialisé OIDC
-    // baseOnDiscovery() va configurer les endpoints de l'API passée à build()
+    System.out.println("Découverte de l'émetteur : " + ISSUER);
+    final OidcProviderMetadata metadata = discovery.getProviderMetadata();
+
+    // 2. Configuration du Service avec Résilience
     final OidcService service =
         (OidcService)
             new OidcServiceBuilder(CLIENT_ID)
@@ -79,19 +85,25 @@ public final class OidcQuickStart {
                 .discoverFromIssuer(ISSUER, discovery)
                 .build(OidcGoogleApi20.instance());
 
-    // 3. Flux d'autorisation interactif
+    // On ajoute le retry et le logger au service principal
+    service.setLogger(verboseLogger());
+    service.setRetryPolicy(new OAuthRetryPolicy(3, 1000));
+
+    // 3. Flux Interactif
     final String authUrl = service.getAuthorizationUrl();
-    System.out.println("1. Connectez-vous ici : " + authUrl);
-    System.out.print("2. Collez le code ici >> ");
-    final String code = new Scanner(System.in, "UTF-8").nextLine();
+    System.out.println("\n1. Connectez-vous ici : " + authUrl);
+    final String code = readInput("2. Collez le code ici");
 
-    // 4. Obtention et Validation des jetons
+    // 4. Échange et Validation
     final OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
-
-    // Validation native (Signature, Issuer, Audience, Expiration)
     final IdToken idToken = service.validateIdToken(token, null);
 
-    System.out.println("Authentification réussie pour : " + idToken.getClaims().get("email"));
-    System.out.println("Nom : " + idToken.getClaims().get("name"));
+    // 5. Utilisation des StandardClaims pour un accès propre
+    final StandardClaims claims = new StandardClaims(idToken.getClaims());
+
+    System.out.println("\n🎉 Authentification réussie !");
+    System.out.println("Email  : " + claims.getEmail().orElse("Inconnu"));
+    System.out.println("Nom    : " + claims.getName().orElse("Inconnu"));
+    System.out.println("Locale : " + claims.getLocale().orElse("Non spécifiée"));
   }
 }
