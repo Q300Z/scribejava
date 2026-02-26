@@ -22,7 +22,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '11' # JDK 11 pour le packaging stable
+          java-version: '11'
           distribution: 'temurin'
           cache: 'maven'
 
@@ -46,20 +46,27 @@ jobs:
           mvn versions:set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
           mvn versions:commit
 
-      - name: 3. Build & Package (Generate JARs with Javadoc)
+      - name: 3. Build & Package (Unified JAR: Classes + Javadoc)
         run: |
-          # On compile tout et on génère les JARs incluant la Javadoc
-          mvn clean package -DskipTests -Dmaven.javadoc.skip=false
+          mvn clean package -DskipTests
           mkdir dist
-          # On collecte tous les JARs finaux (en excluant les classes de test)
-          find . -name "*.jar" -not -path "*/target/test-classes/*" -not -path "*/target/classes/*" -exec cp {} dist/ \;
-          # Nettoyage des JARs temporaires si nécessaire
+          # On ne collecte QUE les JARs principaux (pas de -sources, pas de -tests)
+          find . -name "*.jar" \
+            -not -name "*-sources.jar" \
+            -not -name "*-tests.jar" \
+            -not -path "*/target/test-classes/*" \
+            -not -path "*/target/classes/*" \
+            -exec cp {} dist/ \;
+          # Nettoyage Maven
           rm -f dist/original-*.jar
 
-      - name: 4. Changelog (Generate)
+      - name: 4. Changelog (Latest version only)
         run: |
           npm install -g conventional-changelog-cli conventional-changelog-angular
+          # On génère le changelog complet pour le fichier CHANGELOG.md
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+          # On génère UNIQUEMENT les notes de la nouvelle version pour GitHub
+          conventional-changelog -p angular -r 1 > release_notes.txt
 
       - name: 5. Tag & Push
         run: |
@@ -69,12 +76,9 @@ jobs:
           git tag -a v$NEW_VER -m "Release v$NEW_VER"
           git push origin master --tags
 
-      - name: 6. GitHub Release (with Assets)
+      - name: 6. GitHub Release (Clean Assets)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VER=${{ steps.bump.outputs.new_version }}
-          # Extraction des notes de release
-          sed -n '/^#/,/^#/p' CHANGELOG.md | sed '1d;$d' > release_notes.txt
-          # Création de la release avec TOUS les JARs du dossier dist/
           gh release create v$NEW_VER dist/*.jar --title "v$NEW_VER" --notes-file release_notes.txt

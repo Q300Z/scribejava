@@ -5,7 +5,7 @@
   <groupId>com.github.scribejava</groupId>
   <artifactId>scribejava</artifactId>
   <packaging>pom</packaging>
-  <version>9.2.1</version>
+  <version>9.2.0</version>
   <name>ScribeJava OAuth Library</name>
   <description>The best OAuth library out there</description>
   <url>https://github.com/scribejava/scribejava</url>
@@ -303,18 +303,6 @@
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
-                                                      <plugin>
-                                                          <groupId>org.apache.maven.plugins</groupId>
-                                                          <artifactId>maven-source-plugin</artifactId>        <version>3.2.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -322,7 +310,6 @@
         <configuration>
           <encoding>UTF-8</encoding>
           <doclint>all,-missing</doclint>
-          <!-- On force la sortie vers le dossier des classes pour inclusion dans le JAR final -->
           <outputDirectory>${project.build.outputDirectory}/apidocs</outputDirectory>
           <reportOutputDirectory>${project.build.outputDirectory}/apidocs</reportOutputDirectory>
         </configuration>
