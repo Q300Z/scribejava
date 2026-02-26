@@ -81,7 +81,7 @@ public final class JsonUtils {
       } else if (matcher.group(5) != null) { // Boolean/Null
         result.put(key, parseLiteral(matcher.group(5)));
       } else if (matcher.group(6) != null) { // Array
-        result.put(key, parseArray(matcher.group(6)));
+        result.put(key, parseArray(matcher.group(6), depth + 1));
       } else if (matcher.group(7) != null) { // Object
         result.put(key, parse(matcher.group(7), depth + 1));
       }
@@ -125,21 +125,60 @@ public final class JsonUtils {
     }
   }
 
-  private static List<Object> parseArray(String val) {
+  private static List<Object> parseArray(String val, int depth) {
     final List<Object> list = new ArrayList<>();
     final String content = val.substring(1, val.length() - 1).trim();
     if (content.isEmpty()) {
       return list;
     }
-    for (String part : content.split(",")) {
+
+    // Pour supporter les objets dans les listes, on utilise une approche simple :
+    // Si l'élément commence par '{', on tente un parse d'objet.
+    // NOTE: Cette implémentation simplifiée suppose des éléments séparés par des virgules
+    // sans virgules à l'intérieur des chaînes de caractères des objets (limitation regex actuelle).
+    for (String part : splitJsonArray(content)) {
       final String p = part.trim();
-      if (p.startsWith("\"")) {
+      if (p.startsWith("{")) {
+        list.add(parse(p, depth + 1));
+      } else if (p.startsWith("[")) {
+        list.add(parseArray(p, depth + 1));
+      } else if (p.startsWith("\"")) {
         list.add(unescape(p.substring(1, p.length() - 1)));
       } else {
         list.add(parseLiteral(p));
       }
     }
     return list;
+  }
+
+  private static List<String> splitJsonArray(String content) {
+    final List<String> parts = new ArrayList<>();
+    int bracketLevel = 0;
+    int braceLevel = 0;
+    boolean inQuotes = false;
+    int start = 0;
+    for (int i = 0; i < content.length(); i++) {
+      char c = content.charAt(i);
+      if (c == '\"' && (i == 0 || content.charAt(i - 1) != '\\')) {
+        inQuotes = !inQuotes;
+      }
+      if (!inQuotes) {
+        if (c == '[') {
+          bracketLevel++;
+        } else if (c == ']') {
+          bracketLevel--;
+        } else if (c == '{') {
+          braceLevel++;
+        } else if (c == '}') {
+          braceLevel--;
+        } else if (c == ',' && bracketLevel == 0 && braceLevel == 0) {
+          parts.add(content.substring(start, i));
+          start = i + 1;
+        }
+      }
+    }
+    parts.add(content.substring(start));
+    return parts;
   }
 
   /**
