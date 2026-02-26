@@ -5,6 +5,25 @@ et de dépannage.
 
 ---
 
+---
+
+## 🏗️ Cycle de Contribution
+
+Voici les étapes pour ajouter un nouveau fournisseur (API) ou une fonctionnalité :
+
+```mermaid
+flowchart TD
+    Start([Nouvelle API / Feature]) --> Fork[Fork & Branch]
+    Fork --> TDD[Écrire les Tests MockWebServer]
+    TDD --> Code[Implémenter Logic]
+    Code --> JsonCheck{Règle Zéro JSON manuel ?}
+    JsonCheck -- Non --> Refactor[Utiliser JsonBuilder]
+    Refactor --> JsonCheck
+    JsonCheck -- Oui --> Style[mvn spotless:apply]
+    Style --> CI[./ci-local.sh]
+    CI --> PR[Soumettre Pull Request]
+```
+
 ## 🏗️ Architecture & Responsabilités
 
 ScribeJava suit une architecture modulaire et strictement **SOLID**.
