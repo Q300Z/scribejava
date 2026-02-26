@@ -28,7 +28,7 @@ ScribeJava est le choix idéal pour les projets qui refusent l'opacité des fram
 
 ### 📊 Matrice de Choix : ScribeJava vs Frameworks Lourds
 
-| Caractéristique            | ScribeJava v9.1      | Spring Security / Pac4j       |
+| Caractéristique            | ScribeJava v9.2.3    | Spring Security / Pac4j       |
 |:---------------------------|:---------------------|:------------------------------|
 | **Poids (Core)**           | **< 1 Mo**           | > 50 Mo (avec dépendances)    |
 | **Dépendances**            | **Zéro (JDK natif)** | Énorme graphe de transitivité |
@@ -165,7 +165,7 @@ service.setListener(new AuthEventListener<String>() {
 
 ScribeJava est distribué via **[GitHub Releases](https://github.com/Q300Z/scribejava/releases)**.
 
-> 💡 *Note actuelle : **v9.1.0***
+> 💡 *Note actuelle : **v9.2.3***
 
 ### Maven
 
@@ -175,18 +175,18 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-core</artifactId>
-    <version>9.1.0</version>
+    <version>9.2.3</version>
 </dependency>
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-oidc</artifactId>
-    <version>9.1.0</version>
+    <version>9.2.3</version>
 </dependency>
 <!-- Hautement recommandé : Pour l'automatisation et l'OIDC Enterprise -->
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-integration-helpers</artifactId>
-    <version>9.1.0</version>
+    <version>9.2.3</version>
 </dependency>
 ```
 
@@ -201,12 +201,14 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 
 ## 📚 Documentation & Exemples
 
-* ⚡ **[Guide de Migration](MIGRATION_GUIDE.md)** - Passer de la v8 à la v9.
-* ⚙️ **[Guide ScribeJava Core](CORE_FEATURES_GUIDE.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
-* 🛡️ **[Sécurité Avancée (DPoP/PAR)](ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
-* 🔐 **[Guide des Fonctionnalités OIDC](OIDC_FEATURES_GUIDE.md)** - Discovery, JWT natif et Logout.
-* 📖 **[Guide d'Intégration Helpers](INTEGRATION_HELPERS_GUIDE.md)** - Orchestration, Auto-refresh et multi-tenant.
-* 📖 **[Catalogue des Fonctionnalités](FEATURES_CATALOG.md)** - Liste exhaustive par module.
+* ⚡ **[Guide de Migration](docs/MIGRATION_GUIDE.md)** - Passer de la v8 à la v9.
+* ⚙️ **[Guide ScribeJava Core](docs/CORE_FEATURES_GUIDE.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
+* 🛡️ **[Sécurité Avancée (DPoP/PAR)](docs/ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
+* 🔐 **[Guide des Fonctionnalités OIDC](docs/OIDC_FEATURES_GUIDE.md)** - Discovery, JWT natif et Logout.
+* 📖 **[Guide d'Intégration Helpers](docs/INTEGRATION_HELPERS_GUIDE.md)** - Orchestration, Auto-refresh et multi-tenant.
+* 📖 **[Catalogue des Fonctionnalités](docs/FEATURES_CATALOG.md)** - Liste exhaustive par module.
+* 🛠️ **[Documentation CI/CD](docs/CI_DOCUMENTATION.md)** - Architecture du pipeline qualité.
+* 🚑 **[Guide de Dépannage](docs/TROUBLESHOOTING.md)** - Solutions aux erreurs courantes.
 * 📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Integration Helpers](./scribejava-integration-helpers/README.md)
 * 🎯 **Exemples** :
   * [OpenID Connect avec Découverte Dynamique](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/OidcDiscoveryExample.java)

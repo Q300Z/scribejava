@@ -1,3 +1,31 @@
+# 📋 Changelog ScribeJava
+
+Tous les changements notables de ce projet seront documentés dans ce fichier.
+
+---
+
+## 🌟 Jalons de Release (Résumé)
+
+### v9.2.3 - Certified Enterprise Edition (Actuelle)
+*   **Release unifiée** : Chaque module JAR contient désormais sa Javadoc HTML (`/apidocs`).
+*   **OIDC Natif** : Validation ID Token (RSA/EC) et rotation JWKS 100% sans dépendance.
+*   **Robustesse** : Moteur de Retry intelligent et gestion des Rate Limits.
+*   **DX Premium** : Génération de commandes cURL masquées et Javadoc enrichie.
+
+### v9.1.0 - OIDC & Helpers
+*   **Module `integration-helpers`** : Orchestration automatisée (Auto-refresh thread-safe).
+*   **Observabilité** : Interface `AuthEventListener` pour l'audit.
+*   **Multi-tenant** : `OAuthServiceRegistry` pour gérer plusieurs fournisseurs.
+
+### v9.0.0 - SOLID Refactoring
+*   **Strategy Pattern** : Introduction des `Grants` (découplage total).
+*   **Sécurité Moderne** : Support complet PKCE (RFC 7636) et DPoP (RFC 9449).
+*   **Discovery** : RFC 8414 pour la configuration automatique.
+
+---
+
+## 📜 Historique Détaillé
+
 # [](https://github.com/Q300Z/scribejava/compare/v9.2.0...v) (2026-02-26)
 
 
@@ -95,7 +123,7 @@
 
 ### Reverts
 
-* Revert "prepare v7.1.0" ([c55dd67](https://github.com/Q300Z/scribejava/commit/c55dd67d16205582e7a74e7394df3b821cc38375))
+* Revert "prepare v7.1.0" ([c55dd67](https://github.com/Q300Z/scribejava/compare/v9.2.0...v))
 * Revert "[maven-release-plugin] prepare release scribejava-7.1.0" ([d908a3a](https://github.com/Q300Z/scribejava/commit/d908a3a8bf4fc3c60fd6dd7b03849ec30163d5ab))
 * Revert "[maven-release-plugin] prepare for next development iteration" ([fc54cd7](https://github.com/Q300Z/scribejava/commit/fc54cd7d81e89a15bdee3cc822978300d3ddc60f))
 * Revert "prepare v6.4.0" ([0bb4efd](https://github.com/Q300Z/scribejava/commit/0bb4efdd57580d5ae955ab32b97d3f7c8908b4d5))
@@ -106,6 +134,3 @@
 * Revert "[maven-release-plugin] prepare release scribejava-2.5.0" ([852bc7e](https://github.com/Q300Z/scribejava/commit/852bc7efed6907cb04de559b863fd5ac7b5d240e))
 * Revert "[maven-release-plugin] prepare for next development iteration" ([826be08](https://github.com/Q300Z/scribejava/commit/826be08321647c3feced154871db38dd00d0c055))
 * Revert "Removed the @Override annotation as it resulted in a compilation error." ([4bb6e49](https://github.com/Q300Z/scribejava/commit/4bb6e49b61ee27bc8c9fde2c62823cbd4fc3249b))
-
-
-
