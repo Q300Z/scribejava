@@ -1,11 +1,10 @@
 # Makefile pour ScribeJava v9.1+ "Enterprise Edition"
 # Automatisation, Observabilité et Certification multi-JDK
 
-.PHONY: help build test test-parallel lint pitest install doc release clean format certify ci snapshot
+.PHONY: help build test test-parallel lint pitest install doc release release-local clean format certify ci sync
 
 # --- Variables ---
 VERSION_CURRENT := $(shell grep -m 1 "<version>" pom.xml | sed 's/[^0-9.]//g' | sed 's/-SNAPSHOT//')
-NEXT_PATCH := $(shell echo $(VERSION_CURRENT) | awk -F. '{print $$1"."$$2"."$$3+1}')
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -43,31 +42,32 @@ install: ## Installe les JARs dans le repo local .m2
 doc: ## Génère la Javadoc agrégée (Premium DX)
 	mvn javadoc:aggregate -Dmaven.test.skip=true
 
-# --- Release (Basée sur les Tags) ---
+# --- Release (Automatisation du cycle de vie) ---
 
-release: ## Crée une release par Tag (ex: make release VER=9.2.0)
-ifndef VER
-	@echo "\033[33mInfo: VER non spécifié, utilisation de la prochaine version suggérée : $(NEXT_PATCH)\033[0m"
-	$(eval VER=$(NEXT_PATCH))
-endif
-	@echo "\033[32m🚀 Préparation de la release v$(VER)...\033[0m"
-	mvn versions:set -DnewVersion=$(VER) -DgenerateBackupPoms=false
-	mvn versions:commit
-	git add .
-	git commit -m "chore: release v$(VER)"
-	git tag -a v$(VER) -m "Release version $(VER)"
-	@echo "\033[32m✅ Tag v$(VER) créé localement.\033[0m"
-	@echo "Pour publier : git push origin master v$(VER)"
+release: ## Déclenche la release automatisée sur GitHub (Nécessite GitHub CLI)
+	@echo "\033[32m🚀 Déclenchement du cycle de release sur GitHub Actions...\033[0m"
+	@gh workflow run direct-release.yml
+	@echo "\033[33m⏳ Workflow lancé ! Suivez la progression avec : gh run watch\033[0m"
 
-snapshot: ## Repasse en version de développement (ex: make snapshot NEXT=9.2.1-SNAPSHOT)
-ifndef NEXT
-	$(eval NEXT=$(shell echo $(VER) | awk -F. '{print $$1"."$$2"."$$3+1"-SNAPSHOT"}'))
-endif
-	mvn versions:set -DnewVersion=$(NEXT) -DgenerateBackupPoms=false
-	mvn versions:commit
-	git add .
-	git commit -m "chore: prepare for next development iteration ($(NEXT))"
-	@echo "\033[32m✅ Version de travail passée à $(NEXT)\033[0m"
+release-local: ## Effectue la release localement (Sans 'gh', nécessite npm: conventional-changelog, conventional-recommended-bump)
+	@echo "\033[32m🔍 Calcul de la prochaine version...\033[0m"
+	$(eval BUMP_TYPE=$(shell npx conventional-recommended-bump -p angular))
+	$(eval NEW_VER=$(shell npx semver $(VERSION_CURRENT) -i $(BUMP_TYPE)))
+	@echo "Version calculée : $(NEW_VER) (Type: $(BUMP_TYPE))"
+	@mvn versions:set -DnewVersion=$(NEW_VER) -DgenerateBackupPoms=false
+	@mvn versions:commit
+	@echo "\033[32m📝 Mise à jour du CHANGELOG.md...\033[0m"
+	@npx conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+	@git add .
+	@git commit -m "chore(release): $(NEW_VER)"
+	@git tag -a v$(NEW_VER) -m "Release v$(NEW_VER)"
+	@echo "\033[32m🚀 Publication des tags et de master...\033[0m"
+	@git push origin master --tags
+	@echo "\033[33m✅ Release v$(NEW_VER) terminée localement.\033[0m"
+
+sync: ## Récupère les derniers changements de release depuis GitHub
+	git pull --rebase origin master
+	git fetch --tags
 
 clean: ## Nettoie les dossiers target et les logs de CI
 	mvn clean

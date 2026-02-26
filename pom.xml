@@ -322,12 +322,16 @@
         <configuration>
           <encoding>UTF-8</encoding>
           <doclint>all,-missing</doclint>
+          <!-- On force la sortie vers le dossier des classes pour inclusion dans le JAR final -->
+          <outputDirectory>${project.build.outputDirectory}/apidocs</outputDirectory>
+          <reportOutputDirectory>${project.build.outputDirectory}/apidocs</reportOutputDirectory>
         </configuration>
         <executions>
           <execution>
-            <id>attach-javadoc</id>
+            <id>include-javadoc-in-main-jar</id>
+            <phase>prepare-package</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>javadoc</goal>
             </goals>
           </execution>
         </executions>
