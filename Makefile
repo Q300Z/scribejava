@@ -1,75 +1,74 @@
-# Makefile pour ScribeJava v9
-# Automatisation du développement et des releases
+# Makefile pour ScribeJava v9.1+ "Enterprise Edition"
+# Automatisation, Observabilité et Certification multi-JDK
 
-.PHONY: help build test test-parallel lint pitest install doc release clean format snapshot
+.PHONY: help build test test-parallel lint pitest install doc release clean format certify ci snapshot
 
 # --- Variables ---
-VERSION_CURRENT := $(shell mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-NEXT_SNAPSHOT := $(shell echo $(VERSION_CURRENT) | awk -F. '{print $$1"."$$2"."$$3+1"-SNAPSHOT"}')
+VERSION_CURRENT := $(shell grep -m 1 "<version>" pom.xml | sed 's/[^0-9.]//g' | sed 's/-SNAPSHOT//')
+NEXT_PATCH := $(shell echo $(VERSION_CURRENT) | awk -F. '{print $$1"."$$2"."$$3+1}')
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 # --- Développement ---
 
-build: ## Compile tous les modules
+build: ## Compile tous les modules (Zero-Dependency)
 	mvn clean compile -Dmaven.javadoc.skip=true
 
-test: ## Lance les tests unitaires
+test: ## Lance les tests unitaires (JUnit 5 + AssertJ)
 	mvn test -Dmaven.javadoc.skip=true
 
-test-parallel: ## Lance les tests en parallèle (optimisé pour CI)
+test-parallel: ## Lance les tests en parallèle (1 thread par coeur)
 	mvn test -T 1C -Dmaven.javadoc.skip=true
 
-lint: ## Vérifie le style (Checkstyle, PMD, Spotless, License)
+lint: ## Analyse statique (Checkstyle, PMD, Spotless, License)
 	mvn checkstyle:check pmd:check spotless:check license:check
 
-format: ## Formate automatiquement le code et ajoute les headers de licence
+format: ## Formate le code (Google Style) et répare les headers de licence
 	mvn spotless:apply license:format
 
-pitest: ## Lance le Mutation Testing sur les modules critiques
+certify: format ## Formate et lance la certification multi-JDK locale (Nécessite Docker)
+	@echo "\033[32m🧪 Lancement de la certification ScribeJava...\033[0m"
+	./ci-local.sh
+
+ci: ## Alias pour certify
+	@$(MAKE) certify
+
+pitest: ## Mutation Testing sur les modules critiques (Core & OIDC)
 	mvn pitest:mutationCoverage -pl scribejava-core,scribejava-oidc
 
-install: ## Installe les JARs dans le repo local .m2 sans lancer les tests
+install: ## Installe les JARs dans le repo local .m2
 	mvn clean install -DskipTests -Dmaven.javadoc.skip=true
 
-install-local: ## Aide à installer manuellement les JARs téléchargés (ex: make install-local VER=9.0.0)
-ifndef VER
-	@echo "\033[31mErreur: VER est obligatoire (ex: make install-local VER=9.0.0)\033[0m"
-	@exit 1
-endif
-	@for mod in core oidc apis; do \
-		mvn install:install-file -Dfile=scribejava-$$mod-$(VER).jar -DgroupId=com.github.scribejava -DartifactId=scribejava-$$mod -Dversion=$(VER) -Dpackaging=jar; \
-	done
-
-doc: ## Génère la Javadoc complète (agrégée)
+doc: ## Génère la Javadoc agrégée (Premium DX)
 	mvn javadoc:aggregate -Dmaven.test.skip=true
 
-# --- Release ---
+# --- Release (Basée sur les Tags) ---
 
-release: ## Prépare et crée une release GitHub (ex: make release VERSION=9.0.0)
-ifndef VERSION
-	@echo "\033[31mErreur: La variable VERSION est obligatoire (ex: make release VERSION=9.0.0)\033[0m"
-	@exit 1
+release: ## Crée une release par Tag (ex: make release VER=9.2.0)
+ifndef VER
+	@echo "\033[33mInfo: VER non spécifié, utilisation de la prochaine version suggérée : $(NEXT_PATCH)\033[0m"
+	$(eval VER=$(NEXT_PATCH))
 endif
-	@echo "\033[32m🚀 Préparation de la release v$(VERSION)...\033[0m"
-	mvn versions:set -DnewVersion=$(VERSION) -DgenerateBackupPoms=false
+	@echo "\033[32m🚀 Préparation de la release v$(VER)...\033[0m"
+	mvn versions:set -DnewVersion=$(VER) -DgenerateBackupPoms=false
+	mvn versions:commit
 	git add .
-	git commit -m "build: release v$(VERSION)"
-	git tag -a v$(VERSION) -m "Release version $(VERSION)"
-	@echo "\033[33m⚠️  Le tag v$(VERSION) est créé localement.\033[0m"
-	@echo "Lancez 'git push origin master --tags' pour déclencher la CI de release."
+	git commit -m "chore: release v$(VER)"
+	git tag -a v$(VER) -m "Release version $(VER)"
+	@echo "\033[32m✅ Tag v$(VER) créé localement.\033[0m"
+	@echo "Pour publier : git push origin master v$(VER)"
 
-snapshot: ## Repasse en version de développement (ex: make snapshot NEXT=9.0.1-SNAPSHOT)
+snapshot: ## Repasse en version de développement (ex: make snapshot NEXT=9.2.1-SNAPSHOT)
 ifndef NEXT
-	@echo "\033[33mInfo: Passage automatique à la version $(NEXT_SNAPSHOT)\033[0m"
-	$(eval NEXT=$(NEXT_SNAPSHOT))
+	$(eval NEXT=$(shell echo $(VER) | awk -F. '{print $$1"."$$2"."$$3+1"-SNAPSHOT"}'))
 endif
 	mvn versions:set -DnewVersion=$(NEXT) -DgenerateBackupPoms=false
+	mvn versions:commit
 	git add .
-	git commit -m "build: prepare for next development iteration ($(NEXT))"
+	git commit -m "chore: prepare for next development iteration ($(NEXT))"
 	@echo "\033[32m✅ Version de travail passée à $(NEXT)\033[0m"
 
-clean: ## Nettoie les fichiers de build
+clean: ## Nettoie les dossiers target et les logs de CI
 	mvn clean
-	rm -rf target/
+	rm -rf target/ ci-logs/
