@@ -28,6 +28,7 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuthService;
 import com.github.scribejava.oidc.model.JwksParser;
 import com.github.scribejava.oidc.model.OidcKey;
 import java.io.IOException;
@@ -37,7 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 
 /** Service gérant la découverte (Discovery) OpenID Connect et la récupération des clés JWKS. */
-public class OidcDiscoveryService implements com.github.scribejava.core.oauth.DiscoveryService {
+public class OidcDiscoveryService extends OAuthService
+    implements com.github.scribejava.core.oauth.DiscoveryService {
 
   private static final String OIDC_DISCOVERY_PATH = "/.well-known/openid-configuration";
   private static final JwksParser JWKS_PARSER = new JwksParser();
@@ -45,9 +47,7 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
   // Cache simple (Statique pour être partagé entre les instances du même émetteur si besoin)
   private static final Map<String, OidcProviderMetadata> METADATA_CACHE = new ConcurrentHashMap<>();
 
-  private final HttpClient httpClient;
   private final String issuerUri;
-  private final String userAgent;
 
   /**
    * @param issuerUri émetteur
@@ -56,9 +56,8 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
    */
   public OidcDiscoveryService(
       final String issuerUri, final HttpClient httpClient, final String userAgent) {
+    super(null, null, null, null, userAgent, null, httpClient);
     this.issuerUri = issuerUri;
-    this.httpClient = httpClient;
-    this.userAgent = userAgent;
   }
 
   @Override
@@ -88,12 +87,8 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
     final String discoveryEndpoint = base + OIDC_DISCOVERY_PATH;
     final OAuthRequest request = new OAuthRequest(Verb.GET, discoveryEndpoint);
 
-    return httpClient.executeAsync(
-        userAgent,
-        request.getHeaders(),
-        request.getVerb(),
-        request.getCompleteUrl(),
-        (byte[]) null,
+    return execute(
+        request,
         null,
         response -> {
           try (Response resp = response) {
@@ -147,12 +142,8 @@ public class OidcDiscoveryService implements com.github.scribejava.core.oauth.Di
   public CompletableFuture<Map<String, OidcKey>> getJwksAsync(final String jwksUri) {
     final OAuthRequest request = new OAuthRequest(Verb.GET, jwksUri);
 
-    return httpClient.executeAsync(
-        userAgent,
-        request.getHeaders(),
-        request.getVerb(),
-        request.getCompleteUrl(),
-        (byte[]) null,
+    return execute(
+        request,
         null,
         response -> {
           try (Response resp = response) {

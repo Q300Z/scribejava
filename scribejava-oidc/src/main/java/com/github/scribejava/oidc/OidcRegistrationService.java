@@ -28,6 +28,7 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuthService;
 import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
 import java.util.HashMap;
@@ -36,18 +37,14 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /** Service gérant l'enregistrement dynamique des clients (Dynamic Client Registration) natif. */
-public class OidcRegistrationService {
-
-  private final HttpClient httpClient;
-  private final String userAgent;
+public class OidcRegistrationService extends OAuthService {
 
   /**
    * @param httpClient Le client HTTP à utiliser.
    * @param userAgent La chaîne User-Agent.
    */
   public OidcRegistrationService(final HttpClient httpClient, final String userAgent) {
-    this.httpClient = httpClient;
-    this.userAgent = userAgent;
+    super(null, null, null, null, userAgent, null, httpClient);
   }
 
   /**
@@ -76,12 +73,8 @@ public class OidcRegistrationService {
     request.setPayload(JsonUtils.toJson(registrationRequest));
     request.addHeader("Content-Type", "application/json");
 
-    return httpClient.executeAsync(
-        userAgent,
-        request.getHeaders(),
-        request.getVerb(),
-        request.getCompleteUrl(),
-        request.getStringPayload(),
+    return execute(
+        request,
         null,
         response -> {
           try (Response resp = response) {

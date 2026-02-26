@@ -62,9 +62,11 @@ public class JwksParser {
     final List<Map<String, Object>> keyList = (List<Map<String, Object>>) keysNode;
     final Map<String, OidcKey> keys = new HashMap<>();
     for (final Map<String, Object> keyNode : keyList) {
-      final OidcKey key = parseKey(keyNode);
-      if (key != null) {
-        keys.put(key.getKid(), key);
+      if (keyNode != null) {
+        final OidcKey key = parseKey(keyNode);
+        if (key != null) {
+          keys.put(key.getKid(), key);
+        }
       }
     }
     return keys;
@@ -78,6 +80,9 @@ public class JwksParser {
    * @throws IOException si erreur de parsing
    */
   public OidcKey parseKey(Map<String, Object> keyNode) throws IOException {
+    if (keyNode == null) {
+      return null;
+    }
     final String kty = (String) keyNode.get("kty");
     if ("RSA".equals(kty)) {
       return parseRsaKey(keyNode);
@@ -125,11 +130,9 @@ public class JwksParser {
 
     try {
       final AlgorithmParameters params = AlgorithmParameters.getInstance("EC");
-      // Essayer d'initialiser via le nom de la courbe directement (certains JDK acceptent String)
       try {
         params.init(new ECGenParameterSpec(crv));
       } catch (Exception e) {
-        // Fallback pour les environnements restreints : forcer le nom standard NIST
         params.init(new ECGenParameterSpec("secp256r1"));
       }
       final ECParameterSpec ecParameters = params.getParameterSpec(ECParameterSpec.class);
