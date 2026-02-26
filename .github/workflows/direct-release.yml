@@ -1,7 +1,7 @@
 name: Direct Release (Manual)
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 permissions:
   contents: write
