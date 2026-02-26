@@ -23,54 +23,60 @@
  */
 package com.github.scribejava.apis.examples.quickstart;
 
+import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.config;
+import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.verboseLogger;
+
 import com.github.scribejava.apis.GitHubApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.DeviceAuthorization;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.core.model.OAuthResponseException;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.oauth.OAuthRetryPolicy;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-/**
- * [QUICKSTART] Device Authorization Flow (RFC 8628).
- *
- * <p>Ce flux est conçu pour les appareils n'ayant pas de navigateur local (Smart TV, IoT, Terminaux
- * console). L'utilisateur autorise l'accès depuis un autre appareil (Smartphone/PC).
- */
+/** [QUICKSTART] Device Authorization Flow (RFC 8628) - Version Enterprise. */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class DeviceFlowQuickStart {
 
-  private static final String CLIENT_ID = "votre_client_id";
+  private static final String CLIENT_ID = config("SCRIBE_CLIENT_ID", "votre_client_id");
 
   private DeviceFlowQuickStart() {}
 
-  /**
-   * Point d'entrée de l'exemple.
-   *
-   * @param args arguments
-   * @throws IOException IOException
-   * @throws InterruptedException InterruptedException
-   * @throws ExecutionException ExecutionException
-   */
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException {
 
     final OAuth20Service service = new ServiceBuilder(CLIENT_ID).build(GitHubApi.instance());
+    service.setLogger(verboseLogger());
+    service.setRetryPolicy(new OAuthRetryPolicy(3, 500));
 
-    System.out.println("=== QuickStart : Device Flow (RFC 8628) ===");
+    System.out.println("=== QuickStart Enterprise : Device Flow ===");
 
-    // 1. Demande des codes au serveur
-    System.out.println("Récupération des codes...");
-    final DeviceAuthorization codes = service.getDeviceAuthorizationCodes();
+    try {
+      // 1. Demande des codes au serveur
+      System.out.println("Récupération des codes...");
+      final DeviceAuthorization codes = service.getDeviceAuthorizationCodes();
 
-    System.out.println("1. Allez sur : " + codes.getVerificationUri());
-    System.out.println("2. Entrez le code suivant : " + codes.getUserCode());
-    System.out.println("\nEn attente de votre autorisation (polling)...");
+      System.out.println("\n--- ACTION REQUISE ---");
+      System.out.println("1. Allez sur : " + codes.getVerificationUri());
+      System.out.println("2. Entrez le code suivant : " + codes.getUserCode());
+      System.out.println("\nEn attente de votre autorisation (polling automatisé)...");
 
-    // 2. Scrutation (Polling) jusqu'à validation par l'utilisateur
-    final OAuth2AccessToken token = service.pollAccessTokenDeviceAuthorizationGrant(codes);
+      // 2. Scrutation (Polling) jusqu'à validation
+      final OAuth2AccessToken token = service.pollAccessTokenDeviceAuthorizationGrant(codes);
 
-    System.out.println("Succès ! Autorisation accordée.");
-    System.out.println("Access Token : " + token.getAccessToken());
+      System.out.println("\n✅ Succès ! Autorisation accordée.");
+      System.out.println("Access Token : " + token.getAccessToken());
+
+    } catch (OAuthResponseException e) {
+      System.err.println("\n❌ Échec du flux Device :");
+      e.getErrorDetails()
+          .ifPresent(
+              details -> {
+                System.err.println("Code : " + details.getString("error"));
+                System.err.println("Desc : " + details.getString("error_description"));
+              });
+    }
   }
 }
