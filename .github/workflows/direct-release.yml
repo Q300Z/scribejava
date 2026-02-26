@@ -1,9 +1,6 @@
 name: Direct Release (Manual)
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
 
 permissions:
@@ -11,8 +8,6 @@ permissions:
 
 jobs:
   release:
-    # On évite les boucles infinies
-    if: "!contains(github.event.head_commit.message, 'chore(release)')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,14 +50,17 @@ jobs:
         run: |
           mvn clean package -DskipTests
           mkdir dist
-          # On ne collecte QUE les JARs principaux
-          find . -name "*.jar" \
-            -not -name "*-sources.jar" \
-            -not -name "*-tests.jar" \
-            -not -path "*/target/test-classes/*" \
-            -not -path "*/target/classes/*" \
-            -exec cp {} dist/ \;
-          rm -f dist/original-*.jar
+          # Collecte sélective des JARs principaux uniquement
+          cp scribejava-core/target/*.jar dist/ 2>/dev/null || true
+          cp scribejava-oidc/target/*.jar dist/ 2>/dev/null || true
+          cp scribejava-apis/target/*.jar dist/ 2>/dev/null || true
+          cp scribejava-oauth1/target/*.jar dist/ 2>/dev/null || true
+          cp scribejava-httpclient-okhttp/target/*.jar dist/ 2>/dev/null || true
+          cp scribejava-httpclient-armeria/target/*.jar dist/ 2>/dev/null || true
+          cp scribejava-integration-helpers/target/*.jar dist/ 2>/dev/null || true
+          
+          # Suppression des doublons (sources, tests)
+          rm -f dist/*-sources.jar dist/*-tests.jar dist/original-*.jar
 
       - name: 4. Changelog (Latest version only)
         run: |
