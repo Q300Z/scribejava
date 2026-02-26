@@ -202,6 +202,7 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 ## 📚 Documentation & Exemples
 
 * ⚡ **[Guide de Migration](MIGRATION_GUIDE.md)** - Passer de la v8 à la v9.
+* ⚙️ **[Guide ScribeJava Core](CORE_FEATURES_GUIDE.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
 * 🛡️ **[Sécurité Avancée (DPoP/PAR)](ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
 * 🔐 **[Guide des Fonctionnalités OIDC](OIDC_FEATURES_GUIDE.md)** - Discovery, JWT natif et Logout.
 * 📖 **[Guide d'Intégration Helpers](INTEGRATION_HELPERS_GUIDE.md)** - Orchestration, Auto-refresh et multi-tenant.
