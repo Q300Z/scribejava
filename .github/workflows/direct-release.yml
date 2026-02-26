@@ -1,7 +1,7 @@
 name: Direct Release (Manual)
 
 on:
-  workflow_dispatch: # Déclenchement manuel uniquement via l'interface Actions
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '11' # JDK 11 pour le packaging stable
           distribution: 'temurin'
           cache: 'maven'
 
@@ -34,21 +34,11 @@ jobs:
       - name: 1. Analyse (Calculate Bump)
         id: bump
         run: |
-          # Installation des outils de calcul et du preset angular
           npm install -g conventional-recommended-bump semver conventional-changelog-angular
-          
-          # Récupération de la version actuelle du pom.xml
           CURRENT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
-          echo "Current version: $CURRENT_VER"
-          
-          # Calcul du type de bump (patch, minor, major) basé sur les commits depuis le dernier tag
           BUMP_TYPE=$(conventional-recommended-bump -p angular)
-          echo "Bump type: $BUMP_TYPE"
-          
-          # Calcul de la nouvelle version
           NEW_VER=$(semver $CURRENT_VER -i $BUMP_TYPE)
           echo "new_version=$NEW_VER" >> $GITHUB_OUTPUT
-          echo "Calculated version: $NEW_VER"
 
       - name: 2. Update (Maven Version Set)
         run: |
@@ -56,13 +46,22 @@ jobs:
           mvn versions:set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
           mvn versions:commit
 
-      - name: 3. Changelog (Generate)
+      - name: 3. Build & Package (Generate JARs with Javadoc)
+        run: |
+          # On compile tout et on génère les JARs incluant la Javadoc
+          mvn clean package -DskipTests -Dmaven.javadoc.skip=false
+          mkdir dist
+          # On collecte tous les JARs finaux (en excluant les classes de test)
+          find . -name "*.jar" -not -path "*/target/test-classes/*" -not -path "*/target/classes/*" -exec cp {} dist/ \;
+          # Nettoyage des JARs temporaires si nécessaire
+          rm -f dist/original-*.jar
+
+      - name: 4. Changelog (Generate)
         run: |
           npm install -g conventional-changelog-cli conventional-changelog-angular
-          # Génère le changelog et l'ajoute au fichier (incremental)
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
 
-      - name: 4. Tag & Push
+      - name: 5. Tag & Push
         run: |
           NEW_VER=${{ steps.bump.outputs.new_version }}
           git add .
@@ -70,11 +69,12 @@ jobs:
           git tag -a v$NEW_VER -m "Release v$NEW_VER"
           git push origin master --tags
 
-      - name: 5. GitHub Release
+      - name: 6. GitHub Release (with Assets)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VER=${{ steps.bump.outputs.new_version }}
-          # On extrait la dernière entrée du changelog pour le corps de la release
+          # Extraction des notes de release
           sed -n '/^#/,/^#/p' CHANGELOG.md | sed '1d;$d' > release_notes.txt
-          gh release create v$NEW_VER --title "v$NEW_VER" --notes-file release_notes.txt
+          # Création de la release avec TOUS les JARs du dossier dist/
+          gh release create v$NEW_VER dist/*.jar --title "v$NEW_VER" --notes-file release_notes.txt
