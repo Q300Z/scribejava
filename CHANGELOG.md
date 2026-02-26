@@ -1,4 +1,13 @@
-# [](https://github.com/Q300Z/scribejava/compare/v9.2.0...v) (2026-02-26)
+# [](https://github.com/Q300Z/scribejava/compare/v9.2.1...v) (2026-02-26)
+
+
+### Bug Fixes
+
+* include JAR artifacts in the direct release workflow ([8eb80e4](https://github.com/Q300Z/scribejava/commit/8eb80e4fc69d90ee40a7d40741b3fdda9252e969))
+
+
+
+## [9.2.1](https://github.com/Q300Z/scribejava/compare/v9.2.0...v9.2.1) (2026-02-26)
 
 
 ### Bug Fixes
