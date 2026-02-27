@@ -12,8 +12,14 @@ nb-configuration.xml
 nbproject
 
 # Binaries
-target
+target/
+dist/
+release_notes.txt
 
 # Local CI artifacts
 ci-logs/
 docs-output/
+
+# OS specific files
+.DS_Store
+Thumbs.db
