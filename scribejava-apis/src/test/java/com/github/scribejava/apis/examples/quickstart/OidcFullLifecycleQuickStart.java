@@ -27,6 +27,7 @@ import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.con
 import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.readInput;
 import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.verboseLogger;
 
+import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.oidc.IdToken;
@@ -54,6 +55,14 @@ public final class OidcFullLifecycleQuickStart {
 
   private OidcFullLifecycleQuickStart() {}
 
+  /**
+   * Point d'entrée.
+   *
+   * @param args args
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   */
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException {
 
@@ -65,14 +74,17 @@ public final class OidcFullLifecycleQuickStart {
     final OidcProviderMetadata metadata = discovery.getProviderMetadata();
 
     final OidcRegistrationService registrationService =
-        new OidcRegistrationService(metadata.getRegistrationEndpoint());
+        new OidcRegistrationService(null, metadata.getRegistrationEndpoint());
     registrationService.setLogger(verboseLogger());
 
     // On enregistre une nouvelle application "On-the-fly"
     System.out.println("Enregistrement du client auprès du fournisseur...");
-    // Ici on simule un JSON d'enregistrement simplifié
+    // Règle d'or : On utilise JsonBuilder (Zéro concaténation manuelle)
     final String registrationResponse =
-        "{ \"client_id\": \"dyn_client_123\", \"client_secret\": \"dyn_secret_456\" }";
+        new JsonBuilder()
+            .add("client_id", "dyn_client_123")
+            .add("client_secret", "dyn_secret_456")
+            .build();
     System.out.println("Client enregistré dynamiquement : " + registrationResponse);
 
     // Note : En production, vous feriez : registrationService.registerClient(registrationJson)
