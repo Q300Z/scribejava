@@ -51,4 +51,47 @@ public class OidcServiceBuilder extends ServiceBuilder {
     discoverFromIssuer(issuerUri, new OidcDiscoveryService(issuerUri, httpClient, userAgent));
     return this;
   }
+
+  /**
+   * Construit une instance de service OIDC sans nécessiter de cast manuel.
+   *
+   * @param api L'instance de DefaultOidcApi20 configurée.
+   * @return Une instance typée de OidcService.
+   */
+  public OidcService build(DefaultOidcApi20 api) {
+    DefaultOidcApi20 apiToUse = api;
+    if (getDiscoveryIssuer() != null && getDiscoveryService() != null) {
+      try {
+        final com.github.scribejava.core.oauth.DiscoveredEndpoints endpoints =
+            getDiscoveryService().discoverAsync().get();
+        apiToUse =
+            new DefaultOidcApi20() {
+              @Override
+              public String getAccessTokenEndpoint() {
+                return endpoints.getTokenEndpoint();
+              }
+
+              @Override
+              public String getAuthorizationBaseUrl() {
+                return endpoints.getAuthorizationEndpoint();
+              }
+            };
+        apiToUse.setMetadata(api.getMetadata());
+      } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+        throw new com.github.scribejava.core.exceptions.OAuthException(
+            "Failed to discover OIDC endpoints", e);
+      }
+    }
+
+    return apiToUse.createService(
+        getApiKey(),
+        getApiSecret(),
+        getCallback(),
+        getDefaultScope(),
+        getResponseType(),
+        getDebugStream(),
+        getUserAgent(),
+        getHttpClientConfig(),
+        getHttpClient());
+  }
 }

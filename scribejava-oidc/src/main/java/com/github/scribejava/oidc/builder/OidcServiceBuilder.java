@@ -58,4 +58,24 @@ public class OidcServiceBuilder extends ServiceBuilder {
       getAuthorizationRequestConverter() {
     return super.getAuthorizationRequestConverter();
   }
+
+  /**
+   * Construit une instance de service OIDC sans nécessiter de cast manuel.
+   *
+   * @param api L'instance de DefaultOidcApi20 configurée.
+   * @return Une instance typée de com.github.scribejava.oidc.OidcService.
+   */
+  public com.github.scribejava.oidc.OidcService build(
+      com.github.scribejava.oidc.DefaultOidcApi20 api) {
+    return api.createService(
+        getApiKey(),
+        getApiSecret(),
+        getCallback(),
+        getDefaultScope(),
+        getResponseType(),
+        getDebugStream(),
+        getUserAgent(),
+        getHttpClientConfig(),
+        getHttpClient());
+  }
 }
