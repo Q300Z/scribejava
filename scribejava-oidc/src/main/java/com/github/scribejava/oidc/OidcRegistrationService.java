@@ -25,13 +25,13 @@ package com.github.scribejava.oidc;
 
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.HttpClient;
+import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuthService;
 import com.github.scribejava.core.utils.JsonUtils;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -62,15 +62,15 @@ public class OidcRegistrationService extends OAuthService {
       final List<String> redirectUris,
       final String clientName,
       final String tokenEndpointAuthMethod) {
-    final Map<String, Object> registrationRequest = new HashMap<>();
-    registrationRequest.put("redirect_uris", redirectUris);
-    registrationRequest.put("client_name", clientName);
+    final JsonBuilder registrationRequest = new JsonBuilder();
+    registrationRequest.add("redirect_uris", redirectUris);
+    registrationRequest.add("client_name", clientName);
     if (tokenEndpointAuthMethod != null) {
-      registrationRequest.put("token_endpoint_auth_method", tokenEndpointAuthMethod);
+      registrationRequest.add("token_endpoint_auth_method", tokenEndpointAuthMethod);
     }
 
     final OAuthRequest request = new OAuthRequest(Verb.POST, registrationEndpoint);
-    request.setPayload(JsonUtils.toJson(registrationRequest));
+    request.setPayload(registrationRequest.build());
     request.addHeader("Content-Type", "application/json");
 
     return execute(

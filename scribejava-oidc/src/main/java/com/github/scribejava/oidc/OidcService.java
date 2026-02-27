@@ -28,13 +28,17 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.httpclient.HttpClientConfig;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
 import com.github.scribejava.core.utils.JsonUtils;
+import com.github.scribejava.oidc.model.OidcNonce;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
 /** Service OIDC natif. */
 public class OidcService extends OAuth20Service {
+
+  private IdTokenValidator idTokenValidator;
 
   public OidcService(
       DefaultApi20 api,
@@ -61,27 +65,64 @@ public class OidcService extends OAuth20Service {
   }
 
   @Override
-  public OAuth2AccessToken getAccessToken(String code)
+  public OAuth2AccessToken getAccessToken(OAuth20Grant grant)
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
-    final OAuth2AccessToken token = super.getAccessToken(code);
+    final OAuth2AccessToken token = super.getAccessToken(grant);
     validateIdToken(token);
     return token;
   }
 
+  @Override
+  @Deprecated
+  public OAuth2AccessToken getAccessToken(String code)
+      throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
+    return getAccessToken(new com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant(code));
+  }
+
   private void validateIdToken(OAuth2AccessToken token) {
-    final Map<String, Object> response = JsonUtils.parse(token.getRawResponse());
-    final String idTokenRaw = (String) response.get("id_token");
-    if (idTokenRaw != null) {
-      new IdToken(idTokenRaw);
+    if (idTokenValidator != null) {
+      idTokenValidator.validate(token.getRawResponse(), null, 0);
+    } else {
+      final Map<String, Object> response = JsonUtils.parse(token.getRawResponse());
+      final String idTokenRaw = (String) response.get("id_token");
+      if (idTokenRaw != null) {
+        new IdToken(idTokenRaw);
+      }
     }
   }
 
-  public IdToken validateIdToken(OAuth2AccessToken token, Object nonce) {
+  /**
+   * @param token token
+   * @param nonce nonce (optionnel)
+   * @return IdToken validé
+   */
+  public IdToken validateIdToken(OAuth2AccessToken token, OidcNonce nonce) {
+    if (idTokenValidator != null) {
+      return idTokenValidator.validate(token.getRawResponse(), nonce, 0);
+    }
     final Map<String, Object> response = JsonUtils.parse(token.getRawResponse());
     final String idTokenRaw = (String) response.get("id_token");
     return idTokenRaw != null ? new IdToken(idTokenRaw) : null;
   }
 
+  /**
+   * @return idTokenValidator
+   */
+  public IdTokenValidator getIdTokenValidator() {
+    return idTokenValidator;
+  }
+
+  /**
+   * @param idTokenValidator idTokenValidator
+   */
+  public void setIdTokenValidator(IdTokenValidator idTokenValidator) {
+    this.idTokenValidator = idTokenValidator;
+  }
+
+  /**
+   * @param token access token
+   * @return future
+   */
   public java.util.concurrent.CompletableFuture<StandardClaims> getUserInfoAsync(
       OAuth2AccessToken token) {
     return java.util.concurrent.CompletableFuture.completedFuture(
