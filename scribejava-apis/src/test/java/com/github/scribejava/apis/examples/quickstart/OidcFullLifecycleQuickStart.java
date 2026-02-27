@@ -30,6 +30,7 @@ import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.ver
 import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
+import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.github.scribejava.oidc.IdToken;
 import com.github.scribejava.oidc.OidcDiscoveryService;
 import com.github.scribejava.oidc.OidcGoogleApi20;
@@ -117,7 +118,7 @@ public final class OidcFullLifecycleQuickStart {
     // --- ÉTAPE 3 : LOGOUT (Révocation & Sortie) ---
     System.out.println("\n3. DÉCONNEXION (Logout)...");
     System.out.println("Invalidation cryptographique du jeton d'accès...");
-    service.revokeToken(token.getAccessToken());
+    service.revokeToken(token.getAccessToken(), TokenTypeHint.ACCESS_TOKEN);
 
     System.out.println("✅ Session fermée. Les jetons ne sont plus utilisables.");
     System.out.println("=== Fin du cycle de vie ===");

@@ -30,6 +30,7 @@ import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.ver
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuthRetryPolicy;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
+import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.github.scribejava.oidc.IdToken;
 import com.github.scribejava.oidc.OidcDiscoveryService;
 import com.github.scribejava.oidc.OidcGoogleApi20;
@@ -107,7 +108,7 @@ public final class OidcQuickStart {
 
     // 6. Logout / Révocation (Nouveauté Enterprise)
     System.out.println("\n3. Déconnexion (Révocation du jeton)...");
-    service.revokeToken(token.getAccessToken());
+    service.revokeToken(token.getAccessToken(), TokenTypeHint.ACCESS_TOKEN);
     System.out.println("✅ Jeton révoqué. Session fermée proprement.");
   }
 }
