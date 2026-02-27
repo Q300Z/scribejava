@@ -69,6 +69,42 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return apiKey;
   }
 
+  public String getApiSecret() {
+    return apiSecret;
+  }
+
+  public String getCallback() {
+    return callback;
+  }
+
+  public String getDefaultScope() {
+    return scope;
+  }
+
+  public String getResponseType() {
+    return responseType;
+  }
+
+  public OutputStream getDebugStream() {
+    return debugStream;
+  }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
+
+  public HttpClientConfig getHttpClientConfig() {
+    return httpClientConfig;
+  }
+
+  public HttpClient getHttpClient() {
+    return httpClient;
+  }
+
+  public com.github.scribejava.core.dpop.DPoPProofCreator getDpopProofCreator() {
+    return dpopProofCreator;
+  }
+
   /**
    * Définit le convertisseur de requête d'autorisation (ex: pour JAR ou PAR).
    *
@@ -82,7 +118,7 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return this;
   }
 
-  protected com.github.scribejava.core.oauth.AuthorizationRequestConverter
+  public com.github.scribejava.core.oauth.AuthorizationRequestConverter
       getAuthorizationRequestConverter() {
     return authorizationRequestConverter;
   }
@@ -184,6 +220,14 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
   public ServiceBuilder httpClient(HttpClient httpClient) {
     this.httpClient = httpClient;
     return this;
+  }
+
+  public String getDiscoveryIssuer() {
+    return discoveryIssuer;
+  }
+
+  public com.github.scribejava.core.oauth.DiscoveryService getDiscoveryService() {
+    return discoveryService;
   }
 
   @Override

@@ -74,8 +74,10 @@ public class OAuth20RevocationHandler {
         request,
         null,
         response -> {
-          checkForError(response);
-          return null;
+          try (Response resp = response) {
+            checkForError(resp);
+            return null;
+          }
         });
   }
 

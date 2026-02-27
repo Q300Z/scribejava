@@ -45,6 +45,7 @@ public class Response implements Closeable {
   private InputStream stream;
   private Closeable[] closeables;
   private boolean closed;
+  private OAuthRequest request;
 
   private Response(int code, String message, Map<String, String> headers) {
     this.code = code;
@@ -83,6 +84,22 @@ public class Response implements Closeable {
   public Response(int code, String message, Map<String, String> headers, String body) {
     this(code, message, headers);
     this.body = body;
+  }
+
+  /**
+   * @return La requête OAuth ayant généré cette réponse.
+   */
+  public OAuthRequest getRequest() {
+    return request;
+  }
+
+  /**
+   * Définit la requête d'origine.
+   *
+   * @param request La requête.
+   */
+  public void setRequest(OAuthRequest request) {
+    this.request = request;
   }
 
   private String parseBodyContents() throws IOException {

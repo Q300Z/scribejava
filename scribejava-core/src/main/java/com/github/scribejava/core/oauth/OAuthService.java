@@ -52,6 +52,7 @@ public abstract class OAuthService implements Closeable {
   private final String callback;
   private final String userAgent;
   private final HttpClient httpClient;
+  private final boolean ownHttpClient;
   private final OutputStream debugStream;
   private final List<OAuthRequestInterceptor> interceptors = new ArrayList<>();
   private OAuthLogger logger;
@@ -74,7 +75,9 @@ public abstract class OAuthService implements Closeable {
 
     if (httpClientConfig == null && httpClient == null) {
       this.httpClient = new JDKHttpClient(JDKHttpClientConfig.defaultConfig());
+      this.ownHttpClient = true;
     } else {
+      this.ownHttpClient = httpClient == null;
       this.httpClient = httpClient == null ? getClient(httpClientConfig) : httpClient;
     }
   }
@@ -103,7 +106,9 @@ public abstract class OAuthService implements Closeable {
 
   @Override
   public void close() throws IOException {
-    httpClient.close();
+    if (ownHttpClient && httpClient != null) {
+      httpClient.close();
+    }
   }
 
   public String getApiKey() {
@@ -155,6 +160,7 @@ public abstract class OAuthService implements Closeable {
         result -> {
           if (result instanceof Response) {
             final Response resp = (Response) result;
+            resp.setRequest(request);
             checkRateLimits(resp);
             if (logger != null) {
               logger.logResponse(resp);
@@ -207,6 +213,7 @@ public abstract class OAuthService implements Closeable {
     }
 
     if (logger != null && response != null) {
+      response.setRequest(request);
       logger.logResponse(response);
     }
     return response;
