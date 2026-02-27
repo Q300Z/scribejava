@@ -1,9 +1,0 @@
-# [](https://github.com/Q300Z/scribejava/compare/v9.2.3...v) (2026-02-27)
-
-
-### Bug Fixes
-
-* resolve compilation and linting issues in quickstart examples ([f0d3088](https://github.com/Q300Z/scribejava/commit/f0d3088a27ff9e2e2769f3b09392493860317cde))
-
-
-
