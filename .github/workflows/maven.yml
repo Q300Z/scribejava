@@ -2,13 +2,12 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
-
   contents: write
 
 jobs:
@@ -20,9 +19,9 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
       - name: Install artifacts for analysis
         run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
       - name: Static Analysis
@@ -118,6 +117,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm install -g release-it @release-it/conventional-changelog
-          # On ne fait QUE la release GitHub, sans toucher au Git (déjà fait lors de la préparation)
+          pnpm install -g release-it @release-it/conventional-changelog
           release-it --ci --no-git --github.release
