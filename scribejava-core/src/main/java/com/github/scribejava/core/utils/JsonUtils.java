@@ -39,10 +39,12 @@ public final class JsonUtils {
   private JsonUtils() {}
 
   // Regex supportant les guillemets échappés dans les clés et les valeurs
+  // Optimisée pour éviter les StackOverflowError sur les chaînes longues (ex: Jetons OIDC)
+  private static final String JSON_STRING_REGEX = "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"";
   private static final Pattern JSON_TOKEN_PATTERN =
       Pattern.compile(
-          "\"((?:\\\\\"|[^\"])*)\"\\s*:\\s*("
-              + "\"((?:\\\\\"|[^\"])*)\"|"
+          JSON_STRING_REGEX + "\\s*:\\s*("
+              + JSON_STRING_REGEX + "|"
               + "(-?\\d+(?:\\.\\d+)?)|"
               + "(true|false|null)|"
               + "(\\[[^\\]]*\\])|"
@@ -75,6 +77,7 @@ public final class JsonUtils {
       final String fullVal = matcher.group(2).trim();
 
       if (fullVal.startsWith("\"")) {
+        // Group index change because of the new regex structure
         result.put(key, unescape(matcher.group(3)));
       } else if (matcher.group(4) != null) { // Number
         result.put(key, parseNumber(matcher.group(4)));

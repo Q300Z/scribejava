@@ -23,6 +23,7 @@
  */
 package com.github.scribejava.core.pkce;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,8 +31,9 @@ import java.util.Map;
  * Used to hold code_challenge, code_challenge_method and code_verifier for <a
  * href="https://tools.ietf.org/html/rfc7636">...</a>
  */
-public class PKCE {
+public class PKCE implements Serializable {
 
+  private static final long serialVersionUID = 1L;
   public static final String PKCE_CODE_CHALLENGE_METHOD_PARAM = "code_challenge_method";
   public static final String PKCE_CODE_CHALLENGE_PARAM = "code_challenge";
   public static final String PKCE_CODE_VERIFIER_PARAM = "code_verifier";

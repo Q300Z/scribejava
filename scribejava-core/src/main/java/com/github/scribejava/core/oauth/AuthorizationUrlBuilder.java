@@ -61,6 +61,18 @@ public class AuthorizationUrlBuilder {
   }
 
   /**
+   * @param nonce nonce
+   * @return builder
+   */
+  public AuthorizationUrlBuilder nonce(String nonce) {
+    if (this.additionalParams == null) {
+      this.additionalParams = new HashMap<>();
+    }
+    this.additionalParams.put("nonce", nonce);
+    return this;
+  }
+
+  /**
    * @param additionalParams additionalParams
    * @return builder
    */
