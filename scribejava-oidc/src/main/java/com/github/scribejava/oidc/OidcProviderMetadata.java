@@ -69,11 +69,24 @@ public class OidcProviderMetadata {
       String introspectionEndpoint,
       String pushedAuthorizationRequestEndpoint,
       List<String> dpopSigningAlgValuesSupported) {
-    this(issuer, authorizationEndpoint, tokenEndpoint, jwksUri, responseTypesSupported,
-        subjectTypesSupported, idTokenSigningAlgValuesSupported, userinfoEndpoint,
-        registrationEndpoint, scopesSupported, responseModesSupported, grantTypesSupported,
-        revocationEndpoint, introspectionEndpoint, pushedAuthorizationRequestEndpoint,
-        dpopSigningAlgValuesSupported, null);
+    this(
+        issuer,
+        authorizationEndpoint,
+        tokenEndpoint,
+        jwksUri,
+        responseTypesSupported,
+        subjectTypesSupported,
+        idTokenSigningAlgValuesSupported,
+        userinfoEndpoint,
+        registrationEndpoint,
+        scopesSupported,
+        responseModesSupported,
+        grantTypesSupported,
+        revocationEndpoint,
+        introspectionEndpoint,
+        pushedAuthorizationRequestEndpoint,
+        dpopSigningAlgValuesSupported,
+        null);
   }
 
   public OidcProviderMetadata(
