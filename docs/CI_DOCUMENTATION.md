@@ -1,51 +1,76 @@
 # 🏗️ Documentation CI/CD ScribeJava
 
-Ce document détaille l'infrastructure de Continuous Integration (CI) et Continuous Delivery (CD) de ScribeJava v9.1+. Notre pipeline est conçu pour garantir la règle **Zéro-Dépendance** et la stabilité sur une matrice de **5 versions de JDK**.
+Ce document détaille l'infrastructure de Continuous Integration (CI) et Continuous Delivery (CD) de ScribeJava v9.2.4+. Notre pipeline est conçu pour garantir la règle **Zéro-Dépendance** et la stabilité sur une matrice de **5 versions de JDK**.
 
 ---
 
-## 1. Vue d'ensemble de l'Architecture
+## 1. Vue d'ensemble de l'Architecture "Zero-Touch"
 
-Le pipeline est divisé en trois zones : le développement local (Docker), la validation GitHub (Actions) et la publication automatisée.
+Le pipeline sépare strictement la préparation humaine (Local) de la certification et distribution industrielle (Cloud).
 
 ```mermaid
 graph TD
-    subgraph "💻 Zone Développeur"
-        Dev[Code & Tests] --> Format[make format]
-        Format --> CertLocal[make certify]
-        CertLocal -- "Docker multi-JDK" --> Push[git push master]
+    subgraph Local ["💻 Poste Développeur (LOCAL)"]
+        Trigger[make release] --> CertPre[ci-local.sh: Multi-JDK Docker]
+        CertPre --> Bump[release-it: Bump SemVer & Tag Git]
+        Bump --> Push[git push master + tags]
     end
 
-    subgraph "☁️ GitHub CI (maven.yml)"
-        Push --> Lint[Job: Lintage JDK 17]
-        Lint --> Build[Job: Build JDK 8]
-        Build --> TestMatrix{Test Matrix}
-        TestMatrix --> JDK8[JDK 8]
-        TestMatrix --> JDK11[JDK 11]
-        TestMatrix --> JDK17[JDK 17]
-        TestMatrix --> JDK21[JDK 21]
-        TestMatrix --> JDK25[JDK 25]
+    subgraph Cloud ["☁️ GitHub Actions (CLOUD)"]
+        Push --> MavenCI[Workflow: maven.yml]
+        subgraph "🧪 Matrice de Certification"
+            MavenCI --> JDK8[JDK 8]
+            MavenCI --> JDK11[JDK 11]
+            MavenCI --> JDK17[JDK 17]
+            MavenCI --> JDK21[JDK 21]
+            MavenCI --> JDK25[JDK 25]
+        end
+        
+        JDK8 & JDK11 & JDK17 & JDK21 & JDK25 --> Success{Tests OK ?}
+        Success -- Oui --> Publish[release-it: GitHub Release + JARs]
+        Success -- Non --> Abort[❌ Release bloquée]
     end
 
-    subgraph "🚀 Zone Release (direct-release.yml)"
-        Trigger[make release] --> GH_Workflow[Direct Release Workflow]
-        GH_Workflow --> Calc[Calcul Version & Changelog]
-        Calc --> Tag[Création Tag vX.Y.Z]
-        Tag --> FinalRelease[GitHub Release + JARs + Javadoc]
-    end
+    style Local fill:#f9f,stroke:#333,stroke-width:2px
+    style Cloud fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ---
 
-## 2. Pipeline de Certification Locale (`ci-local.sh`)
+## 2. Standardisation et Maintenance
 
-Avant chaque push, le développeur doit lancer `make certify`. Ce script utilise Docker pour isoler l'exécution et garantir que les changements sont compatibles avec le passé (Java 8) et le futur (Java 25).
+L'intégrité du projet est maintenue par des processus automatisés de surveillance :
 
-### Étapes du cycle local :
-1.  **Formatage** : Spotless applique le Google Java Style.
-2.  **Licences** : Vérification des headers MIT.
-3.  **Conteneurisation** : Lancement de 5 conteneurs Docker en parallèle.
-4.  **Isolation** : Chaque JDK exécute la suite complète de tests JUnit 5.
+*   **Dependabot (`dependabot.yml`)** : Surveille les dépendances Maven (hebdomadaire) et les GitHub Actions (mensuel). Toute mise à jour génère une PR testée par le CI.
+*   **Templates de Contribution** :
+    *   `bug_report.md` : Force la fourniture du JDK et du client HTTP pour un diagnostic immédiat.
+    *   `PULL_REQUEST_TEMPLATE.md` : Checklist imposant le respect des principes **SOLID**, du lintage et du Mutation Testing.
+
+---
+
+## 3. Cycle de Release Industrielle (`release-it`)
+
+Nous utilisons **`release-it`** comme moteur unique pour garantir un versionnage sémantique (SemVer) sans erreur humaine.
+
+### Le Triple Verrou de Sécurité :
+1.  **Verrou Local** : `make release` lance `./ci-local.sh`. La release s'arrête si un test casse sur un des 5 JDKs.
+2.  **Verrou Cloud** : Le workflow `maven.yml` ré-exécute l'intégralité de la matrice sur les serveurs GitHub pour audit.
+3.  **Verrou de Publication** : La commande `release-it --github.release` n'est invoquée que si le point 2 est un succès total.
+
+---
+
+## 4. Documentation et Artefacts "Premium DX"
+
+ScribeJava v9.2.4+ automatise la diffusion de la connaissance technique :
+
+*   **Javadoc Automatisée (`deploy-docs.yml`)** : À chaque push sur `master`, la Javadoc agrégée est recompilée et publiée sur GitHub Pages.
+*   **JARs Unifiés** : Le hook `before:github:release` de `release-it` produit des JARs contenant les `.class` et les sources de documentation pour une aide contextuelle immédiate dans les IDE.
+
+---
+
+## 5. Matrice de Certification multi-JDK
+
+Le script `ci-local.sh` est le cœur battant de la robustesse du projet :
 
 ```mermaid
 sequenceDiagram
@@ -55,60 +80,14 @@ sequenceDiagram
     participant J as JDK Containers (8-25)
 
     M->>S: Lancer certification
-    S->>D: Build images (si nécessaire)
+    S->>D: Build images (Isolées)
     par JDK 8 to 25
         S->>D: run container
         D->>J: mvn test
-        J-->>S: Exit Code (0/1)
+        J-->>S: Exit Code 0
     end
-    S-->>M: Résultat Global
+    S-->>M: Résultat Global (Certifié)
 ```
 
 ---
-
-## 3. Matrice de Validation GitHub Actions
-
-Le workflow `.github/workflows/maven.yml` est le gardien du repository. Il refuse tout merge qui ne respecte pas les critères de qualité.
-
-### Les "Quality Gates" :
-*   **Checkstyle** : Rigueur du code (nommage, structure).
-*   **PMD** : Détection des mauvaises pratiques et bugs potentiels.
-*   **Maven Enforcer** : **CRITIQUE** - Interdit toute dépendance externe (Jackson, Nimbus, etc.) au runtime.
-*   **PITest** : Mutation Testing pour vérifier la pertinence des tests unitaires.
-
----
-
-## 4. Flux de Release Semi-Automatique
-
-Nous utilisons les **Conventional Commits** (`feat:`, `fix:`) pour piloter la version.
-
-```mermaid
-stateDiagram-v2
-    [*] --> DevCommit: git commit -m 'feat: ...'
-    DevCommit --> PushMaster: push origin master
-    PushMaster --> ReleaseTrigger: make release (gh dispatch)
-    
-    state ReleaseTrigger {
-        AnalyseCommits --> BumpVersion: Patch/Minor/Major
-        BumpVersion --> UpdatePoms: mvn versions:set
-        UpdatePoms --> GenChangelog: conventional-changelog
-        GenChangelog --> CreateTag: git tag vX.Y.Z
-    }
-    
-    CreateTag --> Publish: Create GitHub Release
-    Publish --> [*]: JARs + Javadoc dispos
-```
-
-### Pourquoi "Semi-Automatique" ?
-Le calcul de la version et la génération du changelog sont gérés par l'IA du workflow, mais le déclenchement est **manuel** (`workflow_dispatch`). Cela permet de grouper plusieurs fonctionnalités dans une seule release.
-
----
-
-## 5. Artefacts Unifiés
-
-Contrairement aux builds standards, ScribeJava v9.1+ produit un **JAR unique par module** :
-*   **Structure** : Les `.class` et la documentation HTML (`/apidocs`) sont dans le même fichier.
-*   **Avantage** : Une portabilité totale et une aide contextuelle immédiate dans les IDE sans téléchargement supplémentaire.
-
----
-*Dernière mise à jour : Février 2026 - Certifié Enterprise Ready* ✅
+*Dernière mise à jour : Février 2026 - Certifié Enterprise Edition v9.2.4* ✅

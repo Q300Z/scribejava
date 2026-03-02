@@ -42,28 +42,11 @@ install: ## Installe les JARs dans le repo local .m2
 doc: ## Génère la Javadoc agrégée (Premium DX)
 	mvn javadoc:aggregate -Dmaven.test.skip=true
 
-# --- Release (Automatisation du cycle de vie) ---
+# --- Release (Automatisation du cycle de vie via release-it) ---
 
-release: ## Déclenche la release automatisée sur GitHub (Nécessite GitHub CLI)
-	@echo "\033[32m🚀 Déclenchement du cycle de release sur GitHub Actions...\033[0m"
-	@gh workflow run direct-release.yml
-	@echo "\033[33m⏳ Workflow lancé ! Suivez la progression avec : gh run watch\033[0m"
-
-release-local: ## Effectue la release localement (Sans 'gh', nécessite npm: conventional-changelog, conventional-recommended-bump)
-	@echo "\033[32m🔍 Calcul de la prochaine version...\033[0m"
-	$(eval BUMP_TYPE=$(shell npx conventional-recommended-bump -p angular))
-	$(eval NEW_VER=$(shell npx semver $(VERSION_CURRENT) -i $(BUMP_TYPE)))
-	@echo "Version calculée : $(NEW_VER) (Type: $(BUMP_TYPE))"
-	@mvn versions:set -DnewVersion=$(NEW_VER) -DgenerateBackupPoms=false
-	@mvn versions:commit
-	@echo "\033[32m📝 Mise à jour du CHANGELOG.md...\033[0m"
-	@npx conventional-changelog -p angular -i CHANGELOG.md -s -r 0
-	@git add .
-	@git commit -m "chore(release): $(NEW_VER)"
-	@git tag -a v$(NEW_VER) -m "Release v$(NEW_VER)"
-	@echo "\033[32m🚀 Publication des tags et de master...\033[0m"
-	@git push origin master --tags
-	@echo "\033[33m✅ Release v$(NEW_VER) terminée localement.\033[0m"
+release: ## Lance le cycle de release (Bump, Changelog, Tag, Push) - Déclenche ensuite le CI de publication
+	@echo "\033[32m🚀 Lancement du processus de release avec release-it...\033[0m"
+	@release-it
 
 sync: ## Récupère les derniers changements de release depuis GitHub
 	git pull --rebase origin master

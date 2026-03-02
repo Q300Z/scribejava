@@ -1,0 +1,33 @@
+{
+  "git": {
+    "commitMessage": "chore(release): ${version}",
+    "tagName": "v${version}",
+    "requireCleanWorkingDir": true,
+    "requireBranch": "master",
+    "push": true
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}",
+    "assets": ["dist/*.jar"],
+    "comments": {
+      "submit": true,
+      "issue": "🚀 Version ${version} certifiée multi-JDK et publiée."
+    }
+  },
+  "npm": {
+    "publish": false
+  },
+  "hooks": {
+    "before:init": ["./ci-local.sh"],
+    "after:bump": "mvn versions:set -DnewVersion=${version} -DgenerateBackupPoms=false && mvn versions:commit",
+    "before:github:release": "mvn clean package -DskipTests && mkdir -p dist && find . -name \"*.jar\" -not -name \"*-sources.jar\" -not -name \"*-tests.jar\" -not -name \"original-*.jar\" -exec cp {} dist/ \\;"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md",
+      "header": "# 📓 Journal des modifications (Changelog)"
+    }
+  }
+}

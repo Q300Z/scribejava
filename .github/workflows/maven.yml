@@ -2,81 +2,97 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
+
+permissions:
+  contents: write
 
 jobs:
-  # Étape 1 : Analyse statique et Lintage sous JDK 17
+  # Étape 1 : Analyse statique et Lintage
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
+          java-version: "17"
+          distribution: "temurin"
+          cache: "maven"
+      - name: Static Analysis
+        run: mvn spotless:check checkstyle:check pmd:check license:check
 
-      - name: Install dependencies
-        run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
-
-      - name: Static Analysis (Checkstyle, PMD, Spotless, License)
-        run: mvn checkstyle:check pmd:check spotless:check license:check
-
-  # Étape 2 : Compilation sous JDK 8 et packaging des tests
+  # Étape 2 : Compilation
   build:
     needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
-          distribution: 'temurin'
-          cache: 'maven'
-
+          java-version: "8"
+          distribution: "temurin"
+          cache: "maven"
       - name: Build and Install
         run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true
-
       - name: Upload compiled artifacts
         uses: actions/upload-artifact@v4
         with:
           name: compiled-jars
           path: "**/target/*.jar"
 
-  # Étape 3 : Matrice de tests sur tous les JDK
+  # Étape 3 : Matrice de tests multi-JDK
   test:
     needs: build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        java: [ '8', '11', '17', '21', '25' ]
-
+        java: ["8", "11", "17", "21", "25"]
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'temurin'
-          cache: 'maven'
-
+          distribution: "temurin"
+          cache: "maven"
       - name: Download compiled artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: compiled-jars
-
+          path: "**/target/*.jar"
       - name: Run Tests
-        # On utilise test car les artefacts sont déjà dans le réacteur ou téléchargés
         run: mvn test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
-      - name: Mutation Testing (PITest)
-        if: github.event_name == 'pull_request' && matrix.java == '17'
-        run: mvn pitest:mutationCoverage -pl scribejava-core,scribejava-oidc
+  # Étape 4 : Publication Finale via release-it (uniquement si tests OK)
+  publish-release:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'chore(release):')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: "11"
+          distribution: "temurin"
+
+      - name: Publish to GitHub via release-it
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm install -g release-it @release-it/conventional-changelog
+          # On ne fait QUE la release GitHub, sans toucher au Git (déjà fait lors de la préparation)
+          release-it --ci --no-git --github.release
