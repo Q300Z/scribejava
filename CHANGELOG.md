@@ -1,3 +1,22 @@
+# 📓 Journal des modifications (Changelog)
+
+# [1.1.0](https://github.com/Q300Z/scribejava/compare/v9.2.4...v1.1.0) (2026-03-02)
+
+
+### Bug Fixes
+
+* **core:** improve OIDC support and JSON performance ([aef74ff](https://github.com/Q300Z/scribejava/commit/aef74ffc391bb4a58c0c2a728aa9128a541fa45e))
+* **core:** prevent resource leaks and improve request traceability ([ab02e87](https://github.com/Q300Z/scribejava/commit/ab02e87dcca4e73887e0d6ed630a4ca5f4bf16c9))
+* **helpers:** stabilize disk cache and cleanup dependencies ([616b838](https://github.com/Q300Z/scribejava/commit/616b8382c4808d6105a642f7c1ee2a5488013edc))
+
+
+### Features
+
+* **helpers:** add disk cache and improved serialization ([85af355](https://github.com/Q300Z/scribejava/commit/85af355684abeb9323a3681ebd6cddf96fd3cef3))
+* **oidc:** add typed OidcServiceBuilder to eliminate manual casts ([7ce3d33](https://github.com/Q300Z/scribejava/commit/7ce3d330ce79d10d83a84790224b1aa736ea0064))
+* **oidc:** apply enterprise formatting to metadata ([620dfd6](https://github.com/Q300Z/scribejava/commit/620dfd6ffe04a2e6e43d53249ca902ff262ff3f6))
+* **oidc:** enhance DX and audit capabilities ([c3022f6](https://github.com/Q300Z/scribejava/commit/c3022f68b09f1af71d1db67ce4b5459652bab070))
+
 # [](https://github.com/Q300Z/scribejava/compare/v9.2.3...v) (2026-02-27)
 
 
@@ -125,6 +144,3 @@
 * Revert "[maven-release-plugin] prepare release scribejava-2.5.0" ([852bc7e](https://github.com/Q300Z/scribejava/commit/852bc7efed6907cb04de559b863fd5ac7b5d240e))
 * Revert "[maven-release-plugin] prepare for next development iteration" ([826be08](https://github.com/Q300Z/scribejava/commit/826be08321647c3feced154871db38dd00d0c055))
 * Revert "Removed the @Override annotation as it resulted in a compilation error." ([4bb6e49](https://github.com/Q300Z/scribejava/commit/4bb6e49b61ee27bc8c9fde2c62823cbd4fc3249b))
-
-
-
