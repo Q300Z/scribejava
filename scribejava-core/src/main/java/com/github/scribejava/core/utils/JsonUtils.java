@@ -43,8 +43,10 @@ public final class JsonUtils {
   private static final String JSON_STRING_REGEX = "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"";
   private static final Pattern JSON_TOKEN_PATTERN =
       Pattern.compile(
-          JSON_STRING_REGEX + "\\s*:\\s*("
-              + JSON_STRING_REGEX + "|"
+          JSON_STRING_REGEX
+              + "\\s*:\\s*("
+              + JSON_STRING_REGEX
+              + "|"
               + "(-?\\d+(?:\\.\\d+)?)|"
               + "(true|false|null)|"
               + "(\\[[^\\]]*\\])|"

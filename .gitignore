@@ -15,6 +15,7 @@ nbproject
 target/
 dist/
 release_notes.txt
+node_modules/
 
 # Local CI artifacts
 ci-logs/
