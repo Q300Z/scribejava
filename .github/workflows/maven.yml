@@ -2,11 +2,13 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
-    branches: [master]
+    branches: [ master ]
+  workflow_dispatch:
 
 permissions:
+
   contents: write
 
 jobs:
@@ -90,7 +92,9 @@ jobs:
   # Étape 4 : Publication Finale via release-it (uniquement si tests OK)
   publish-release:
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'chore(release):')
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'chore(release):')) ||
+      (github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
