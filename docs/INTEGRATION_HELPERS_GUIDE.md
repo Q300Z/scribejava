@@ -76,12 +76,25 @@ public class MyRepo implements TokenRepository<String, ExpiringTokenWrapper> {
 Le `TokenAutoRenewer` est conçu pour les environnements à forte concurrence. 
 - **Verrouillage Intelligent** : Si 10 requêtes concurrentes détectent que le jeton est expiré, **un seul appel réseau** de rafraîchissement est fait. Les 9 autres attendent et réutilisent le nouveau jeton.
 - **Buffer d'Expiration** : Par défaut, il rafraîchit le jeton s'il expire dans moins de 60 secondes pour éviter les échecs en plein milieu d'une requête.
+- **Sérialisation** : Les jetons et leurs wrappers implémentent `Serializable` pour être stockés en base de données ou en session.
 
 ```java
 TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(
     repository,
     oldToken -> service.refreshAccessToken(oldToken.getRefreshToken())
 );
+```
+
+### Cache de Découverte Persistant (`DiskOidcDiscoveryCache`)
+Pour survivre aux redémarrages serveur sans surcharger l'émetteur (IdP), utilisez le cache sur disque.
+
+```java
+File cacheFile = new File("oidc-discovery-cache.json");
+// TTL de 24h par défaut
+DiskOidcDiscoveryCache diskCache = new DiskOidcDiscoveryCache(cacheFile);
+
+// Lors du login :
+OidcProviderMetadata metadata = diskCache.getMetadata("google", discoveryService);
 ```
 
 ### Exécution du Client (`AuthorizedClientService`)

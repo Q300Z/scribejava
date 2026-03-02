@@ -45,13 +45,26 @@ else
     exit 1
 fi
 
-echo -e "${BLUE}📚 Étape 2 : Génération de la documentation (Docker JDK 11)...${NC}"
+echo -e "${BLUE}📚 Étape 2 : Documentation et Qualité Markdown (JDK 11)...${NC}"
 # On utilise le service docs défini dans docker-compose
 if docker compose -f docker-compose.ci.yml run --rm docs > "$LOG_DIR/docs.log" 2>&1; then
-    echo -e "  ${GREEN}✅ docs : SUCCESS${NC}"
-    echo -e "  📂 Documentation disponible dans docs-output/"
+    echo -e "  ${GREEN}✅ javadoc : SUCCESS${NC}"
 else
-    echo -e "  ${RED}❌ docs : FAILED (voir $LOG_DIR/docs.log)${NC}"
+    echo -e "  ${RED}❌ javadoc : FAILED (voir $LOG_DIR/docs.log)${NC}"
+fi
+
+# Nouveau : Lintage Markdown
+if docker compose -f docker-compose.ci.yml run --rm markdownlint > "$LOG_DIR/markdownlint.log" 2>&1; then
+    echo -e "  ${GREEN}✅ markdownlint : SUCCESS${NC}"
+else
+    echo -e "  ${RED}❌ markdownlint : FAILED (voir $LOG_DIR/markdownlint.log)${NC}"
+fi
+
+# Nouveau : Vérification des liens
+if docker compose -f docker-compose.ci.yml run --rm lychee > "$LOG_DIR/lychee.log" 2>&1; then
+    echo -e "  ${GREEN}✅ lychee (links) : SUCCESS${NC}"
+else
+    echo -e "  ${RED}❌ lychee (links) : FAILED (voir $LOG_DIR/lychee.log)${NC}"
 fi
 
 echo -e "${BLUE}🧪 Étape 3 : Tests multi-JDK en parallèle...${NC}"

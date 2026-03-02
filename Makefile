@@ -23,6 +23,12 @@ test-parallel: ## Lance les tests en parallèle (1 thread par coeur)
 lint: ## Analyse statique (Checkstyle, PMD, Spotless, License)
 	mvn checkstyle:check pmd:check spotless:check license:check
 
+lint-docs: ## Analyse la qualité de la documentation (Markdown & Liens)
+	@echo "\033[36m🔍 Lintage Markdown...\033[0m"
+	@docker compose -f docker-compose.ci.yml run --rm markdownlint
+	@echo "\033[36m🔍 Vérification des liens...\033[0m"
+	@docker compose -f docker-compose.ci.yml run --rm lychee
+
 format: ## Formate le code (Google Style) et répare les headers de licence
 	mvn spotless:apply license:format
 

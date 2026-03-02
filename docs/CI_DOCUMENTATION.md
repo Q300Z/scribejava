@@ -12,12 +12,14 @@ Le pipeline sépare strictement la préparation humaine (Local) de la certificat
 graph TD
     subgraph Local ["💻 Poste Développeur (LOCAL)"]
         Trigger[make release] --> CertPre[ci-local.sh: Multi-JDK Docker]
-        CertPre --> Bump[release-it: Bump SemVer & Tag Git]
+        CertPre --> DocLint[Audit Markdown & Liens]
+        DocLint --> Bump[release-it: Bump SemVer & Tag Git]
         Bump --> Push[git push master + tags]
     end
 
     subgraph Cloud ["☁️ GitHub Actions (CLOUD)"]
         Push --> MavenCI[Workflow: maven.yml]
+        MavenCI --> GHDocLint[Audit Markdown & Liens]
         subgraph "🧪 Matrice de Certification"
             MavenCI --> JDK8[JDK 8]
             MavenCI --> JDK11[JDK 11]
@@ -26,7 +28,7 @@ graph TD
             MavenCI --> JDK25[JDK 25]
         end
         
-        JDK8 & JDK11 & JDK17 & JDK21 & JDK25 --> Success{Tests OK ?}
+        JDK8 & JDK11 & JDK17 & JDK21 & JDK25 & GHDocLint --> Success{Tests OK ?}
         Success -- Oui --> Publish[release-it: GitHub Release + JARs]
         Success -- Non --> Abort[❌ Release bloquée]
     end
@@ -39,12 +41,11 @@ graph TD
 
 ## 2. Standardisation et Maintenance
 
-L'intégrité du projet est maintenue par des processus automatisés de surveillance :
+L'intégrité du projet est maintenue par des processus automatisés :
 
-*   **Dependabot (`dependabot.yml`)** : Surveille les dépendances Maven (hebdomadaire) et les GitHub Actions (mensuel). Toute mise à jour génère une PR testée par le CI.
-*   **Templates de Contribution** :
-    *   `bug_report.md` : Force la fourniture du JDK et du client HTTP pour un diagnostic immédiat.
-    *   `PULL_REQUEST_TEMPLATE.md` : Checklist imposant le respect des principes **SOLID**, du lintage et du Mutation Testing.
+*   **Zero-Dependency Enforcement** : Le plugin `maven-enforcer` bloque le build si une dépendance interdite (Jackson, Nimbus, org.json) est détectée au runtime.
+*   **Pure Java Certification** : Depuis la v9.2.4, le module `integration-helpers` est certifié sans aucune dépendance de logging (retrait de SLF4J), garantissant une portabilité totale sans conflit de classpath.
+*   **Dependabot** : Surveillance hebdomadaire des vulnérabilités.
 
 ---
 
@@ -55,22 +56,21 @@ Nous utilisons **`release-it`** comme moteur unique pour garantir un versionnage
 ### Le Triple Verrou de Sécurité :
 1.  **Verrou Local** : `make release` lance `./ci-local.sh`. La release s'arrête si un test casse sur un des 5 JDKs.
 2.  **Verrou Cloud** : Le workflow `maven.yml` ré-exécute l'intégralité de la matrice sur les serveurs GitHub pour audit.
-3.  **Verrou de Publication** : La commande `release-it --github.release` n'est invoquée que si le point 2 est un succès total.
+3.  **Verrou de Publication** : La commande `release-it --github.release` n'est invoquée que si les tests cloud sont un succès total.
 
 ---
 
 ## 4. Documentation et Artefacts "Premium DX"
 
-ScribeJava v9.2.4+ automatise la diffusion de la connaissance technique :
-
-*   **Javadoc Automatisée (`deploy-docs.yml`)** : À chaque push sur `master`, la Javadoc agrégée est recompilée et publiée sur GitHub Pages.
-*   **JARs Unifiés** : Le hook `before:github:release` de `release-it` produit des JARs contenant les `.class` et les sources de documentation pour une aide contextuelle immédiate dans les IDE.
+*   **Javadoc Automatisée (`deploy-docs.yml`)** : Publication continue sur GitHub Pages.
+*   **JARs Unifiés** : Les JARs de distribution incluent les `.class`, les sources et la documentation agrégée.
+*   **Typed Builders** : Les builders OIDC retournent désormais nativement le type `OidcService`, éliminant les `ClassCastException` et améliorant l'expérience développeur.
 
 ---
 
 ## 5. Matrice de Certification multi-JDK
 
-Le script `ci-local.sh` est le cœur battant de la robustesse du projet :
+Le script `ci-local.sh` est le garant de la robustesse :
 
 ```mermaid
 sequenceDiagram
@@ -90,4 +90,4 @@ sequenceDiagram
 ```
 
 ---
-*Dernière mise à jour : Février 2026 - Certifié Enterprise Edition v9.2.4* ✅
+*Dernière mise à jour : Mars 2026 - Certifié Enterprise Edition v9.2.4* ✅

@@ -18,15 +18,34 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: "17"
-          distribution: "temurin"
-          cache: "maven"
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
       - name: Static Analysis
         run: mvn spotless:check checkstyle:check pmd:check license:check
 
+  # Étape 1.1 : Audit de la Documentation
+  lint-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Markdown Lint
+        uses: davidanson/markdownlint-cli2-action@v16
+        with:
+          globs: |
+            docs/*.md
+            README.md
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1.9.0
+        with:
+          args: --verbose --no-progress "docs/*.md" "README.md"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # Étape 2 : Compilation
   build:
-    needs: lint
+    needs: [lint, lint-docs]
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -95,6 +95,20 @@ services:
       - docs-data:/app/target/site/apidocs
     command: javadoc:aggregate -Dmaven.javadoc.skip=false -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
+  markdownlint:
+    image: davidanson/markdownlint-cli2:v0.13.0
+    volumes:
+      - .:/work
+    working_dir: /work
+    command: ["docs/*.md", "README.md"]
+
+  lychee:
+    image: lycheeverse/lychee:latest
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["--verbose", "--no-progress", "docs/*.md", "README.md"]
+
 volumes:
   maven-cache:
   docs-data:
