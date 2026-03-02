@@ -23,6 +23,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
+      - name: Install artifacts for analysis
+        run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
       - name: Static Analysis
         run: mvn spotless:check checkstyle:check pmd:check license:check
 
