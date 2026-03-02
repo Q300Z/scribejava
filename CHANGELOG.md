@@ -1,5 +1,7 @@
 # 📓 Journal des modifications (Changelog)
 
+## [9.2.6](https://github.com/Q300Z/scribejava/compare/v1.1.1...v9.2.6) (2026-03-02)
+
 # [1.1.0](https://github.com/Q300Z/scribejava/compare/v9.2.4...v1.1.0) (2026-03-02)
 
 
