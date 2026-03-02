@@ -9,10 +9,11 @@ ScribeJava v9 intègre les derniers standards de sécurité de l'IETF pour prot�
 Le DPoP empêche l'utilisation d'un jeton volé en le liant mathématiquement à une paire de clés privée/publique détenue
 par le client.
 
-### Mise en œuvre
+### Mise en œuvre DPoP
 
 ```java
 // 1. Créez un générateur de preuve (fourni dans le module OIDC)
+
 DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator(myKeyPair);
 
 // 2. Configurez le service
@@ -22,6 +23,7 @@ OAuth20Service service = new ServiceBuilder(clientId)
     .build(GoogleApi20.instance());
 
 // Les jetons obtenus seront de type 'DPoP' et les requêtes signées automatiquement.
+
 ```
 
 ---
@@ -31,14 +33,16 @@ OAuth20Service service = new ServiceBuilder(clientId)
 Le PAR (RFC 9126) améliore la sécurité en envoyant les paramètres d'autorisation directement au serveur via une requête
 POST sécurisée, plutôt que de les faire transiter par l'URL du navigateur.
 
-### Mise en œuvre
+### Mise en œuvre PAR
 
 ```java
 // ScribeJava gère le PAR automatiquement si l'API le supporte
+
 PushedAuthorizationResponse parResponse = service.pushAuthorizationRequest(new AuthorizationCodeGrant(code));
 
 // Redirigez l'utilisateur vers l'URI fournie par le serveur
 String authUrl = parResponse.getRequestUri();
+
 ```
 
 ---
@@ -46,7 +50,9 @@ String authUrl = parResponse.getRequestUri();
 ## 💡 Recommandations
 
 1. **Toujours utiliser PKCE** : Même pour les clients confidentiels (serveur).
+
 2. **Rotation des clés** : Changez vos clés DPoP régulièrement.
+
 3. **Scopes limités** : Ne demandez que le strict nécessaire.
 
 ---
@@ -55,12 +61,16 @@ String authUrl = parResponse.getRequestUri();
 
 Avant de déployer votre intégration, vérifiez ces 5 points :
 
-1.  [ ] **PKCE Activé** : Utilisez-vous `.pkce(true)` dans votre `ServiceBuilder` ?
-2.  [ ] **HTTPS Uniquement** : Vos redirections (`callback`) et endpoints sont-ils tous en HTTPS ?
-3.  [ ] **Secret protégé** : Votre `apiSecret` est-il chargé via une variable d'environnement (et non en dur) ?
-4.  [ ] **Validation ID Token** : Si vous utilisez OIDC, validez-vous systématiquement le jeton (Signature + `iss` +
+1. [ ] **PKCE Activé** : Utilisez-vous `.pkce(true)` dans votre `ServiceBuilder` ?
+
+2. [ ] **HTTPS Uniquement** : Vos redirections (`callback`) et endpoints sont-ils tous en HTTPS ?
+
+3. [ ] **Secret protégé** : Votre `apiSecret` est-il chargé via une variable d'environnement (et non en dur) ?
+
+4. [ ] **Validation ID Token** : Si vous utilisez OIDC, validez-vous systématiquement le jeton (Signature + `iss` +
     `aud`) ?
-5.  [ ] **DPoP (Si sensible)** : Pour les APIs critiques (paiement, santé), avez-vous activé le DPoP pour lier le jeton
+
+5. [ ] **DPoP (Si sensible)** : Pour les APIs critiques (paiement, santé), avez-vous activé le DPoP pour lier le jeton
     à votre client ?
 
 ## 4. JWT Secured Authorization Request (JAR) - RFC 9101
@@ -73,6 +83,7 @@ vous pouvez signer la requête.
 Utilisez `JarAuthorizationRequestConverter` (du module `scribejava-oidc`) dans le builder.
 
 ```java
+
 // Clé privée pour signer le JWT
 JWK signingKey = JWK.parse("{\"kty\":\"RSA\", ...}");
 
@@ -92,6 +103,7 @@ OAuth20Service service = new ServiceBuilder("client-id")
 
 // L'URL générée contiendra ?client_id=...&request=eyJ...
 String url = service.getAuthorizationUrl();
+
 ```
 
 ### Combinaison avec PAR (Pushed Authorization Requests)
@@ -100,6 +112,7 @@ Si vous activez à la fois JAR et PAR, ScribeJava enverra le JWT signé (`reques
 PAR (`POST /par`). C'est la configuration **la plus sécurisée** possible.
 
 ```java
+
 // JAR + PAR = Sécurité Maximale
 OAuth20Service service = new ServiceBuilder("client-id")
     .authorizationRequestConverter(new JarAuthorizationRequestConverter(...)) // JAR
@@ -107,6 +120,7 @@ OAuth20Service service = new ServiceBuilder("client-id")
 
 // Pousse le JWT signé au serveur
 PushedAuthorizationResponse response = service.pushAuthorizationRequestAsync(...).get();
+
 ```
 
 ---
@@ -118,11 +132,13 @@ Si votre serveur d'autorisation gère plusieurs ressources (APIs) avec des permi
 ### Mise en œuvre
 
 ```java
+
 AccessTokenRequestParams params = AccessTokenRequestParams.create(code)
     .resource("https://api.monservice.com/v1");
 
 OAuth2AccessToken token = service.getAccessToken(params);
+
 ```
 
 ---
-[⬅️ Retour à l'accueil](./README.md)
+[⬅️ Retour à l'accueil](../README.md)

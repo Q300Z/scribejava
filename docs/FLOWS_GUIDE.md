@@ -5,9 +5,11 @@ Ce document détaille les mécanismes internes de ScribeJava v9.2.x, illustrant 
 ---
 
 ## 1. Flux de Connexion OIDC (Login)
+
 Ce flux intègre la **Découverte Dynamique**, le **PKCE** et la **Validation Native** de l'ID Token.
 
 ```mermaid
+
 sequenceDiagram
     participant App as Application Client
     participant Disc as OidcDiscoveryService
@@ -34,20 +36,27 @@ sequenceDiagram
     App->>Service: validateIdToken(token, nonce)
     Service->>Service: IdTokenValidator.validate()
     Service-->>App: IdToken (Claims décodés)
+
 ```
 
 **Classes Clés :**
-*   `OidcDiscoveryService` : Gère l'appel au point de terminaison de découverte.
-*   `AuthorizationUrlBuilder` : Orchestre la construction de l'URL et l'initialisation du `PKCE`.
-*   `AuthorizationCodeGrant` : Stratégie d'échange du code.
-*   `IdTokenValidator` : Valide la signature cryptographique (RSA/EC) et les claims (`iss`, `aud`, `exp`).
+
+* `OidcDiscoveryService` : Gère l'appel au point de terminaison de découverte.
+
+* `AuthorizationUrlBuilder` : Orchestre la construction de l'URL et l'initialisation du `PKCE`.
+
+* `AuthorizationCodeGrant` : Stratégie d'échange du code.
+
+* `IdTokenValidator` : Valide la signature cryptographique (RSA/EC) et les claims (`iss`, `aud`, `exp`).
 
 ---
 
 ## 2. Flux de Déconnexion (Logout)
+
 ScribeJava supporte la déconnexion hybride : technique (révocation) et utilisateur (fin de session).
 
 ```mermaid
+
 sequenceDiagram
     participant App as Application Client
     participant Service as OidcService
@@ -62,18 +71,23 @@ sequenceDiagram
     App->>App: OidcSessionHelper.getLogoutUrl()
     App->>IdP: Redirection Navigateur (end_session_endpoint)
     IdP-->>App: Redirection vers post_logout_redirect_uri
+
 ```
 
 **Points de terminaison impliqués :**
-*   **Revocation Endpoint** : Défini par `metadata.getRevocationEndpoint()`.
-*   **End Session Endpoint** : URL vers laquelle l'utilisateur est redirigé pour le Logout SSO.
+
+* **Revocation Endpoint** : Défini par `metadata.getRevocationEndpoint()`.
+
+* **End Session Endpoint** : URL vers laquelle l'utilisateur est redirigé pour le Logout SSO.
 
 ---
 
 ## 3. Flux de Renouvellement (Refresh Token)
+
 Gestion de la persistance sans intervention de l'utilisateur.
 
 ```mermaid
+
 sequenceDiagram
     participant App as Application Client
     participant Service as OidcService
@@ -85,21 +99,27 @@ sequenceDiagram
     Grant->>IdP: POST /token (grant_type=refresh_token)
     IdP-->>Service: New OAuth2AccessToken
     Service-->>App: token
+
 ```
 
 **Classes Clés :**
-*   `RefreshTokenGrant` : Encapsule les paramètres `refresh_token` et `client_id/secret`.
-*   `OAuth2AccessToken` : Contient le nouveau jeton et sa date d'expiration calculée via `getExpiresAt()`.
+
+* `RefreshTokenGrant` : Encapsule les paramètres `refresh_token` et `client_id/secret`.
+
+* `OAuth2AccessToken` : Contient le nouveau jeton et sa date d'expiration calculée via `getExpiresAt()`.
 
 ---
 
 ## 4. Orchestration Enterprise (Integration Helpers)
+
 Le module `integration-helpers` automatise la gestion du cycle de vie des jetons et la sécurité CSRF, évitant ainsi au développeur de manipuler manuellement les jetons.
 
 ### 4.1. Fin de Flux Orchestrée (Callback)
+
 Le `OidcAuthFlowCoordinator` centralise toutes les validations de retour.
 
 ```mermaid
+
 sequenceDiagram
     participant Browser as Navigateur
     participant App as Contrôleur Applicatif
@@ -110,7 +130,7 @@ sequenceDiagram
 
     Browser->>App: GET /callback?code=XYZ&state=ABC
     App->>Coord: finishAuthorization(userId, code, state, context)
-    
+
     rect rgb(240, 240, 240)
     Note over Coord: 1. Validation CSRF Automatique
     Coord->>Coord: validateState(received, expected)
@@ -119,7 +139,7 @@ sequenceDiagram
     Coord->>Service: getAccessToken(Grant + PKCE Verifier)
     Service->>IdP: POST /token
     IdP-->>Service: OAuth2AccessToken
-    
+
     rect rgb(240, 240, 240)
     Note over Coord: 2. Validation OIDC Automatique
     Coord->>Service: validateIdToken(token, nonce)
@@ -129,12 +149,15 @@ sequenceDiagram
     Coord->>Repo: save(userId, ExpiringTokenWrapper)
     Coord-->>App: OidcAuthResult (Token + Claims consolidés)
     App-->>Browser: Redirection vers l'espace membre
+
 ```
 
 ### 4.2. Appel API avec Auto-Renouvellement
+
 Le `AuthorizedClientService` exécute des requêtes sans que le développeur ne se soucie de l'expiration du jeton.
 
 ```mermaid
+
 sequenceDiagram
     participant Business as Logique Métier
     participant Client as AuthorizedClientService
@@ -162,6 +185,7 @@ sequenceDiagram
     Client->>Service: execute(request)
     Service-->>Client: Response
     Client-->>Business: Response
+
 ```
 
 ---
@@ -177,7 +201,9 @@ sequenceDiagram
 | **Stockage** | Code spécifique à l'app | Abstraction via `TokenRepository` |
 
 ---
+
 ## 🛠️ Matrice des Méthodes Enterprise
+
 
 | Opération | Classe | Méthode | Standard |
 | :--- | :--- | :--- | :--- |
@@ -190,9 +216,11 @@ sequenceDiagram
 ---
 
 ## 5. Résilience Industrielle (Retry Policy)
+
 Le moteur de ScribeJava intègre une boucle de résilience capable de gérer les erreurs transitoires (Rate Limit, Instabilité serveur).
 
 ```mermaid
+
 graph TD
     Start[OAuthService.execute] --> Req[Exécution de la requête]
     Req --> Resp{Code de réponse ?}
@@ -203,33 +231,39 @@ graph TD
     Check -- Oui --> Success
     Check -- Non --> Wait[Attente delayMs x exponential]
     Wait --> Req
+
 ```
 
 ---
 
 ## 6. Observabilité et Diagnostic (Redaction)
+
 La sécurité est maintenue même dans les logs grâce au mécanisme de masquage automatique des secrets.
 
 ```mermaid
+
 sequenceDiagram
     participant App as Logique Métier
     participant Req as OAuthRequest
     participant Log as OAuthLogger / cURL
-    
+
     App->>Req: signRequest(token)
     App->>Req: toCurlCommand() / toDebugString()
     Note over Req: Analyse des headers & params
     Req->>Req: Identifie 'Authorization', 'secret', 'token'
     Req->>Req: Remplace les valeurs par [REDACTED]
     Req-->>Log: Chaîne sécurisée pour les logs
+
 ```
 
 ---
 
 ## 7. Cryptographie Native OIDC (Validation JWT)
+
 ScribeJava n'utilise pas de bibliothèque externe (Zéro-Dépendance) pour valider les signatures.
 
 ```mermaid
+
 flowDiagram
     ID[ID Token String] --> Parse[Jwt.parse: Base64 Decoding]
     Parse --> Header[Header: kid, alg]
@@ -240,39 +274,48 @@ flowDiagram
     Refresh --> Crypto
     Crypto --> Claims[Validation temporelle: iat < now < exp]
     Claims --> Final[IdToken Validé]
+
 ```
 
 ---
 
 ## 8. Authentification Client (Pattern Strategy)
+
 Flexible pour s'adapter à toutes les exigences des fournisseurs.
 
 ```mermaid
+
 graph LR
     Service[OAuth20Service] --> Strategy{ClientAuthentication}
     Strategy -- Default --> Basic[HttpBasic: Header Authorization: Basic base64]
     Strategy -- Azure/Custom --> Body[RequestBody: params client_id & client_secret]
+
 ```
 
 ---
 
 ## 9. Pipeline d'Intercepteurs (Extensibilité)
+
 Modification modulaire des requêtes avant l'envoi.
 
 ```mermaid
+
 graph LR
     Start[Requête Brute] --> I1[Interceptor 1: Headers Custom]
     I1 --> I2[Interceptor 2: PKCE Injection]
     I2 --> I3[Interceptor 3: DPoP Proof]
     I3 --> Exec[Exécution Client HTTP]
+
 ```
 
 ---
 
 ## 10. Liaison Cryptographique DPoP (RFC 9449)
+
 Lien indissociable entre le jeton et la clé privée du client.
 
 ```mermaid
+
 sequenceDiagram
     participant App as Application
     participant DPoP as DPoPProofCreator
@@ -286,14 +329,17 @@ sequenceDiagram
     App->>IdP: Request + Jeton Bearer + En-tête DPoP
     IdP->>IdP: Vérifie la signature du JWT avec la clé publique fournie
     IdP->>IdP: Vérifie que 'ath' correspond au jeton envoyé
+
 ```
 
 ---
 
 ## 11. Pushed Authorization Requests (PAR - RFC 9126)
+
 Le flux le plus sécurisé pour l'initiation : les paramètres ne passent plus par l'URL du navigateur.
 
 ```mermaid
+
 sequenceDiagram
     participant App as Application
     participant Builder as AuthorizationUrlBuilder
@@ -307,14 +353,17 @@ sequenceDiagram
     Handler-->>Builder: PushedAuthorizationResponse
     Builder->>Builder: Génère URL courte : ?request_uri=...
     Builder-->>App: URL d'autorisation sécurisée
+
 ```
 
 ---
 
 ## 12. Polling du Device Flow (RFC 8628)
+
 Gestion intelligente de l'attente active pour les terminaux IoT/Console.
 
 ```mermaid
+
 graph TD
     Start[Début du Polling] --> Req[POST /token grant_type=device_code]
     Req --> Resp{Réponse IdP ?}
@@ -324,14 +373,17 @@ graph TD
     Resp -- "400 access_denied / Autre" --> Fail[Lève OAuthResponseException]
     Wait --> Req
     SD --> Wait
+
 ```
 
 ---
 
 ## 13. Découverte du Client HTTP (ServiceLoader)
+
 Comment ScribeJava maintient son autonomie "Zero-Dependency" au runtime.
 
 ```mermaid
+
 graph LR
     Service[OAuthService Constructor] --> SL[java.util.ServiceLoader]
     SL --> Look[Cherche HttpClientProvider.class]
@@ -339,33 +391,39 @@ graph LR
     Look -- "Non trouvé" --> Default[Instancie JDKHttpClient natif]
     Load --> Ready[Service prêt avec HttpClient optimisé]
     Default --> Ready
+
 ```
 
 ---
 
 ## 14. JWT-Secured Authorization Request (JAR - RFC 9101)
+
 Encapsulation cryptographique de la demande d'autorisation.
 
 ```mermaid
+
 sequenceDiagram
     participant Builder as AuthorizationUrlBuilder
     participant Conv as JarAuthorizationRequestConverter
     participant Sign as RequestObjectService
-    
+
     Builder->>Conv: convert(params_plats)
     Conv->>Sign: createRequestObject(params)
     Sign->>Sign: Signe JWT (Params -> Claims)
     Sign-->>Conv: signed_jwt
     Conv-->>Builder: Map(request = signed_jwt, client_id = ...)
     Builder->>Builder: Génère URL : ?request=eyJhbG...
+
 ```
 
 ---
 
 ## 15. Enregistrement Dynamique (RFC 7591)
+
 Auto-provisioning pour les environnements de confiance ou de test.
 
 ```mermaid
+
 sequenceDiagram
     participant App as Logique Métier
     participant Reg as OidcRegistrationService
@@ -377,14 +435,17 @@ sequenceDiagram
     IdP->>IdP: Valide et crée le client
     IdP-->>Reg: 201 Created (client_id, client_secret, ...)
     Reg-->>App: Map des identifiants générés
+
 ```
 
 ---
 
 ## 16. Orchestration Multi-Tenant (OAuthServiceRegistry)
+
 Centralisation de la gestion de multiples fournisseurs et clients au sein d'une même instance applicative.
 
 ```mermaid
+
 graph LR
     User[UserId] --> Reg[OAuthServiceRegistry]
     Reg --> Map{Lookup by providerId}
@@ -394,14 +455,17 @@ graph LR
     ACS1 --> S1[OAuth20Service]
     ACS2 --> S2[OAuth20Service]
     ACS3 --> S3[OAuth20Service]
+
 ```
 
 ---
 
 ## 17. Moteur JSON Natif (Zéro-Dépendance)
+
 Analyse récursive via expressions régulières pour garantir l'autonomie totale du runtime.
 
 ```mermaid
+
 graph TD
     JSON[JSON String] --> Loop[JsonUtils.parse loop]
     Loop --> Match{Regex Pattern Match}
@@ -413,14 +477,17 @@ graph TD
     Arr --> Loop
     Map --> Loop
     Loop -- "Fin de chaîne" --> Result[Map finale d'objets Java]
+
 ```
 
 ---
 
 ## 18. Système d'Audit et d'Événements (Hooks)
+
 Points d'ancrage pour le monitoring et la traçabilité métier.
 
 ```mermaid
+
 sequenceDiagram
     participant App as Logique Métier
     participant Service as OAuth20Service
@@ -433,25 +500,28 @@ sequenceDiagram
     Net-->>Service: Réponse
     Service->>Hook: onTokenReceived(token)
     Service-->>App: Response
-    
+
     Note over Service, Hook: En cas d'échec
     Service->>Hook: onError(exception)
+
 ```
 
 ---
 
 ## 19. Pont des Adaptateurs HTTP (Bridge Pattern)
+
 Découplage entre les modèles ScribeJava et les bibliothèques tierces.
 
 ```mermaid
+
 graph LR
     SR[Scribe Request] --> Bridge[HttpClient Implementation]
     Bridge --> Native[Native Model]
-    
+
     subgraph OkHttp
     Native1[okhttp3.Request]
     end
-    
+
     subgraph Armeria
     Native2[com.linecorp.armeria.HttpRequest]
     end
@@ -460,14 +530,17 @@ graph LR
     Bridge -- "armeria-adaptor" --> Native2
     Native1 -- "Execute" --> Resp1[okhttp3.Response]
     Resp1 --> SResp[Scribe Response]
+
 ```
 
 ---
 
 ## 20. Stratégie de Cache de Découverte OIDC
+
 Optimisation des performances et réduction de la charge réseau IdP.
 
 ```mermaid
+
 graph TD
     Start[OidcDiscoveryCache.getMetadata] --> Check{Présent en cache ?}
     Check -- Oui --> Return[Retourne les métadonnées]
@@ -477,6 +550,7 @@ graph TD
     Check2 -- Oui --> Fetch[Appel Réseau /.well-known]
     Fetch --> Store[Mise en cache thread-safe]
     Store --> Return
+
 ```
 
 ---

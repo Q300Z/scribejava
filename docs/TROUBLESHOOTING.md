@@ -9,6 +9,7 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 ### ❌ `java.lang.NoClassDefFoundError` ou `ClassNotFoundException`
 
 * **Cause** : Vous utilisez une version de Java incompatible ou il manque une dépendance optionnelle.
+
 * **Solution** :
   * Si l'erreur concerne `jackson`, assurez-vous d'avoir ajouté une bibliothèque de JSON (Jackson est utilisé par
     défaut dans `apis` et `oidc`).
@@ -19,6 +20,7 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 
 * **Cause** : Votre JDK 8 est trop vieux et ne supporte pas les suites de chiffrement modernes demandées par le
   fournisseur (ex: Google, GitHub).
+
 * **Solution** :
   * Mettez à jour votre JDK vers une version récente (ex: OpenJDK 8u251+).
   * Ou forcez TLS 1.2 au démarrage : `-Dhttps.protocols=TLSv1.2`.
@@ -31,8 +33,10 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 
 * **Erreur** : `Annotation 'Mock' should be alone on line` ou
   `Block tags have to appear in the order... [AtclauseOrder]`.
+
 * **Cause** : Conflit entre les règles strictes de Checkstyle et le formatage automatique Spotless, ou mauvais ordre des
   balises `@param`, `@return`, `@deprecated` dans la Javadoc.
+
 * **Solution** :
   * Lancez `make format` (ou `mvn spotless:apply`) pour le style.
   * Respectez l'ordre OIDC/Javadoc : `@param` -> `@return` -> `@throws` -> `@see` -> `@deprecated`.
@@ -40,7 +44,9 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 ### ❌ Avertissements de Build (Duplicate Plugin Declaration)
 
 * **Avertissement** : `'build.pluginManagement.plugins.plugin.(groupId:artifactId)' must be unique`.
+
 * **Cause** : Le plugin `maven-surefire-plugin` est déclaré deux fois avec des versions différentes dans le `pom.xml`.
+
 * **Solution** : Supprimez la version obsolète (ex: 2.22.2) pour ne conserver que la version stable (ex: 3.0.0-M7) dans
   la section `pluginManagement`.
 
@@ -52,6 +58,7 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 
 * **Cause** : L'émetteur (`iss`) présent dans le jeton ne correspond pas à l'URL configurée dans votre
   `OidcDiscoveryService`.
+
 * **Solution** : Vérifiez que l'URL de l'issuer est exacte (attention aux slashs de fin : `https://accounts.google.com`
   vs `https://accounts.google.com/`).
 
@@ -62,11 +69,13 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 ### ❌ `IllegalArgumentException: No token found for key`
 
 * **Cause** : Vous tentez d'utiliser `TokenAutoRenewer.getValidToken(key)` pour un utilisateur qui n'a pas encore de jeton stocké dans votre `TokenRepository`.
+
 * **Solution** : Avant d'utiliser le renewer, assurez-vous que l'utilisateur a effectué le flux d'autorisation complet et que vous avez sauvegardé son premier jeton via `repository.save(key, wrapper)`.
 
 ### ❌ `NoSuchMethodError` lors du build (Spotless) sous JDK 25
 
 * **Cause** : Le plugin de formatage Spotless 2.43.0 (utilisant google-java-format 1.17.0) est incompatible avec les API internes du JDK 25.
+
 * **Solution** : Utilisez le script `./ci-local.sh` qui isole le lintage sur le JDK 17 et ne lance que les tests sur le JDK 25 via Docker.
 
 ---
@@ -79,12 +88,15 @@ ScribeJava utilise **SLF4J** pour son logging. Pour voir le détail des requête
 OAuth) :
 
 1. Ajoutez une implémentation SLF4J (ex: `logback` ou `slf4j-simple`).
+
 2. Passez le niveau de log à `DEBUG` pour le package `com.github.scribejava`.
 
 **Exemple logback.xml :**
 
 ```xml
+
 <logger name="com.github.scribejava" level="DEBUG" />
+
 ```
 
 ### 🛰️ Mode "Verbose" (Sortie standard)
@@ -92,8 +104,10 @@ OAuth) :
 Si vous ne voulez pas configurer de framework de log, vous pouvez activer la sortie standard sur le `OAuthRequest` :
 
 ```java
+
 request.setCharset("UTF-8");
 // Le debug se fait ensuite via votre logger SLF4J configuré
+
 ```
 
 ---
@@ -105,8 +119,10 @@ jetons et flux :
 
 * **[JWT.io](https://jwt.io)** : Indispensable pour inspecter le contenu et la signature de vos `ID Tokens` ou jetons
   `DPoP`.
+
 * **[OAuth 2.0 Playground (Google)](https://developers.google.com/oauthplayground/)** : Permet de tester les échanges de
   tokens étape par étape sans écrire une ligne de code.
+
 * **[OpenID Connect Debugger](https://openidconnect.net/)** : Idéal pour tester la découverte (Discovery) et les
   redirections.
 

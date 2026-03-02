@@ -9,6 +9,7 @@ Ce document détaille l'infrastructure de Continuous Integration (CI) et Continu
 Le pipeline sépare strictement la préparation humaine (Local) de la certification et distribution industrielle (Cloud).
 
 ```mermaid
+
 graph TD
     subgraph Local ["💻 Poste Développeur (LOCAL)"]
         Trigger[make release] --> CertPre[ci-local.sh: Multi-JDK Docker]
@@ -27,7 +28,7 @@ graph TD
             MavenCI --> JDK21[JDK 21]
             MavenCI --> JDK25[JDK 25]
         end
-        
+
         JDK8 & JDK11 & JDK17 & JDK21 & JDK25 & GHDocLint --> Success{Tests OK ?}
         Success -- Oui --> Publish[release-it: GitHub Release + JARs]
         Success -- Non --> Abort[❌ Release bloquée]
@@ -35,6 +36,7 @@ graph TD
 
     style Local fill:#f9f,stroke:#333,stroke-width:2px
     style Cloud fill:#bbf,stroke:#333,stroke-width:2px
+
 ```
 
 ---
@@ -43,9 +45,11 @@ graph TD
 
 L'intégrité du projet est maintenue par des processus automatisés :
 
-*   **Zero-Dependency Enforcement** : Le plugin `maven-enforcer` bloque le build si une dépendance interdite (Jackson, Nimbus, org.json) est détectée au runtime.
-*   **Pure Java Certification** : Depuis la v9.2.4, le module `integration-helpers` est certifié sans aucune dépendance de logging (retrait de SLF4J), garantissant une portabilité totale sans conflit de classpath.
-*   **Dependabot** : Surveillance hebdomadaire des vulnérabilités.
+* **Zero-Dependency Enforcement** : Le plugin `maven-enforcer` bloque le build si une dépendance interdite (Jackson, Nimbus, org.json) est détectée au runtime.
+
+* **Pure Java Certification** : Depuis la v9.2.4, le module `integration-helpers` est certifié sans aucune dépendance de logging (retrait de SLF4J), garantissant une portabilité totale sans conflit de classpath.
+
+* **Dependabot** : Surveillance hebdomadaire des vulnérabilités.
 
 ---
 
@@ -53,18 +57,23 @@ L'intégrité du projet est maintenue par des processus automatisés :
 
 Nous utilisons **`release-it`** comme moteur unique pour garantir un versionnage sémantique (SemVer) sans erreur humaine.
 
-### Le Triple Verrou de Sécurité :
-1.  **Verrou Local** : `make release` lance `./ci-local.sh`. La release s'arrête si un test casse sur un des 5 JDKs.
-2.  **Verrou Cloud** : Le workflow `maven.yml` ré-exécute l'intégralité de la matrice sur les serveurs GitHub pour audit.
-3.  **Verrou de Publication** : La commande `release-it --github.release` n'est invoquée que si les tests cloud sont un succès total.
+### Le Triple Verrou de Sécurité
+
+1. **Verrou Local** : `make release` lance `./ci-local.sh`. La release s'arrête si un test casse sur un des 5 JDKs.
+
+2. **Verrou Cloud** : Le workflow `maven.yml` ré-exécute l'intégralité de la matrice sur les serveurs GitHub pour audit.
+
+3. **Verrou de Publication** : La commande `release-it --github.release` n'est invoquée que si les tests cloud sont un succès total.
 
 ---
 
 ## 4. Documentation et Artefacts "Premium DX"
 
-*   **Javadoc Automatisée (`deploy-docs.yml`)** : Publication continue sur GitHub Pages.
-*   **JARs Unifiés** : Les JARs de distribution incluent les `.class`, les sources et la documentation agrégée.
-*   **Typed Builders** : Les builders OIDC retournent désormais nativement le type `OidcService`, éliminant les `ClassCastException` et améliorant l'expérience développeur.
+* **Javadoc Automatisée (`deploy-docs.yml`)** : Publication continue sur GitHub Pages.
+
+* **JARs Unifiés** : Les JARs de distribution incluent les `.class`, les sources et la documentation agrégée.
+
+* **Typed Builders** : Les builders OIDC retournent désormais nativement le type `OidcService`, éliminant les `ClassCastException` et améliorant l'expérience développeur.
 
 ---
 
@@ -73,6 +82,7 @@ Nous utilisons **`release-it`** comme moteur unique pour garantir un versionnage
 Le script `ci-local.sh` est le garant de la robustesse :
 
 ```mermaid
+
 sequenceDiagram
     participant M as Makefile
     participant S as ci-local.sh
@@ -87,6 +97,7 @@ sequenceDiagram
         J-->>S: Exit Code 0
     end
     S-->>M: Résultat Global (Certifié)
+
 ```
 
 ---

@@ -3,30 +3,30 @@
 [![Tests](https://github.com/Q300Z/scribejava/actions/workflows/maven.yml/badge.svg)](https://github.com/Q300Z/scribejava/actions)
 [![Dernière Release](https://img.shields.io/github/v/release/Q300Z/scribejava)](https://github.com/Q300Z/scribejava/releases)
 [![Licence MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Q300Z/scribejava/blob/master/LICENSE.txt)
-[![Android Ready](https://img.shields.io/badge/Android-Ready-blue.svg)](#-compatibilité)
+[![Android Ready](https://img.shields.io/badge/Android-Ready-blue.svg)](#compatibilite-et-android)
 
 ScribeJava est une bibliothèque client OAuth légère, thread-safe et modulaire. Elle est conçue pour les développeurs qui
 exigent un contrôle total, une sécurité maximale et **zéro dépendance inutile**.
 
 ---
 
-## 📖 Sommaire
+## Sommaire
 
-1. [Pourquoi ScribeJava ?](#-pourquoi-scribejava)
-2. [Architecture Modulaire](#-architecture-modulaire)
-3. [Démarrage Rapide](#-démarrage-rapide)
-4. [Intégration OIDC Enterprise](#-intégration-oidc-enterprise)
-5. [Installation](#-installation)
-6. [Compatibilité & Android](#-compatibilité)
-7. [Documentation & Exemples](#-documentation--exemples)
+1. [Pourquoi ScribeJava](#pourquoi-scribejava)
+2. [Architecture Modulaire](#architecture-modulaire)
+3. [Démarrage Rapide](#demarrage-rapide)
+4. [Integration OIDC Enterprise](#integration-oidc-enterprise)
+5. [Installation](#installation)
+6. [Compatibilite et Android](#compatibilite-et-android)
+7. [Documentation & Exemples](#documentation--exemples)
 
 ---
 
-## 🌟 Pourquoi ScribeJava ?
+## Pourquoi ScribeJava
 
 ScribeJava est le choix idéal pour les projets qui refusent l'opacité des frameworks "tout-en-un".
 
-### 📊 Matrice de Choix : ScribeJava vs Frameworks Lourds
+### Matrice de Choix : ScribeJava vs Frameworks Lourds
 
 | Caractéristique            | ScribeJava v9.2.3    | Spring Security / Pac4j       |
 |:---------------------------|:---------------------|:------------------------------|
@@ -38,11 +38,12 @@ ScribeJava est le choix idéal pour les projets qui refusent l'opacité des fram
 
 ---
 
-## 🏗️ Architecture Modulaire
+## Architecture Modulaire
 
 ScribeJava est conçu comme un écosystème de composants indépendants :
 
 ```mermaid
+
 graph TD
     subgraph Core
         C[scribejava-core]
@@ -56,31 +57,39 @@ graph TD
         C --> H1[scribejava-httpclient-okhttp]
         C --> H2[scribejava-httpclient-armeria]
     end
+
 ```
 
 ---
 
-## 🧠 Comment ça marche ?
+## Comment ça marche ?
 
 ScribeJava repose sur trois piliers fondamentaux :
 
-1.  **L'API** (`DefaultApi20`, `DefaultApi10a`) : Définit les points de terminaison (URLs) et les verbes HTTP du fournisseur (ex: GitHub, Google).
-2.  **Le Service** (`OAuth20Service`) : Gère la logique d'exécution des requêtes, la signature et l'échange de jetons.
-3.  **Le Grant** (`OAuth20Grant`) : Définit la stratégie d'obtention du jeton (Code, Mot de passe, Device Flow, Client Credentials).
+1. **L'API** (`DefaultApi20`, `DefaultApi10a`) : Définit les points de terminaison (URLs) et les verbes HTTP du fournisseur (ex: GitHub, Google).
+
+2. **Le Service** (`OAuth20Service`) : Gère la logique d'exécution des requêtes, la signature et l'échange de jetons.
+
+3. **Le Grant** (`OAuth20Grant`) : Définit la stratégie d'obtention du jeton (Code, Mot de passe, Device Flow, Client Credentials).
 
 ---
 
-## 🚀 Démarrage Rapide
+## Demarrage Rapide
 
 ### 1. OAuth 2.0 Standard (Authorization Code)
+
 Utilisé pour les applications web et mobiles. **PKCE** (RFC 7636) est fortement recommandé pour sécuriser l'échange de code.
 
 **Fonctionnement du PKCE :**
-*   **Génération** : ScribeJava crée un `code_verifier` (secret cryptographique) et calcule son `code_challenge` (SHA-256).
-*   **Autorisation** : Le challenge est envoyé au serveur dans l'URL initiale.
-*   **Échange** : Le verifier secret est envoyé lors de la demande de jeton pour prouver l'identité du client.
+
+* **Génération** : ScribeJava crée un `code_verifier` (secret cryptographique) et calcule son `code_challenge` (SHA-256).
+
+* **Autorisation** : Le challenge est envoyé au serveur dans l'URL initiale.
+
+* **Échange** : Le verifier secret est envoyé lors de la demande de jeton pour prouver l'identité du client.
 
 ```java
+
 // Configuration
 OAuth20Service service = new ServiceBuilder(clientId)
     .apiSecret(clientSecret)
@@ -97,15 +106,20 @@ String authUrl = service.createAuthorizationUrlBuilder()
 AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
 grant.setPkceCodeVerifier(pkce.getCodeVerifier());
 OAuth2AccessToken token = service.getAccessToken(grant);
+
 ```
 
-### 2. OpenID Connect (OIDC) "Enterprise Ready"
+## Integration OIDC Enterprise
+
 Utilisez notre coordinateur spécialisé ou l'API native pour une autonomie totale (Zero-Dependency).
 
-#### 🪄 Configuration Magique (via Discovery)
-Vous n'avez plus besoin de configurer les URLs d'API manuellement. Fournissez uniquement l'URL de l'émetteur (Issuer) :
+### Configuration Magique (via Discovery)
+
+Vous n'avez plus besoin de configurer les URLs d'API manuellement.
+ Fournissez uniquement l'URL de l'émetteur (Issuer) :
 
 ```java
+
 // Configure tout automatiquement à partir de /.well-known/openid-configuration
 OidcServiceBuilder builder = new OidcServiceBuilder(clientId)
     .apiSecret(clientSecret)
@@ -113,10 +127,13 @@ OidcServiceBuilder builder = new OidcServiceBuilder(clientId)
 
 OAuth20Service service = builder.build(new DefaultOidcApi20());
 String authUrl = service.getAuthorizationUrl(); // L'URL est découverte dynamiquement !
+
 ```
 
 #### 🛠️ Utilisation Avancée (Découverte manuelle)
+
 ```java
+
 // 1. Découverte dynamique des endpoints et des clés (Natif)
 OidcDiscoveryService discovery = new OidcDiscoveryService(issuer, httpClient, userAgent);
 OidcProviderMetadata metadata = discovery.getProviderMetadata();
@@ -128,28 +145,34 @@ IdTokenValidator validator = new IdTokenValidator(metadata.getIssuer(), clientId
 // 3. Orchestration via Coordinateur (Helpers)
 OidcAuthFlowCoordinator<String> coordinator = new OidcAuthFlowCoordinator<>(oidcService, repository);
 OidcAuthResult result = coordinator.finishAuthorization(userId, code, state, sessionContext);
+
 ```
 
 ---
 
-## 🛠️ Helpers d'Intégration (Nouveautés v9.1)
+## Helpers d'Intégration (Nouveautés v9.1)
 
 Pour les applications réelles, ScribeJava propose le module `scribejava-integration-helpers` qui orchestre tout le cycle de vie.
 
 ### 1. Auto-rafraîchissement des jetons
+
 Le développeur ne gère plus les `refresh_token`. ScribeJava le fait silencieusement.
 
 ```java
+
 AuthorizedClientService<String> client = new AuthorizedClientService<>(service, renewer);
 
 // Exécute la requête : rafraîchit le jeton automatiquement s'il est expiré (Thread-safe)
 Response resp = client.execute(userId, new OAuthRequest(Verb.GET, "https://api.example.com/me"));
+
 ```
 
 ### 2. Observabilité et Audit
+
 Branchez vos logs (ELK/Grafana) pour surveiller la santé de vos connexions.
 
 ```java
+
 service.setListener(new AuthEventListener<String>() {
     @Override
     public void onCsrfDetected(String key, String got, String expected) {
@@ -157,11 +180,12 @@ service.setListener(new AuthEventListener<String>() {
     }
     // ... onTokenRefreshed, onRefreshFailed
 });
+
 ```
 
 ---
 
-## 📦 Installation
+## Installation
 
 ScribeJava est distribué via **[GitHub Releases](https://github.com/Q300Z/scribejava/releases)**.
 
@@ -192,32 +216,42 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 
 ---
 
-## 📱 Compatibilité
+## Compatibilite et Android
 
 * **Java** : Compatible de Java 8 à Java 25.
 * **Android** : Support complet (API 21+).
 
 ---
 
-## 📚 Documentation & Exemples
+## Documentation & Exemples
 
 * 🚀 **[Démarrage Rapide (Quick Start)](docs/QUICKSTART.md)** - Exemples complets pour CLI (OAuth2, OIDC, M2M).
+
 * ⚡ **[Guide de Migration](docs/MIGRATION_GUIDE.md)** - Passer de la v8 à la v9.
+
 * ⚙️ **[Guide ScribeJava Core](docs/CORE_FEATURES_GUIDE.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
+
 * 🛡️ **[Sécurité Avancée (DPoP/PAR)](docs/ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
+
 * 🔐 **[Guide des Fonctionnalités OIDC](docs/OIDC_FEATURES_GUIDE.md)** - Discovery, JWT natif et Logout.
+
 * 📖 **[Guide d'Intégration Helpers](docs/INTEGRATION_HELPERS_GUIDE.md)** - Orchestration, Auto-refresh et multi-tenant.
+
 * 📖 **[Catalogue des Fonctionnalités](docs/FEATURES_CATALOG.md)** - Liste exhaustive par module.
+
 * 🛠️ **[Documentation CI/CD](docs/CI_DOCUMENTATION.md)** - Architecture du pipeline qualité.
+
 * 🚑 **[Guide de Dépannage](docs/TROUBLESHOOTING.md)** - Solutions aux erreurs courantes.
+
 * 📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Integration Helpers](./scribejava-integration-helpers/README.md)
+
 * 🎯 **Exemples** :
   * [OpenID Connect avec Découverte Dynamique](./scribejava-apis/src/test/java/com/github/scribejava/apis/examples/OidcDiscoveryExample.java)
   * [OIDC Enterprise avec Auto-Refresh](./scribejava-integration-helpers/src/test/java/com/github/scribejava/core/integration/OidcAuthFlowCoordinatorTest.java)
 
 ### 🏗️ API Javadoc
 
-* **[Consulter la Javadoc en ligne](https://Q300Z.github.io/scribejava/docs/)**
+* **[Consulter la Javadoc en ligne](https://q300z.github.io/scribejava/docs/apidocs/)**
 
 ---
 ⭐ **Soutenez-nous !** Mettez une étoile sur le projet pour nous aider à grandir.
