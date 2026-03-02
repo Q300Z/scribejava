@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pnpm install -g release-it @release-it/conventional-changelog
+          npm install -g release-it @release-it/conventional-changelog
           # On ne fait que la partie Git (Bump, Commit, Tag, Push)
           # On saute ci-local.sh car on est dans le cloud, et on saute la release GitHub (faite par maven.yml)
           release-it --ci --no-before:init --no-github.release
