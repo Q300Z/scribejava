@@ -38,6 +38,30 @@ public class OidcServiceBuilder extends ServiceBuilder {
     super(apiKey);
   }
 
+  @Override
+  public OidcServiceBuilder defaultScope(String defaultScope) {
+    super.defaultScope(defaultScope);
+    return this;
+  }
+
+  @Override
+  public OidcServiceBuilder callback(String callback) {
+    super.callback(callback);
+    return this;
+  }
+
+  @Override
+  public OidcServiceBuilder httpClient(HttpClient httpClient) {
+    super.httpClient(httpClient);
+    return this;
+  }
+
+  @Override
+  public OidcServiceBuilder apiSecret(String apiSecret) {
+    super.apiSecret(apiSecret);
+    return this;
+  }
+
   /**
    * Configure automatiquement les endpoints via OIDC Discovery.
    *

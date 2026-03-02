@@ -50,6 +50,7 @@ public class OidcProviderMetadata {
   private final String introspectionEndpoint;
   private final String pushedAuthorizationRequestEndpoint;
   private final List<String> dpopSigningAlgValuesSupported;
+  private final String rawResponse;
 
   public OidcProviderMetadata(
       String issuer,
@@ -68,6 +69,31 @@ public class OidcProviderMetadata {
       String introspectionEndpoint,
       String pushedAuthorizationRequestEndpoint,
       List<String> dpopSigningAlgValuesSupported) {
+    this(issuer, authorizationEndpoint, tokenEndpoint, jwksUri, responseTypesSupported,
+        subjectTypesSupported, idTokenSigningAlgValuesSupported, userinfoEndpoint,
+        registrationEndpoint, scopesSupported, responseModesSupported, grantTypesSupported,
+        revocationEndpoint, introspectionEndpoint, pushedAuthorizationRequestEndpoint,
+        dpopSigningAlgValuesSupported, null);
+  }
+
+  public OidcProviderMetadata(
+      String issuer,
+      String authorizationEndpoint,
+      String tokenEndpoint,
+      String jwksUri,
+      List<String> responseTypesSupported,
+      List<String> subjectTypesSupported,
+      List<String> idTokenSigningAlgValuesSupported,
+      String userinfoEndpoint,
+      String registrationEndpoint,
+      List<String> scopesSupported,
+      List<String> responseModesSupported,
+      List<String> grantTypesSupported,
+      String revocationEndpoint,
+      String introspectionEndpoint,
+      String pushedAuthorizationRequestEndpoint,
+      List<String> dpopSigningAlgValuesSupported,
+      String rawResponse) {
     this.issuer = issuer;
     this.authorizationEndpoint = authorizationEndpoint;
     this.tokenEndpoint = tokenEndpoint;
@@ -84,6 +110,7 @@ public class OidcProviderMetadata {
     this.introspectionEndpoint = introspectionEndpoint;
     this.pushedAuthorizationRequestEndpoint = pushedAuthorizationRequestEndpoint;
     this.dpopSigningAlgValuesSupported = dpopSigningAlgValuesSupported;
+    this.rawResponse = rawResponse;
   }
 
   /**
@@ -112,7 +139,8 @@ public class OidcProviderMetadata {
         (String) node.get("revocation_endpoint"),
         (String) node.get("introspection_endpoint"),
         (String) node.get("pushed_authorization_request_endpoint"),
-        getAsList(node.get("dpop_signing_alg_values_supported")));
+        getAsList(node.get("dpop_signing_alg_values_supported")),
+        json);
   }
 
   @SuppressWarnings("unchecked")
@@ -185,5 +213,9 @@ public class OidcProviderMetadata {
 
   public List<String> getDpopSigningAlgValuesSupported() {
     return dpopSigningAlgValuesSupported;
+  }
+
+  public String getRawResponse() {
+    return rawResponse;
   }
 }
