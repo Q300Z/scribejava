@@ -52,7 +52,7 @@ doc: ## Génère la Javadoc agrégée (Premium DX)
 
 release: ## Lance le cycle de release (Bump, Changelog, Tag, Push) - Déclenche ensuite le CI de publication
 	@echo "\033[32m🚀 Lancement du processus de release avec release-it...\033[0m"
-	@release-it
+	@pnpx release-it
 
 sync: ## Récupère les derniers changements de release depuis GitHub
 	git pull --rebase origin master
