@@ -20,6 +20,11 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -36,7 +41,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm install -g release-it @release-it/conventional-changelog
+          pnpm add -g release-it @release-it/conventional-changelog
           # On ne fait que la partie Git (Bump, Commit, Tag, Push)
           # On saute ci-local.sh car on est dans le cloud, et on saute la release GitHub (faite par maven.yml)
-          release-it --ci --no-before:init --no-github.release
+          pnpm exec release-it --ci --no-before:init --no-github.release

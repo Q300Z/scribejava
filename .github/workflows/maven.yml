@@ -107,6 +107,11 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -117,6 +122,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm install -g release-it @release-it/conventional-changelog
+          pnpm add -g release-it @release-it/conventional-changelog
           # On ne fait QUE la release GitHub, sans toucher au Git (déjà fait lors de la préparation)
-          release-it --ci --no-git --github.release
+          pnpm exec release-it --ci --no-git --github.release
