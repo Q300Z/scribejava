@@ -27,9 +27,6 @@ import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.utils.JsonUtils;
 import com.github.scribejava.oidc.OidcDiscoveryService;
 import com.github.scribejava.oidc.OidcProviderMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -40,27 +37,39 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Implémentation du cache de découverte OIDC avec persistance sur disque.
+ *
+ * <p>Ce cache permet de survivre aux redémarrages applicatifs et réduit la charge réseau vers le
+ * fournisseur d'identité.
  */
 public class DiskOidcDiscoveryCache extends OidcDiscoveryCache {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DiskOidcDiscoveryCache.class);
-  private static final long DEFAULT_TTL_MS = 24 * 60 * 60 * 1000L; // 24 heures
+  /** Durée de vie par défaut du cache (24 heures). */
+  private static final long DEFAULT_TTL_MS = 24 * 60 * 60 * 1000L;
 
   private final File cacheFile;
   private final long ttlMs;
-  /** Structure : Issuer -> { "data": JSON_BRUT, "ts": TIMESTAMP_MS } */
-  private final Map<String, Map<String, Object>> persistentCache = new HashMap<>();
 
   /**
-   * @param cacheFile Fichier de cache.
+   * Structure interne à plat pour compatibilité avec le parser JSON natif.
+   *
+   * <p>Clés : {providerId}.data et {providerId}.ts
+   */
+  private final Map<String, Object> persistentCache = new HashMap<>();
+
+  /**
+   * Construit un cache sur disque avec un TTL par défaut de 24h.
+   *
+   * @param cacheFile Le fichier à utiliser pour le stockage.
    */
   public DiskOidcDiscoveryCache(File cacheFile) {
     this(cacheFile, DEFAULT_TTL_MS);
   }
 
   /**
-   * @param cacheFile Fichier de cache.
-   * @param ttlMs Durée de vie du cache en millisecondes.
+   * Construit un cache sur disque avec un TTL personnalisé.
+   *
+   * @param cacheFile Le fichier à utiliser pour le stockage.
+   * @param ttlMs Durée de vie des métadonnées en millisecondes.
    */
   public DiskOidcDiscoveryCache(File cacheFile, long ttlMs) {
     this.cacheFile = cacheFile;
@@ -68,35 +77,55 @@ public class DiskOidcDiscoveryCache extends OidcDiscoveryCache {
     loadFromDisk();
   }
 
+  /**
+   * Récupère les métadonnées depuis le disque, la mémoire ou le réseau.
+   *
+   * @param providerId L'identifiant du fournisseur (ex: "google").
+   * @param discoveryService Le service permettant de faire l'appel réseau si nécessaire.
+   * @return Les métadonnées du fournisseur OIDC.
+   * @throws IOException Erreur lors de la lecture/écriture disque ou réseau.
+   * @throws InterruptedException Si l'opération est interrompue.
+   * @throws ExecutionException En cas d'erreur lors du rafraîchissement.
+   */
   @Override
   public OidcProviderMetadata getMetadata(String providerId, OidcDiscoveryService discoveryService)
       throws IOException, InterruptedException, ExecutionException {
 
-    final Map<String, Object> entry = persistentCache.get(providerId);
+    final String dataKey = providerId + ".data";
+    final String tsKey = providerId + ".ts";
 
-    if (entry != null) {
-      final long timestamp = ((Number) entry.get("ts")).longValue();
+    final String cachedData = (String) persistentCache.get(dataKey);
+    final Object tsObj = persistentCache.get(tsKey);
+
+    if (cachedData != null && tsObj instanceof Number) {
+      final long timestamp = ((Number) tsObj).longValue();
       if (System.currentTimeMillis() - timestamp < ttlMs) {
-        LOG.info("OIDC Discovery: Cache hit on disk for {} (Valid)", providerId);
-        return OidcProviderMetadata.parse((String) entry.get("data"));
+        return OidcProviderMetadata.parse(cachedData);
       }
-      LOG.info("OIDC Discovery: Cache expired for {}. Refreshing...", providerId);
     }
 
     // 3. Fetch from network
-    final OidcProviderMetadata metadata = super.getMetadata(providerId, discoveryService);
+    final OidcProviderMetadata metadata = discoveryService.getProviderMetadata();
 
-    // 4. Save to disk with current timestamp
-    final JsonBuilder builder = new JsonBuilder()
-        .add("data", metadata.getRawResponse())
-        .add("ts", System.currentTimeMillis());
-
-    persistentCache.put(providerId, builder.asMap());
+    // 4. Save to disk (Structure à plat)
+    persistentCache.put(dataKey, metadata.getRawResponse());
+    persistentCache.put(tsKey, System.currentTimeMillis());
     saveToDisk();
 
     return metadata;
   }
 
+  /**
+   * Persiste l'état actuel du cache mémoire vers le fichier disque.
+   *
+   * <p>Cette méthode peut être appelée manuellement pour garantir que les données sont bien écrites
+   * sur le support physique avant un arrêt ou entre des tests.
+   */
+  public void flush() {
+    saveToDisk();
+  }
+
+  /** Charge le cache depuis le fichier disque lors de l'initialisation. */
   private void loadFromDisk() {
     if (!cacheFile.exists()) {
       return;
@@ -104,28 +133,22 @@ public class DiskOidcDiscoveryCache extends OidcDiscoveryCache {
     try {
       final byte[] bytes = Files.readAllBytes(cacheFile.toPath());
       final String content = new String(bytes, StandardCharsets.UTF_8);
-      final Map<String, Object> data = JsonUtils.parse(content);
-      for (Map.Entry<String, Object> entry : data.entrySet()) {
-        if (entry.getValue() instanceof Map) {
-          persistentCache.put(entry.getKey(), (Map<String, Object>) entry.getValue());
-        }
-      }
-      LOG.info("OIDC Discovery: Loaded {} entries from disk cache.", persistentCache.size());
+      persistentCache.putAll(JsonUtils.parse(content));
     } catch (Exception e) {
-      LOG.warn("Failed to load OIDC discovery cache from disk: {}", e.getMessage());
+      // Échec silencieux
     }
   }
 
+  /** Persiste l'état actuel du cache mémoire vers le fichier disque. */
   private void saveToDisk() {
     try {
       final JsonBuilder builder = new JsonBuilder();
-      for (Map.Entry<String, Map<String, Object>> entry : persistentCache.entrySet()) {
+      for (Map.Entry<String, Object> entry : persistentCache.entrySet()) {
         builder.add(entry.getKey(), entry.getValue());
       }
       Files.write(cacheFile.toPath(), builder.build().getBytes(StandardCharsets.UTF_8));
-      LOG.debug("OIDC Discovery: Saved cache to disk.");
     } catch (Exception e) {
-      LOG.warn("Failed to save OIDC discovery cache to disk: {}", e.getMessage());
+      // Échec silencieux
     }
   }
 }

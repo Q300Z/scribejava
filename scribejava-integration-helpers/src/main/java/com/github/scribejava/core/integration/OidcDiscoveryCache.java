@@ -36,6 +36,13 @@ public class OidcDiscoveryCache {
   private final Map<String, OidcProviderMetadata> cache = new ConcurrentHashMap<>();
 
   /**
+   * @return Le cache interne.
+   */
+  protected Map<String, OidcProviderMetadata> getInternalCache() {
+    return cache;
+  }
+
+  /**
    * Récupère les métadonnées depuis le cache ou utilise le service fourni pour les découvrir.
    *
    * @param providerId Identifiant du fournisseur (ex: "google").

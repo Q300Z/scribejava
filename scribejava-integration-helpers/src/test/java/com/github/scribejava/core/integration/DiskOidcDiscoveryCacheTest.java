@@ -23,24 +23,24 @@
  */
 package com.github.scribejava.core.integration;
 
-import com.github.scribejava.oidc.OidcDiscoveryService;
-import com.github.scribejava.oidc.OidcProviderMetadata;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.File;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.github.scribejava.oidc.OidcDiscoveryService;
+import com.github.scribejava.oidc.OidcProviderMetadata;
+import java.io.File;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+/** Tests pour la persistance du cache OIDC sur disque. */
 class DiskOidcDiscoveryCacheTest {
 
-  @TempDir
-  Path tempDir;
+  @TempDir Path tempDir;
 
   @Test
   void shouldPersistMetadataToDisk() throws Exception {
@@ -48,49 +48,56 @@ class DiskOidcDiscoveryCacheTest {
     final DiskOidcDiscoveryCache diskCache = new DiskOidcDiscoveryCache(cacheFile);
 
     final OidcDiscoveryService mockService = mock(OidcDiscoveryService.class);
-    final String json = "{\"issuer\":\"http://localhost\","
-        + "\"authorization_endpoint\":\"http://auth\","
-        + "\"token_endpoint\":\"http://token\"}";
+    final String json =
+        "{\"issuer\":\"http://localhost\","
+            + "\"authorization_endpoint\":\"http://auth\","
+            + "\"token_endpoint\":\"http://token\"}";
     final OidcProviderMetadata metadata = OidcProviderMetadata.parse(json);
 
     when(mockService.getProviderMetadata()).thenReturn(metadata);
 
-    // 1. First call: should call service
+    // 1. Premier appel : doit appeler le service réseau (le mock)
     final OidcProviderMetadata result1 = diskCache.getMetadata("test-id", mockService);
+    diskCache.flush(); // On force l'écriture sur disque
     assertThat(result1.getIssuer()).isEqualTo("http://localhost");
     verify(mockService, times(1)).getProviderMetadata();
     assertThat(cacheFile).exists();
 
-    // 2. Second call (new instance of cache): should use disk
+    // 2. Second appel avec une nouvelle instance de cache : doit utiliser le fichier disque
     final DiskOidcDiscoveryCache diskCache2 = new DiskOidcDiscoveryCache(cacheFile);
+    clearInvocations(mockService);
+
     final OidcProviderMetadata result2 = diskCache2.getMetadata("test-id", mockService);
     assertThat(result2.getIssuer()).isEqualTo("http://localhost");
-    verify(mockService, times(1)).getProviderMetadata(); // Still 1 call total
+    // Vérification : le mock ne doit PAS être appelé à nouveau
+    verify(mockService, times(0)).getProviderMetadata();
   }
 
   @Test
   void shouldRefreshWhenCacheIsExpired() throws Exception {
     final File cacheFile = tempDir.resolve("oidc-expired-cache.json").toFile();
 
-    // 1. Create a cache with a very short TTL (100ms)
+    // 1. Création d'un cache avec un TTL très court (100ms)
     final DiskOidcDiscoveryCache diskCache = new DiskOidcDiscoveryCache(cacheFile, 100);
 
     final OidcDiscoveryService mockService = mock(OidcDiscoveryService.class);
-    final String json = "{\"issuer\":\"http://localhost\","
-        + "\"authorization_endpoint\":\"http://auth\","
-        + "\"token_endpoint\":\"http://token\"}";
+    final String json =
+        "{\"issuer\":\"http://localhost\","
+            + "\"authorization_endpoint\":\"http://auth\","
+            + "\"token_endpoint\":\"http://token\"}";
     final OidcProviderMetadata metadata = OidcProviderMetadata.parse(json);
     when(mockService.getProviderMetadata()).thenReturn(metadata);
 
-    // First call: Populate cache
+    // Initialisation : Peuple le cache
     diskCache.getMetadata("test-id", mockService);
     verify(mockService, times(1)).getProviderMetadata();
 
-    // Wait for expiration
+    // Attente de l'expiration du TTL
     Thread.sleep(200);
 
-    // Second call: Should refresh
+    // Appel après expiration : doit rafraîchir (appeler le mock à nouveau)
+    clearInvocations(mockService);
     diskCache.getMetadata("test-id", mockService);
-    verify(mockService, times(2)).getProviderMetadata();
+    verify(mockService, times(1)).getProviderMetadata();
   }
 }
