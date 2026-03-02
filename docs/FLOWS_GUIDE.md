@@ -204,7 +204,6 @@ sequenceDiagram
 
 ## 🛠️ Matrice des Méthodes Enterprise
 
-
 | Opération | Classe | Méthode | Standard |
 | :--- | :--- | :--- | :--- |
 | **Discovery** | `OidcDiscoveryService` | `getProviderMetadata()` | RFC 8414 / OIDC Disc |

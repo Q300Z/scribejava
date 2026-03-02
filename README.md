@@ -251,7 +251,7 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 
 ### 🏗️ API Javadoc
 
-* **[Consulter la Javadoc en ligne](https://q300z.github.io/scribejava/docs/apidocs/)**
+* **[Consulter la Javadoc en ligne](https://q300z.github.io/scribejava/)**
 
 ---
 ⭐ **Soutenez-nous !** Mettez une étoile sur le projet pour nous aider à grandir.

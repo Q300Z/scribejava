@@ -13,11 +13,11 @@ C'est le point de départ de tout flux utilisateur. ScribeJava offre une flexibi
 - **Simple** : `service.getAuthorizationUrl()` génère l'URL standard.
 
 - **Paramètres personnalisés** : Ajoutez des paramètres spécifiques au fournisseur (ex: `prompt`, `access_type`) via une `Map<String, String>`.
+
   ```java
   Map<String, String> params = new HashMap<>();
   params.put("prompt", "select_account");
   String url = service.getAuthorizationUrl(params);
-
   ```
 
 - **Builder Fluide** : Utilisez `service.createAuthorizationUrlBuilder()` pour chaîner les options (`state`, `scopes`, `additionalParameters`).
@@ -45,9 +45,9 @@ La fonctionnalité la plus puissante pour les administrateurs système.
 - **Action** : Le `OidcServiceBuilder` télécharge le JSON `openid-configuration`, découvre les endpoints et configure le service automatiquement.
 
 - **Avantage** : Aucune URL d'API n'est écrite en dur dans votre code. Si le fournisseur déplace ses services, votre application s'adapte dynamiquement.
+
   ```java
   builder.baseOnDiscovery(issuerUri, httpClient, userAgent);
-
   ```
 
 ### 🛡️ Validation & Cryptographie
