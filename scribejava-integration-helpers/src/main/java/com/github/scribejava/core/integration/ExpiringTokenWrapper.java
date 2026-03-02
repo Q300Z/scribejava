@@ -24,6 +24,7 @@
 package com.github.scribejava.core.integration;
 
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -31,8 +32,9 @@ import java.util.Objects;
  * Encapsule un jeton OAuth 2.0 avec sa date d'expiration calculée lors de la réception. Permet
  * d'anticiper le rafraîchissement avant que le serveur ne rejette la requête.
  */
-public class ExpiringTokenWrapper {
+public class ExpiringTokenWrapper implements Serializable {
 
+  private static final long serialVersionUID = 1L;
   private final OAuth2AccessToken token;
   private final Instant receivedAt;
   private final Instant expirationInstant;
