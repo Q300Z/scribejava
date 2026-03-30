@@ -49,6 +49,7 @@ public class OidcProviderMetadata {
   private final String revocationEndpoint;
   private final String introspectionEndpoint;
   private final String pushedAuthorizationRequestEndpoint;
+  private final String endSessionEndpoint;
   private final List<String> dpopSigningAlgValuesSupported;
   private final String rawResponse;
 
@@ -68,6 +69,7 @@ public class OidcProviderMetadata {
       String revocationEndpoint,
       String introspectionEndpoint,
       String pushedAuthorizationRequestEndpoint,
+      String endSessionEndpoint,
       List<String> dpopSigningAlgValuesSupported) {
     this(
         issuer,
@@ -85,6 +87,7 @@ public class OidcProviderMetadata {
         revocationEndpoint,
         introspectionEndpoint,
         pushedAuthorizationRequestEndpoint,
+        endSessionEndpoint,
         dpopSigningAlgValuesSupported,
         null);
   }
@@ -105,6 +108,7 @@ public class OidcProviderMetadata {
       String revocationEndpoint,
       String introspectionEndpoint,
       String pushedAuthorizationRequestEndpoint,
+      String endSessionEndpoint,
       List<String> dpopSigningAlgValuesSupported,
       String rawResponse) {
     this.issuer = issuer;
@@ -122,6 +126,7 @@ public class OidcProviderMetadata {
     this.revocationEndpoint = revocationEndpoint;
     this.introspectionEndpoint = introspectionEndpoint;
     this.pushedAuthorizationRequestEndpoint = pushedAuthorizationRequestEndpoint;
+    this.endSessionEndpoint = endSessionEndpoint;
     this.dpopSigningAlgValuesSupported = dpopSigningAlgValuesSupported;
     this.rawResponse = rawResponse;
   }
@@ -152,6 +157,7 @@ public class OidcProviderMetadata {
         (String) node.get("revocation_endpoint"),
         (String) node.get("introspection_endpoint"),
         (String) node.get("pushed_authorization_request_endpoint"),
+        (String) node.get("end_session_endpoint"),
         getAsList(node.get("dpop_signing_alg_values_supported")),
         json);
   }
@@ -222,6 +228,10 @@ public class OidcProviderMetadata {
 
   public String getPushedAuthorizationRequestEndpoint() {
     return pushedAuthorizationRequestEndpoint;
+  }
+
+  public String getEndSessionEndpoint() {
+    return endSessionEndpoint;
   }
 
   public List<String> getDpopSigningAlgValuesSupported() {

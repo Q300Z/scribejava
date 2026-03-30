@@ -113,6 +113,7 @@ public class OidcFullCoverageTest {
             "rev",
             "intro",
             "par",
+            "logout",
             null);
     api.setMetadata(metadata);
 
@@ -120,6 +121,7 @@ public class OidcFullCoverageTest {
     assertThat(api.getAuthorizationBaseUrl()).isEqualTo("auth");
     assertThat(api.getRevokeTokenEndpoint()).isEqualTo("rev");
     assertThat(api.getPushedAuthorizationRequestEndpoint()).isEqualTo("par");
+    assertThat(metadata.getEndSessionEndpoint()).isEqualTo("logout");
     assertThat(api.getJwksUri()).isEqualTo("jwks");
     assertThat(api.getUserinfoEndpoint()).isEqualTo("userinfo");
     assertThat(api.getMetadata()).isEqualTo(metadata);

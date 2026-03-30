@@ -83,4 +83,24 @@ public class OidcProviderMetadataTest {
 
     assertThat(metadata.getPushedAuthorizationRequestEndpoint()).isEqualTo(parEndpoint);
   }
+
+  @Test
+  public void shouldParseMetadataWithEndSessionEndpoint() throws IOException {
+    final String logoutEndpoint = "https://server.example.com/logout";
+    final String json =
+        new JsonBuilder()
+            .add("issuer", "https://server.example.com")
+            .add("authorization_endpoint", "https://server.example.com/authorize")
+            .add("token_endpoint", "https://server.example.com/token")
+            .add("jwks_uri", "https://server.example.com/jwks.json")
+            .add("response_types_supported", Arrays.asList("code"))
+            .add("subject_types_supported", Arrays.asList("public"))
+            .add("id_token_signing_alg_values_supported", Arrays.asList("RS256"))
+            .add("end_session_endpoint", logoutEndpoint)
+            .build();
+
+    final OidcProviderMetadata metadata = OidcProviderMetadata.parse(json);
+
+    assertThat(metadata.getEndSessionEndpoint()).isEqualTo(logoutEndpoint);
+  }
 }
