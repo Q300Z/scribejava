@@ -63,4 +63,24 @@ public class OidcProviderMetadataTest {
     assertThat(metadata.getSubjectTypesSupported()).contains("public");
     assertThat(metadata.getIdTokenSigningAlgValuesSupported()).contains("RS256");
   }
+
+  @Test
+  public void shouldParseMetadataWithParEndpoint() throws IOException {
+    final String parEndpoint = "https://server.example.com/par";
+    final String json =
+        new JsonBuilder()
+            .add("issuer", "https://server.example.com")
+            .add("authorization_endpoint", "https://server.example.com/authorize")
+            .add("token_endpoint", "https://server.example.com/token")
+            .add("jwks_uri", "https://server.example.com/jwks.json")
+            .add("response_types_supported", Arrays.asList("code"))
+            .add("subject_types_supported", Arrays.asList("public"))
+            .add("id_token_signing_alg_values_supported", Arrays.asList("RS256"))
+            .add("pushed_authorization_request_endpoint", parEndpoint)
+            .build();
+
+    final OidcProviderMetadata metadata = OidcProviderMetadata.parse(json);
+
+    assertThat(metadata.getPushedAuthorizationRequestEndpoint()).isEqualTo(parEndpoint);
+  }
 }
