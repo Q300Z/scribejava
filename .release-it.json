@@ -9,7 +9,7 @@
   "github": {
     "release": true,
     "releaseName": "v${version}",
-    "assets": ["dist/*.jar"],
+    "assets": ["artifacts/**/target/*.jar"],
     "comments": {
       "submit": true,
       "issue": "🚀 Version ${version} certifiée multi-JDK et publiée."
@@ -19,9 +19,7 @@
     "publish": false
   },
   "hooks": {
-    "before:init": ["./ci-local.sh"],
-    "after:bump": "mvn versions:set -DnewVersion=${version} -DgenerateBackupPoms=false && mvn versions:commit",
-    "before:github:release": "mvn clean package -DskipTests && mkdir -p dist && find . -name \"*.jar\" -not -name \"*-sources.jar\" -not -name \"*-tests.jar\" -not -name \"original-*.jar\" -exec cp {} dist/ \\;"
+    "after:bump": "mvn versions:set -DnewVersion=${version} -DgenerateBackupPoms=false && mvn versions:commit"
   },
   "plugins": {
     "@release-it/conventional-changelog": {

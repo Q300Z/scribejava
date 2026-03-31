@@ -3,6 +3,7 @@ name: Java CI with Maven
 on:
   push:
     branches: [master]
+    tags: ["v*"]
   pull_request:
     branches: [master]
   workflow_dispatch:
@@ -77,11 +78,13 @@ jobs:
           path: "**/target/*.jar"
           retention-days: 5
 
-  # Job 4: Javadoc Deployment (Success on master only)
+  # Job 4: Javadoc Deployment (Success on master push or tags)
   deploy-docs:
     name: Deploy Javadoc
     needs: test
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    if: |
+      (github.ref == 'refs/heads/master' && github.event_name == 'push') ||
+      startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -105,7 +108,7 @@ jobs:
           destination_dir: docs
           commit_message: "docs: update javadoc [skip ci]"
 
-  # Job 5: Release (Success on master with specific commit message)
+  # Job 5: Release (Success on master with specific commit message or dispatch)
   publish-release:
     name: Publish Release
     needs: test
@@ -143,5 +146,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm add -g release-it @release-it/conventional-changelog
-          # On crée la release GitHub et on y attache les JARs du dossier 'artifacts'
-          pnpm exec release-it --ci --no-git --github.release --github.assets="artifacts/**/target/*.jar"
+          # La config des assets est maintenant dans .release-it.json
+          pnpm exec release-it --ci --no-git --github.release
