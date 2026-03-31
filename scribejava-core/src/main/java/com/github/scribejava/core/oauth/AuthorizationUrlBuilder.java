@@ -111,7 +111,8 @@ public class AuthorizationUrlBuilder {
    * @param usePushedAuthorizationRequests whether to use PAR
    * @return builder
    */
-  public AuthorizationUrlBuilder usePushedAuthorizationRequests(boolean usePushedAuthorizationRequests) {
+  public AuthorizationUrlBuilder usePushedAuthorizationRequests(
+      boolean usePushedAuthorizationRequests) {
     this.usePushedAuthorizationRequests = usePushedAuthorizationRequests;
     return this;
   }
