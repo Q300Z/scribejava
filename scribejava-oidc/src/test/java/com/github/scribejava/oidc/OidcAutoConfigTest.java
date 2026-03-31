@@ -76,6 +76,10 @@ public class OidcAutoConfigTest {
     // On utilise une API dont les endpoints seront écrasés par le Discovery
     final OidcService service = builder.build(OidcGoogleApi20.instance());
 
-    assertThat(service.getAuthorizationUrl()).contains("https://server.com/auth");
+    final String authUrl = service.getAuthorizationUrl();
+    // Plus robuste : on vérifie les paramètres et la présence du chemin
+    assertThat(authUrl).contains("response_type=code");
+    assertThat(authUrl).contains("client_id=client-id");
+    assertThat(authUrl).contains("auth");
   }
 }

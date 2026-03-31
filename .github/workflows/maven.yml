@@ -22,8 +22,6 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: "maven"
-      - name: Install artifacts for analysis
-        run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
       - name: Static Analysis
         run: mvn spotless:check checkstyle:check pmd:check license:check
 
@@ -45,30 +43,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Étape 2 : Compilation
-  build:
-    needs: [lint, lint-docs]
-
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
-        with:
-          java-version: "8"
-          distribution: "temurin"
-          cache: "maven"
-      - name: Build and Install
-        run: mvn clean install -DskipTests -Dmaven.javadoc.skip=true
-      - name: Upload compiled artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: compiled-jars
-          path: "**/target/*.jar"
-
-  # Étape 3 : Matrice de tests multi-JDK
+  # Étape 2 : Matrice de build et tests multi-JDK
   test:
-    needs: build
+    needs: [lint, lint-docs]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -82,15 +59,10 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: "temurin"
           cache: "maven"
-      - name: Download compiled artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: compiled-jars
-          path: .
-      - name: Run Tests
-        run: mvn test -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+      - name: Build and Test
+        run: mvn clean install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
-  # Étape 4 : Publication Finale via release-it (uniquement si tests OK)
+  # Étape 3 : Publication Finale via release-it (uniquement si tests OK)
   publish-release:
     needs: test
     if: |
@@ -123,5 +95,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm add -g release-it @release-it/conventional-changelog
-          # On ne fait QUE la release GitHub, sans toucher au Git (déjà fait lors de la préparation)
           pnpm exec release-it --ci --no-git --github.release
