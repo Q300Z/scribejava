@@ -5,46 +5,50 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
-  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  # Étape 1 : Analyse statique et Lintage
+  # Job 1: Static Analysis and Linting
   lint:
+    name: Static Analysis (JDK 17)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "17"
           distribution: "temurin"
           cache: "maven"
-      - name: Static Analysis
+      - name: Install dependencies
+        run: mvn install -DskipTests -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check -Dlicense.skip
+      - name: Run Linters
         run: mvn spotless:check checkstyle:check pmd:check license:check
 
-  # Étape 1.1 : Audit de la Documentation
+  # Job 2: Documentation Audit
   lint-docs:
+    name: Documentation Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Markdown Lint
-        uses: davidanson/markdownlint-cli2-action@v16
+        uses: davidanson/markdownlint-cli2-action@v23
         with:
           globs: |
             docs/*.md
             README.md
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1.9.0
+        uses: lycheeverse/lychee-action@v2
         with:
           args: --verbose --no-progress "docs/*.md" "README.md"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Étape 2 : Matrice de build et tests multi-JDK
+  # Job 3: Multi-JDK Test Matrix
   test:
+    name: Test (JDK ${{ matrix.java }})
     needs: [lint, lint-docs]
     runs-on: ubuntu-latest
     strategy:
@@ -52,9 +56,9 @@ jobs:
       matrix:
         java: ["8", "11", "17", "21", "25"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: "temurin"
@@ -62,34 +66,59 @@ jobs:
       - name: Build and Test
         run: mvn clean install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
 
-  # Étape 3 : Publication Finale via release-it (uniquement si tests OK)
+  # Job 4: Javadoc Deployment (Success on master only)
+  deploy-docs:
+    name: Deploy Javadoc
+    needs: test
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 11
+        uses: actions/setup-java@v5
+        with:
+          java-version: "11"
+          distribution: "temurin"
+          cache: "maven"
+      - name: Generate Javadoc
+        run: |
+          mvn install -DskipTests -Dmaven.javadoc.skip=true
+          mvn javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/site/apidocs
+          destination_dir: docs
+          commit_message: "docs: update javadoc [skip ci]"
+
+  # Job 5: Release (Success on master with specific commit message)
   publish-release:
+    name: Publish Release
     needs: test
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'chore(release):')) ||
       (github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
-
       - name: Install pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: 10
-
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "11"
           distribution: "temurin"
-
       - name: Publish to GitHub via release-it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
