@@ -1,5 +1,23 @@
 # 📓 Journal des modifications (Changelog)
 
+# [9.3.0](https://github.com/Q300Z/scribejava/compare/v9.2.7...v9.3.0) (2026-03-31)
+
+
+### Bug Fixes
+
+* **ci:** align pnpm versions with package.json ([67f1f3b](https://github.com/Q300Z/scribejava/commit/67f1f3b4555f72a32d763158401c9944b85301eb))
+* **ci:** simplify workflow and stabilize OidcAutoConfigTest ([15f8344](https://github.com/Q300Z/scribejava/commit/15f83441354da501f7c6ec20c3c9bd674eb7de2a))
+* **ci:** use download-artifact instead of upload-artifact in test job ([02938a8](https://github.com/Q300Z/scribejava/commit/02938a8effaf91eca44190c0d21d9aa53d3f40ae))
+* **oidc:** stabilize OidcAutoConfigTest and cleanup unstable tests ([48c9136](https://github.com/Q300Z/scribejava/commit/48c9136a0386591df7b45c6d223915e7d6d8a113))
+
+
+### Features
+
+* **ci:** automate release assets and doc publication on tags ([1d3b33a](https://github.com/Q300Z/scribejava/commit/1d3b33a6312b6c0b59c5a19e6c25883fd71ba190))
+* **ci:** implement release candidate artifacts and enhanced multi-JDK matrix ([406a118](https://github.com/Q300Z/scribejava/commit/406a118e0896d28b53265fbd367a439785aa370f))
+* **oauth:** add usePushedAuthorizationRequests setter to AuthorizationUrlBuilder ([26f08f7](https://github.com/Q300Z/scribejava/commit/26f08f7244c2fe77638dc45dd173f9c23aa2d5e8))
+* **oidc:** add support for end_session_endpoint in OidcProviderMetadata ([f305646](https://github.com/Q300Z/scribejava/commit/f305646792adecfba0071af6bb4483762d61e9c9))
+
 ## [9.2.6](https://github.com/Q300Z/scribejava/compare/v1.1.1...v9.2.6) (2026-03-02)
 
 # [1.1.0](https://github.com/Q300Z/scribejava/compare/v9.2.4...v1.1.0) (2026-03-02)
