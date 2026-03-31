@@ -5,6 +5,7 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,9 +16,9 @@ jobs:
     name: Static Analysis (JDK 17)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Set up JDK 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
@@ -32,23 +33,23 @@ jobs:
     name: Documentation Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Markdown Lint
-        uses: davidanson/markdownlint-cli2-action@v23
+        uses: davidanson/markdownlint-cli2-action@v16
         with:
           globs: |
             docs/*.md
             README.md
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v2
+        uses: lycheeverse/lychee-action@v1.9.0
         with:
           args: --verbose --no-progress "docs/*.md" "README.md"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Job 3: Multi-JDK Test Matrix
+  # Job 3: Multi-JDK Build & Test Matrix
   test:
-    name: Test (JDK ${{ matrix.java }})
+    name: Build & Test (JDK ${{ matrix.java }})
     needs: [lint, lint-docs]
     runs-on: ubuntu-latest
     strategy:
@@ -56,15 +57,25 @@ jobs:
       matrix:
         java: ["8", "11", "17", "21", "25"]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java }}
           distribution: "temurin"
           cache: "maven"
+      
       - name: Build and Test
         run: mvn clean install -Dmaven.javadoc.skip=true -Dcheckstyle.skip -Dpmd.skip -Dspotless.check.skip
+      
+      # Archivage des JARs uniquement pour JDK 8 (version de production)
+      - name: Upload Release Artifacts (JDK 8 only)
+        if: matrix.java == '8'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-jars
+          path: "**/target/*.jar"
+          retention-days: 5
 
   # Job 4: Javadoc Deployment (Success on master only)
   deploy-docs:
@@ -73,11 +84,11 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up JDK 11
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: "11"
           distribution: "temurin"
@@ -103,25 +114,34 @@ jobs:
       (github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-jars
+          path: artifacts
+
       - name: Set up Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
       - name: Install pnpm
-        uses: pnpm/action-setup@v5
+        uses: pnpm/action-setup@v4
         with:
           version: 10
       - name: Set up Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: "11"
           distribution: "temurin"
+      
       - name: Publish to GitHub via release-it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm add -g release-it @release-it/conventional-changelog
-          pnpm exec release-it --ci --no-git --github.release
+          # On crée la release GitHub et on y attache les JARs du dossier 'artifacts'
+          pnpm exec release-it --ci --no-git --github.release --github.assets="artifacts/**/target/*.jar"
