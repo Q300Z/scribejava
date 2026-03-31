@@ -33,7 +33,6 @@ import com.github.scribejava.core.httpclient.HttpClient;
 import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
-import com.github.scribejava.core.oauth.OAuth20Service;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +40,7 @@ import org.junit.jupiter.api.Test;
 public class OidcAutoConfigTest {
 
   /**
-   * Vérifie que le builder configure correctement les endpoints via JsonBuilder.
+   * Vérifie que le builder configure correctement les endpoints via OIDC Discovery.
    *
    * @throws Exception en cas d'erreur
    */
@@ -61,7 +60,7 @@ public class OidcAutoConfigTest {
     when(response.getCode()).thenReturn(200);
     when(response.getBody()).thenReturn(json);
 
-    // Mock Discovery robuste supportant thenApply()
+    // Mock Discovery robuste
     doAnswer(
             invocation -> {
               final OAuthRequest.ResponseConverter<?> converter = invocation.getArgument(6);
@@ -74,20 +73,8 @@ public class OidcAutoConfigTest {
     final OidcServiceBuilder builder = new OidcServiceBuilder("client-id");
     builder.baseOnDiscovery(issuer, httpClient, "ua");
 
-    final DefaultOidcApi20 api =
-        new DefaultOidcApi20() {
-          @Override
-          public String getAccessTokenEndpoint() {
-            return null;
-          }
-
-          @Override
-          public String getAuthorizationBaseUrl() {
-            return null;
-          }
-        };
-
-    final OAuth20Service service = builder.build(api);
+    // On utilise une API dont les endpoints seront écrasés par le Discovery
+    final OidcService service = builder.build(OidcGoogleApi20.instance());
 
     assertThat(service.getAuthorizationUrl()).contains("https://server.com/auth");
   }
