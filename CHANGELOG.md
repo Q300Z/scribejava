@@ -1,5 +1,21 @@
 # 📓 Journal des modifications (Changelog)
 
+## [9.3.1](https://github.com/Q300Z/scribejava/compare/v9.3.0...v9.3.1) (2026-03-31)
+
+### Features
+
+* **oidc:** support du flux PAR (Pushed Authorization Requests - RFC 9126) ([26f08f7](https://github.com/Q300Z/scribejava/commit/26f08f72))
+* **oidc:** automatisation via OIDC Discovery (Issuer, JWKS, End Session) ([f305646](https://github.com/Q300Z/scribejava/commit/f3056467))
+* **oidc:** implémentation du RP-Initiated Logout
+* **ci:** certification multi-JDK (Java 8 à 25) avec matrice de tests automatisée
+* **docs:** publication automatisée de la Javadoc sur GitHub Pages
+* **dx:** processus de release industriel avec release-it et changelog conventionnel
+
+### Bug Fixes
+
+* **ci:** stabilisation du workflow de release et gestion des artefacts ([02938a8](https://github.com/Q300Z/scribejava/commit/02938a8e))
+* **style:** conformité totale aux règles Spotless, Checkstyle et PMD
+
 # [9.3.0](https://github.com/Q300Z/scribejava/compare/v9.2.7...v9.3.0) (2026-03-31)
 
 
