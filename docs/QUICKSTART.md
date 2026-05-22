@@ -14,28 +14,29 @@ ScribeJava v9.2.x est conçu pour être opérationnel en quelques minutes. Cette
 
 ## 🗺️ Choisissez votre flux
 
-### 1. OAuth 2.0 Standard (Interactif)
+### 1. OAuth 2.0 Standard & Fournisseurs Spécifiques
 
-Idéal pour les applications web ou les outils CLI où l'utilisateur peut ouvrir un navigateur.
+Idéal pour les applications web ou les outils CLI.
 
 * **Sécurité** : Inclus PKCE (RFC 7636).
+* **Exemples standard** :
+  * [`OAuth20QuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OAuth20QuickStart.java) (Exemple générique)
+  * [`KeycloakQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/KeycloakQuickStart.java) (Connexion et UserInfo avec **Keycloak** en local ou à distance)
 
-* **Exemple** : [`OAuth20QuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OAuth20QuickStart.java)
+### 2. OpenID Connect (OIDC) Natif & Cloud Identity
 
-### 2. OpenID Connect (OIDC) Natif
-
-Pour l'authentification moderne avec validation automatique de l'identité.
+Pour l'authentification moderne avec validation automatique de l'identité et décodage de l'ID Token.
 
 * **Fonctionnalité** : Découverte dynamique (Discovery) et validation native du jeton (ID Token).
-
-* **Exemple** : [`OidcQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OidcQuickStart.java)
+* **Exemples OIDC** :
+  * **Google** : [`OidcQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OidcQuickStart.java) (Découverte et validation OIDC Google native)
+  * **Microsoft Entra ID (Azure AD)** : [`MicrosoftAdQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/MicrosoftAdQuickStart.java) (Intégration OIDC multi-tenant Microsoft et appels Microsoft Graph API)
 
 ### 3. Machine-to-Machine (Client Credentials)
 
 Pour les serveurs, les démons ou les scripts automatisés sans intervention humaine.
 
 * **Fonctionnalité** : Authentification directe du client.
-
 * **Exemple** : [`ClientCredentialsQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/ClientCredentialsQuickStart.java)
 
 ### 4. Appareils sans Navigateur (Device Flow)
@@ -43,21 +44,26 @@ Pour les serveurs, les démons ou les scripts automatisés sans intervention hum
 Pour les terminaux SSH, les Smart TV ou les objets connectés (IoT).
 
 * **Fonctionnalité** : Validation déportée sur un autre appareil (Smartphone).
-
 * **Exemple** : [`DeviceFlowQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/DeviceFlowQuickStart.java)
 
 ---
 
 ## 🛠️ Comment lancer les exemples ?
 
-Tous les exemples sont situés dans le module `scribejava-apis`. Vous pouvez les copier dans votre projet ou les lancer via Maven :
+Tous les exemples sont situés dans le module `scribejava-apis`. Vous pouvez les copier dans votre projet ou les lancer directement via Maven :
 
 ```bash
-
-# Exemple pour le flux standard
-
+# Lancer l'exemple générique OAuth2
 mvn test-compile exec:java -Dexec.mainClass="com.github.scribejava.apis.examples.quickstart.OAuth20QuickStart" -pl scribejava-apis
 
+# Lancer l'exemple OIDC Google
+mvn test-compile exec:java -Dexec.mainClass="com.github.scribejava.apis.examples.quickstart.OidcQuickStart" -pl scribejava-apis
+
+# Lancer l'exemple Keycloak
+mvn test-compile exec:java -Dexec.mainClass="com.github.scribejava.apis.examples.quickstart.KeycloakQuickStart" -pl scribejava-apis
+
+# Lancer l'exemple Microsoft Azure AD
+mvn test-compile exec:java -Dexec.mainClass="com.github.scribejava.apis.examples.quickstart.MicrosoftAdQuickStart" -pl scribejava-apis
 ```
 
 ---
