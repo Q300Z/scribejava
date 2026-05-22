@@ -104,9 +104,33 @@ service.setRateLimitListener((remaining, resetAt, response) -> {
 
 ```
 
-### Logging Structuré
+### Logging Structuré & Observabilité
 
-Branchez votre infrastructure de logs (SLF4J, Log4j2) via l'interface `OAuthLogger`.
+ScribeJava propose une observabilité de premier ordre sans aucune dépendance externe (zéro dépendance tierce) pour le diagnostic en production :
+
+- **`DefaultOAuthLogger`** : Formate de manière lisible les requêtes et réponses HTTP (avec commandes cURL prêtes à copier-coller) et effectue un masquage automatique et ultra-performant des secrets (`client_secret`, `access_token`, en-têtes d'autorisation, etc.) via des expressions régulières JDK natives.
+- **`JdkOAuthLogger`** : Route les logs formatés et masqués directement vers le framework standard de logging de Java (`java.util.logging.Logger`).
+
+#### Configuration Automatique
+L'appel à `.debug()` ou `.debugStream(PrintStream)` sur le `ServiceBuilder` branche automatiquement un `DefaultOAuthLogger` écrivant sur `System.out` ou sur le flux spécifié :
+
+```java
+OAuth20Service service = new ServiceBuilder("client-id")
+    .apiSecret("secret")
+    .debug() // Active automatiquement DefaultOAuthLogger sur System.out avec masquage automatique des secrets
+    .build(GitHubApi.instance());
+```
+
+#### Configuration Personnalisée
+Pour rediriger vers votre propre infrastructure de logs (SLF4J, Log4j2) ou vers le système standard du JDK, utilisez `.logger(OAuthLogger)` :
+
+```java
+// Logger JDK standard (JUL) avec masquage automatique des secrets
+OAuth20Service service = new ServiceBuilder("client-id")
+    .apiSecret("secret")
+    .logger(new JdkOAuthLogger(Logger.getLogger("monApp.scribejava")))
+    .build(GitHubApi.instance());
+```
 
 ---
 

@@ -26,6 +26,22 @@ OAuth20Service service = new ServiceBuilder(clientId)
 
 ```
 
+### Liaison Dynamique et Interception DPoP
+Pour les cas avancés ou les flux dynamiques, vous pouvez lier dynamiquement le jeton d'accès à l'intercepteur `DPoPInterceptor` afin d'intégrer le claim `'ath'` (hachage du jeton d'accès) requis par la spécification RFC 9449 :
+
+```java
+// Instanciation de l'intercepteur avec liaison dynamique de jeton
+DPoPInterceptor dpopInterceptor = new DPoPInterceptor(proofCreator);
+
+OAuth20Service service = new ServiceBuilder(clientId)
+    .apiSecret(secret)
+    .requestInterceptor(dpopInterceptor) // Enregistrement de l'intercepteur
+    .build(GoogleApi20.instance());
+
+// Lors de l'acquisition ou de la rotation du jeton, mettez à jour l'intercepteur :
+dpopInterceptor.setAccessToken(token.getAccessToken());
+```
+
 ---
 
 ## 🛰️ 2. PAR (Pushed Authorization Requests)
