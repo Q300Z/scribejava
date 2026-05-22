@@ -1,5 +1,12 @@
 # 📓 Journal des modifications (Changelog)
 
+## [9.4.1](https://github.com/Q300Z/scribejava/compare/v9.4.0...v9.4.1) (2026-05-22)
+
+
+### Bug Fixes
+
+* **security:** resolve parser DoS and reflected XSS vulnerabilities ([102ff87](https://github.com/Q300Z/scribejava/commit/102ff879e07c8811a75461a3a5df8d8af11f2d56))
+
 # [9.4.0](https://github.com/Q300Z/scribejava/compare/v9.3.0...v9.4.0) (2026-05-22)
 
 
