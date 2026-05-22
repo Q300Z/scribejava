@@ -45,18 +45,17 @@ import java.util.concurrent.ExecutionException;
 /**
  * [QUICKSTART] Connexion OIDC avec Microsoft Entra ID (Azure AD).
  *
- * <p>Ce programme démontre :
- * 1. Configuration avec un tenant Microsoft spécifique (commun ou privé).
- * 2. Utilisation de PKCE pour sécuriser la communication.
- * 3. Validation native de l'ID Token Microsoft.
- * 4. Appel de l'API Microsoft Graph (/me) à l'aide du jeton d'accès.
+ * <p>Ce programme démontre : 1. Configuration avec un tenant Microsoft spécifique (commun ou
+ * privé). 2. Utilisation de PKCE pour sécuriser la communication. 3. Validation native de l'ID
+ * Token Microsoft. 4. Appel de l'API Microsoft Graph (/me) à l'aide du jeton d'accès.
  */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class MicrosoftAdQuickStart {
 
   private static final String TENANT = config("MICROSOFT_TENANT", "common");
   private static final String CLIENT_ID = config("MICROSOFT_CLIENT_ID", "votre_client_id");
-  private static final String CLIENT_SECRET = config("MICROSOFT_CLIENT_SECRET", "votre_client_secret");
+  private static final String CLIENT_SECRET =
+      config("MICROSOFT_CLIENT_SECRET", "votre_client_secret");
 
   private MicrosoftAdQuickStart() {}
 
@@ -95,11 +94,7 @@ public final class MicrosoftAdQuickStart {
 
     // 4. Génération de l'URL d'autorisation
     final String authUrl =
-        service
-            .createAuthorizationUrlBuilder()
-            .pkce(pkce)
-            .state("microsoft_csrf_state")
-            .build();
+        service.createAuthorizationUrlBuilder().pkce(pkce).state("microsoft_csrf_state").build();
 
     System.out.println("\n1. Ouvrez cette URL dans votre navigateur :");
     System.out.println(authUrl);
@@ -117,7 +112,9 @@ public final class MicrosoftAdQuickStart {
     // 6. Validation native du jeton d'identité (ID Token)
     System.out.println("\nValidation de l'ID Token...");
     final IdToken idToken = service.validateIdToken(token, null);
-    System.out.println("ID Token valide ! Utilisateur ID (Sub) : " + idToken.getStandardClaims().getSub().orElse("N/A"));
+    System.out.println(
+        "ID Token valide ! Utilisateur ID (Sub) : "
+            + idToken.getStandardClaims().getSub().orElse("N/A"));
 
     final StandardClaims claims = new StandardClaims(idToken.getClaims());
     System.out.println("Nom complet  : " + claims.getName().orElse("N/A"));

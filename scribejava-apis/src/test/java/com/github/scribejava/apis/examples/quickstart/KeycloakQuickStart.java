@@ -43,10 +43,9 @@ import java.util.concurrent.ExecutionException;
 /**
  * [QUICKSTART] Connexion OAuth 2.0 et OIDC avec Keycloak.
  *
- * <p>Ce programme démontre l'intégration de ScribeJava avec Keycloak :
- * 1. Configuration de l'API Keycloak avec l'URL de base et le Realm.
- * 2. Utilisation de PKCE (Proof Key for Code Exchange) pour sécuriser le flux.
- * 3. Appel de l'endpoint standard UserInfo.
+ * <p>Ce programme démontre l'intégration de ScribeJava avec Keycloak : 1. Configuration de l'API
+ * Keycloak avec l'URL de base et le Realm. 2. Utilisation de PKCE (Proof Key for Code Exchange)
+ * pour sécuriser le flux. 3. Appel de l'endpoint standard UserInfo.
  */
 @SuppressWarnings("PMD.SystemPrintln")
 public final class KeycloakQuickStart {
@@ -54,7 +53,8 @@ public final class KeycloakQuickStart {
   private static final String KEYCLOAK_URL = config("KEYCLOAK_URL", "http://localhost:8080");
   private static final String REALM = config("KEYCLOAK_REALM", "master");
   private static final String CLIENT_ID = config("KEYCLOAK_CLIENT_ID", "votre_client_id");
-  private static final String CLIENT_SECRET = config("KEYCLOAK_CLIENT_SECRET", "votre_client_secret");
+  private static final String CLIENT_SECRET =
+      config("KEYCLOAK_CLIENT_SECRET", "votre_client_secret");
 
   private KeycloakQuickStart() {}
 
@@ -92,11 +92,7 @@ public final class KeycloakQuickStart {
 
     // 4. Génération de l'URL d'autorisation
     final String authUrl =
-        service
-            .createAuthorizationUrlBuilder()
-            .pkce(pkce)
-            .state("keycloak_csrf_state")
-            .build();
+        service.createAuthorizationUrlBuilder().pkce(pkce).state("keycloak_csrf_state").build();
 
     System.out.println("\n1. Ouvrez cette URL dans votre navigateur :");
     System.out.println(authUrl);
@@ -114,7 +110,8 @@ public final class KeycloakQuickStart {
     System.out.println("Refresh Token : " + token.getRefreshToken());
 
     // 6. Appel de l'endpoint UserInfo de Keycloak
-    final String userInfoUrl = KEYCLOAK_URL + "/realms/" + REALM + "/protocol/openid-connect/userinfo";
+    final String userInfoUrl =
+        KEYCLOAK_URL + "/realms/" + REALM + "/protocol/openid-connect/userinfo";
     System.out.println("\nRécupération des informations utilisateur depuis : " + userInfoUrl);
 
     final OAuthRequest request = new OAuthRequest(Verb.GET, userInfoUrl);
