@@ -18,6 +18,7 @@ release_notes.txt
 node_modules/
 
 # Local CI artifacts
+artifacts/
 ci-logs/
 docs-output/
 
