@@ -1125,10 +1125,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-larchitecture-de-base-defaultapi20" class="md-nav__link">
+  <a href="#1-pourquoi-implementer-un-fournisseur-personnalise" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🏗️ 1. L'architecture de base (DefaultApi20)
+        🎯 1. Pourquoi implémenter un fournisseur personnalisé ?
       
     </span>
   </a>
@@ -1136,13 +1136,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-exemple-pas-a-pas-dune-api-personnalisee" class="md-nav__link">
+  <a href="#2-larchitecture-de-base" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🛠️ 2. Exemple pas à pas d'une API Personnalisée
+        🏗️ 2. L'architecture de base
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="🏗️ 2. L&#39;architecture de base">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exemple-de-classe-dapi-avec-le-pattern-singleton-thread-safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemple de classe d'API (avec le pattern Singleton thread-safe) :
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1170,10 +1187,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#b-methode-dauthentification-du-client-specifique" class="md-nav__link">
+  <a href="#b-authentification-du-client-specifique" class="md-nav__link">
     <span class="md-ellipsis">
       
-        B. Méthode d'authentification du client spécifique
+        B. Authentification du client spécifique
       
     </span>
   </a>
@@ -1197,10 +1214,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-utilisation-de-votre-api-personnalisee" class="md-nav__link">
+  <a href="#4-utilisation-et-integration-complete-le-flux-oauth2" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🚀 4. Utilisation de votre API personnalisée
+        🚀 4. Utilisation et Intégration Complète (Le Flux OAuth2)
       
     </span>
   </a>
@@ -1239,31 +1256,38 @@
 
 
 <h1 id="comment-ajouter-un-nouveau-fournisseur-api-custom-provider">🔌 Comment ajouter un nouveau fournisseur (API Custom Provider)</h1>
-<p>ScribeJava est conçue pour être extrêmement modulaire et facile à étendre. Si vous devez intégrer un serveur d'autorisation ou un fournisseur d'identité OAuth 2.0 ou 1.0a qui n'est pas encore présent dans le module <code>scribejava-apis</code>, vous pouvez facilement créer votre propre configuration d'API.</p>
+<p>ScribeJava est conçue pour être extrêmement modulaire et facile à étendre. Si vous devez intégrer un serveur d'autorisation ou un fournisseur d'identité OAuth 2.0 ou 1.0a qui n'est pas encore présent dans la bibliothèque, vous pouvez facilement créer votre propre configuration d'API.</p>
 <hr />
-<h2 id="1-larchitecture-de-base-defaultapi20">🏗️ 1. L'architecture de base (<code>DefaultApi20</code>)</h2>
+<h2 id="1-pourquoi-implementer-un-fournisseur-personnalise">🎯 1. Pourquoi implémenter un fournisseur personnalisé ?</h2>
+<p>L'implémentation d'un fournisseur d'API personnalisé (<code>DefaultApi20</code> ou <code>DefaultApi10a</code>) présente plusieurs intérêts majeurs :</p>
+<ol>
+<li><strong>Intégration de Serveurs Privés ou Internes</strong> : Si votre entreprise utilise son propre serveur d'authentification (ex. Keycloak, Authentik, Shibboleth, Ping Identity ou un serveur OAuth2 "maison"), ces configurations privées n'ont pas leur place dans la bibliothèque publique ScribeJava. Créer un fournisseur personnalisé vous permet de les intégrer proprement dans votre codebase.</li>
+<li><strong>Gestion des Spécificités Non Standards</strong> : De nombreux serveurs OAuth2 ne respectent pas strictement la RFC 6749 (ex. ils retournent des formats de jetons différents, exigent des paramètres de requête spécifiques ou utilisent des en-têtes d'autorisation non conventionnels). Surcharger les méthodes de <code>DefaultApi20</code> permet d'adapter ScribeJava à ces singularités sans toucher au moteur interne de la bibliothèque.</li>
+<li><strong>Indépendance vis-à-vis des Mises à Jour de ScribeJava</strong> : Si un nouveau service tiers apparaît sur le marché ou qu'une API existante change ses points de terminaison, vous n'avez pas besoin d'attendre une nouvelle version de ScribeJava ou de soumettre une Pull Request. Vous pouvez ajuster ou créer votre propre fournisseur d'API en quelques secondes directement dans votre projet.</li>
+<li><strong>Zéro Réflexion &amp; Performance Maximale</strong> : Plutôt que de configurer dynamiquement des URL via des fichiers de configuration complexes à analyser, l'écriture d'une classe d'API fournit une configuration typée, compilée, immuable et performante.</li>
+</ol>
+<hr />
+<h2 id="2-larchitecture-de-base">🏗️ 2. L'architecture de base</h2>
 <p>Pour ajouter un fournisseur OAuth 2.0, il vous suffit de créer une classe qui hérite de <strong><code>com.github.scribejava.core.builder.api.DefaultApi20</code></strong>.</p>
 <p>Cette classe abstraite nécessite l'implémentation de deux méthodes fondamentales :
 - <strong><code>getAccessTokenEndpoint()</code></strong> : L'URL du point de terminaison pour échanger le code d'autorisation (ou les autres concessions) contre un jeton d'accès (Access Token).
 - <strong><code>getAuthorizationBaseUrl()</code></strong> : L'URL de base vers laquelle rediriger l'utilisateur pour qu'il s'authentifie et accorde les autorisations.</p>
-<hr />
-<h2 id="2-exemple-pas-a-pas-dune-api-personnalisee">🛠️ 2. Exemple pas à pas d'une API Personnalisée</h2>
-<p>Voici l'implémentation type recommandée, utilisant le pattern <strong>Singleton</strong> (filtre de concurrence thread-safe) :</p>
+<h3 id="exemple-de-classe-dapi-avec-le-pattern-singleton-thread-safe">Exemple de classe d'API (avec le pattern Singleton thread-safe) :</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">package</span><span class="w"> </span><span class="nn">com.github.scribejava.apis</span><span class="p">;</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.builder.api.DefaultApi20</span><span class="p">;</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MonServiceApi</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">DefaultApi20</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="c1">// 1. Constructeur protégé pour empêcher l&#39;instanciation directe</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="c1">// Constructeur protégé pour empêcher l&#39;instanciation directe</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="kd">protected</span><span class="w"> </span><span class="nf">MonServiceApi</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="c1">// 2. Holder interne statique pour un chargement paresseux et thread-safe</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="c1">// Holder interne statique pour un chargement immuable et thread-safe</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">InstanceHolder</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">MonServiceApi</span><span class="w"> </span><span class="n">INSTANCE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MonServiceApi</span><span class="p">();</span>
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="p">}</span>
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="c1">// 3. Point d&#39;accès unique à l&#39;instance</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="c1">// Point d&#39;accès unique à l&#39;instance immuable</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">MonServiceApi</span><span class="w"> </span><span class="nf">instance</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">InstanceHolder</span><span class="p">.</span><span class="na">INSTANCE</span><span class="p">;</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="p">}</span>
@@ -1281,9 +1305,9 @@
 </code></pre></div>
 <hr />
 <h2 id="3-personnalisations-avancees-facultatif">⚙️ 3. Personnalisations avancées (Facultatif)</h2>
-<p>Si votre fournisseur d'identité ne suit pas scrupuleusement la spécification standard ou requiert des en-têtes/formats particuliers, vous pouvez surcharger plusieurs méthodes de la classe <code>DefaultApi20</code> :</p>
+<p>Si votre fournisseur d'identité exige des comportements particuliers, vous pouvez surcharger les méthodes suivantes de <code>DefaultApi20</code> :</p>
 <h3 id="a-format-de-reponse-du-jeton-non-standard">A. Format de réponse du jeton non standard</h3>
-<p>Par défaut, ScribeJava utilise le parseur JSON standard (<code>OAuth2AccessTokenJsonExtractor</code>). Si votre fournisseur retourne le jeton dans un autre format (comme du texte brut ou des paires clé-valeur de type formulaire) :
+<p>Par défaut, ScribeJava s'attend à recevoir le jeton sous format JSON standard. Si le serveur retourne le jeton dans un autre format (comme du texte brut ou du format QueryString <code>access_token=xxx&amp;expires_in=yyy</code>) :
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.extractors.TokenExtractor</span><span class="p">;</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.extractors.OAuth2AccessTokenExtractor</span><span class="p">;</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.OAuth2AccessToken</span><span class="p">;</span>
@@ -1294,8 +1318,8 @@
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">OAuth2AccessTokenExtractor</span><span class="p">.</span><span class="na">instance</span><span class="p">();</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">}</span>
 </code></pre></div></p>
-<h3 id="b-methode-dauthentification-du-client-specifique">B. Méthode d'authentification du client spécifique</h3>
-<p>Par défaut, le <code>client_id</code> et le <code>client_secret</code> sont envoyés via l'en-tête HTTP <code>Authorization</code> (Basic Auth). Si votre fournisseur exige qu'ils soient envoyés dans le corps du POST (RequestBody) :
+<h3 id="b-authentification-du-client-specifique">B. Authentification du client spécifique</h3>
+<p>Par défaut, ScribeJava envoie le <code>client_id</code> et le <code>client_secret</code> via l'en-tête HTTP <code>Authorization: Basic ...</code> (Basic Auth). Si votre fournisseur exige qu'ils soient envoyés dans le corps de la requête POST (RequestBody) :
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication</span><span class="p">;</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme</span><span class="p">;</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
@@ -1305,7 +1329,7 @@
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">}</span>
 </code></pre></div></p>
 <h3 id="c-signature-des-requetes-de-ressources-bearer-signature">C. Signature des requêtes de ressources (Bearer Signature)</h3>
-<p>Par défaut, le jeton d'accès est transmis dans les en-têtes de requêtes via <code>Authorization: Bearer &lt;token&gt;</code>. Si le serveur exige que le jeton soit transmis comme paramètre d'URL (Query string) :
+<p>Par défaut, le jeton d'accès est transmis dans les en-têtes de requêtes de ressources via <code>Authorization: Bearer &lt;token&gt;</code>. Si le serveur exige que le jeton soit transmis comme paramètre d'URL (Query parameter) :
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.oauth2.bearersignature.BearerSignature</span><span class="p">;</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.oauth2.bearersignature.BearerSignatureURIQueryParameter</span><span class="p">;</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -1315,16 +1339,50 @@
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
 </code></pre></div></p>
 <hr />
-<h2 id="4-utilisation-de-votre-api-personnalisee">🚀 4. Utilisation de votre API personnalisée</h2>
-<p>Une fois votre classe d'API définie, vous pouvez l'utiliser directement dans votre <code>ServiceBuilder</code> habituel :</p>
+<h2 id="4-utilisation-et-integration-complete-le-flux-oauth2">🚀 4. Utilisation et Intégration Complète (Le Flux OAuth2)</h2>
+<p>Voici comment instancier votre fournisseur d'API personnalisé et dérouler un flux complet d'obtention de jeton et de signature de requête :</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.builder.ServiceBuilder</span><span class="p">;</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.oauth.OAuth20Service</span><span class="p">;</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;votre-client-id&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;votre-client-secret&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="p">.</span><span class="na">callback</span><span class="p">(</span><span class="s">&quot;https://votre-app.com/callback&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="p">.</span><span class="na">defaultScope</span><span class="p">(</span><span class="s">&quot;read_user&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">MonServiceApi</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span><span class="w"> </span><span class="c1">// Passage de votre instance personnalisée</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.OAuthRequest</span><span class="p">;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.Response</span><span class="p">;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.Verb</span><span class="p">;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.OAuth2AccessToken</span><span class="p">;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.AuthorizationCodeGrant</span><span class="p">;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Scanner</span><span class="p">;</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Main</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">        </span><span class="c1">// 1. Initialisation du service avec votre API personnalisée</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;mon-client-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">                </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;mon-client-secret&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">                </span><span class="p">.</span><span class="na">callback</span><span class="p">(</span><span class="s">&quot;http://localhost:8080/callback&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">                </span><span class="p">.</span><span class="na">defaultScope</span><span class="p">(</span><span class="s">&quot;profile&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">MonServiceApi</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span><span class="w"> </span><span class="c1">// &lt;-- Utilisation ici</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">        </span><span class="c1">// 2. Génération de l&#39;URL d&#39;autorisation</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">authorizationUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAuthorizationUrl</span><span class="p">();</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;1. Connectez-vous via cette URL : &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">authorizationUrl</span><span class="p">);</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">        </span><span class="c1">// 3. Récupération du code d&#39;autorisation (ex. via console)</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">&quot;Entrez le code d&#39;autorisation reçu : &quot;</span><span class="p">);</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">Scanner</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Scanner</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">in</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;UTF-8&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">in</span><span class="p">.</span><span class="na">nextLine</span><span class="p">();</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">        </span><span class="c1">// 4. Échange du code d&#39;autorisation contre l&#39;Access Token</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Échange du code d&#39;autorisation...&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">OAuth2AccessToken</span><span class="w"> </span><span class="n">accessToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAccessToken</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AuthorizationCodeGrant</span><span class="p">(</span><span class="n">code</span><span class="p">));</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Jeton reçu ! Access Token : &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">accessToken</span><span class="p">.</span><span class="na">getAccessToken</span><span class="p">());</span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">        </span><span class="c1">// 5. Signature et exécution d&#39;une requête HTTP vers l&#39;API protégée</span>
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">OAuthRequest</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OAuthRequest</span><span class="p">(</span><span class="n">Verb</span><span class="p">.</span><span class="na">GET</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;https://api.monservice.com/v1/profile&quot;</span><span class="p">);</span>
+<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">        </span><span class="n">service</span><span class="p">.</span><span class="na">signRequest</span><span class="p">(</span><span class="n">accessToken</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p">);</span><span class="w"> </span><span class="c1">// &lt;-- Signature automatique</span>
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>
+<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">Response</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">execute</span><span class="p">(</span><span class="n">request</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="w">            </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Code HTTP de réponse : &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">getCode</span><span class="p">());</span>
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">            </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Corps de la réponse : &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="na">getBody</span><span class="p">());</span>
+<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
 <h2 id="5-cas-doauth-10a">📝 5. Cas d'OAuth 1.0a</h2>
