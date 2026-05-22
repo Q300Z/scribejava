@@ -63,4 +63,33 @@ class ExpiringTokenWrapperTest {
     // Cas 2 : On vérifie à T0 + 3550s avec un buffer de 120s -> 3670s > 3600s -> EXPIRE
     assertThat(wrapper.isExpiredWithBuffer(now.plusSeconds(3550), 120)).isTrue();
   }
+
+  @Test
+  void shouldHandleNullExpiresIn() {
+    OAuth2AccessToken token =
+        new OAuth2AccessToken("access", null, null, "refresh", "scope", "raw");
+    Instant now = Instant.now();
+    ExpiringTokenWrapper wrapper = new ExpiringTokenWrapper(token, now);
+
+    assertThat(wrapper.getExpirationInstant()).isEqualTo(Instant.MAX);
+    assertThat(wrapper.isExpired(now.plusSeconds(100000))).isFalse();
+    assertThat(wrapper.isExpiredWithBuffer(now.plusSeconds(100000), 300)).isFalse();
+  }
+
+  @Test
+  void shouldSupportDefaultConstructorAndGetters() {
+    ExpiringTokenWrapper wrapper = new ExpiringTokenWrapper();
+    assertThat(wrapper.getToken()).isNull();
+    assertThat(wrapper.getReceivedAt()).isNull();
+    assertThat(wrapper.getExpirationInstant()).isNull();
+  }
+
+  @Test
+  void shouldSupportIsExpiredWithBufferWithoutInstant() {
+    OAuth2AccessToken token =
+        new OAuth2AccessToken("access", "token", -10, "refresh", "scope", "raw");
+    ExpiringTokenWrapper wrapper = new ExpiringTokenWrapper(token);
+    assertThat(wrapper.isExpired()).isTrue();
+    assertThat(wrapper.isExpiredWithBuffer(60)).isTrue();
+  }
 }

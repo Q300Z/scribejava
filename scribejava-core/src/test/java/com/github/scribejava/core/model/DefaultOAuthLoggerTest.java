@@ -23,16 +23,17 @@
  */
 package com.github.scribejava.core.model;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests unitaires pour {@link DefaultOAuthLogger}. */
-public class DefaultOAuthLoggerTest {
+class DefaultOAuthLoggerTest {
 
   /** Vérifie le masquage des champs sensibles dans le corps d'une réponse JSON. */
   @Test
@@ -91,7 +92,7 @@ public class DefaultOAuthLoggerTest {
     final String logOutput = baos.toString();
     assertTrue(logOutput.contains("[ScribeJava] ---> HTTP REQUEST"));
     assertTrue(logOutput.contains("POST http://example.com/oauth/token"));
-    assertTrue(logOutput.contains("Authorization=[REDACTED]"));
+    assertTrue(logOutput.contains("Authorization=Bearer [REDACTED]"));
     assertTrue(logOutput.contains("client_secret=[REDACTED]"));
     assertTrue(logOutput.contains("grant_type=client_credentials"));
     assertTrue(logOutput.contains("cURL:"));
@@ -123,5 +124,45 @@ public class DefaultOAuthLoggerTest {
     assertTrue(logOutput.contains("\"access_token\":\"[MASKED]\""));
     assertTrue(logOutput.contains("\"token_type\":\"Bearer\""));
     assertTrue(logOutput.contains("[ScribeJava] <--- END HTTP RESPONSE"));
+  }
+
+  /** Vérifie la résilience du logger face à des entrées nulles. */
+  @Test
+  void shouldBeResilientToNullInputs() {
+    final DefaultOAuthLogger logger = new DefaultOAuthLogger();
+    assertDoesNotThrow(() -> logger.logRequest(null));
+    assertDoesNotThrow(() -> logger.logResponse(null));
+    assertEquals("", logger.sanitizeResponseBody(null));
+  }
+
+  /** Vérifie le comportement du logger avec une réponse dont le corps est nul. */
+  @Test
+  void shouldLogResponseWithNullBody() {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final DefaultOAuthLogger logger = new DefaultOAuthLogger(baos);
+    final Response response = new Response(200, "OK", new HashMap<>(), (String) null);
+
+    logger.logResponse(response);
+
+    final String logOutput = baos.toString();
+    assertTrue(logOutput.contains("Status Code: 200"));
+    assertFalse(logOutput.contains("Body:"));
+  }
+
+  /** Vérifie que le logger attrape et journalise proprement les IOException du corps. */
+  @Test
+  void shouldHandleIOExceptionWhenReadingResponseBody() throws IOException {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    final DefaultOAuthLogger logger = new DefaultOAuthLogger(baos);
+
+    final Response mockResponse = mock(Response.class);
+    when(mockResponse.getCode()).thenReturn(500);
+    when(mockResponse.getBody()).thenThrow(new IOException("Simulated network failure"));
+
+    logger.logResponse(mockResponse);
+
+    final String logOutput = baos.toString();
+    assertTrue(logOutput.contains("Status Code: 500"));
+    assertTrue(logOutput.contains("Body: [Error reading response body: Simulated network failure]"));
   }
 }

@@ -124,4 +124,86 @@ public class OidcDiscoveryServiceTest {
     assertThat(keys.get("123")).isNotNull();
     assertThat(keys.get("123").getKid()).isEqualTo("123");
   }
+
+  @Test
+  public void shouldThrowOnMetadataFetchFailure() {
+    server.enqueue(new MockResponse().setResponseCode(500));
+    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
+        java.util.concurrent.ExecutionException.class,
+        () -> service.getProviderMetadata());
+    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+  }
+
+  @Test
+  public void shouldThrowOnIssuerMismatch() {
+    final String json =
+        new JsonBuilder()
+            .add("issuer", "https://different-issuer.com")
+            .add("authorization_endpoint", server.url("/authorize").toString())
+            .add("token_endpoint", server.url("/token").toString())
+            .add("jwks_uri", server.url("/jwks.json").toString())
+            .add("response_types_supported", Collections.singletonList("code"))
+            .add("subject_types_supported", Collections.singletonList("public"))
+            .add("id_token_signing_alg_values_supported", Collections.singletonList("RS256"))
+            .build();
+
+    server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
+
+    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
+        java.util.concurrent.ExecutionException.class,
+        () -> service.getProviderMetadata());
+    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+  }
+
+  @Test
+  public void shouldThrowOnMalformedMetadataJson() {
+    server.enqueue(new MockResponse().setBody("{invalid-json").setResponseCode(200));
+    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
+        java.util.concurrent.ExecutionException.class,
+        () -> service.getProviderMetadata());
+    assertThat(ex.getCause()).isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
+  public void shouldThrowOnJwksFetchFailure() {
+    server.enqueue(new MockResponse().setResponseCode(404));
+    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
+        java.util.concurrent.ExecutionException.class,
+        () -> service.getJwks(server.url("/jwks.json").toString()));
+    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+  }
+
+  @Test
+  public void shouldThrowOnMalformedJwksJson() {
+    server.enqueue(new MockResponse().setBody("{invalid-jwks").setResponseCode(200));
+    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
+        java.util.concurrent.ExecutionException.class,
+        () -> service.getJwks(server.url("/jwks.json").toString()));
+    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+  }
+
+  @Test
+  public void shouldSupportIssuerUriWithoutTrailingSlash() throws Exception {
+    final String baseWithoutSlash = server.url("/foo").toString();
+    final String issuer = baseWithoutSlash.endsWith("/") ? baseWithoutSlash.substring(0, baseWithoutSlash.length() - 1) : baseWithoutSlash;
+
+    final OidcDiscoveryService serviceNoSlash =
+        new OidcDiscoveryService(issuer, new JDKHttpClient(), "ScribeJava-Test");
+
+    final String json =
+        new JsonBuilder()
+            .add("issuer", issuer)
+            .add("authorization_endpoint", server.url("/authorize").toString())
+            .add("token_endpoint", server.url("/token").toString())
+            .add("jwks_uri", server.url("/jwks.json").toString())
+            .add("response_types_supported", Collections.singletonList("code"))
+            .add("subject_types_supported", Collections.singletonList("public"))
+            .add("id_token_signing_alg_values_supported", Collections.singletonList("RS256"))
+            .build();
+
+    server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
+    final OidcProviderMetadata metadata = serviceNoSlash.getProviderMetadata();
+    assertThat(metadata).isNotNull();
+    assertThat(metadata.getIssuer()).isEqualTo(issuer);
+  }
 }

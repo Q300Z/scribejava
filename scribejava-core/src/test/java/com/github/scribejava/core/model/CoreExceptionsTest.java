@@ -41,6 +41,62 @@ public class CoreExceptionsTest {
   }
 
   @Test
+  public void shouldTestOAuthResponseExceptionJsonError() throws IOException {
+    final String errorJson = "{\"error\":\"invalid_request\",\"error_description\":\"bad parameters\"}";
+    final Response response = new Response(400, "Bad Request", Collections.emptyMap(), errorJson);
+    final OAuthResponseException ex = new OAuthResponseException(response);
+
+    assertThat(ex.getErrorDetails()).isPresent();
+    assertThat(ex.getErrorDetails().get().getString("error")).isEqualTo("invalid_request");
+    assertThat(ex.getOAuth2Error()).isPresent().contains(OAuth2Error.INVALID_REQUEST);
+  }
+
+  @Test
+  public void shouldTestOAuthResponseExceptionNonJsonError() throws IOException {
+    final Response response = new Response(400, "Bad Request", Collections.emptyMap(), "not-a-json-body");
+    final OAuthResponseException ex = new OAuthResponseException(response);
+
+    assertThat(ex.getErrorDetails()).isEmpty();
+    assertThat(ex.getOAuth2Error()).isEmpty();
+  }
+
+  @Test
+  public void shouldTestOAuthResponseExceptionEmptyBody() throws IOException {
+    final Response response = new Response(400, "Bad Request", Collections.emptyMap(), (String) null);
+    final OAuthResponseException ex = new OAuthResponseException(response);
+
+    assertThat(ex.getErrorDetails()).isEmpty();
+  }
+
+  @Test
+  public void shouldTestOAuthResponseExceptionMalformedJson() throws IOException {
+    final Response response = new Response(400, "Bad Request", Collections.emptyMap(), "{ malformed json");
+    final OAuthResponseException ex = new OAuthResponseException(response);
+
+    assertThat(ex.getErrorDetails()).isPresent();
+    assertThat(ex.getErrorDetails().get().asMap().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void shouldTestOAuthResponseExceptionEqualsAndHashCode() throws IOException {
+    final Response response1 = new Response(401, "Unauthorized", Collections.emptyMap(), "body1");
+    final Response response2 = new Response(401, "Unauthorized", Collections.emptyMap(), "body2");
+
+    final OAuthResponseException ex1 = new OAuthResponseException(response1);
+    final OAuthResponseException ex1Same = new OAuthResponseException(response1);
+    final OAuthResponseException ex2 = new OAuthResponseException(response2);
+
+    assertThat(ex1).isEqualTo(ex1);
+    assertThat(ex1).isEqualTo(ex1Same);
+    assertThat(ex1).isNotEqualTo(null);
+    assertThat(ex1).isNotEqualTo("some string");
+    assertThat(ex1).isNotEqualTo(ex2);
+
+    assertThat(ex1.hashCode()).isEqualTo(ex1Same.hashCode());
+    assertThat(ex1.hashCode()).isNotEqualTo(ex2.hashCode());
+  }
+
+  @Test
   public void shouldParseAllOAuth2Errors() {
     assertThat(OAuth2Error.parseFrom("invalid_request")).isEqualTo(OAuth2Error.INVALID_REQUEST);
     assertThat(OAuth2Error.parseFrom("unauthorized_client"))

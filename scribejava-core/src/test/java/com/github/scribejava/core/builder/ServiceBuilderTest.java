@@ -24,6 +24,7 @@
 package com.github.scribejava.core.builder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClientConfig;
@@ -78,5 +79,84 @@ public class ServiceBuilderTest {
     assertThat(builtScopes).contains("scope3");
     assertThat(builtScopes).contains("scope4");
     assertThat(builtScopes).contains("scope5");
+  }
+
+  @Test
+  public void shouldThrowOnNullOrEmptyParams() {
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> new ServiceBuilder(""));
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> new ServiceBuilder(null));
+
+    final ServiceBuilder builder = new ServiceBuilder("key");
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> builder.apiSecret(""));
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> builder.defaultScope(""));
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> builder.responseType(""));
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> builder.scopes((String[]) null));
+    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> builder.debugStream(null));
+  }
+
+  @Test
+  public void shouldSupportGettersAndDpop() {
+    final com.github.scribejava.core.dpop.DPoPProofCreator dpop = mock(com.github.scribejava.core.dpop.DPoPProofCreator.class);
+    final com.github.scribejava.core.oauth.AuthorizationRequestConverter converter = mock(com.github.scribejava.core.oauth.AuthorizationRequestConverter.class);
+    final com.github.scribejava.core.model.OAuthLogger logger = mock(com.github.scribejava.core.model.OAuthLogger.class);
+    final com.github.scribejava.core.httpclient.HttpClient httpClient = mock(com.github.scribejava.core.httpclient.HttpClient.class);
+
+    final ServiceBuilder builder = new ServiceBuilder("key")
+        .apiSecret("secret")
+        .defaultScope("scope")
+        .responseType("code")
+        .dpop(dpop)
+        .authorizationRequestConverter(converter)
+        .logger(logger)
+        .httpClient(httpClient);
+
+    assertThat(builder.getApiKey()).isEqualTo("key");
+    assertThat(builder.getApiSecret()).isEqualTo("secret");
+    assertThat(builder.getDefaultScope()).isEqualTo("scope");
+    assertThat(builder.getResponseType()).isEqualTo("code");
+    assertThat(builder.getDpopProofCreator()).isSameAs(dpop);
+    assertThat(builder.getAuthorizationRequestConverter()).isSameAs(converter);
+    assertThat(builder.getLogger()).isSameAs(logger);
+    assertThat(builder.getHttpClient()).isSameAs(httpClient);
+    assertThat(builder.getDiscoveryIssuer()).isNull();
+    assertThat(builder.getDiscoveryService()).isNull();
+  }
+
+  @Test
+  public void shouldBuildWithDpopAndLoggerAndConverter() throws Exception {
+    final DefaultApi20 api = new DefaultApi20() {
+      @Override
+      public String getAccessTokenEndpoint() {
+        return "http://test.com/token";
+      }
+      @Override
+      public String getAuthorizationBaseUrl() {
+        return "https://test.com/auth";
+      }
+    };
+
+    final com.github.scribejava.core.dpop.DPoPProofCreator dpop = mock(com.github.scribejava.core.dpop.DPoPProofCreator.class);
+    final com.github.scribejava.core.oauth.AuthorizationRequestConverter converter = mock(com.github.scribejava.core.oauth.AuthorizationRequestConverter.class);
+    final com.github.scribejava.core.model.OAuthLogger logger = mock(com.github.scribejava.core.model.OAuthLogger.class);
+
+    final OAuth20Service service = new ServiceBuilder("key")
+        .apiSecret("secret")
+        .dpop(dpop)
+        .authorizationRequestConverter(converter)
+        .logger(logger)
+        .build(api);
+
+    assertThat(service.getAuthorizationRequestConverter()).isSameAs(converter);
+
+    final java.lang.reflect.Field loggerField = com.github.scribejava.core.oauth.OAuthService.class.getDeclaredField("logger");
+    loggerField.setAccessible(true);
+    assertThat(loggerField.get(service)).isSameAs(logger);
+
+    final java.lang.reflect.Field signerField = OAuth20Service.class.getDeclaredField("requestSigner");
+    signerField.setAccessible(true);
+    final Object signer = signerField.get(service);
+    final java.lang.reflect.Field dpopField = com.github.scribejava.core.oauth.OAuth20RequestSigner.class.getDeclaredField("dpopProofCreator");
+    dpopField.setAccessible(true);
+    assertThat(dpopField.get(signer)).isSameAs(dpop);
   }
 }

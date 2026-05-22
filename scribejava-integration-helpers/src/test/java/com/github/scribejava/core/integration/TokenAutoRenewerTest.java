@@ -91,6 +91,119 @@ class TokenAutoRenewerTest {
     assertThat(repository.findByKey(key).get().getToken().getAccessToken()).isEqualTo("new");
   }
 
+  @Test
+  void shouldThrowIllegalArgumentExceptionIfNoTokenFound() {
+    TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(repository, t -> t);
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> renewer.getValidToken("unknown-key"));
+  }
+
+  @Test
+  void shouldThrowIllegalStateExceptionIfTokenVanishesDuringLock() {
+    String key = "user1";
+    OAuth2AccessToken oldToken = new OAuth2AccessToken("old", null, -10, "refresh", null, null);
+    repository.save(key, new ExpiringTokenWrapper(oldToken));
+
+    TokenRepository<String, ExpiringTokenWrapper> customRepo = new TokenRepository<String, ExpiringTokenWrapper>() {
+      private int callCount;
+      @Override
+      public Optional<ExpiringTokenWrapper> findByKey(String k) {
+        callCount++;
+        if (callCount == 1) {
+          return Optional.of(new ExpiringTokenWrapper(oldToken));
+        }
+        return Optional.empty();
+      }
+      @Override
+      public void save(String k, ExpiringTokenWrapper token) {}
+      @Override
+      public void deleteByKey(String k) {}
+    };
+
+    TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(customRepo, t -> t);
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalStateException.class,
+        () -> renewer.getValidToken(key));
+  }
+
+  @Test
+  void shouldNotDoubleRefreshIfAnotherThreadRefreshed() throws Exception {
+    String key = "user1";
+    OAuth2AccessToken oldToken = new OAuth2AccessToken("old", null, -10, "refresh", null, null);
+    OAuth2AccessToken validToken = new OAuth2AccessToken("valid", null, 3600, "refresh", null, null);
+
+    TokenRepository<String, ExpiringTokenWrapper> customRepo = new TokenRepository<String, ExpiringTokenWrapper>() {
+      private int callCount;
+      @Override
+      public Optional<ExpiringTokenWrapper> findByKey(String k) {
+        callCount++;
+        if (callCount == 1) {
+          return Optional.of(new ExpiringTokenWrapper(oldToken));
+        }
+        return Optional.of(new ExpiringTokenWrapper(validToken));
+      }
+      @Override
+      public void save(String k, ExpiringTokenWrapper token) {}
+      @Override
+      public void deleteByKey(String k) {}
+    };
+
+    TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(customRepo, t -> {
+      refreshCallCount.incrementAndGet();
+      return validToken;
+    });
+
+    OAuth2AccessToken result = renewer.getValidToken(key);
+    assertThat(result.getAccessToken()).isEqualTo("valid");
+    assertThat(refreshCallCount.get()).isZero();
+  }
+
+  @Test
+  void shouldNotifyListenerOnSuccessAndFailure() throws Exception {
+    String key = "user1";
+    OAuth2AccessToken oldToken = new OAuth2AccessToken("old", null, -10, "refresh", null, null);
+    OAuth2AccessToken newToken = new OAuth2AccessToken("new", null, 3600, "refresh", null, null);
+    repository.save(key, new ExpiringTokenWrapper(oldToken));
+
+    final java.util.List<String> events = new java.util.ArrayList<>();
+    AuthEventListener<String> listener = new AuthEventListener<String>() {
+      @Override
+      public void onTokenRefreshed(String k, ExpiringTokenWrapper wrapper) {
+        events.add("success:" + k + ":" + wrapper.getToken().getAccessToken());
+      }
+      @Override
+      public void onRefreshFailed(String k, Exception e) {
+        events.add("failure:" + k + ":" + e.getMessage());
+      }
+      @Override
+      public void onCsrfDetected(String k, String received, String expected) {}
+    };
+
+    TokenAutoRenewer<String> renewerSuccess = new TokenAutoRenewer<>(repository, t -> newToken);
+    renewerSuccess.setListener(listener);
+    renewerSuccess.getValidToken(key);
+    assertThat(events).containsExactly("success:user1:new");
+
+    events.clear();
+    repository.save(key, new ExpiringTokenWrapper(oldToken));
+    TokenAutoRenewer<String> renewerFailure = new TokenAutoRenewer<>(repository, t -> {
+      throw new RuntimeException("Network error");
+    });
+    renewerFailure.setListener(listener);
+
+    org.junit.jupiter.api.Assertions.assertThrows(
+        RuntimeException.class,
+        () -> renewerFailure.getValidToken(key));
+    assertThat(events).containsExactly("failure:user1:Network error");
+  }
+
+  @Test
+  void shouldSupportBufferSecondsConstructor() {
+    TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(repository, t -> t, 30);
+    assertThat(renewer).isNotNull();
+  }
+
   private static class InMemoryTokenRepository
       implements TokenRepository<String, ExpiringTokenWrapper> {
     private final java.util.Map<String, ExpiringTokenWrapper> storage = new java.util.HashMap<>();

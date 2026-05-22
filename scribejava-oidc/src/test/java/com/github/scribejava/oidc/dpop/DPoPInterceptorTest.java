@@ -57,4 +57,42 @@ public class DPoPInterceptorTest {
     assertThat(jwt.getPayload().get("jti")).isNotNull();
     assertThat(jwt.getHeader().get("jwk")).isNotNull();
   }
+
+  @Test
+  public void shouldCreateDPoPProofWithKeysAndAccessToken() throws Exception {
+    java.security.KeyPairGenerator keyGen = java.security.KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(2048);
+    java.security.KeyPair keyPair = keyGen.generateKeyPair();
+    java.security.PrivateKey privateKey = keyPair.getPrivate();
+    java.security.PublicKey publicKey = keyPair.getPublic();
+    com.github.scribejava.oidc.model.JwtSigner signer = new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer();
+
+    final DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator(privateKey, publicKey, signer);
+    final OAuthRequest request = new OAuthRequest(Verb.GET, "https://resource.example.com/api/data");
+
+    final String proof = proofCreator.createDPoPProof(request, "my-access-token-12345");
+    assertThat(proof).isNotNull();
+
+    final Jwt jwt = Jwt.parse(proof);
+    assertThat(jwt.getPayload().get("htm")).isEqualTo("GET");
+    assertThat(jwt.getPayload().get("htu")).isEqualTo("https://resource.example.com/api/data");
+    assertThat(jwt.getPayload().get("ath")).isNotNull();
+  }
+
+  @Test
+  public void shouldThrowOnUnsupportedPublicKeyType() throws Exception {
+    java.security.KeyPairGenerator keyGen = java.security.KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(2048);
+    java.security.KeyPair keyPair = keyGen.generateKeyPair();
+    java.security.PrivateKey privateKey = keyPair.getPrivate();
+    java.security.PublicKey mockPublicKey = org.mockito.Mockito.mock(java.security.PublicKey.class);
+    com.github.scribejava.oidc.model.JwtSigner signer = new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer();
+
+    final DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator(privateKey, mockPublicKey, signer);
+    final OAuthRequest request = new OAuthRequest(Verb.GET, "https://resource.example.com/api/data");
+
+    org.junit.jupiter.api.Assertions.assertThrows(
+        com.github.scribejava.core.exceptions.OAuthException.class,
+        () -> proofCreator.createDPoPProof(request, "token"));
+  }
 }

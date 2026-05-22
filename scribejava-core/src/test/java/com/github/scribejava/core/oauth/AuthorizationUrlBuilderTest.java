@@ -26,6 +26,7 @@ package com.github.scribejava.core.oauth;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.model.PushedAuthorizationResponse;
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
 import java.util.HashMap;
@@ -119,5 +120,61 @@ public class AuthorizationUrlBuilderTest {
     assertThat(url).contains("code_challenge=");
     assertThat(url).contains("code_challenge_method=S256");
     assertThat(builder.getPkce().getCodeVerifier()).isNotNull();
+  }
+
+  /** Vérifie le support de nonce. */
+  @Test
+  public void shouldSupportNonce() {
+    final String url = service.createAuthorizationUrlBuilder().nonce("my-nonce").build();
+    assertThat(url).contains("nonce=my-nonce");
+  }
+
+  /** Vérifie les interceptors. */
+  @Test
+  public void shouldApplyInterceptors() {
+    service.getAuthorizationRequestInterceptors().add(params -> params.put("custom_intercept", "yes"));
+    final String url = service.createAuthorizationUrlBuilder().build();
+    assertThat(url).contains("custom_intercept=yes");
+  }
+
+  /** Vérifie le support de PAR (Pushed Authorization Requests). */
+  @Test
+  @SuppressWarnings("unchecked")
+  public void shouldSupportPAR() throws Exception {
+    final OAuth20Service mockService = org.mockito.Mockito.mock(OAuth20Service.class);
+    final DefaultApi20 mockApi = org.mockito.Mockito.mock(DefaultApi20.class);
+    org.mockito.Mockito.when(mockService.getApi()).thenReturn(mockApi);
+    org.mockito.Mockito.when(mockApi.getAuthorizationBaseUrl()).thenReturn("https://test.com/auth");
+    org.mockito.Mockito.when(mockService.getResponseType()).thenReturn("code");
+    org.mockito.Mockito.when(mockService.getApiKey()).thenReturn("api-key");
+    org.mockito.Mockito.when(mockService.getCallback()).thenReturn("callback");
+    org.mockito.Mockito.when(mockService.getDefaultScope()).thenReturn("default-scope");
+    org.mockito.Mockito.when(mockService.getAuthorizationRequestInterceptors())
+        .thenReturn(new java.util.ArrayList<>());
+
+    final PushedAuthorizationResponse parResponse = org.mockito.Mockito.mock(PushedAuthorizationResponse.class);
+    org.mockito.Mockito.when(parResponse.getRequestUri()).thenReturn("urn:ietf:params:oauth:request_uri:12345");
+
+    final java.util.concurrent.CompletableFuture<PushedAuthorizationResponse> future =
+        java.util.concurrent.CompletableFuture.completedFuture(parResponse);
+
+    org.mockito.Mockito.when(mockService.pushAuthorizationRequestAsync(
+        org.mockito.Mockito.anyString(),
+        org.mockito.Mockito.anyString(),
+        org.mockito.Mockito.anyString(),
+        org.mockito.Mockito.anyString(),
+        org.mockito.Mockito.any(),
+        org.mockito.Mockito.anyMap()
+    )).thenReturn(future);
+
+    final AuthorizationUrlBuilder builder = new AuthorizationUrlBuilder(mockService)
+        .usePushedAuthorizationRequests(true)
+        .state("my-state");
+
+    final String url = builder.build();
+    assertThat(url).contains("https://test.com/auth");
+    assertThat(url).contains("request_uri=urn%3Aietf%3Aparams%3Aoauth%3Arequest_uri%3A12345");
+    assertThat(url).contains("client_id=api-key");
+    assertThat(url).contains("state=my-state");
   }
 }

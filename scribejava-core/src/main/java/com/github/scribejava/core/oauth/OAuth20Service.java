@@ -595,7 +595,10 @@ public class OAuth20Service extends OAuthService
 
   private void handleExecutionException(ExecutionException e)
       throws IOException, ExecutionException {
-    final Throwable cause = e.getCause();
+    Throwable cause = e.getCause();
+    if (cause instanceof java.util.concurrent.CompletionException) {
+      cause = cause.getCause();
+    }
     if (eventListener != null) {
       eventListener.onError(cause);
     }

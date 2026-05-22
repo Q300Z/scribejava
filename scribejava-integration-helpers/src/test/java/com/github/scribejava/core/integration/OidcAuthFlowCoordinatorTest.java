@@ -105,4 +105,46 @@ class OidcAuthFlowCoordinatorTest {
     assertThat(result.getEmail()).isEqualTo("fallback@example.com");
     verify(mockOidcService).getUserInfoAsync(token);
   }
+
+  @Test
+  void shouldNotifyListenerAndThrowSecurityExceptionOnStateMismatch() {
+    OidcService mockOidcService = mock(OidcService.class);
+    TokenRepository<String, ExpiringTokenWrapper> mockRepo = mock(TokenRepository.class);
+    OidcAuthFlowCoordinator<String> coordinator =
+        new OidcAuthFlowCoordinator<>(mockOidcService, mockRepo);
+
+    final java.util.List<String> csrfEvents = new java.util.ArrayList<>();
+    coordinator.setListener(new AuthEventListener<String>() {
+      @Override
+      public void onCsrfDetected(String key, String received, String expected) {
+        csrfEvents.add(key + ":" + received + ":" + expected);
+      }
+      @Override
+      public void onTokenRefreshed(String key, ExpiringTokenWrapper token) {}
+      @Override
+      public void onRefreshFailed(String key, Exception e) {}
+    });
+
+    AuthSessionContext sessionContext = new AuthSessionContext("expected_state", null, null);
+
+    assertThatThrownBy(
+            () -> coordinator.finishAuthorization("user1", "code", "mismatched_state", sessionContext))
+        .isInstanceOf(SecurityException.class);
+
+    assertThat(csrfEvents).containsExactly("user1:mismatched_state:expected_state");
+  }
+
+  @Test
+  void shouldThrowSecurityExceptionOnNullState() {
+    OidcService mockOidcService = mock(OidcService.class);
+    TokenRepository<String, ExpiringTokenWrapper> mockRepo = mock(TokenRepository.class);
+    OidcAuthFlowCoordinator<String> coordinator =
+        new OidcAuthFlowCoordinator<>(mockOidcService, mockRepo);
+
+    AuthSessionContext sessionContext = new AuthSessionContext(null, null, null);
+
+    assertThatThrownBy(
+            () -> coordinator.finishAuthorization("user1", "code", "state", sessionContext))
+        .isInstanceOf(SecurityException.class);
+  }
 }

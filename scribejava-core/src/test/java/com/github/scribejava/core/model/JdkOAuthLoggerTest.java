@@ -23,7 +23,7 @@
  */
 package com.github.scribejava.core.model;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,19 +32,19 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Tests unitaires pour {@link JdkOAuthLogger}. */
-public class JdkOAuthLoggerTest {
+class JdkOAuthLoggerTest {
 
   private Logger testLogger;
   private TestHandler testHandler;
 
   /** Initialise l'environnement de test avant chaque exécution. */
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     testLogger = Logger.getLogger("com.github.scribejava.test.logger");
     testLogger.setLevel(Level.ALL);
     testLogger.setUseParentHandlers(false);
@@ -53,14 +53,14 @@ public class JdkOAuthLoggerTest {
   }
 
   /** Nettoie l'environnement de test après chaque exécution. */
-  @After
-  public void tearDown() {
+  @AfterEach
+  void tearDown() {
     testLogger.removeHandler(testHandler);
   }
 
   /** Vérifie la bonne écriture d'une requête HTTP vers le logger JUL. */
   @Test
-  public void shouldLogRequestToJul() {
+  void shouldLogRequestToJul() {
     final JdkOAuthLogger logger = new JdkOAuthLogger(testLogger, Level.INFO);
 
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
@@ -74,7 +74,7 @@ public class JdkOAuthLoggerTest {
 
   /** Vérifie la bonne écriture d'une réponse HTTP vers le logger JUL. */
   @Test
-  public void shouldLogResponseToJul() {
+  void shouldLogResponseToJul() {
     final JdkOAuthLogger logger = new JdkOAuthLogger(testLogger, Level.WARNING);
 
     final Response response = new Response(200, "OK", new HashMap<String, String>(), "some_body");
@@ -89,13 +89,25 @@ public class JdkOAuthLoggerTest {
 
   /** Vérifie que le logger ne produit aucun log si son niveau de log configuré est inférieur. */
   @Test
-  public void shouldNotLogIfLoggerLevelIsHigherThanConfigured() {
+  void shouldNotLogIfLoggerLevelIsHigherThanConfigured() {
     testLogger.setLevel(Level.WARNING);
     final JdkOAuthLogger logger = new JdkOAuthLogger(testLogger, Level.INFO);
 
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://example.com");
     logger.logRequest(request);
 
+    assertTrue(testHandler.records.isEmpty());
+  }
+
+  /** Vérifie les autres constructeurs de JdkOAuthLogger et la résilience face aux entrées nulles. */
+  @Test
+  void shouldTestOtherConstructorsAndResilience() {
+    assertDoesNotThrow(() -> new JdkOAuthLogger());
+    assertDoesNotThrow(() -> new JdkOAuthLogger(testLogger));
+
+    final JdkOAuthLogger logger = new JdkOAuthLogger(testLogger, Level.INFO);
+    assertDoesNotThrow(() -> logger.logRequest(null));
+    assertDoesNotThrow(() -> logger.logResponse(null));
     assertTrue(testHandler.records.isEmpty());
   }
 
