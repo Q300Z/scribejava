@@ -42,7 +42,8 @@ public class CoreExceptionsTest {
 
   @Test
   public void shouldTestOAuthResponseExceptionJsonError() throws IOException {
-    final String errorJson = "{\"error\":\"invalid_request\",\"error_description\":\"bad parameters\"}";
+    final String errorJson =
+        "{\"error\":\"invalid_request\",\"error_description\":\"bad parameters\"}";
     final Response response = new Response(400, "Bad Request", Collections.emptyMap(), errorJson);
     final OAuthResponseException ex = new OAuthResponseException(response);
 
@@ -53,7 +54,8 @@ public class CoreExceptionsTest {
 
   @Test
   public void shouldTestOAuthResponseExceptionNonJsonError() throws IOException {
-    final Response response = new Response(400, "Bad Request", Collections.emptyMap(), "not-a-json-body");
+    final Response response =
+        new Response(400, "Bad Request", Collections.emptyMap(), "not-a-json-body");
     final OAuthResponseException ex = new OAuthResponseException(response);
 
     assertThat(ex.getErrorDetails()).isEmpty();
@@ -62,7 +64,8 @@ public class CoreExceptionsTest {
 
   @Test
   public void shouldTestOAuthResponseExceptionEmptyBody() throws IOException {
-    final Response response = new Response(400, "Bad Request", Collections.emptyMap(), (String) null);
+    final Response response =
+        new Response(400, "Bad Request", Collections.emptyMap(), (String) null);
     final OAuthResponseException ex = new OAuthResponseException(response);
 
     assertThat(ex.getErrorDetails()).isEmpty();
@@ -70,7 +73,8 @@ public class CoreExceptionsTest {
 
   @Test
   public void shouldTestOAuthResponseExceptionMalformedJson() throws IOException {
-    final Response response = new Response(400, "Bad Request", Collections.emptyMap(), "{ malformed json");
+    final Response response =
+        new Response(400, "Bad Request", Collections.emptyMap(), "{ malformed json");
     final OAuthResponseException ex = new OAuthResponseException(response);
 
     assertThat(ex.getErrorDetails()).isPresent();

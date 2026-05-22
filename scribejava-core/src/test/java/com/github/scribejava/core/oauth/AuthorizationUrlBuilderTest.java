@@ -132,7 +132,9 @@ public class AuthorizationUrlBuilderTest {
   /** Vérifie les interceptors. */
   @Test
   public void shouldApplyInterceptors() {
-    service.getAuthorizationRequestInterceptors().add(params -> params.put("custom_intercept", "yes"));
+    service
+        .getAuthorizationRequestInterceptors()
+        .add(params -> params.put("custom_intercept", "yes"));
     final String url = service.createAuthorizationUrlBuilder().build();
     assertThat(url).contains("custom_intercept=yes");
   }
@@ -152,24 +154,28 @@ public class AuthorizationUrlBuilderTest {
     org.mockito.Mockito.when(mockService.getAuthorizationRequestInterceptors())
         .thenReturn(new java.util.ArrayList<>());
 
-    final PushedAuthorizationResponse parResponse = org.mockito.Mockito.mock(PushedAuthorizationResponse.class);
-    org.mockito.Mockito.when(parResponse.getRequestUri()).thenReturn("urn:ietf:params:oauth:request_uri:12345");
+    final PushedAuthorizationResponse parResponse =
+        org.mockito.Mockito.mock(PushedAuthorizationResponse.class);
+    org.mockito.Mockito.when(parResponse.getRequestUri())
+        .thenReturn("urn:ietf:params:oauth:request_uri:12345");
 
     final java.util.concurrent.CompletableFuture<PushedAuthorizationResponse> future =
         java.util.concurrent.CompletableFuture.completedFuture(parResponse);
 
-    org.mockito.Mockito.when(mockService.pushAuthorizationRequestAsync(
-        org.mockito.Mockito.anyString(),
-        org.mockito.Mockito.anyString(),
-        org.mockito.Mockito.anyString(),
-        org.mockito.Mockito.anyString(),
-        org.mockito.Mockito.any(),
-        org.mockito.Mockito.anyMap()
-    )).thenReturn(future);
+    org.mockito.Mockito.when(
+            mockService.pushAuthorizationRequestAsync(
+                org.mockito.Mockito.anyString(),
+                org.mockito.Mockito.anyString(),
+                org.mockito.Mockito.anyString(),
+                org.mockito.Mockito.anyString(),
+                org.mockito.Mockito.any(),
+                org.mockito.Mockito.anyMap()))
+        .thenReturn(future);
 
-    final AuthorizationUrlBuilder builder = new AuthorizationUrlBuilder(mockService)
-        .usePushedAuthorizationRequests(true)
-        .state("my-state");
+    final AuthorizationUrlBuilder builder =
+        new AuthorizationUrlBuilder(mockService)
+            .usePushedAuthorizationRequests(true)
+            .state("my-state");
 
     final String url = builder.build();
     assertThat(url).contains("https://test.com/auth");

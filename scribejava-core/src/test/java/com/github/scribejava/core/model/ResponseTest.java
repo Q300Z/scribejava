@@ -24,7 +24,7 @@
 package com.github.scribejava.core.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -34,14 +34,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
+import org.junit.jupiter.api.Test;
 
-/**
- * Tests pour la classe Response.
- */
+/** Tests pour la classe Response. */
 public class ResponseTest {
 
   /**
-   * Vérifie le fonctionnement des accesseurs de base, des en-têtes et de la liaison avec la requête.
+   * Vérifie le fonctionnement des accesseurs de base, des en-têtes et de la liaison avec la
+   * requête.
    *
    * @throws IOException en cas d'erreur E/S.
    */
@@ -115,28 +115,32 @@ public class ResponseTest {
   }
 
   /**
-   * Vérifie la libération correcte de multiples ressources closeables et la résilience aux exceptions lors de la fermeture.
+   * Vérifie la libération correcte de multiples ressources closeables et la résilience aux
+   * exceptions lors de la fermeture.
    *
    * @throws IOException en cas d'erreur E/S.
    */
   @Test
   public void testCloseablesAndExceptions() throws IOException {
     final boolean[] closed = new boolean[2];
-    final Closeable closeable1 = new Closeable() {
-      @Override
-      public void close() throws IOException {
-        closed[0] = true;
-      }
-    };
-    final Closeable closeable2 = new Closeable() {
-      @Override
-      public void close() throws IOException {
-        closed[1] = true;
-        throw new IOException("simulated exception on close");
-      }
-    };
+    final Closeable closeable1 =
+        new Closeable() {
+          @Override
+          public void close() throws IOException {
+            closed[0] = true;
+          }
+        };
+    final Closeable closeable2 =
+        new Closeable() {
+          @Override
+          public void close() throws IOException {
+            closed[1] = true;
+            throw new IOException("simulated exception on close");
+          }
+        };
 
-    final Response response = new Response(200, "OK", Collections.emptyMap(), null, closeable1, null, closeable2);
+    final Response response =
+        new Response(200, "OK", Collections.emptyMap(), null, closeable1, null, closeable2);
 
     response.close();
     assertThat(closed[0]).isTrue();

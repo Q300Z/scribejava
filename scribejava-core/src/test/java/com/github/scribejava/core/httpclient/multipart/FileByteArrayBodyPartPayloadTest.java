@@ -41,36 +41,47 @@ public class FileByteArrayBodyPartPayloadTest {
     assertThat(p1.getPayload()).isEqualTo(payload);
 
     // Constructor 2
-    final FileByteArrayBodyPartPayload p2 = new FileByteArrayBodyPartPayload(payload, 2, 5, "field2");
+    final FileByteArrayBodyPartPayload p2 =
+        new FileByteArrayBodyPartPayload(payload, 2, 5, "field2");
     assertThat(p2.getHeaders()).containsEntry("Content-Disposition", "form-data; name=\"field2\"");
     assertThat(p2.getPayload()).isEqualTo(payload);
 
     // Constructor 3
-    final FileByteArrayBodyPartPayload p3 = new FileByteArrayBodyPartPayload(payload, "field3", "file.txt");
-    assertThat(p3.getHeaders()).containsEntry("Content-Disposition", "form-data; name=\"field3\"; filename=\"file.txt\"");
+    final FileByteArrayBodyPartPayload p3 =
+        new FileByteArrayBodyPartPayload(payload, "field3", "file.txt");
+    assertThat(p3.getHeaders())
+        .containsEntry("Content-Disposition", "form-data; name=\"field3\"; filename=\"file.txt\"");
 
     // Constructor 4
-    final FileByteArrayBodyPartPayload p4 = new FileByteArrayBodyPartPayload(payload, 0, 11, "field4", "file4.txt");
-    assertThat(p4.getHeaders()).containsEntry("Content-Disposition", "form-data; name=\"field4\"; filename=\"file4.txt\"");
+    final FileByteArrayBodyPartPayload p4 =
+        new FileByteArrayBodyPartPayload(payload, 0, 11, "field4", "file4.txt");
+    assertThat(p4.getHeaders())
+        .containsEntry("Content-Disposition", "form-data; name=\"field4\"; filename=\"file4.txt\"");
 
     // Constructor 5
-    final FileByteArrayBodyPartPayload p5 = new FileByteArrayBodyPartPayload("text/plain", payload, "field5");
+    final FileByteArrayBodyPartPayload p5 =
+        new FileByteArrayBodyPartPayload("text/plain", payload, "field5");
     assertThat(p5.getHeaders()).containsEntry("Content-Disposition", "form-data; name=\"field5\"");
     assertThat(p5.getHeaders()).containsEntry("Content-Type", "text/plain");
 
     // Constructor 6
-    final FileByteArrayBodyPartPayload p6 = new FileByteArrayBodyPartPayload("image/png", payload, 0, 11, "field6");
+    final FileByteArrayBodyPartPayload p6 =
+        new FileByteArrayBodyPartPayload("image/png", payload, 0, 11, "field6");
     assertThat(p6.getHeaders()).containsEntry("Content-Disposition", "form-data; name=\"field6\"");
     assertThat(p6.getHeaders()).containsEntry("Content-Type", "image/png");
 
     // Constructor 7
-    final FileByteArrayBodyPartPayload p7 = new FileByteArrayBodyPartPayload("image/jpeg", payload, "field7", "pic.jpg");
-    assertThat(p7.getHeaders()).containsEntry("Content-Disposition", "form-data; name=\"field7\"; filename=\"pic.jpg\"");
+    final FileByteArrayBodyPartPayload p7 =
+        new FileByteArrayBodyPartPayload("image/jpeg", payload, "field7", "pic.jpg");
+    assertThat(p7.getHeaders())
+        .containsEntry("Content-Disposition", "form-data; name=\"field7\"; filename=\"pic.jpg\"");
     assertThat(p7.getHeaders()).containsEntry("Content-Type", "image/jpeg");
 
     // Constructor 8
-    final FileByteArrayBodyPartPayload p8 = new FileByteArrayBodyPartPayload("application/pdf", payload, 0, 11, "field8", "doc.pdf");
-    assertThat(p8.getHeaders()).containsEntry("Content-Disposition", "form-data; name=\"field8\"; filename=\"doc.pdf\"");
+    final FileByteArrayBodyPartPayload p8 =
+        new FileByteArrayBodyPartPayload("application/pdf", payload, 0, 11, "field8", "doc.pdf");
+    assertThat(p8.getHeaders())
+        .containsEntry("Content-Disposition", "form-data; name=\"field8\"; filename=\"doc.pdf\"");
     assertThat(p8.getHeaders()).containsEntry("Content-Type", "application/pdf");
   }
 }

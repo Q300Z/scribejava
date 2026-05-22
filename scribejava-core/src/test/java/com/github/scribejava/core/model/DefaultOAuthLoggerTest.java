@@ -163,6 +163,7 @@ class DefaultOAuthLoggerTest {
 
     final String logOutput = baos.toString();
     assertTrue(logOutput.contains("Status Code: 500"));
-    assertTrue(logOutput.contains("Body: [Error reading response body: Simulated network failure]"));
+    assertTrue(
+        logOutput.contains("Body: [Error reading response body: Simulated network failure]"));
   }
 }

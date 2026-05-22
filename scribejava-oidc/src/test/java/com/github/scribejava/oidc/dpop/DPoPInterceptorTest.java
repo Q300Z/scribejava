@@ -65,10 +65,13 @@ public class DPoPInterceptorTest {
     java.security.KeyPair keyPair = keyGen.generateKeyPair();
     java.security.PrivateKey privateKey = keyPair.getPrivate();
     java.security.PublicKey publicKey = keyPair.getPublic();
-    com.github.scribejava.oidc.model.JwtSigner signer = new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer();
+    com.github.scribejava.oidc.model.JwtSigner signer =
+        new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer();
 
-    final DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator(privateKey, publicKey, signer);
-    final OAuthRequest request = new OAuthRequest(Verb.GET, "https://resource.example.com/api/data");
+    final DefaultDPoPProofCreator proofCreator =
+        new DefaultDPoPProofCreator(privateKey, publicKey, signer);
+    final OAuthRequest request =
+        new OAuthRequest(Verb.GET, "https://resource.example.com/api/data");
 
     final String proof = proofCreator.createDPoPProof(request, "my-access-token-12345");
     assertThat(proof).isNotNull();
@@ -86,10 +89,13 @@ public class DPoPInterceptorTest {
     java.security.KeyPair keyPair = keyGen.generateKeyPair();
     java.security.PrivateKey privateKey = keyPair.getPrivate();
     java.security.PublicKey mockPublicKey = org.mockito.Mockito.mock(java.security.PublicKey.class);
-    com.github.scribejava.oidc.model.JwtSigner signer = new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer();
+    com.github.scribejava.oidc.model.JwtSigner signer =
+        new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer();
 
-    final DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator(privateKey, mockPublicKey, signer);
-    final OAuthRequest request = new OAuthRequest(Verb.GET, "https://resource.example.com/api/data");
+    final DefaultDPoPProofCreator proofCreator =
+        new DefaultDPoPProofCreator(privateKey, mockPublicKey, signer);
+    final OAuthRequest request =
+        new OAuthRequest(Verb.GET, "https://resource.example.com/api/data");
 
     org.junit.jupiter.api.Assertions.assertThrows(
         com.github.scribejava.core.exceptions.OAuthException.class,

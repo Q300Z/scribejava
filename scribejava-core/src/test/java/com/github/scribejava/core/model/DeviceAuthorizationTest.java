@@ -24,20 +24,21 @@
 package com.github.scribejava.core.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests pour la classe DeviceAuthorization.
- */
+/** Tests pour la classe DeviceAuthorization. */
 public class DeviceAuthorizationTest {
 
   /**
-   * Vérifie le fonctionnement des constructeurs, accesseurs, mutateurs, valeurs par défaut et toString de DeviceAuthorization.
+   * Vérifie le fonctionnement des constructeurs, accesseurs, mutateurs, valeurs par défaut et
+   * toString de DeviceAuthorization.
    */
   @Test
   public void testDeviceAuthorization() {
     final DeviceAuthorization deviceAuth =
-        new DeviceAuthorization("device_code_123", "user_code_456", "https://verify.example.com", 3600);
+        new DeviceAuthorization(
+            "device_code_123", "user_code_456", "https://verify.example.com", 3600);
 
     assertThat(deviceAuth.getDeviceCode()).isEqualTo("device_code_123");
     assertThat(deviceAuth.getUserCode()).isEqualTo("user_code_456");

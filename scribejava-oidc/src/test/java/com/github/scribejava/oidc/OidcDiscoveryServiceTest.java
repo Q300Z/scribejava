@@ -128,10 +128,11 @@ public class OidcDiscoveryServiceTest {
   @Test
   public void shouldThrowOnMetadataFetchFailure() {
     server.enqueue(new MockResponse().setResponseCode(500));
-    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
-        java.util.concurrent.ExecutionException.class,
-        () -> service.getProviderMetadata());
-    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+    final Exception ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            java.util.concurrent.ExecutionException.class, () -> service.getProviderMetadata());
+    assertThat(ex.getCause())
+        .isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
   }
 
   @Test
@@ -149,43 +150,51 @@ public class OidcDiscoveryServiceTest {
 
     server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
 
-    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
-        java.util.concurrent.ExecutionException.class,
-        () -> service.getProviderMetadata());
-    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+    final Exception ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            java.util.concurrent.ExecutionException.class, () -> service.getProviderMetadata());
+    assertThat(ex.getCause())
+        .isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
   }
 
   @Test
   public void shouldThrowOnMalformedMetadataJson() {
     server.enqueue(new MockResponse().setBody("{invalid-json").setResponseCode(200));
-    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
-        java.util.concurrent.ExecutionException.class,
-        () -> service.getProviderMetadata());
+    final Exception ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            java.util.concurrent.ExecutionException.class, () -> service.getProviderMetadata());
     assertThat(ex.getCause()).isInstanceOf(NullPointerException.class);
   }
 
   @Test
   public void shouldThrowOnJwksFetchFailure() {
     server.enqueue(new MockResponse().setResponseCode(404));
-    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
-        java.util.concurrent.ExecutionException.class,
-        () -> service.getJwks(server.url("/jwks.json").toString()));
-    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+    final Exception ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            java.util.concurrent.ExecutionException.class,
+            () -> service.getJwks(server.url("/jwks.json").toString()));
+    assertThat(ex.getCause())
+        .isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
   }
 
   @Test
   public void shouldThrowOnMalformedJwksJson() {
     server.enqueue(new MockResponse().setBody("{invalid-jwks").setResponseCode(200));
-    final Exception ex = org.junit.jupiter.api.Assertions.assertThrows(
-        java.util.concurrent.ExecutionException.class,
-        () -> service.getJwks(server.url("/jwks.json").toString()));
-    assertThat(ex.getCause()).isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
+    final Exception ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            java.util.concurrent.ExecutionException.class,
+            () -> service.getJwks(server.url("/jwks.json").toString()));
+    assertThat(ex.getCause())
+        .isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
   }
 
   @Test
   public void shouldSupportIssuerUriWithoutTrailingSlash() throws Exception {
     final String baseWithoutSlash = server.url("/foo").toString();
-    final String issuer = baseWithoutSlash.endsWith("/") ? baseWithoutSlash.substring(0, baseWithoutSlash.length() - 1) : baseWithoutSlash;
+    final String issuer =
+        baseWithoutSlash.endsWith("/")
+            ? baseWithoutSlash.substring(0, baseWithoutSlash.length() - 1)
+            : baseWithoutSlash;
 
     final OidcDiscoveryService serviceNoSlash =
         new OidcDiscoveryService(issuer, new JDKHttpClient(), "ScribeJava-Test");

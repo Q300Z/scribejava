@@ -66,8 +66,7 @@ public class IdTokenValidatorEdgeCasesTest {
   private String sign(final JWTClaimsSet claims, String kid, RSAKey signingKey) throws Exception {
     final JWSSigner signer = new RSASSASigner(signingKey);
     final SignedJWT signedJWT =
-        new SignedJWT(
-            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(kid).build(), claims);
+        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(kid).build(), claims);
     signedJWT.sign(signer);
     return signedJWT.serialize();
   }
@@ -89,8 +88,9 @@ public class IdTokenValidatorEdgeCasesTest {
 
     // Validator expects ES256, but token is RS256
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "ES256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Invalid algorithm");
   }
 
@@ -100,8 +100,9 @@ public class IdTokenValidatorEdgeCasesTest {
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Issuer mismatch");
   }
 
@@ -111,65 +112,68 @@ public class IdTokenValidatorEdgeCasesTest {
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Audience mismatch");
   }
 
   @Test
   public void shouldRejectAudienceMismatchList() throws Exception {
-    final JWTClaimsSet claimsSet = createBaseClaims().audience(Arrays.asList("wrong-1", "wrong-2")).build();
+    final JWTClaimsSet claimsSet =
+        createBaseClaims().audience(Arrays.asList("wrong-1", "wrong-2")).build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Audience mismatch");
   }
 
   @Test
   public void shouldRejectMultipleAudiencesWithoutAzp() throws Exception {
     final JWTClaimsSet claimsSet =
-        createBaseClaims()
-            .audience(Arrays.asList(CLIENT_ID, "other-client"))
-            .build();
+        createBaseClaims().audience(Arrays.asList(CLIENT_ID, "other-client")).build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("azp' claim is missing");
   }
 
   @Test
   public void shouldRejectExpiredToken() throws Exception {
     final JWTClaimsSet claimsSet =
-        createBaseClaims()
-            .expirationTime(new Date(System.currentTimeMillis() - 3600000))
-            .build();
+        createBaseClaims().expirationTime(new Date(System.currentTimeMillis() - 3600000)).build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Token has expired");
   }
 
   @Test
   public void shouldRejectTokenWithoutExpiration() throws Exception {
-    final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-        .issuer(ISSUER)
-        .audience(CLIENT_ID)
-        .subject("user123")
-        .claim("nonce", SECURE_NONCE)
-        .issueTime(new Date())
-        // no exp claim
-        .build();
+    final JWTClaimsSet claimsSet =
+        new JWTClaimsSet.Builder()
+            .issuer(ISSUER)
+            .audience(CLIENT_ID)
+            .subject("user123")
+            .claim("nonce", SECURE_NONCE)
+            .issueTime(new Date())
+            // no exp claim
+            .build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Token has expired");
   }
 
@@ -179,8 +183,10 @@ public class IdTokenValidatorEdgeCasesTest {
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 100));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class,
+            () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 100));
     assertThat(exception.getMessage()).contains("does not contain 'auth_time' claim");
   }
 
@@ -191,8 +197,10 @@ public class IdTokenValidatorEdgeCasesTest {
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 100));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class,
+            () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 100));
     assertThat(exception.getMessage()).contains("Auth time too old");
   }
 
@@ -201,14 +209,14 @@ public class IdTokenValidatorEdgeCasesTest {
     final JWTClaimsSet claimsSet = createBaseClaims().build();
     final JWSSigner signer = new RSASSASigner(rsaKey);
     final SignedJWT signedJWT =
-        new SignedJWT(
-            new JWSHeader.Builder(JWSAlgorithm.RS256).build(), claimsSet); // no kid
+        new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).build(), claimsSet); // no kid
     signedJWT.sign(signer);
     final String token = signedJWT.serialize();
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Missing 'kid' in header");
   }
 
@@ -218,8 +226,9 @@ public class IdTokenValidatorEdgeCasesTest {
     final String token = sign(claimsSet, "unknown-kid", rsaKey);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Key not found for kid");
   }
 
@@ -235,8 +244,9 @@ public class IdTokenValidatorEdgeCasesTest {
     when(discoveryService.getJwks("https://jwks-uri")).thenReturn(updatedKeys);
 
     // Initialize with empty keys
-    final IdTokenValidator validator = new IdTokenValidator(
-        ISSUER, CLIENT_ID, "RS256", new HashMap<>(), discoveryService, "https://jwks-uri");
+    final IdTokenValidator validator =
+        new IdTokenValidator(
+            ISSUER, CLIENT_ID, "RS256", new HashMap<>(), discoveryService, "https://jwks-uri");
 
     final IdToken idToken = validator.validate(token, new OidcNonce(SECURE_NONCE), 0);
     assertThat(idToken).isNotNull();
@@ -248,13 +258,16 @@ public class IdTokenValidatorEdgeCasesTest {
     final String token = sign(claimsSet, "rotated-kid", rsaKey);
 
     final OidcDiscoveryService discoveryService = mock(OidcDiscoveryService.class);
-    when(discoveryService.getJwks("https://jwks-uri")).thenThrow(new RuntimeException("Network Error"));
+    when(discoveryService.getJwks("https://jwks-uri"))
+        .thenThrow(new RuntimeException("Network Error"));
 
-    final IdTokenValidator validator = new IdTokenValidator(
-        ISSUER, CLIENT_ID, "RS256", new HashMap<>(), discoveryService, "https://jwks-uri");
+    final IdTokenValidator validator =
+        new IdTokenValidator(
+            ISSUER, CLIENT_ID, "RS256", new HashMap<>(), discoveryService, "https://jwks-uri");
 
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Key not found for kid");
   }
 
@@ -262,19 +275,19 @@ public class IdTokenValidatorEdgeCasesTest {
   public void shouldRejectSignatureVerificationFailure() throws Exception {
     final JWTClaimsSet claimsSet = createBaseClaims().build();
     final RSAKey wrongKey = new RSAKeyGenerator(2048).keyID("rsa-1").generate();
-    final String token = sign(claimsSet, "rsa-1", wrongKey); // Signed with wrongKey but kid is "rsa-1"
+    final String token =
+        sign(claimsSet, "rsa-1", wrongKey); // Signed with wrongKey but kid is "rsa-1"
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class, () -> validator.validate(token, new OidcNonce(SECURE_NONCE), 0));
     assertThat(exception.getMessage()).contains("Signature verification failed");
   }
 
   @Test
   public void shouldValidateLogoutToken() throws Exception {
-    final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-        .issuer(ISSUER)
-        .build();
+    final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().issuer(ISSUER).build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
@@ -283,9 +296,7 @@ public class IdTokenValidatorEdgeCasesTest {
 
   @Test
   public void shouldValidateTokenBindingCnfNotMap() throws Exception {
-    final JWTClaimsSet claimsSet = createBaseClaims()
-        .claim("cnf", "not-a-map")
-        .build();
+    final JWTClaimsSet claimsSet = createBaseClaims().claim("cnf", "not-a-map").build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
@@ -299,16 +310,16 @@ public class IdTokenValidatorEdgeCasesTest {
   public void shouldRejectTokenBindingJktMismatch() throws Exception {
     final Map<String, Object> cnf = new HashMap<>();
     cnf.put("jkt", "wrong-jkt");
-    final JWTClaimsSet claimsSet = createBaseClaims()
-        .claim("cnf", cnf)
-        .build();
+    final JWTClaimsSet claimsSet = createBaseClaims().claim("cnf", cnf).build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
     final IdToken idToken = validator.validate(token, new OidcNonce(SECURE_NONCE), 0);
 
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validateTokenBinding(idToken, "expected-jkt", null));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class,
+            () -> validator.validateTokenBinding(idToken, "expected-jkt", null));
     assertThat(exception.getMessage()).contains("DPoP proof key mismatch");
   }
 
@@ -316,16 +327,16 @@ public class IdTokenValidatorEdgeCasesTest {
   public void shouldRejectTokenBindingX5tMismatch() throws Exception {
     final Map<String, Object> cnf = new HashMap<>();
     cnf.put("x5t#S256", "wrong-x5t");
-    final JWTClaimsSet claimsSet = createBaseClaims()
-        .claim("cnf", cnf)
-        .build();
+    final JWTClaimsSet claimsSet = createBaseClaims().claim("cnf", cnf).build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);
     final IdToken idToken = validator.validate(token, new OidcNonce(SECURE_NONCE), 0);
 
-    final OAuthException exception = assertThrows(
-        OAuthException.class, () -> validator.validateTokenBinding(idToken, null, "expected-x5t"));
+    final OAuthException exception =
+        assertThrows(
+            OAuthException.class,
+            () -> validator.validateTokenBinding(idToken, null, "expected-x5t"));
     assertThat(exception.getMessage()).contains("mTLS certificate mismatch");
   }
 
@@ -334,9 +345,7 @@ public class IdTokenValidatorEdgeCasesTest {
     final Map<String, Object> cnf = new HashMap<>();
     cnf.put("jkt", "expected-jkt");
     cnf.put("x5t#S256", "expected-x5t");
-    final JWTClaimsSet claimsSet = createBaseClaims()
-        .claim("cnf", cnf)
-        .build();
+    final JWTClaimsSet claimsSet = createBaseClaims().claim("cnf", cnf).build();
     final String token = sign(claimsSet);
 
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys);

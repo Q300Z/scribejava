@@ -99,7 +99,9 @@ class JdkOAuthLoggerTest {
     assertTrue(testHandler.records.isEmpty());
   }
 
-  /** Vérifie les autres constructeurs de JdkOAuthLogger et la résilience face aux entrées nulles. */
+  /**
+   * Vérifie les autres constructeurs de JdkOAuthLogger et la résilience face aux entrées nulles.
+   */
   @Test
   void shouldTestOtherConstructorsAndResilience() {
     assertDoesNotThrow(() -> new JdkOAuthLogger());

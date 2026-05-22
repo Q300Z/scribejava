@@ -24,16 +24,13 @@
 package com.github.scribejava.core.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests pour la classe Parameter.
- */
+/** Tests pour la classe Parameter. */
 public class ParameterTest {
 
-  /**
-   * Vérifie le fonctionnement des accesseurs et de l'encodage URL.
-   */
+  /** Vérifie le fonctionnement des accesseurs et de l'encodage URL. */
   @Test
   public void testGettersAndUrlEncodedPair() {
     final Parameter param = new Parameter("foo bar", "baz/qux");
@@ -42,9 +39,7 @@ public class ParameterTest {
     assertThat(param.asUrlEncodedPair()).isEqualTo("foo%20bar=baz%2Fqux");
   }
 
-  /**
-   * Vérifie le fonctionnement de equals et hashCode.
-   */
+  /** Vérifie le fonctionnement de equals et hashCode. */
   @Test
   public void testEqualsAndHashCode() {
     final Parameter param1 = new Parameter("key", "value");
@@ -62,9 +57,7 @@ public class ParameterTest {
     assertThat(param1).isNotEqualTo(paramDifferentValue);
   }
 
-  /**
-   * Vérifie le fonctionnement de compareTo.
-   */
+  /** Vérifie le fonctionnement de compareTo. */
   @Test
   public void testCompareTo() {
     final Parameter param1 = new Parameter("key", "value");

@@ -29,9 +29,9 @@ import static org.mockito.Mockito.*;
 
 import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.HttpClient;
-import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthLogger;
+import com.github.scribejava.core.model.Response;
 import com.github.scribejava.oidc.jar.JarAuthorizationRequestConverter;
 import com.github.scribejava.oidc.model.JwtSigner;
 import com.github.scribejava.oidc.model.OidcNonce;
@@ -63,14 +63,15 @@ public class OidcServiceEdgeCasesTest {
   }
 
   private String generateValidIdToken() throws Exception {
-    final JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-        .issuer(ISSUER)
-        .audience(CLIENT_ID)
-        .subject("user123")
-        .claim("nonce", "nonce123456789012")
-        .issueTime(new Date())
-        .expirationTime(new Date(System.currentTimeMillis() + 3600000))
-        .build();
+    final JWTClaimsSet claimsSet =
+        new JWTClaimsSet.Builder()
+            .issuer(ISSUER)
+            .audience(CLIENT_ID)
+            .subject("user123")
+            .claim("nonce", "nonce123456789012")
+            .issueTime(new Date())
+            .expirationTime(new Date(System.currentTimeMillis() + 3600000))
+            .build();
     final JWSSigner signer = new RSASSASigner(rsaKey);
     final SignedJWT signedJWT =
         new SignedJWT(
@@ -138,16 +139,27 @@ public class OidcServiceEdgeCasesTest {
     when(response.getBody()).thenReturn(tokenResponse);
 
     doAnswer(
-        invocation -> {
-          final com.github.scribejava.core.model.OAuthRequest.ResponseConverter<?> converter = invocation.getArgument(6);
-          final Object result = converter != null ? converter.convert(response) : response;
-          return CompletableFuture.completedFuture(result);
-        })
+            invocation -> {
+              final com.github.scribejava.core.model.OAuthRequest.ResponseConverter<?> converter =
+                  invocation.getArgument(6);
+              final Object result = converter != null ? converter.convert(response) : response;
+              return CompletableFuture.completedFuture(result);
+            })
         .when(httpClient)
         .executeAsync(any(), any(), any(), any(), (byte[]) any(), any(), any());
 
     final OidcService service =
-        new OidcService(api, CLIENT_ID, "secret", "http://callback", "openid", "code", null, "ua", null, httpClient);
+        new OidcService(
+            api,
+            CLIENT_ID,
+            "secret",
+            "http://callback",
+            "openid",
+            "code",
+            null,
+            "ua",
+            null,
+            httpClient);
 
     final OAuth2AccessToken token = service.getAccessToken("auth-code");
     assertThat(token).isNotNull();
@@ -168,12 +180,13 @@ public class OidcServiceEdgeCasesTest {
 
   @Test
   public void shouldSupportBuilderFluentApis() {
-    final OidcServiceBuilder builder = new OidcServiceBuilder("client-id")
-        .defaultScope("openid")
-        .callback("http://callback")
-        .httpClient(mock(HttpClient.class))
-        .apiSecret("secret")
-        .logger(mock(OAuthLogger.class));
+    final OidcServiceBuilder builder =
+        new OidcServiceBuilder("client-id")
+            .defaultScope("openid")
+            .callback("http://callback")
+            .httpClient(mock(HttpClient.class))
+            .apiSecret("secret")
+            .logger(mock(OAuthLogger.class));
 
     assertThat(builder).isNotNull();
   }
@@ -189,12 +202,14 @@ public class OidcServiceEdgeCasesTest {
 
     when(discoveryService.discoverAsync()).thenReturn(CompletableFuture.completedFuture(endpoints));
 
-    final OidcServiceBuilder builder = new OidcServiceBuilder(CLIENT_ID)
-        .httpClient(httpClient)
-        .baseOnDiscovery(ISSUER, httpClient, "ua");
+    final OidcServiceBuilder builder =
+        new OidcServiceBuilder(CLIENT_ID)
+            .httpClient(httpClient)
+            .baseOnDiscovery(ISSUER, httpClient, "ua");
 
     // Manually inject mocked discovery service
-    final java.lang.reflect.Field field = builder.getClass().getSuperclass().getDeclaredField("discoveryService");
+    final java.lang.reflect.Field field =
+        builder.getClass().getSuperclass().getDeclaredField("discoveryService");
     field.setAccessible(true);
     field.set(builder, discoveryService);
 
@@ -210,17 +225,20 @@ public class OidcServiceEdgeCasesTest {
     final HttpClient httpClient = mock(HttpClient.class);
 
     final OidcDiscoveryService discoveryService = mock(OidcDiscoveryService.class);
-    final CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> future = new CompletableFuture<>();
+    final CompletableFuture<com.github.scribejava.core.oauth.DiscoveredEndpoints> future =
+        new CompletableFuture<>();
     future.completeExceptionally(new ExecutionException(new RuntimeException("Discovery Failed")));
 
     when(discoveryService.discoverAsync()).thenReturn(future);
 
-    final OidcServiceBuilder builder = new OidcServiceBuilder(CLIENT_ID)
-        .httpClient(httpClient)
-        .baseOnDiscovery(ISSUER, httpClient, "ua");
+    final OidcServiceBuilder builder =
+        new OidcServiceBuilder(CLIENT_ID)
+            .httpClient(httpClient)
+            .baseOnDiscovery(ISSUER, httpClient, "ua");
 
     // Manually inject mocked discovery service
-    final java.lang.reflect.Field field = builder.getClass().getSuperclass().getDeclaredField("discoveryService");
+    final java.lang.reflect.Field field =
+        builder.getClass().getSuperclass().getDeclaredField("discoveryService");
     field.setAccessible(true);
     field.set(builder, discoveryService);
 
@@ -230,8 +248,8 @@ public class OidcServiceEdgeCasesTest {
   @Test
   public void shouldBuildWithCustomConfiguration() {
     final OidcGoogleApi20 api = OidcGoogleApi20.instance();
-    final OidcServiceBuilder builder = new OidcServiceBuilder(CLIENT_ID)
-        .logger(mock(OAuthLogger.class));
+    final OidcServiceBuilder builder =
+        new OidcServiceBuilder(CLIENT_ID).logger(mock(OAuthLogger.class));
 
     final JarAuthorizationRequestConverter converter = mock(JarAuthorizationRequestConverter.class);
     builder.authorizationRequestConverter(converter);

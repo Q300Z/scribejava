@@ -66,7 +66,16 @@ public class OAuth20ServiceHelpersTest {
         };
     service =
         new OAuth20Service(
-            api, "api-key", "api-secret", "callback", "scope", "code", null, null, null, mockHttpClient);
+            api,
+            "api-key",
+            "api-secret",
+            "callback",
+            "scope",
+            "code",
+            null,
+            null,
+            null,
+            mockHttpClient);
   }
 
   /** Vérifie l'extraction des paramètres d'autorisation depuis une URL. */
@@ -110,7 +119,8 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     doReturn(CompletableFuture.completedFuture(mockToken))
-        .when(spyService).sendAccessTokenRequestAsync(any(), any());
+        .when(spyService)
+        .sendAccessTokenRequestAsync(any(), any());
 
     OAuth2AccessToken result = spyService.getAccessToken("auth_code");
     assertThat(result).isSameAs(mockToken);
@@ -121,7 +131,8 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     doReturn(CompletableFuture.completedFuture(mockToken))
-        .when(spyService).sendAccessTokenRequestAsync(any(), any());
+        .when(spyService)
+        .sendAccessTokenRequestAsync(any(), any());
 
     AccessTokenRequestParams params = new AccessTokenRequestParams("auth_code");
     OAuth2AccessToken result = spyService.getAccessToken(params);
@@ -133,8 +144,7 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     CompletableFuture<OAuth2AccessToken> future = CompletableFuture.completedFuture(mockToken);
-    doReturn(future)
-        .when(spyService).sendAccessTokenRequestAsync(any(), any());
+    doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
     CompletableFuture<OAuth2AccessToken> result = spyService.getAccessToken("auth_code", null);
     assertThat(result.get()).isSameAs(mockToken);
@@ -145,10 +155,10 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     CompletableFuture<OAuth2AccessToken> future = CompletableFuture.completedFuture(mockToken);
-    doReturn(future)
-        .when(spyService).sendAccessTokenRequestAsync(any(), any());
+    doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
-    CompletableFuture<OAuth2AccessToken> result = spyService.getAccessTokenClientCredentialsGrantAsync();
+    CompletableFuture<OAuth2AccessToken> result =
+        spyService.getAccessTokenClientCredentialsGrantAsync();
     assertThat(result.get()).isSameAs(mockToken);
   }
 
@@ -157,10 +167,10 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     CompletableFuture<OAuth2AccessToken> future = CompletableFuture.completedFuture(mockToken);
-    doReturn(future)
-        .when(spyService).sendAccessTokenRequestAsync(any(), any());
+    doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
-    CompletableFuture<OAuth2AccessToken> result = spyService.getAccessTokenPasswordGrantAsync("user", "pass");
+    CompletableFuture<OAuth2AccessToken> result =
+        spyService.getAccessTokenPasswordGrantAsync("user", "pass");
     assertThat(result.get()).isSameAs(mockToken);
   }
 
@@ -169,8 +179,7 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     CompletableFuture<OAuth2AccessToken> future = CompletableFuture.completedFuture(mockToken);
-    doReturn(future)
-        .when(spyService).sendAccessTokenRequestAsync(any(), any());
+    doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
     OAuth2AccessToken result = spyService.getAccessTokenPasswordGrant("user", "pass");
     assertThat(result).isSameAs(mockToken);
@@ -181,8 +190,7 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     CompletableFuture<OAuth2AccessToken> future = CompletableFuture.completedFuture(mockToken);
-    doReturn(future)
-        .when(spyService).sendAccessTokenRequestAsync(any(), any());
+    doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
     OAuth2AccessToken result = spyService.getAccessTokenClientCredentialsGrant();
     assertThat(result).isSameAs(mockToken);
@@ -193,8 +201,7 @@ public class OAuth20ServiceHelpersTest {
     OAuth20Service spyService = spy(service);
     OAuth2AccessToken mockToken = mock(OAuth2AccessToken.class);
     CompletableFuture<OAuth2AccessToken> future = CompletableFuture.completedFuture(mockToken);
-    doReturn(future)
-        .when(spyService).refreshAccessTokenAsync(anyString(), any(), any());
+    doReturn(future).when(spyService).refreshAccessTokenAsync(anyString(), any(), any());
 
     CompletableFuture<OAuth2AccessToken> result = spyService.refreshAccessToken("refresh", null);
     assertThat(result.get()).isSameAs(mockToken);
@@ -226,7 +233,8 @@ public class OAuth20ServiceHelpersTest {
     future.completeExceptionally(new IOException("Network error"));
     doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
-    org.junit.jupiter.api.Assertions.assertThrows(IOException.class, () -> spyService.getAccessToken("auth_code"));
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IOException.class, () -> spyService.getAccessToken("auth_code"));
   }
 
   @Test
@@ -236,7 +244,8 @@ public class OAuth20ServiceHelpersTest {
     future.completeExceptionally(new IllegalArgumentException("Invalid state"));
     doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
-    org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> spyService.getAccessToken("auth_code"));
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class, () -> spyService.getAccessToken("auth_code"));
   }
 
   @Test
@@ -247,7 +256,8 @@ public class OAuth20ServiceHelpersTest {
     future.completeExceptionally(checkException);
     doReturn(future).when(spyService).sendAccessTokenRequestAsync(any(), any());
 
-    org.junit.jupiter.api.Assertions.assertThrows(ExecutionException.class, () -> spyService.getAccessToken("auth_code"));
+    org.junit.jupiter.api.Assertions.assertThrows(
+        ExecutionException.class, () -> spyService.getAccessToken("auth_code"));
   }
 
   @Test

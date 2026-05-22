@@ -39,8 +39,11 @@ import org.junit.jupiter.api.Test;
 public class JsonUtilsComprehensiveTest {
 
   @Test
-  public void testConstructorIsPrivate() throws NoSuchMethodException, IllegalAccessException,
-      InstantiationException, InvocationTargetException {
+  public void testConstructorIsPrivate()
+      throws NoSuchMethodException,
+          IllegalAccessException,
+          InstantiationException,
+          InvocationTargetException {
     final Constructor<JsonUtils> constructor = JsonUtils.class.getDeclaredConstructor();
     assertThat(Modifier.isPrivate(constructor.getModifiers())).isTrue();
     constructor.setAccessible(true);
@@ -53,7 +56,8 @@ public class JsonUtilsComprehensiveTest {
 
   @Test
   public void testParseDoubleAndNonNumber() {
-    final String json = "{\"doubleVal\":12.34,\"invalidNumber\":9999999999999999999999999999999999999999}";
+    final String json =
+        "{\"doubleVal\":12.34,\"invalidNumber\":9999999999999999999999999999999999999999}";
     final Map<String, Object> result = JsonUtils.parse(json);
     assertThat(result.get("doubleVal")).isEqualTo(12.34d);
     assertThat(result.get("invalidNumber")).isEqualTo("9999999999999999999999999999999999999999");

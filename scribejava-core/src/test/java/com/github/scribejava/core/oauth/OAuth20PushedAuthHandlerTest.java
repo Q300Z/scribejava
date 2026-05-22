@@ -71,13 +71,15 @@ public class OAuth20PushedAuthHandlerTest {
     final Map<String, String> additional = new HashMap<>();
     additional.put("custom_param", "custom_val");
 
-    final OAuthRequest request = handler.createPushedAuthorizationRequest(
-        "code", "api-key", "https://callback.com", "scope1", "state1", additional);
+    final OAuthRequest request =
+        handler.createPushedAuthorizationRequest(
+            "code", "api-key", "https://callback.com", "scope1", "state1", additional);
 
     assertThat(request.getCompleteUrl()).isEqualTo("https://test.com/par");
     assertThat(request.getBodyParams().asMap().get(OAuthConstants.RESPONSE_TYPE)).isEqualTo("code");
     assertThat(request.getBodyParams().asMap().get(OAuthConstants.CLIENT_ID)).isEqualTo("api-key");
-    assertThat(request.getBodyParams().asMap().get(OAuthConstants.REDIRECT_URI)).isEqualTo("https://callback.com");
+    assertThat(request.getBodyParams().asMap().get(OAuthConstants.REDIRECT_URI))
+        .isEqualTo("https://callback.com");
     assertThat(request.getBodyParams().asMap().get(OAuthConstants.SCOPE)).isEqualTo("scope1");
     assertThat(request.getBodyParams().asMap().get(OAuthConstants.STATE)).isEqualTo("state1");
     assertThat(request.getBodyParams().asMap().get("custom_param")).isEqualTo("custom_val");
@@ -89,8 +91,9 @@ public class OAuth20PushedAuthHandlerTest {
   public void shouldFailExceptionallyWhenParNotSupported() {
     when(api.getPushedAuthorizationRequestEndpoint()).thenReturn(null);
 
-    final CompletableFuture<PushedAuthorizationResponse> future = handler.pushAuthorizationRequestAsync(
-        "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), null);
+    final CompletableFuture<PushedAuthorizationResponse> future =
+        handler.pushAuthorizationRequestAsync(
+            "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), null);
 
     assertThat(future).isCompletedExceptionally();
     assertThatExceptionOfType(ExecutionException.class)
@@ -110,22 +113,27 @@ public class OAuth20PushedAuthHandlerTest {
 
     // Mock service.execute which takes OAuthRequest, callback, and converter
     when(service.execute(any(OAuthRequest.class), any(), any()))
-        .thenAnswer(invocation -> {
-          final OAuthAsyncRequestCallback<PushedAuthorizationResponse> cb =
-              invocation.getArgument(1);
-          final OAuthRequest.ResponseConverter<PushedAuthorizationResponse> converter =
-              invocation.getArgument(2);
-          final PushedAuthorizationResponse result = converter.convert(mockResponse);
-          if (cb != null) {
-            cb.onCompleted(result);
-          }
-          return CompletableFuture.completedFuture(result);
-        });
+        .thenAnswer(
+            invocation -> {
+              final OAuthAsyncRequestCallback<PushedAuthorizationResponse> cb =
+                  invocation.getArgument(1);
+              final OAuthRequest.ResponseConverter<PushedAuthorizationResponse> converter =
+                  invocation.getArgument(2);
+              final PushedAuthorizationResponse result = converter.convert(mockResponse);
+              if (cb != null) {
+                cb.onCompleted(result);
+              }
+              return CompletableFuture.completedFuture(result);
+            });
 
-    final OAuthAsyncRequestCallback<PushedAuthorizationResponse> callback = mock(OAuthAsyncRequestCallback.class);
+    final OAuthAsyncRequestCallback<PushedAuthorizationResponse> callback =
+        mock(OAuthAsyncRequestCallback.class);
 
-    final PushedAuthorizationResponse parResp1 = handler.pushAuthorizationRequestAsync(
-        "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), callback).get();
+    final PushedAuthorizationResponse parResp1 =
+        handler
+            .pushAuthorizationRequestAsync(
+                "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), callback)
+            .get();
 
     assertThat(parResp1.getRequestUri()).isEqualTo("urn:123");
     assertThat(parResp1.getExpiresIn()).isEqualTo(60);
@@ -135,8 +143,11 @@ public class OAuth20PushedAuthHandlerTest {
     verify(service, times(1)).execute(any(), any(), any());
 
     // Call again to verify cache hit (service.execute should not be called again)
-    final PushedAuthorizationResponse parResp2 = handler.pushAuthorizationRequestAsync(
-        "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), callback).get();
+    final PushedAuthorizationResponse parResp2 =
+        handler
+            .pushAuthorizationRequestAsync(
+                "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), callback)
+            .get();
 
     assertThat(parResp2).isSameAs(parResp1);
     verify(service, times(1)).execute(any(), any(), any());
@@ -156,26 +167,30 @@ public class OAuth20PushedAuthHandlerTest {
     }
 
     when(service.execute(any(OAuthRequest.class), any(), any()))
-        .thenAnswer(invocation -> {
-          final OAuthRequest.ResponseConverter<PushedAuthorizationResponse> converter =
-              invocation.getArgument(2);
-          final CompletableFuture<PushedAuthorizationResponse> future = new CompletableFuture<>();
-          try {
-            converter.convert(mockResponse);
-            future.complete(null);
-          } catch (Exception e) {
-            future.completeExceptionally(e);
-          }
-          return future;
-        });
+        .thenAnswer(
+            invocation -> {
+              final OAuthRequest.ResponseConverter<PushedAuthorizationResponse> converter =
+                  invocation.getArgument(2);
+              final CompletableFuture<PushedAuthorizationResponse> future =
+                  new CompletableFuture<>();
+              try {
+                converter.convert(mockResponse);
+                future.complete(null);
+              } catch (Exception e) {
+                future.completeExceptionally(e);
+              }
+              return future;
+            });
 
-    final CompletableFuture<PushedAuthorizationResponse> future = handler.pushAuthorizationRequestAsync(
-        "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), null);
+    final CompletableFuture<PushedAuthorizationResponse> future =
+        handler.pushAuthorizationRequestAsync(
+            "code", "api-key", "callback", "scope", "state", Collections.emptyMap(), null);
 
     assertThat(future).isCompletedExceptionally();
     assertThatExceptionOfType(ExecutionException.class)
         .isThrownBy(future::get)
         .withCauseInstanceOf(OAuthException.class)
-        .withMessageContaining("Failed to push authorization request. Status: 400, Body: Error details");
+        .withMessageContaining(
+            "Failed to push authorization request. Status: 400, Body: Error details");
   }
 }

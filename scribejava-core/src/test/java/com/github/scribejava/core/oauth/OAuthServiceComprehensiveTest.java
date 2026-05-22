@@ -39,8 +39,12 @@ import org.junit.jupiter.api.Test;
 public class OAuthServiceComprehensiveTest {
 
   private static class TestOAuthService extends OAuthService {
-    TestOAuthService(String apiKey, String apiSecret, String callback,
-        java.io.OutputStream debugStream, String userAgent,
+    TestOAuthService(
+        String apiKey,
+        String apiSecret,
+        String callback,
+        java.io.OutputStream debugStream,
+        String userAgent,
         com.github.scribejava.core.httpclient.HttpClientConfig httpClientConfig,
         HttpClient httpClient) {
       super(apiKey, apiSecret, callback, debugStream, userAgent, httpClientConfig, httpClient);
@@ -49,7 +53,8 @@ public class OAuthServiceComprehensiveTest {
 
   @Test
   public void testSimpleProperties() throws Exception {
-    try (TestOAuthService service = new TestOAuthService("key", "secret", "callback", null, "UA", null, null)) {
+    try (TestOAuthService service =
+        new TestOAuthService("key", "secret", "callback", null, "UA", null, null)) {
       assertThat(service.getApiKey()).isEqualTo("key");
       assertThat(service.getApiSecret()).isEqualTo("secret");
       assertThat(service.getCallback()).isEqualTo("callback");
@@ -60,7 +65,8 @@ public class OAuthServiceComprehensiveTest {
   @Test
   public void testDebugLoggingAndIsDebug() {
     final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    final TestOAuthService service = new TestOAuthService("key", "secret", "callback", bos, "UA", null, null);
+    final TestOAuthService service =
+        new TestOAuthService("key", "secret", "callback", bos, "UA", null, null);
     assertThat(service.isDebug()).isTrue();
     service.log("Hello %s", "world");
     service.log("Simple message");
@@ -78,17 +84,21 @@ public class OAuthServiceComprehensiveTest {
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://test.com");
     final Response mockResponse = mock(Response.class);
 
-    when(mockClient.execute(anyString(), any(), any(), anyString(), any(byte[].class))).thenReturn(mockResponse);
+    when(mockClient.execute(anyString(), any(), any(), anyString(), any(byte[].class)))
+        .thenReturn(mockResponse);
 
-    final TestOAuthService service = new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
+    final TestOAuthService service =
+        new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
 
     final OAuthRequestInterceptor interceptor = mock(OAuthRequestInterceptor.class);
     service.execute(request);
     verify(interceptor, times(0)).intercept(request);
 
-    final java.lang.reflect.Field interceptorsField = OAuthService.class.getDeclaredField("interceptors");
+    final java.lang.reflect.Field interceptorsField =
+        OAuthService.class.getDeclaredField("interceptors");
     interceptorsField.setAccessible(true);
-    final java.util.List<OAuthRequestInterceptor> list = (java.util.List<OAuthRequestInterceptor>) interceptorsField.get(service);
+    final java.util.List<OAuthRequestInterceptor> list =
+        (java.util.List<OAuthRequestInterceptor>) interceptorsField.get(service);
     list.add(interceptor);
 
     service.execute(request);
@@ -105,7 +115,8 @@ public class OAuthServiceComprehensiveTest {
         .thenThrow(new IOException("Network error"))
         .thenReturn(mockResponse);
 
-    final TestOAuthService service = new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
+    final TestOAuthService service =
+        new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
 
     final OAuthRetryPolicy retryPolicy = mock(OAuthRetryPolicy.class);
     when(retryPolicy.getMaxAttempts()).thenReturn(3);
@@ -120,7 +131,8 @@ public class OAuthServiceComprehensiveTest {
     when(mockClient.execute(anyString(), any(), any(), anyString(), any(byte[].class)))
         .thenThrow(new IOException("Permanent error"));
 
-    org.junit.jupiter.api.Assertions.assertThrows(OAuthNetworkException.class, () -> service.execute(request));
+    org.junit.jupiter.api.Assertions.assertThrows(
+        OAuthNetworkException.class, () -> service.execute(request));
   }
 
   @Test
@@ -129,11 +141,13 @@ public class OAuthServiceComprehensiveTest {
     final OAuthRequest request = new OAuthRequest(Verb.GET, "http://test.com");
     final Response mockResponse = mock(Response.class);
 
-    when(mockClient.execute(anyString(), any(), any(), anyString(), any(byte[].class))).thenReturn(mockResponse);
+    when(mockClient.execute(anyString(), any(), any(), anyString(), any(byte[].class)))
+        .thenReturn(mockResponse);
     when(mockResponse.getHeader("X-RateLimit-Remaining")).thenReturn("5");
     when(mockResponse.getHeader("X-RateLimit-Reset")).thenReturn("12345678");
 
-    final TestOAuthService service = new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
+    final TestOAuthService service =
+        new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
 
     final RateLimitListener rateLimitListener = mock(RateLimitListener.class);
     service.setRateLimitListener(rateLimitListener);
@@ -147,7 +161,8 @@ public class OAuthServiceComprehensiveTest {
     final HttpClient mockClient = mock(HttpClient.class);
     final Response mockResponse = mock(Response.class);
 
-    final TestOAuthService service = new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
+    final TestOAuthService service =
+        new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
 
     // File Payload
     final OAuthRequest request1 = new OAuthRequest(Verb.GET, "http://test.com");
@@ -155,24 +170,34 @@ public class OAuthServiceComprehensiveTest {
     final java.lang.reflect.Field fileField = OAuthRequest.class.getDeclaredField("filePayload");
     fileField.setAccessible(true);
     fileField.set(request1, mockFile);
-    when(mockClient.execute(anyString(), any(), any(), anyString(), any(File.class))).thenReturn(mockResponse);
+    when(mockClient.execute(anyString(), any(), any(), anyString(), any(File.class)))
+        .thenReturn(mockResponse);
     service.execute(request1);
     verify(mockClient).execute(anyString(), any(), any(), anyString(), eq(mockFile));
 
     // String Payload
     final OAuthRequest request2 = new OAuthRequest(Verb.GET, "http://test.com");
     request2.setPayload("my-string");
-    when(mockClient.execute(anyString(), any(), any(), anyString(), anyString())).thenReturn(mockResponse);
+    when(mockClient.execute(anyString(), any(), any(), anyString(), anyString()))
+        .thenReturn(mockResponse);
     service.execute(request2);
     verify(mockClient).execute(anyString(), any(), any(), anyString(), eq("my-string"));
 
     // Multipart Payload
     final OAuthRequest request3 = new OAuthRequest(Verb.GET, "http://test.com");
-    final com.github.scribejava.core.httpclient.multipart.MultipartPayload multipartPayload = mock(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class);
-    final java.lang.reflect.Field multipartField = OAuthRequest.class.getDeclaredField("multipartPayload");
+    final com.github.scribejava.core.httpclient.multipart.MultipartPayload multipartPayload =
+        mock(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class);
+    final java.lang.reflect.Field multipartField =
+        OAuthRequest.class.getDeclaredField("multipartPayload");
     multipartField.setAccessible(true);
     multipartField.set(request3, multipartPayload);
-    when(mockClient.execute(anyString(), any(), any(), anyString(), any(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class))).thenReturn(mockResponse);
+    when(mockClient.execute(
+            anyString(),
+            any(),
+            any(),
+            anyString(),
+            any(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class)))
+        .thenReturn(mockResponse);
     service.execute(request3);
     verify(mockClient).execute(anyString(), any(), any(), anyString(), eq(multipartPayload));
   }
@@ -184,7 +209,8 @@ public class OAuthServiceComprehensiveTest {
     final Response mockResponse = mock(Response.class);
     final CompletableFuture<Response> future = CompletableFuture.completedFuture(mockResponse);
 
-    final TestOAuthService service = new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
+    final TestOAuthService service =
+        new TestOAuthService("key", "secret", "callback", null, "UA", null, mockClient);
 
     // File Payload
     final OAuthRequest request1 = new OAuthRequest(Verb.GET, "http://test.com");
@@ -192,25 +218,41 @@ public class OAuthServiceComprehensiveTest {
     final java.lang.reflect.Field fileField = OAuthRequest.class.getDeclaredField("filePayload");
     fileField.setAccessible(true);
     fileField.set(request1, mockFile);
-    when(mockClient.executeAsync(anyString(), any(), any(), anyString(), any(File.class), any(), any())).thenReturn((CompletableFuture) future);
+    when(mockClient.executeAsync(
+            anyString(), any(), any(), anyString(), any(File.class), any(), any()))
+        .thenReturn((CompletableFuture) future);
     service.execute(request1, null).get();
-    verify(mockClient).executeAsync(anyString(), any(), any(), anyString(), eq(mockFile), any(), any());
+    verify(mockClient)
+        .executeAsync(anyString(), any(), any(), anyString(), eq(mockFile), any(), any());
 
     // String Payload
     final OAuthRequest request2 = new OAuthRequest(Verb.GET, "http://test.com");
     request2.setPayload("my-string");
-    when(mockClient.executeAsync(anyString(), any(), any(), anyString(), anyString(), any(), any())).thenReturn((CompletableFuture) future);
+    when(mockClient.executeAsync(anyString(), any(), any(), anyString(), anyString(), any(), any()))
+        .thenReturn((CompletableFuture) future);
     service.execute(request2, null).get();
-    verify(mockClient).executeAsync(anyString(), any(), any(), anyString(), eq("my-string"), any(), any());
+    verify(mockClient)
+        .executeAsync(anyString(), any(), any(), anyString(), eq("my-string"), any(), any());
 
     // Multipart Payload
     final OAuthRequest request3 = new OAuthRequest(Verb.GET, "http://test.com");
-    final com.github.scribejava.core.httpclient.multipart.MultipartPayload multipartPayload = mock(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class);
-    final java.lang.reflect.Field multipartField = OAuthRequest.class.getDeclaredField("multipartPayload");
+    final com.github.scribejava.core.httpclient.multipart.MultipartPayload multipartPayload =
+        mock(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class);
+    final java.lang.reflect.Field multipartField =
+        OAuthRequest.class.getDeclaredField("multipartPayload");
     multipartField.setAccessible(true);
     multipartField.set(request3, multipartPayload);
-    when(mockClient.executeAsync(anyString(), any(), any(), anyString(), any(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class), any(), any())).thenReturn((CompletableFuture) future);
+    when(mockClient.executeAsync(
+            anyString(),
+            any(),
+            any(),
+            anyString(),
+            any(com.github.scribejava.core.httpclient.multipart.MultipartPayload.class),
+            any(),
+            any()))
+        .thenReturn((CompletableFuture) future);
     service.execute(request3, null).get();
-    verify(mockClient).executeAsync(anyString(), any(), any(), anyString(), eq(multipartPayload), any(), any());
+    verify(mockClient)
+        .executeAsync(anyString(), any(), any(), anyString(), eq(multipartPayload), any(), any());
   }
 }
