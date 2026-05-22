@@ -49,7 +49,7 @@ graph TD
 
 ---
 
-## ⚡ En route en 3 étapes !
+## ⚡ En route en 3 étapes
 
 ### 1. Ajoutez les Dépendances Maven
 
