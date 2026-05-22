@@ -45,6 +45,25 @@ public class DPoPInterceptor implements OAuthRequestInterceptor {
     this.proofCreator = proofCreator;
   }
 
+  /**
+   * Constructeur complet.
+   *
+   * @param proofCreator Le créateur de preuves DPoP.
+   * @param accessToken Le jeton d'accès auquel lier la preuve DPoP.
+   */
+  public DPoPInterceptor(DPoPProofCreator proofCreator, String accessToken) {
+    this.proofCreator = proofCreator;
+    this.accessToken = accessToken;
+  }
+
+  public String getAccessToken() {
+    return accessToken;
+  }
+
+  public void setAccessToken(String accessToken) {
+    this.accessToken = accessToken;
+  }
+
   /** {@inheritDoc} */
   @Override
   public void intercept(OAuthRequest request) {

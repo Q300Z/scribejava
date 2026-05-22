@@ -25,6 +25,9 @@ package com.github.scribejava.oidc;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.httpclient.HttpClient;
+import com.github.scribejava.oidc.jar.JarAuthorizationRequestConverter;
+import com.github.scribejava.oidc.model.JwtSigner;
+import java.security.PrivateKey;
 
 /** Builder spécifique pour les services OpenID Connect (Support Discovery). */
 public class OidcServiceBuilder extends ServiceBuilder {
@@ -77,6 +80,27 @@ public class OidcServiceBuilder extends ServiceBuilder {
   }
 
   /**
+   * @param audience audience
+   * @param signingKey clé privée
+   * @param keyId id clé
+   * @param signer signataire
+   * @return builder
+   */
+  public OidcServiceBuilder jwtSecuredAuthorizationRequest(
+      String audience, PrivateKey signingKey, String keyId, JwtSigner signer) {
+    this.authorizationRequestConverter(
+        new JarAuthorizationRequestConverter(
+            this.getApiKey(), audience, signingKey, keyId, signer));
+    return this;
+  }
+
+  @Override
+  public OidcServiceBuilder logger(com.github.scribejava.core.model.OAuthLogger logger) {
+    super.logger(logger);
+    return this;
+  }
+
+  /**
    * Construit une instance de service OIDC sans nécessiter de cast manuel.
    *
    * @param api L'instance de DefaultOidcApi20 configurée.
@@ -107,15 +131,26 @@ public class OidcServiceBuilder extends ServiceBuilder {
       }
     }
 
-    return apiToUse.createService(
-        getApiKey(),
-        getApiSecret(),
-        getCallback(),
-        getDefaultScope(),
-        getResponseType(),
-        getDebugStream(),
-        getUserAgent(),
-        getHttpClientConfig(),
-        getHttpClient());
+    final OidcService service =
+        apiToUse.createService(
+            getApiKey(),
+            getApiSecret(),
+            getCallback(),
+            getDefaultScope(),
+            getResponseType(),
+            getDebugStream(),
+            getUserAgent(),
+            getHttpClientConfig(),
+            getHttpClient());
+
+    if (getAuthorizationRequestConverter() != null) {
+      service.setAuthorizationRequestConverter(getAuthorizationRequestConverter());
+    }
+    if (getLogger() != null) {
+      service.setLogger(getLogger());
+    } else if (getDebugStream() != null) {
+      service.setLogger(new com.github.scribejava.core.model.DefaultOAuthLogger(getDebugStream()));
+    }
+    return service;
   }
 }

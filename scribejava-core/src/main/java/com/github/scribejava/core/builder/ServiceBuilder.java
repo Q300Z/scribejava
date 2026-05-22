@@ -52,6 +52,7 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
 
   private String discoveryIssuer;
   private com.github.scribejava.core.oauth.DiscoveryService discoveryService;
+  private com.github.scribejava.core.model.OAuthLogger logger;
 
   /**
    * Constructeur.
@@ -204,6 +205,15 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
     return this;
   }
 
+  public ServiceBuilder logger(com.github.scribejava.core.model.OAuthLogger logger) {
+    this.logger = logger;
+    return this;
+  }
+
+  public com.github.scribejava.core.model.OAuthLogger getLogger() {
+    return logger;
+  }
+
   @Override
   public ServiceBuilder responseType(String responseType) {
     Preconditions.checkEmptyString(responseType, "Invalid OAuth responseType");
@@ -284,6 +294,11 @@ public class ServiceBuilder implements ServiceBuilderOAuth20 {
 
     if (authorizationRequestConverter != null) {
       service.setAuthorizationRequestConverter(authorizationRequestConverter);
+    }
+    if (logger != null) {
+      service.setLogger(logger);
+    } else if (debugStream != null) {
+      service.setLogger(new com.github.scribejava.core.model.DefaultOAuthLogger(debugStream));
     }
     return service;
   }
