@@ -678,6 +678,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#liaison-dynamique-et-interception-dpop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Liaison Dynamique et Interception DPoP
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1350,6 +1361,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#liaison-dynamique-et-interception-dpop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Liaison Dynamique et Interception DPoP
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1511,17 +1533,30 @@ par le client.</p>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1">// Les jetons obtenus seront de type &#39;DPoP&#39; et les requêtes signées automatiquement.</span>
 </code></pre></div>
+<h3 id="liaison-dynamique-et-interception-dpop">Liaison Dynamique et Interception DPoP</h3>
+<p>Pour les cas avancés ou les flux dynamiques, vous pouvez lier dynamiquement le jeton d'accès à l'intercepteur <code>DPoPInterceptor</code> afin d'intégrer le claim <code>'ath'</code> (hachage du jeton d'accès) requis par la spécification RFC 9449 :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Instanciation de l&#39;intercepteur avec liaison dynamique de jeton</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">DPoPInterceptor</span><span class="w"> </span><span class="n">dpopInterceptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DPoPInterceptor</span><span class="p">(</span><span class="n">proofCreator</span><span class="p">);</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="n">clientId</span><span class="p">)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="p">.</span><span class="na">requestInterceptor</span><span class="p">(</span><span class="n">dpopInterceptor</span><span class="p">)</span><span class="w"> </span><span class="c1">// Enregistrement de l&#39;intercepteur</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1">// Lors de l&#39;acquisition ou de la rotation du jeton, mettez à jour l&#39;intercepteur :</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">dpopInterceptor</span><span class="p">.</span><span class="na">setAccessToken</span><span class="p">(</span><span class="n">token</span><span class="p">.</span><span class="na">getAccessToken</span><span class="p">());</span>
+</code></pre></div>
 <hr />
 <h2 id="2-par-pushed-authorization-requests">🛰️ 2. PAR (Pushed Authorization Requests)</h2>
 <p>Le PAR (RFC 9126) améliore la sécurité en envoyant les paramètres d'autorisation directement au serveur via une requête
 POST sécurisée, plutôt que de les faire transiter par l'URL du navigateur.</p>
 <h3 id="mise-en-uvre-par">Mise en œuvre PAR</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// ScribeJava gère le PAR automatiquement si l&#39;API le supporte</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">PushedAuthorizationResponse</span><span class="w"> </span><span class="n">parResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">pushAuthorizationRequest</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AuthorizationCodeGrant</span><span class="p">(</span><span class="n">code</span><span class="p">));</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">// Redirigez l&#39;utilisateur vers l&#39;URI fournie par le serveur</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">String</span><span class="w"> </span><span class="n">authUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parResponse</span><span class="p">.</span><span class="na">getRequestUri</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// ScribeJava gère le PAR automatiquement si l&#39;API le supporte</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">PushedAuthorizationResponse</span><span class="w"> </span><span class="n">parResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">pushAuthorizationRequest</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">AuthorizationCodeGrant</span><span class="p">(</span><span class="n">code</span><span class="p">));</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1">// Redirigez l&#39;utilisateur vers l&#39;URI fournie par le serveur</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">String</span><span class="w"> </span><span class="n">authUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">parResponse</span><span class="p">.</span><span class="na">getRequestUri</span><span class="p">();</span>
 </code></pre></div>
 <hr />
 <h2 id="recommandations">💡 Recommandations</h2>
@@ -1563,45 +1598,45 @@ POST sécurisée, plutôt que de les faire transiter par l'URL du navigateur.</p
 vous pouvez signer la requête.</p>
 <h3 id="activation">Activation</h3>
 <p>Utilisez <code>JarAuthorizationRequestConverter</code> (du module <code>scribejava-oidc</code>) dans le builder.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// Clé privée pour signer le JWT</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">JWK</span><span class="w"> </span><span class="n">signingKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JWK</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="s">&quot;{\&quot;kty\&quot;:\&quot;RSA\&quot;, ...}&quot;</span><span class="p">);</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;secret&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="p">.</span><span class="na">callback</span><span class="p">(</span><span class="s">&quot;https://callback.com&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="c1">// Active JAR : Convertit les params en JWT signé</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">.</span><span class="na">authorizationRequestConverter</span><span class="p">(</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">JarAuthorizationRequestConverter</span><span class="p">(</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">            </span><span class="s">&quot;client-id&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// issuer</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">            </span><span class="s">&quot;https://issuer.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// audience (l&#39;IDP)</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">            </span><span class="n">signingKey</span><span class="p">,</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">            </span><span class="n">JWSAlgorithm</span><span class="p">.</span><span class="na">RS256</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">        </span><span class="p">)</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="p">)</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">OidcGoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1">// L&#39;URL générée contiendra ?client_id=...&amp;request=eyJ...</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAuthorizationUrl</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Clé privée pour signer le JWT</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">JWK</span><span class="w"> </span><span class="n">signingKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JWK</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="s">&quot;{\&quot;kty\&quot;:\&quot;RSA\&quot;, ...}&quot;</span><span class="p">);</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;secret&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="p">.</span><span class="na">callback</span><span class="p">(</span><span class="s">&quot;https://callback.com&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="c1">// Active JAR : Convertit les params en JWT signé</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">.</span><span class="na">authorizationRequestConverter</span><span class="p">(</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">        </span><span class="k">new</span><span class="w"> </span><span class="n">JarAuthorizationRequestConverter</span><span class="p">(</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">            </span><span class="s">&quot;client-id&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// issuer</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">            </span><span class="s">&quot;https://issuer.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// audience (l&#39;IDP)</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">            </span><span class="n">signingKey</span><span class="p">,</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">            </span><span class="n">JWSAlgorithm</span><span class="p">.</span><span class="na">RS256</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">        </span><span class="p">)</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">    </span><span class="p">)</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">OidcGoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="c1">// L&#39;URL générée contiendra ?client_id=...&amp;request=eyJ...</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAuthorizationUrl</span><span class="p">();</span>
 </code></pre></div>
 <h3 id="combinaison-avec-par-pushed-authorization-requests">Combinaison avec PAR (Pushed Authorization Requests)</h3>
 <p>Si vous activez à la fois JAR et PAR, ScribeJava enverra le JWT signé (<code>request</code>) directement au serveur via l'appel API
 PAR (<code>POST /par</code>). C'est la configuration <strong>la plus sécurisée</strong> possible.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// JAR + PAR = Sécurité Maximale</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">.</span><span class="na">authorizationRequestConverter</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">JarAuthorizationRequestConverter</span><span class="p">(...))</span><span class="w"> </span><span class="c1">// JAR</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1">// Pousse le JWT signé au serveur</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">PushedAuthorizationResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">pushAuthorizationRequestAsync</span><span class="p">(...).</span><span class="na">get</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// JAR + PAR = Sécurité Maximale</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="p">.</span><span class="na">authorizationRequestConverter</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">JarAuthorizationRequestConverter</span><span class="p">(...))</span><span class="w"> </span><span class="c1">// JAR</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1">// Pousse le JWT signé au serveur</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">PushedAuthorizationResponse</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">pushAuthorizationRequestAsync</span><span class="p">(...).</span><span class="na">get</span><span class="p">();</span>
 </code></pre></div>
 <hr />
 <h2 id="5-resource-indicators-rfc-8707">🏗️ 5. Resource Indicators (RFC 8707)</h2>
 <p>Si votre serveur d'autorisation gère plusieurs ressources (APIs) avec des permissions distinctes, vous pouvez spécifier la ressource cible lors de la demande de jeton.</p>
 <h3 id="mise-en-uvre">Mise en œuvre</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">AccessTokenRequestParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AccessTokenRequestParams</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="p">.</span><span class="na">resource</span><span class="p">(</span><span class="s">&quot;https://api.monservice.com/v1&quot;</span><span class="p">);</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">OAuth2AccessToken</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAccessToken</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">AccessTokenRequestParams</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AccessTokenRequestParams</span><span class="p">.</span><span class="na">create</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="p">.</span><span class="na">resource</span><span class="p">(</span><span class="s">&quot;https://api.monservice.com/v1&quot;</span><span class="p">);</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">OAuth2AccessToken</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAccessToken</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
 </code></pre></div>
 <hr />
 <p><a href="https://github.com/Q300Z/scribejava/blob/master/README.md">⬅️ Retour à l'accueil</a></p>

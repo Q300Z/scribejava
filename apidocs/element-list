@@ -32,7 +32,6 @@ com.github.scribejava.oauth1.model
 com.github.scribejava.oauth1.oauth
 com.github.scribejava.oauth1.services
 com.github.scribejava.oidc
-com.github.scribejava.oidc.builder
 com.github.scribejava.oidc.clientauthentication
 com.github.scribejava.oidc.dpop
 com.github.scribejava.oidc.jar

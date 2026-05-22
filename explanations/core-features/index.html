@@ -928,13 +928,41 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#logging-structure" class="md-nav__link">
+  <a href="#logging-structure-observabilite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Logging Structuré
+        Logging Structuré &amp; Observabilité
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Logging Structuré &amp; Observabilité">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-automatique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Automatique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-personnalisee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Personnalisée
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1479,13 +1507,41 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#logging-structure" class="md-nav__link">
+  <a href="#logging-structure-observabilite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Logging Structuré
+        Logging Structuré &amp; Observabilité
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Logging Structuré &amp; Observabilité">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-automatique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Automatique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-personnalisee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration Personnalisée
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1621,8 +1677,27 @@
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">log</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">&quot;Requêtes restantes : &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">remaining</span><span class="p">);</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">});</span>
 </code></pre></div>
-<h3 id="logging-structure">Logging Structuré</h3>
-<p>Branchez votre infrastructure de logs (SLF4J, Log4j2) via l'interface <code>OAuthLogger</code>.</p>
+<h3 id="logging-structure-observabilite">Logging Structuré &amp; Observabilité</h3>
+<p>ScribeJava propose une observabilité de premier ordre sans aucune dépendance externe (zéro dépendance tierce) pour le diagnostic en production :</p>
+<ul>
+<li><strong><code>DefaultOAuthLogger</code></strong> : Formate de manière lisible les requêtes et réponses HTTP (avec commandes cURL prêtes à copier-coller) et effectue un masquage automatique et ultra-performant des secrets (<code>client_secret</code>, <code>access_token</code>, en-têtes d'autorisation, etc.) via des expressions régulières JDK natives.</li>
+<li><strong><code>JdkOAuthLogger</code></strong> : Route les logs formatés et masqués directement vers le framework standard de logging de Java (<code>java.util.logging.Logger</code>).</li>
+</ul>
+<h4 id="configuration-automatique">Configuration Automatique</h4>
+<p>L'appel à <code>.debug()</code> ou <code>.debugStream(PrintStream)</code> sur le <code>ServiceBuilder</code> branche automatiquement un <code>DefaultOAuthLogger</code> écrivant sur <code>System.out</code> ou sur le flux spécifié :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;secret&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="p">.</span><span class="na">debug</span><span class="p">()</span><span class="w"> </span><span class="c1">// Active automatiquement DefaultOAuthLogger sur System.out avec masquage automatique des secrets</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GitHubApi</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
+</code></pre></div>
+<h4 id="configuration-personnalisee">Configuration Personnalisée</h4>
+<p>Pour rediriger vers votre propre infrastructure de logs (SLF4J, Log4j2) ou vers le système standard du JDK, utilisez <code>.logger(OAuthLogger)</code> :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Logger JDK standard (JUL) avec masquage automatique des secrets</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;secret&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="p">.</span><span class="na">logger</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">JdkOAuthLogger</span><span class="p">(</span><span class="n">Logger</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="s">&quot;monApp.scribejava&quot;</span><span class="p">)))</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GitHubApi</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
+</code></pre></div>
 <hr />
 <h2 id="5-moteur-json-natif-zero-dependance">🏗️ 5. Moteur JSON Natif (Zéro-Dépendance)</h2>
 <p>ScribeJava embarque son propre moteur JSON ultra-sécurisé :</p>
@@ -1637,8 +1712,8 @@
 <p><strong><code>JsonUtils</code></strong> : Parsing récursif performant supportant l'Unicode.</p>
 </li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">String</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JsonBuilder</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">123</span><span class="p">).</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;tags&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p">)).</span><span class="na">build</span><span class="p">();</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">JsonObject</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JsonObject</span><span class="p">(</span><span class="n">JsonUtils</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">responseBody</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">String</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JsonBuilder</span><span class="p">().</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;id&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">123</span><span class="p">).</span><span class="na">add</span><span class="p">(</span><span class="s">&quot;tags&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Arrays</span><span class="p">.</span><span class="na">asList</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;b&quot;</span><span class="p">)).</span><span class="na">build</span><span class="p">();</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">JsonObject</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">JsonObject</span><span class="p">(</span><span class="n">JsonUtils</span><span class="p">.</span><span class="na">parse</span><span class="p">(</span><span class="n">responseBody</span><span class="p">));</span>
 </code></pre></div>
 <hr />
 <h2 id="6-hierarchie-des-exceptions">❌ 6. Hiérarchie des Exceptions</h2>
