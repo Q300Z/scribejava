@@ -635,10 +635,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-oauth-20-standard-interactif" class="md-nav__link">
+  <a href="#1-oauth-20-standard-fournisseurs-specifiques" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. OAuth 2.0 Standard (Interactif)
+        1. OAuth 2.0 Standard &amp; Fournisseurs Spécifiques
       
     </span>
   </a>
@@ -646,10 +646,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-openid-connect-oidc-natif" class="md-nav__link">
+  <a href="#2-openid-connect-oidc-natif-cloud-identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. OpenID Connect (OIDC) Natif
+        2. OpenID Connect (OIDC) Natif &amp; Cloud Identity
       
     </span>
   </a>
@@ -1060,10 +1060,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-oauth-20-standard-interactif" class="md-nav__link">
+  <a href="#1-oauth-20-standard-fournisseurs-specifiques" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. OAuth 2.0 Standard (Interactif)
+        1. OAuth 2.0 Standard &amp; Fournisseurs Spécifiques
       
     </span>
   </a>
@@ -1071,10 +1071,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-openid-connect-oidc-natif" class="md-nav__link">
+  <a href="#2-openid-connect-oidc-natif-cloud-identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. OpenID Connect (OIDC) Natif
+        2. OpenID Connect (OIDC) Natif &amp; Cloud Identity
       
     </span>
   </a>
@@ -1164,52 +1164,48 @@
 </ul>
 <hr />
 <h2 id="choisissez-votre-flux">🗺️ Choisissez votre flux</h2>
-<h3 id="1-oauth-20-standard-interactif">1. OAuth 2.0 Standard (Interactif)</h3>
-<p>Idéal pour les applications web ou les outils CLI où l'utilisateur peut ouvrir un navigateur.</p>
+<h3 id="1-oauth-20-standard-fournisseurs-specifiques">1. OAuth 2.0 Standard &amp; Fournisseurs Spécifiques</h3>
+<p>Idéal pour les applications web ou les outils CLI.</p>
 <ul>
-<li>
-<p><strong>Sécurité</strong> : Inclus PKCE (RFC 7636).</p>
-</li>
-<li>
-<p><strong>Exemple</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OAuth20QuickStart.java"><code>OAuth20QuickStart.java</code></a></p>
-</li>
+<li><strong>Sécurité</strong> : Inclus PKCE (RFC 7636).</li>
+<li><strong>Exemples standard</strong> :</li>
+<li><a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OAuth20QuickStart.java"><code>OAuth20QuickStart.java</code></a> (Exemple générique)</li>
+<li><a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/KeycloakQuickStart.java"><code>KeycloakQuickStart.java</code></a> (Connexion et UserInfo avec <strong>Keycloak</strong> en local ou à distance)</li>
 </ul>
-<h3 id="2-openid-connect-oidc-natif">2. OpenID Connect (OIDC) Natif</h3>
-<p>Pour l'authentification moderne avec validation automatique de l'identité.</p>
+<h3 id="2-openid-connect-oidc-natif-cloud-identity">2. OpenID Connect (OIDC) Natif &amp; Cloud Identity</h3>
+<p>Pour l'authentification moderne avec validation automatique de l'identité et décodage de l'ID Token.</p>
 <ul>
-<li>
-<p><strong>Fonctionnalité</strong> : Découverte dynamique (Discovery) et validation native du jeton (ID Token).</p>
-</li>
-<li>
-<p><strong>Exemple</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OidcQuickStart.java"><code>OidcQuickStart.java</code></a></p>
-</li>
+<li><strong>Fonctionnalité</strong> : Découverte dynamique (Discovery) et validation native du jeton (ID Token).</li>
+<li><strong>Exemples OIDC</strong> :</li>
+<li><strong>Google</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OidcQuickStart.java"><code>OidcQuickStart.java</code></a> (Découverte et validation OIDC Google native)</li>
+<li><strong>Microsoft Entra ID (Azure AD)</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/MicrosoftAdQuickStart.java"><code>MicrosoftAdQuickStart.java</code></a> (Intégration OIDC multi-tenant Microsoft et appels Microsoft Graph API)</li>
 </ul>
 <h3 id="3-machine-to-machine-client-credentials">3. Machine-to-Machine (Client Credentials)</h3>
 <p>Pour les serveurs, les démons ou les scripts automatisés sans intervention humaine.</p>
 <ul>
-<li>
-<p><strong>Fonctionnalité</strong> : Authentification directe du client.</p>
-</li>
-<li>
-<p><strong>Exemple</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/ClientCredentialsQuickStart.java"><code>ClientCredentialsQuickStart.java</code></a></p>
-</li>
+<li><strong>Fonctionnalité</strong> : Authentification directe du client.</li>
+<li><strong>Exemple</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/ClientCredentialsQuickStart.java"><code>ClientCredentialsQuickStart.java</code></a></li>
 </ul>
 <h3 id="4-appareils-sans-navigateur-device-flow">4. Appareils sans Navigateur (Device Flow)</h3>
 <p>Pour les terminaux SSH, les Smart TV ou les objets connectés (IoT).</p>
 <ul>
-<li>
-<p><strong>Fonctionnalité</strong> : Validation déportée sur un autre appareil (Smartphone).</p>
-</li>
-<li>
-<p><strong>Exemple</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/DeviceFlowQuickStart.java"><code>DeviceFlowQuickStart.java</code></a></p>
-</li>
+<li><strong>Fonctionnalité</strong> : Validation déportée sur un autre appareil (Smartphone).</li>
+<li><strong>Exemple</strong> : <a href="../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/DeviceFlowQuickStart.java"><code>DeviceFlowQuickStart.java</code></a></li>
 </ul>
 <hr />
 <h2 id="comment-lancer-les-exemples">🛠️ Comment lancer les exemples ?</h2>
-<p>Tous les exemples sont situés dans le module <code>scribejava-apis</code>. Vous pouvez les copier dans votre projet ou les lancer via Maven :</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Exemple pour le flux standard</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>mvn<span class="w"> </span>test-compile<span class="w"> </span>exec:java<span class="w"> </span>-Dexec.mainClass<span class="o">=</span><span class="s2">&quot;com.github.scribejava.apis.examples.quickstart.OAuth20QuickStart&quot;</span><span class="w"> </span>-pl<span class="w"> </span>scribejava-apis
+<p>Tous les exemples sont situés dans le module <code>scribejava-apis</code>. Vous pouvez les copier dans votre projet ou les lancer directement via Maven :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Lancer l&#39;exemple générique OAuth2</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>mvn<span class="w"> </span>test-compile<span class="w"> </span>exec:java<span class="w"> </span>-Dexec.mainClass<span class="o">=</span><span class="s2">&quot;com.github.scribejava.apis.examples.quickstart.OAuth20QuickStart&quot;</span><span class="w"> </span>-pl<span class="w"> </span>scribejava-apis
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Lancer l&#39;exemple OIDC Google</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>mvn<span class="w"> </span>test-compile<span class="w"> </span>exec:java<span class="w"> </span>-Dexec.mainClass<span class="o">=</span><span class="s2">&quot;com.github.scribejava.apis.examples.quickstart.OidcQuickStart&quot;</span><span class="w"> </span>-pl<span class="w"> </span>scribejava-apis
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Lancer l&#39;exemple Keycloak</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>mvn<span class="w"> </span>test-compile<span class="w"> </span>exec:java<span class="w"> </span>-Dexec.mainClass<span class="o">=</span><span class="s2">&quot;com.github.scribejava.apis.examples.quickstart.KeycloakQuickStart&quot;</span><span class="w"> </span>-pl<span class="w"> </span>scribejava-apis
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Lancer l&#39;exemple Microsoft Azure AD</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>mvn<span class="w"> </span>test-compile<span class="w"> </span>exec:java<span class="w"> </span>-Dexec.mainClass<span class="o">=</span><span class="s2">&quot;com.github.scribejava.apis.examples.quickstart.MicrosoftAdQuickStart&quot;</span><span class="w"> </span>-pl<span class="w"> </span>scribejava-apis
 </code></pre></div>
 <hr />
 <h2 id="bonnes-pratiques-de-production">🔒 Bonnes Pratiques de Production</h2>
