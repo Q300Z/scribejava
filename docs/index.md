@@ -102,4 +102,5 @@ Parcourez nos guides détaillés via le menu de navigation ou lancez une recherc
 * 🔐 **[OpenID Connect (OIDC)](explanations/oidc-features.md)** : Découverte dynamique, validation d'ID Token native et gestion de session.
 * 🛠️ **[Helpers d'Intégration](how-to/auto-refresh-tokens.md)** : Automatisation robuste avec rafraîchissement thread-safe des jetons.
 * 🛡️ **[Sécurité Avancée](how-to/secure-with-dpop-pkce.md)** : Implémentez PKCE, DPoP (Proof of Possession) et PAR (Pushed Authorization Requests).
+* 🔌 **[Ajouter un Fournisseur Custom](how-to/add-custom-provider.md)** : Étendez facilement la bibliothèque pour vos propres serveurs d'autorisation OAuth.
 * 🏗️ **[Consulter la Javadoc des APIs](https://q300z.github.io/scribejava/apidocs/)** : Accédez à la documentation de référence des classes et méthodes de la bibliothèque.
