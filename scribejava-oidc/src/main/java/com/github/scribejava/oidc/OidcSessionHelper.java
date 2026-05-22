@@ -62,13 +62,13 @@ public class OidcSessionHelper {
     return "<html><body>"
         + "<script>"
         + "  var targetOrigin = '"
-        + opCheckSessionIframe
+        + escapeJs(opCheckSessionIframe)
         + "';"
         + "  var clientId = '"
-        + clientId
+        + escapeJs(clientId)
         + "';"
         + "  var sessionState = '"
-        + sessionState
+        + escapeJs(sessionState)
         + "';"
         + "  var mes = clientId + ' ' + sessionState;"
         + "  function checkSession() {"
@@ -110,6 +110,24 @@ public class OidcSessionHelper {
               + "&sid="
               + OAuthEncoder.encode(sid);
     }
-    return "<iframe src=\"" + url + "\" style=\"display:none\"></iframe>";
+    return "<iframe src=\"" + escapeHtmlAttr(url) + "\" style=\"display:none\"></iframe>";
+  }
+
+  private static String escapeJs(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value.replace("\\", "\\\\")
+        .replace("'", "\\'")
+        .replace("\"", "\\\"")
+        .replace("\r", "\\r")
+        .replace("\n", "\\n");
+  }
+
+  private static String escapeHtmlAttr(String value) {
+    if (value == null) {
+      return "";
+    }
+    return value.replace("\"", "&quot;");
   }
 }

@@ -103,7 +103,8 @@ public final class JsonUtils {
     final StringBuffer sb = new StringBuffer();
     while (matcher.find()) {
       final int code = Integer.parseInt(matcher.group(1), 16);
-      matcher.appendReplacement(sb, new String(Character.toChars(code)));
+      final String replacement = new String(Character.toChars(code));
+      matcher.appendReplacement(sb, Matcher.quoteReplacement(replacement));
     }
     matcher.appendTail(sb);
     return sb.toString();

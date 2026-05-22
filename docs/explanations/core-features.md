@@ -132,6 +132,11 @@ OAuth20Service service = new ServiceBuilder("client-id")
     .build(GitHubApi.instance());
 ```
 
+#### Logs Système Internes (JUL)
+En dehors de l'interception réseau, ScribeJava utilise le framework de logging standard du JDK (`java.util.logging`) pour vous notifier d'événements critiques d'arrière-plan sans interrompre l'exécution de votre application (mode dégradé résilient).
+
+Par exemple, le composant `com.github.scribejava.oidc.IdTokenValidator` loggue un avertissement de niveau `WARNING` si la rotation automatique et le rechargement d'arrière-plan des clés de signature depuis le serveur JWKS du fournisseur d'identité OIDC échouent (ex. : coupure réseau).
+
 ---
 
 ## 🏗️ 5. Moteur JSON Natif (Zéro-Dépendance)

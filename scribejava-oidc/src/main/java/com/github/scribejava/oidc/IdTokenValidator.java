@@ -32,9 +32,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Validateur natif pour les ID Tokens OpenID Connect. */
 public class IdTokenValidator {
+
+  private static final Logger LOGGER = Logger.getLogger(IdTokenValidator.class.getName());
 
   private final String issuer;
   private final String clientID;
@@ -204,7 +208,7 @@ public class IdTokenValidator {
         keys.putAll(updatedKeys);
       }
     } catch (Exception e) {
-      // Échec silencieux, on garde les anciennes clés
+      LOGGER.log(Level.WARNING, "Failed to reload OIDC provider keys from JWKS URI: " + jwksUri, e);
     }
   }
 
