@@ -117,7 +117,8 @@ public class OidcSessionHelper {
     if (value == null) {
       return "";
     }
-    return value.replace("\\", "\\\\")
+    return value
+        .replace("\\", "\\\\")
         .replace("'", "\\'")
         .replace("\"", "\\\"")
         .replace("\r", "\\r")

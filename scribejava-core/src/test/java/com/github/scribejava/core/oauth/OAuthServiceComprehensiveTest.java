@@ -24,11 +24,16 @@
 package com.github.scribejava.core.oauth;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.github.scribejava.core.exceptions.OAuthNetworkException;
 import com.github.scribejava.core.httpclient.HttpClient;
-import com.github.scribejava.core.model.*;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Verb;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
