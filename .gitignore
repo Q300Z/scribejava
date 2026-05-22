@@ -24,3 +24,9 @@ docs-output/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# Documentation site build and python virtual env
+venv/
+site/
+.antigravitycli/
+

@@ -225,22 +225,18 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 
 ## Documentation & Exemples
 
+📖 **[Consulter notre tout nouveau Hub de Documentation en ligne](https://q300z.github.io/scribejava/)** — Un site moderne regroupant l'intégralité des guides, tutoriels de démarrage rapide et bonnes pratiques.
+
+### 📚 Guides détaillés (Markdown)
+
 * 🚀 **[Démarrage Rapide (Quick Start)](docs/QUICKSTART.md)** - Exemples complets pour CLI (OAuth2, OIDC, M2M).
-
 * ⚡ **[Guide de Migration](docs/MIGRATION_GUIDE.md)** - Passer de la v8 à la v9.
-
 * ⚙️ **[Guide ScribeJava Core](docs/CORE_FEATURES_GUIDE.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
-
 * 🛡️ **[Sécurité Avancée (DPoP/PAR)](docs/ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
-
 * 🔐 **[Guide des Fonctionnalités OIDC](docs/OIDC_FEATURES_GUIDE.md)** - Discovery, JWT natif et Logout.
-
 * 📖 **[Guide d'Intégration Helpers](docs/INTEGRATION_HELPERS_GUIDE.md)** - Orchestration, Auto-refresh et multi-tenant.
-
 * 📖 **[Catalogue des Fonctionnalités](docs/FEATURES_CATALOG.md)** - Liste exhaustive par module.
-
 * 🛠️ **[Documentation CI/CD](docs/CI_DOCUMENTATION.md)** - Architecture du pipeline qualité.
-
 * 🚑 **[Guide de Dépannage](docs/TROUBLESHOOTING.md)** - Solutions aux erreurs courantes.
 
 * 📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Integration Helpers](./scribejava-integration-helpers/README.md)
@@ -251,7 +247,7 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 
 ### 🏗️ API Javadoc
 
-* **[Consulter la Javadoc en ligne](https://q300z.github.io/scribejava/)**
+* **[Consulter la Javadoc d'API en ligne](https://q300z.github.io/scribejava/apidocs/)**
 
 ---
 ⭐ **Soutenez-nous !** Mettez une étoile sur le projet pour nous aider à grandir.

@@ -5,6 +5,7 @@
 
 # --- Variables ---
 VERSION_CURRENT := $(shell grep -m 1 "<version>" pom.xml | sed 's/[^0-9.]//g' | sed 's/-SNAPSHOT//')
+MKDOCS := $(shell which mkdocs 2>/dev/null || echo "./venv/bin/mkdocs")
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -46,7 +47,20 @@ install: ## Installe les JARs dans le repo local .m2
 	mvn clean install -DskipTests -Dmaven.javadoc.skip=true
 
 doc: ## Génère la Javadoc agrégée (Premium DX)
-	mvn javadoc:aggregate -Dmaven.test.skip=true
+	mvn install -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true
+	mvn javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true
+
+doc-site: doc ## Génère le site de documentation MkDocs complet avec Javadoc intégrée
+	@echo "\033[36m🏗️ Génération du site MkDocs...\033[0m"
+	$(MKDOCS) build
+	@echo "\033[36m🔌 Intégration de la Javadoc...\033[0m"
+	cp -r target/classes/apidocs site/
+	@echo "\033[32m✅ Site généré avec succès dans le dossier './site' !\033[0m"
+
+deploy-site: doc-site ## Déploie manuellement le site de documentation sur la branche gh-pages
+	@echo "\033[32m🚀 Déploiement du site de documentation sur gh-pages...\033[0m"
+	cd site && git init && git add . && git commit -m "docs: manual deploy of documentation hub [skip ci]" && git remote add origin git@github.com:Q300Z/scribejava.git && git push origin master:gh-pages --force
+
 
 # --- Release (Automatisation du cycle de vie via release-it) ---
 

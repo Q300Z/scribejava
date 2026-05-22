@@ -37,6 +37,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,7 @@ public final class HelpersQuickStart {
     System.out.println("Connectez-vous : " + authUrl);
     final String code = readInput("Code de redirection");
 
-    final OAuth2AccessToken initialToken = service.getAccessToken(code);
+    final OAuth2AccessToken initialToken = service.getAccessToken(new AuthorizationCodeGrant(code));
     repository.save(userId, new ExpiringTokenWrapper(initialToken));
 
     // --- PHASE D'EXÉCUTION (Le développeur ne voit plus le jeton) ---

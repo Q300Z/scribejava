@@ -1,0 +1,61 @@
+site_name: ScribeJava
+site_description: La bibliothèque OAuth simple et robuste pour Java et Android
+site_url: https://q300z.github.io/scribejava/
+repo_url: https://github.com/Q300Z/scribejava
+repo_name: Q300Z/scribejava
+
+theme:
+  name: material
+  language: fr
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Passer au mode sombre
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Passer au mode clair
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - tables
+
+nav:
+  - Accueil: index.md
+  - Démarrage Rapide: QUICKSTART.md
+  - ScribeJava Core (Moteur): CORE_FEATURES_GUIDE.md
+  - OpenID Connect (OIDC): OIDC_FEATURES_GUIDE.md
+  - Helpers d'Intégration: INTEGRATION_HELPERS_GUIDE.md
+  - Sécurité Avancée: ADVANCED_SECURITY.md
+  - Guides des Flux: FLOWS_GUIDE.md
+  - Catalogue des Fonctionnalités: FEATURES_CATALOG.md
+  - Guide de Migration: MIGRATION_GUIDE.md
+  - CI/CD & Pipeline Qualité: CI_DOCUMENTATION.md
+  - Processus de Release: RELEASE_PROCESS.md
+  - Guide de Dépannage: TROUBLESHOOTING.md
+  - API Javadoc: https://q300z.github.io/scribejava/apidocs/

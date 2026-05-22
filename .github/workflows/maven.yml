@@ -98,15 +98,28 @@ jobs:
           cache: "maven"
       - name: Generate Javadoc
         run: |
-          mvn install -DskipTests -Dmaven.javadoc.skip=true
-          mvn javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false
+          mvn install -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true
+          mvn javadoc:aggregate -DskipTests -Dmaven.javadoc.skip=false -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install MkDocs and Material Theme
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs-material
+      - name: Build MkDocs Site
+        run: |
+          mkdocs build
+      - name: Integrate Javadoc into MkDocs Site
+        run: |
+          cp -r target/classes/apidocs site/
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/site/apidocs
-          destination_dir: docs
-          commit_message: "docs: update javadoc [skip ci]"
+          publish_dir: ./site
+          commit_message: "docs: publish documentation hub and javadoc [skip ci]"
 
   # Job 5: Release (Success on master with specific commit message or dispatch)
   publish-release:
