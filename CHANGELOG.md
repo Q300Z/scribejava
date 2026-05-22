@@ -1,5 +1,13 @@
 # 📓 Journal des modifications (Changelog)
 
+# [9.4.0](https://github.com/Q300Z/scribejava/compare/v9.3.0...v9.4.0) (2026-05-22)
+
+
+### Features
+
+* **observabilité/DPoP/SOLID:** Modernisation de l'observabilité sans dépendance externe, correction d'intercepteur DPoP et nettoyage du code mort OidcServiceBuilder ([6b25fc7](https://github.com/Q300Z/scribejava/commit/6b25fc71d9f20880b91ef254a3b94f5db71d1f17))
+* **test/lint:** reach >90% coverage for core, oidc, and integration-helpers and fix all checkstyle/pmd violations ([d447be0](https://github.com/Q300Z/scribejava/commit/d447be0e16590a66669f1faa55382fb146098a3e))
+
 ## [9.3.1](https://github.com/Q300Z/scribejava/compare/v9.3.0...v9.3.1) (2026-03-31)
 
 ### Features
