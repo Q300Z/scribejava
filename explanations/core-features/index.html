@@ -619,6 +619,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../../how-to/security-hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Durcissement de Sécurité (Production)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/add-custom-provider/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ajouter un Fournisseur Personnalisé
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/integrate-android/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Intégration Android
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../how-to/troubleshoot-ssl/" class="md-nav__link">
         
   
@@ -955,6 +1039,17 @@
     <span class="md-ellipsis">
       
         Configuration Personnalisée
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs-systeme-internes-jul" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs Système Internes (JUL)
       
     </span>
   </a>
@@ -1540,6 +1635,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#logs-systeme-internes-jul" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs Système Internes (JUL)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1698,6 +1804,9 @@
 <a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="p">.</span><span class="na">logger</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">JdkOAuthLogger</span><span class="p">(</span><span class="n">Logger</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="s">&quot;monApp.scribejava&quot;</span><span class="p">)))</span>
 <a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GitHubApi</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
 </code></pre></div>
+<h4 id="logs-systeme-internes-jul">Logs Système Internes (JUL)</h4>
+<p>En dehors de l'interception réseau, ScribeJava utilise le framework de logging standard du JDK (<code>java.util.logging</code>) pour vous notifier d'événements critiques d'arrière-plan sans interrompre l'exécution de votre application (mode dégradé résilient).</p>
+<p>Par exemple, le composant <code>com.github.scribejava.oidc.IdTokenValidator</code> loggue un avertissement de niveau <code>WARNING</code> si la rotation automatique et le rechargement d'arrière-plan des clés de signature depuis le serveur JWKS du fournisseur d'identité OIDC échouent (ex. : coupure réseau).</p>
 <hr />
 <h2 id="5-moteur-json-natif-zero-dependance">🏗️ 5. Moteur JSON Natif (Zéro-Dépendance)</h2>
 <p>ScribeJava embarque son propre moteur JSON ultra-sécurisé :</p>

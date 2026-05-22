@@ -13,6 +13,10 @@
         <link rel="canonical" href="https://q300z.github.io/scribejava/how-to/add-custom-provider/">
       
       
+        <link rel="prev" href="../security-hardening/">
+      
+      
+        <link rel="next" href="../integrate-android/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>🔌 Comment ajouter un nouveau fournisseur (API Custom Provider) - ScribeJava</title>
+        <title>Ajouter un Fournisseur Personnalisé - ScribeJava</title>
       
     
     
@@ -108,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              🔌 Comment ajouter un nouveau fournisseur (API Custom Provider)
+              Ajouter un Fournisseur Personnalisé
             
           </span>
         </div>
@@ -263,10 +267,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../auto-refresh-tokens/" class="md-tabs__link">
           
   
@@ -502,26 +508,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -539,7 +550,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -593,6 +604,248 @@
     
   
     Sécurisation avec PKCE et DPoP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security-hardening/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Durcissement de Sécurité (Production)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ajouter un Fournisseur Personnalisé
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ajouter un Fournisseur Personnalisé
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-pourquoi-implementer-un-fournisseur-personnalise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🎯 1. Pourquoi implémenter un fournisseur personnalisé ?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-larchitecture-de-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🏗️ 2. L'architecture de base
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏗️ 2. L&#39;architecture de base">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exemple-de-classe-dapi-avec-le-pattern-singleton-thread-safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exemple de classe d'API (avec le pattern Singleton thread-safe) :
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-personnalisations-avancees-facultatif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ⚙️ 3. Personnalisations avancées (Facultatif)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="⚙️ 3. Personnalisations avancées (Facultatif)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-format-de-reponse-du-jeton-non-standard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Format de réponse du jeton non standard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-authentification-du-client-specifique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Authentification du client spécifique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-signature-des-requetes-de-ressources-bearer-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Signature des requêtes de ressources (Bearer Signature)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-utilisation-et-integration-complete-le-flux-oauth2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚀 4. Utilisation et Intégration Complète (Le Flux OAuth2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-cas-doauth-10a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📝 5. Cas d'OAuth 1.0a
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrate-android/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Intégration Android
   
 
     
