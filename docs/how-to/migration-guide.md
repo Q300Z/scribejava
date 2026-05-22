@@ -89,4 +89,4 @@ OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code
 3. **Gestion des Exceptions** : Les méthodes synchrones déballent automatiquement les `ExecutionException`.
 
 ---
-[⬅️ Retour à l'accueil](../README.md)
+[⬅️ Retour à l'accueil](https://github.com/Q300Z/scribejava/blob/master/README.md)

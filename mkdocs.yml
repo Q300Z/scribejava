@@ -47,15 +47,22 @@ markdown_extensions:
 
 nav:
   - Accueil: index.md
-  - Démarrage Rapide: QUICKSTART.md
-  - ScribeJava Core (Moteur): CORE_FEATURES_GUIDE.md
-  - OpenID Connect (OIDC): OIDC_FEATURES_GUIDE.md
-  - Helpers d'Intégration: INTEGRATION_HELPERS_GUIDE.md
-  - Sécurité Avancée: ADVANCED_SECURITY.md
-  - Guides des Flux: FLOWS_GUIDE.md
-  - Catalogue des Fonctionnalités: FEATURES_CATALOG.md
-  - Guide de Migration: MIGRATION_GUIDE.md
-  - CI/CD & Pipeline Qualité: CI_DOCUMENTATION.md
-  - Processus de Release: RELEASE_PROCESS.md
-  - Guide de Dépannage: TROUBLESHOOTING.md
-  - API Javadoc: https://q300z.github.io/scribejava/apidocs/
+  - Tutoriels (Apprendre):
+      - "Démarrage Rapide": tutorials/quickstart.md
+  - Guides Pratiques (Résoudre):
+      - "Rafraîchissement automatique de Jetons": how-to/auto-refresh-tokens.md
+      - "Sécurisation avec PKCE et DPoP": how-to/secure-with-dpop-pkce.md
+      - "Guide de Dépannage": how-to/troubleshoot-ssl.md
+      - "Guide de Migration": how-to/migration-guide.md
+  - Explications & Architecture (Comprendre):
+      - "Philosophie & Architecture": explanations/core-features.md
+      - "Protocoles OIDC Supportés": explanations/oidc-features.md
+      - "Fonctionnement des Flux OAuth2/OIDC": explanations/oauth2-flows.md
+      - "CI/CD & Pipelines de Qualité": explanations/ci-cd-pipelines.md
+      - "Processus de Publication": explanations/release-process.md
+  - Références & Spécifications:
+      - "Catalogue des Fonctionnalités": reference/features-catalog.md
+      - "API Javadoc": https://q300z.github.io/scribejava/apidocs/
+  - Décisions d'Architecture (ADR):
+      - "ADR 001 : Zéro Dépendance Externe": adr/001-zero-dependency.md
+      - "ADR 002 : Compatibilité JDK 8": adr/002-jdk8-compatibility.md

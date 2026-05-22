@@ -141,4 +141,4 @@ OAuth2AccessToken token = service.getAccessToken(params);
 ```
 
 ---
-[⬅️ Retour à l'accueil](../README.md)
+[⬅️ Retour à l'accueil](https://github.com/Q300Z/scribejava/blob/master/README.md)

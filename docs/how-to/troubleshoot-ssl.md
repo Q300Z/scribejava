@@ -127,4 +127,4 @@ jetons et flux :
   redirections.
 
 ---
-[⬅️ Retour au README principal](../README.md)
+[⬅️ Retour au README principal](https://github.com/Q300Z/scribejava/blob/master/README.md)

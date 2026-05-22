@@ -97,9 +97,9 @@ try (Response response = service.execute(request)) {
 
 Parcourez nos guides détaillés via le menu de navigation ou lancez une recherche globale instantanée en haut du site :
 
-* 🚀 **[Guide de Démarrage Rapide](QUICKSTART.md)** : Apprenez à lancer les exemples pour tous les flux (OAuth2, OIDC, M2M, Device Flow).
-* ⚙️ **[ScribeJava Core (Moteur)](CORE_FEATURES_GUIDE.md)** : Plongez dans le fonctionnement des requêtes HTTP, de la résilience (Auto-Retry) et du logging.
-* 🔐 **[OpenID Connect (OIDC)](OIDC_FEATURES_GUIDE.md)** : Découverte dynamique, validation d'ID Token native et gestion de session.
-* 🛠️ **[Helpers d'Intégration](INTEGRATION_HELPERS_GUIDE.md)** : Automatisation robuste avec rafraîchissement thread-safe des jetons.
-* 🛡️ **[Sécurité Avancée](ADVANCED_SECURITY.md)** : Implémentez PKCE, DPoP (Proof of Possession) et PAR (Pushed Authorization Requests).
+* 🚀 **[Guide de Démarrage Rapide](tutorials/quickstart.md)** : Apprenez à lancer les exemples pour tous les flux (OAuth2, OIDC, M2M, Device Flow).
+* ⚙️ **[ScribeJava Core (Moteur)](explanations/core-features.md)** : Plongez dans le fonctionnement des requêtes HTTP, de la résilience (Auto-Retry) et du logging.
+* 🔐 **[OpenID Connect (OIDC)](explanations/oidc-features.md)** : Découverte dynamique, validation d'ID Token native et gestion de session.
+* 🛠️ **[Helpers d'Intégration](how-to/auto-refresh-tokens.md)** : Automatisation robuste avec rafraîchissement thread-safe des jetons.
+* 🛡️ **[Sécurité Avancée](how-to/secure-with-dpop-pkce.md)** : Implémentez PKCE, DPoP (Proof of Possession) et PAR (Pushed Authorization Requests).
 * 🏗️ **[Consulter la Javadoc des APIs](https://q300z.github.io/scribejava/apidocs/)** : Accédez à la documentation de référence des classes et méthodes de la bibliothèque.

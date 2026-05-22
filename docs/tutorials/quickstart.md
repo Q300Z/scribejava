@@ -20,8 +20,8 @@ Idéal pour les applications web ou les outils CLI.
 
 * **Sécurité** : Inclus PKCE (RFC 7636).
 * **Exemples standard** :
-  * [`OAuth20QuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OAuth20QuickStart.java) (Exemple générique)
-  * [`KeycloakQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/KeycloakQuickStart.java) (Connexion et UserInfo avec **Keycloak** en local ou à distance)
+  * [`OAuth20QuickStart.java`](https://github.com/Q300Z/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OAuth20QuickStart.java) (Exemple générique)
+  * [`KeycloakQuickStart.java`](https://github.com/Q300Z/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/KeycloakQuickStart.java) (Connexion et UserInfo avec **Keycloak** en local ou à distance)
 
 ### 2. OpenID Connect (OIDC) Natif & Cloud Identity
 
@@ -29,22 +29,22 @@ Pour l'authentification moderne avec validation automatique de l'identité et d�
 
 * **Fonctionnalité** : Découverte dynamique (Discovery) et validation native du jeton (ID Token).
 * **Exemples OIDC** :
-  * **Google** : [`OidcQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OidcQuickStart.java) (Découverte et validation OIDC Google native)
-  * **Microsoft Entra ID (Azure AD)** : [`MicrosoftAdQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/MicrosoftAdQuickStart.java) (Intégration OIDC multi-tenant Microsoft et appels Microsoft Graph API)
+  * **Google** : [`OidcQuickStart.java`](https://github.com/Q300Z/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/OidcQuickStart.java) (Découverte et validation OIDC Google native)
+  * **Microsoft Entra ID (Azure AD)** : [`MicrosoftAdQuickStart.java`](https://github.com/Q300Z/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/MicrosoftAdQuickStart.java) (Intégration OIDC multi-tenant Microsoft et appels Microsoft Graph API)
 
 ### 3. Machine-to-Machine (Client Credentials)
 
 Pour les serveurs, les démons ou les scripts automatisés sans intervention humaine.
 
 * **Fonctionnalité** : Authentification directe du client.
-* **Exemple** : [`ClientCredentialsQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/ClientCredentialsQuickStart.java)
+* **Exemple** : [`ClientCredentialsQuickStart.java`](https://github.com/Q300Z/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/ClientCredentialsQuickStart.java)
 
 ### 4. Appareils sans Navigateur (Device Flow)
 
 Pour les terminaux SSH, les Smart TV ou les objets connectés (IoT).
 
 * **Fonctionnalité** : Validation déportée sur un autre appareil (Smartphone).
-* **Exemple** : [`DeviceFlowQuickStart.java`](../scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/DeviceFlowQuickStart.java)
+* **Exemple** : [`DeviceFlowQuickStart.java`](https://github.com/Q300Z/scribejava/blob/master/scribejava-apis/src/test/java/com/github/scribejava/apis/examples/quickstart/DeviceFlowQuickStart.java)
 
 ---
 
@@ -72,11 +72,11 @@ mvn test-compile exec:java -Dexec.mainClass="com.github.scribejava.apis.examples
 
 Pour passer de ces exemples à une application industrielle, consultez nos guides avancés :
 
-1. **[Auto-Refresh & Orchestration](./INTEGRATION_HELPERS_GUIDE.md)** : Ne gérez plus les jetons manuellement.
+1. **[Auto-Refresh & Orchestration](../how-to/auto-refresh-tokens.md)** : Ne gérez plus les jetons manuellement.
 
-2. **[Sécurité Enterprise (DPoP)](./ADVANCED_SECURITY.md)** : Liez vos jetons à votre matériel client.
+2. **[Sécurité Enterprise (DPoP)](../how-to/secure-with-dpop-pkce.md)** : Liez vos jetons à votre matériel client.
 
-3. **[Dépannage](./TROUBLESHOOTING.md)** : En cas d'erreur `SSL` ou `iss mismatch`.
+3. **[Dépannage](../how-to/troubleshoot-ssl.md)** : En cas d'erreur `SSL` ou `iss mismatch`.
 
 ---
-[⬅️ Retour au README principal](../README.md)
+[⬅️ Retour au README principal](https://github.com/Q300Z/scribejava/blob/master/README.md)

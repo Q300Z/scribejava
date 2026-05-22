@@ -229,15 +229,15 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 
 ### 📚 Guides détaillés (Markdown)
 
-* 🚀 **[Démarrage Rapide (Quick Start)](docs/QUICKSTART.md)** - Exemples complets pour CLI (OAuth2, OIDC, M2M).
-* ⚡ **[Guide de Migration](docs/MIGRATION_GUIDE.md)** - Passer de la v8 à la v9.
-* ⚙️ **[Guide ScribeJava Core](docs/CORE_FEATURES_GUIDE.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
-* 🛡️ **[Sécurité Avancée (DPoP/PAR)](docs/ADVANCED_SECURITY.md)** - RFC 9449 et 9126.
-* 🔐 **[Guide des Fonctionnalités OIDC](docs/OIDC_FEATURES_GUIDE.md)** - Discovery, JWT natif et Logout.
-* 📖 **[Guide d'Intégration Helpers](docs/INTEGRATION_HELPERS_GUIDE.md)** - Orchestration, Auto-refresh et multi-tenant.
-* 📖 **[Catalogue des Fonctionnalités](docs/FEATURES_CATALOG.md)** - Liste exhaustive par module.
-* 🛠️ **[Documentation CI/CD](docs/CI_DOCUMENTATION.md)** - Architecture du pipeline qualité.
-* 🚑 **[Guide de Dépannage](docs/TROUBLESHOOTING.md)** - Solutions aux erreurs courantes.
+* 🚀 **[Démarrage Rapide (Quick Start)](docs/tutorials/quickstart.md)** - Exemples complets pour CLI (OAuth2, OIDC, M2M).
+* ⚡ **[Guide de Migration](docs/how-to/migration-guide.md)** - Passer de la v8 à la v9.
+* ⚙️ **[Guide ScribeJava Core](docs/explanations/core-features.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
+* 🛡️ **[Sécurité Avancée (DPoP/PAR)](docs/how-to/secure-with-dpop-pkce.md)** - RFC 9449 et 9126.
+* 🔐 **[Guide des Fonctionnalités OIDC](docs/explanations/oidc-features.md)** - Discovery, JWT natif et Logout.
+* 📖 **[Guide d'Intégration Helpers](docs/how-to/auto-refresh-tokens.md)** - Orchestration, Auto-refresh et multi-tenant.
+* 📖 **[Catalogue des Fonctionnalités](docs/reference/features-catalog.md)** - Liste exhaustive par module.
+* 🛠️ **[Documentation CI/CD](docs/explanations/ci-cd-pipelines.md)** - Architecture du pipeline qualité.
+* 🚑 **[Guide de Dépannage](docs/how-to/troubleshoot-ssl.md)** - Solutions aux erreurs courantes.
 
 * 📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Integration Helpers](./scribejava-integration-helpers/README.md)
 
