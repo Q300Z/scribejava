@@ -12,6 +12,6 @@
   "packageManager": "pnpm@10.30.0",
   "devDependencies": {
     "@release-it/conventional-changelog": "github:release-it/conventional-changelog",
-    "release-it": "^19.2.4"
+    "release-it": "^20.0.1"
   }
 }

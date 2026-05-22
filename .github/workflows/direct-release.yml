@@ -36,6 +36,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Sync with remote
+        run: |
+          git fetch origin
+          git checkout master
+          git pull --rebase origin master
+
       - name: Release with release-it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
