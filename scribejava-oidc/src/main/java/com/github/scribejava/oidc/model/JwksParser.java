@@ -40,9 +40,13 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Parseur natif pour les ensembles de clés (JWKS). */
 public class JwksParser {
+
+  private static final Logger LOGGER = Logger.getLogger(JwksParser.class.getName());
 
   /**
    * Parse un corps JSON JWKS.
@@ -61,11 +65,23 @@ public class JwksParser {
 
     final List<Map<String, Object>> keyList = (List<Map<String, Object>>) keysNode;
     final Map<String, OidcKey> keys = new HashMap<>();
+    final Map<String, Boolean> signaturePreferred = new HashMap<>();
     for (final Map<String, Object> keyNode : keyList) {
       if (keyNode != null) {
-        final OidcKey key = parseKey(keyNode);
-        if (key != null) {
-          keys.put(key.getKid(), key);
+        try {
+          final OidcKey key = parseKey(keyNode);
+          if (key != null) {
+            final String kid = key.getKid();
+            final String use = (String) keyNode.get("use");
+            final boolean isSignature = use == null || "sig".equalsIgnoreCase(use);
+            if (!keys.containsKey(kid)
+                || isSignature && !signaturePreferred.getOrDefault(kid, false)) {
+              keys.put(kid, key);
+              signaturePreferred.put(kid, isSignature);
+            }
+          }
+        } catch (Exception e) {
+          LOGGER.log(Level.WARNING, "Failed to parse JWK key: " + e.getMessage(), e);
         }
       }
     }
