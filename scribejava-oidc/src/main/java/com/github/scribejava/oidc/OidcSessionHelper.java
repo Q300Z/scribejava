@@ -44,6 +44,51 @@ public class OidcSessionHelper {
   private OidcSessionHelper() {}
 
   /**
+   * Génère l'URL de déconnexion RP-Initiated Logout.
+   *
+   * @param endSessionEndpoint L'URL du point de terminaison de fin de session.
+   * @param idTokenHint Le jeton d'identité (ID Token) précédemment émis.
+   * @param postLogoutRedirectUri L'URL de redirection après déconnexion.
+   * @param state L'état à transmettre à la redirection.
+   * @param clientId L'identifiant du client.
+   * @return L'URL de déconnexion formatée avec les paramètres encodés.
+   */
+  public static String getLogoutUrl(
+      String endSessionEndpoint,
+      String idTokenHint,
+      String postLogoutRedirectUri,
+      String state,
+      String clientId) {
+    if (endSessionEndpoint == null) {
+      return null;
+    }
+    final StringBuilder url = new StringBuilder(endSessionEndpoint);
+    boolean first = !endSessionEndpoint.contains("?");
+
+    if (idTokenHint != null && !idTokenHint.isEmpty()) {
+      url.append(first ? "?" : "&")
+          .append("id_token_hint=")
+          .append(OAuthEncoder.encode(idTokenHint));
+      first = false;
+    }
+    if (postLogoutRedirectUri != null && !postLogoutRedirectUri.isEmpty()) {
+      url.append(first ? "?" : "&")
+          .append("post_logout_redirect_uri=")
+          .append(OAuthEncoder.encode(postLogoutRedirectUri));
+      first = false;
+    }
+    if (state != null && !state.isEmpty()) {
+      url.append(first ? "?" : "&").append("state=").append(OAuthEncoder.encode(state));
+      first = false;
+    }
+    if (clientId != null && !clientId.isEmpty()) {
+      url.append(first ? "?" : "&").append("client_id=").append(OAuthEncoder.encode(clientId));
+      first = false;
+    }
+    return url.toString();
+  }
+
+  /**
    * Génère le code HTML de l'iframe RP pour la gestion de session.
    *
    * <p>Cette iframe communique avec l'iframe du fournisseur (OP) via {@code postMessage} pour
