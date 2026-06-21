@@ -38,22 +38,187 @@ public final class JsonUtils {
 
   private JsonUtils() {}
 
-  // Regex supportant les guillemets échappés dans les clés et les valeurs
-  // Optimisée pour éviter les StackOverflowError sur les chaînes longues (ex: Jetons OIDC)
-  private static final String JSON_STRING_REGEX = "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"";
-  private static final Pattern JSON_TOKEN_PATTERN =
-      Pattern.compile(
-          JSON_STRING_REGEX
-              + "\\s*:\\s*("
-              + JSON_STRING_REGEX
-              + "|"
-              + "(-?\\d+(?:\\.\\d+)?)|"
-              + "(true|false|null)|"
-              + "(\\[[^\\]]*\\])|"
-              + "(\\{[^}]*\\})"
-              + ")");
-
   private static final Pattern UNICODE_PATTERN = Pattern.compile("\\\\u([0-9a-fA-F]{4})");
+
+  private static class Parser {
+    private final String src;
+    private int cursor;
+
+    Parser(String src) {
+      this.src = src;
+      this.cursor = 0;
+    }
+
+    private void skipWhitespace() {
+      while (cursor < src.length() && Character.isWhitespace(src.charAt(cursor))) {
+        cursor++;
+      }
+    }
+
+    Map<String, Object> parseObject(int depth) {
+      if (depth > MAX_DEPTH) {
+        throw new OAuthException("JSON nesting limit exceeded (max " + MAX_DEPTH + ")");
+      }
+      try {
+        skipWhitespace();
+        if (cursor >= src.length() || src.charAt(cursor) != '{') {
+          return new LinkedHashMap<>();
+        }
+        cursor++; // skip '{'
+        final Map<String, Object> map = new LinkedHashMap<>();
+        while (true) {
+          skipWhitespace();
+          if (cursor < src.length() && src.charAt(cursor) == '}') {
+            cursor++; // skip '}'
+            break;
+          }
+          final String key = parseString();
+          skipWhitespace();
+          if (cursor >= src.length() || src.charAt(cursor) != ':') {
+            break;
+          }
+          cursor++; // skip ':'
+          final Object val = parseValue(depth);
+          map.put(key, val);
+          skipWhitespace();
+          if (cursor < src.length() && src.charAt(cursor) == ',') {
+            cursor++; // skip ','
+          } else if (cursor < src.length() && src.charAt(cursor) == '}') {
+            cursor++; // skip '}'
+            break;
+          } else {
+            break;
+          }
+        }
+        return map;
+      } catch (Exception e) {
+        if (e instanceof OAuthException && e.getMessage().contains("JSON nesting limit")) {
+          throw (OAuthException) e;
+        }
+        return new LinkedHashMap<>();
+      }
+    }
+
+    private String parseString() {
+      skipWhitespace();
+      if (cursor >= src.length() || src.charAt(cursor) != '"') {
+        throw new OAuthException("Invalid JSON: expected '\"'");
+      }
+      cursor++; // skip '"'
+      final StringBuilder sb = new StringBuilder();
+      while (cursor < src.length()) {
+        char c = src.charAt(cursor++);
+        if (c == '"') {
+          return unescape(sb.toString());
+        }
+        if (c == '\\') {
+          if (cursor >= src.length()) {
+            throw new OAuthException("Invalid JSON: escape character at EOF");
+          }
+          char escaped = src.charAt(cursor++);
+          sb.append('\\').append(escaped);
+        } else {
+          sb.append(c);
+        }
+      }
+      throw new OAuthException("Invalid JSON: unterminated string");
+    }
+
+    private Object parseValue(int depth) {
+      skipWhitespace();
+      if (cursor >= src.length()) {
+        throw new OAuthException("Invalid JSON: unexpected EOF");
+      }
+      char c = src.charAt(cursor);
+      if (c == '{') {
+        return parseObject(depth + 1);
+      }
+      if (c == '[') {
+        return parseArray(depth + 1);
+      }
+      if (c == '"') {
+        return parseString();
+      }
+      if (c == 't' || c == 'f' || c == 'n') {
+        return parseLiteral();
+      }
+      if (c == '-' || Character.isDigit(c)) {
+        return parseNumber();
+      }
+      throw new OAuthException("Invalid JSON: unexpected character '" + c + "'");
+    }
+
+    private List<Object> parseArray(int depth) {
+      if (depth > MAX_DEPTH) {
+        throw new OAuthException("JSON nesting limit exceeded (max " + MAX_DEPTH + ")");
+      }
+      skipWhitespace();
+      if (cursor >= src.length() || src.charAt(cursor) != '[') {
+        throw new OAuthException("Invalid JSON: expected '['");
+      }
+      cursor++; // skip '['
+      final List<Object> list = new ArrayList<>();
+      while (true) {
+        skipWhitespace();
+        if (cursor < src.length() && src.charAt(cursor) == ']') {
+          cursor++; // skip ']'
+          break;
+        }
+        final Object val = parseValue(depth);
+        list.add(val);
+        skipWhitespace();
+        if (cursor < src.length() && src.charAt(cursor) == ',') {
+          cursor++; // skip ','
+        } else if (cursor < src.length() && src.charAt(cursor) == ']') {
+          cursor++; // skip ']'
+          break;
+        } else {
+          throw new OAuthException("Invalid JSON: expected ',' or ']'");
+        }
+      }
+      return list;
+    }
+
+    private Object parseLiteral() {
+      if (src.startsWith("true", cursor)) {
+        cursor += 4;
+        return Boolean.TRUE;
+      }
+      if (src.startsWith("false", cursor)) {
+        cursor += 5;
+        return Boolean.FALSE;
+      }
+      if (src.startsWith("null", cursor)) {
+        cursor += 4;
+        return null;
+      }
+      throw new OAuthException("Invalid JSON: expected true, false or null");
+    }
+
+    private Object parseNumber() {
+      final int start = cursor;
+      if (src.charAt(cursor) == '-') {
+        cursor++;
+      }
+      while (cursor < src.length()) {
+        char c = src.charAt(cursor);
+        if (Character.isDigit(c) || c == '.' || c == 'e' || c == 'E' || c == '+' || c == '-') {
+          cursor++;
+        } else {
+          break;
+        }
+      }
+      final String val = src.substring(start, cursor);
+      try {
+        if (val.contains(".") || val.contains("e") || val.contains("E")) {
+          return Double.parseDouble(val);
+        }
+        return Long.parseLong(val);
+      } catch (NumberFormatException e) {
+        return val;
+      }
+    }
+  }
 
   /**
    * Parse une chaîne JSON plate ou simple.
@@ -62,36 +227,10 @@ public final class JsonUtils {
    * @return Map
    */
   public static Map<String, Object> parse(String json) {
-    return parse(json, 0);
-  }
-
-  private static Map<String, Object> parse(String json, int depth) {
-    if (depth > MAX_DEPTH) {
-      throw new OAuthException("JSON nesting limit exceeded (max " + MAX_DEPTH + ")");
-    }
-    final Map<String, Object> result = new LinkedHashMap<>();
     if (json == null || json.trim().isEmpty()) {
-      return result;
+      return new LinkedHashMap<>();
     }
-    final Matcher matcher = JSON_TOKEN_PATTERN.matcher(json);
-    while (matcher.find()) {
-      final String key = unescape(matcher.group(1));
-      final String fullVal = matcher.group(2).trim();
-
-      if (fullVal.startsWith("\"")) {
-        // Group index change because of the new regex structure
-        result.put(key, unescape(matcher.group(3)));
-      } else if (matcher.group(4) != null) { // Number
-        result.put(key, parseNumber(matcher.group(4)));
-      } else if (matcher.group(5) != null) { // Boolean/Null
-        result.put(key, parseLiteral(matcher.group(5)));
-      } else if (matcher.group(6) != null) { // Array
-        result.put(key, parseArray(matcher.group(6), depth + 1));
-      } else if (matcher.group(7) != null) { // Object
-        result.put(key, parse(matcher.group(7), depth + 1));
-      }
-    }
-    return result;
+    return new Parser(json).parseObject(0);
   }
 
   private static String unescape(String val) {
@@ -108,83 +247,6 @@ public final class JsonUtils {
     }
     matcher.appendTail(sb);
     return sb.toString();
-  }
-
-  private static Object parseLiteral(String val) {
-    if ("true".equals(val)) {
-      return Boolean.TRUE;
-    }
-    if ("false".equals(val)) {
-      return Boolean.FALSE;
-    }
-    return null;
-  }
-
-  private static Object parseNumber(String val) {
-    try {
-      if (val.contains(".")) {
-        return Double.parseDouble(val);
-      }
-      return Long.parseLong(val);
-    } catch (NumberFormatException e) {
-      return val;
-    }
-  }
-
-  private static List<Object> parseArray(String val, int depth) {
-    final List<Object> list = new ArrayList<>();
-    final String content = val.substring(1, val.length() - 1).trim();
-    if (content.isEmpty()) {
-      return list;
-    }
-
-    // Pour supporter les objets dans les listes, on utilise une approche simple :
-    // Si l'élément commence par '{', on tente un parse d'objet.
-    // NOTE: Cette implémentation simplifiée suppose des éléments séparés par des virgules
-    // sans virgules à l'intérieur des chaînes de caractères des objets (limitation regex actuelle).
-    for (String part : splitJsonArray(content)) {
-      final String p = part.trim();
-      if (p.startsWith("{")) {
-        list.add(parse(p, depth + 1));
-      } else if (p.startsWith("[")) {
-        list.add(parseArray(p, depth + 1));
-      } else if (p.startsWith("\"")) {
-        list.add(unescape(p.substring(1, p.length() - 1)));
-      } else {
-        list.add(parseLiteral(p));
-      }
-    }
-    return list;
-  }
-
-  private static List<String> splitJsonArray(String content) {
-    final List<String> parts = new ArrayList<>();
-    int bracketLevel = 0;
-    int braceLevel = 0;
-    boolean inQuotes = false;
-    int start = 0;
-    for (int i = 0; i < content.length(); i++) {
-      char c = content.charAt(i);
-      if (c == '\"' && (i == 0 || content.charAt(i - 1) != '\\')) {
-        inQuotes = !inQuotes;
-      }
-      if (!inQuotes) {
-        if (c == '[') {
-          bracketLevel++;
-        } else if (c == ']') {
-          bracketLevel--;
-        } else if (c == '{') {
-          braceLevel++;
-        } else if (c == '}') {
-          braceLevel--;
-        } else if (c == ',' && bracketLevel == 0 && braceLevel == 0) {
-          parts.add(content.substring(start, i));
-          start = i + 1;
-        }
-      }
-    }
-    parts.add(content.substring(start));
-    return parts;
   }
 
   /**
