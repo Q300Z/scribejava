@@ -25,6 +25,7 @@ package com.github.scribejava.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.github.scribejava.oidc.model.EcOidcKey;
 import com.github.scribejava.oidc.model.OidcKey;
 import com.github.scribejava.oidc.model.OidcNonce;
 import com.github.scribejava.oidc.model.RsaOidcKey;
@@ -60,7 +61,7 @@ public class OidcCryptoMatrixTest {
     ecKey = new ECKeyGenerator(Curve.P_256).keyID("ec-1").generate();
     keys = new HashMap<>();
     keys.put(rsaKey.getKeyID(), new RsaOidcKey(rsaKey.getKeyID(), "RS256", rsaKey.toPublicKey()));
-    keys.put(ecKey.getKeyID(), new RsaOidcKey(ecKey.getKeyID(), "ES256", ecKey.toPublicKey()));
+    keys.put(ecKey.getKeyID(), new EcOidcKey(ecKey.getKeyID(), "ES256", ecKey.toPublicKey()));
   }
 
   @Test
@@ -72,7 +73,6 @@ public class OidcCryptoMatrixTest {
   }
 
   @Test
-  @org.junit.jupiter.api.Disabled("ES256 non supporté en natif")
   public void shouldValidateES256() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(ecKey, JWSAlgorithm.ES256);
     final IdTokenValidator validator = new IdTokenValidator(ISSUER, CLIENT_ID, "ES256", keys);
@@ -81,7 +81,6 @@ public class OidcCryptoMatrixTest {
   }
 
   @Test
-  @org.junit.jupiter.api.Disabled("PS256 non supporté en natif")
   public void shouldValidatePS256() throws Exception {
     final SignedJWT signedJWT = createSignedJWT(rsaKey, JWSAlgorithm.PS256);
     final IdTokenValidator validator =

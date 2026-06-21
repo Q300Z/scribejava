@@ -129,4 +129,41 @@ public class JwksParserEdgeCasesTest {
     final JwksParser parser = new JwksParser();
     assertThat(parser.parseKey(null)).isNull();
   }
+
+  @Test
+  public void shouldBeRobustAgainstBadKeyInListAndPreferSignatureKeysOnDuplicateKid()
+      throws Exception {
+    final JwksParser parser = new JwksParser();
+    final String json =
+        "{\n"
+            + "  \"keys\": [\n"
+            + "    {\n"
+            + "      \"kty\": \"RSA\",\n"
+            + "      \"kid\": \"duplicate-kid\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"kty\": \"RSA\",\n"
+            + "      \"kid\": \"duplicate-kid\",\n"
+            + "      \"use\": \"enc\",\n"
+            + "      \"n\": \"AKZdf_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_\",\n"
+            + "      \"e\": \"AQAB\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"kty\": \"RSA\",\n"
+            + "      \"kid\": \"duplicate-kid\",\n"
+            + "      \"use\": \"sig\",\n"
+            + "      \"n\": \"AKZdf_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_\",\n"
+            + "      \"e\": \"AQAB\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"kty\": \"RSA\",\n"
+            + "      \"kid\": \"bad-kid-2\"\n"
+            + "    }\n"
+            + "  ]\n"
+            + "}";
+
+    final Map<String, OidcKey> result = parser.parse(json);
+    assertThat(result).hasSize(1);
+    assertThat(result).containsKey("duplicate-kid");
+  }
 }

@@ -74,4 +74,31 @@ public class OidcSessionHelperTest {
 
     assertTrue(html.contains("logout?foo=bar&iss=https%3A%2F%2Fidp.com&sid=sid-123"));
   }
+
+  /** Test de génération d'URL de déconnexion avec tous les paramètres. */
+  @Test
+  public void shouldGenerateLogoutUrlWithAllParams() {
+    final String url =
+        OidcSessionHelper.getLogoutUrl(
+            "https://idp.com/logout",
+            "id-token-123",
+            "http://client.com/callback",
+            "state-abc",
+            "client-id-xyz");
+
+    assertTrue(url.startsWith("https://idp.com/logout"));
+    assertTrue(url.contains("id_token_hint=id-token-123"));
+    assertTrue(url.contains("post_logout_redirect_uri=http%3A%2F%2Fclient.com%2Fcallback"));
+    assertTrue(url.contains("state=state-abc"));
+    assertTrue(url.contains("client_id=client-id-xyz"));
+  }
+
+  /** Test de génération d'URL de déconnexion sans paramètres optionnels. */
+  @Test
+  public void shouldGenerateLogoutUrlWithNullParams() {
+    final String url =
+        OidcSessionHelper.getLogoutUrl("https://idp.com/logout", null, null, null, null);
+
+    assertTrue("https://idp.com/logout".equals(url));
+  }
 }

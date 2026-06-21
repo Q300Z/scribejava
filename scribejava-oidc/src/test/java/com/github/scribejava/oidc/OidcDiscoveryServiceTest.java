@@ -55,6 +55,7 @@ public class OidcDiscoveryServiceTest {
     service =
         new OidcDiscoveryService(
             server.url("/").toString(), new JDKHttpClient(), "ScribeJava-Test");
+    service.setMaxAttempts(1);
   }
 
   /**
@@ -163,7 +164,8 @@ public class OidcDiscoveryServiceTest {
     final Exception ex =
         org.junit.jupiter.api.Assertions.assertThrows(
             java.util.concurrent.ExecutionException.class, () -> service.getProviderMetadata());
-    assertThat(ex.getCause()).isInstanceOf(NullPointerException.class);
+    assertThat(ex.getCause())
+        .isInstanceOf(com.github.scribejava.core.exceptions.OAuthException.class);
   }
 
   @Test
@@ -214,5 +216,51 @@ public class OidcDiscoveryServiceTest {
     final OidcProviderMetadata metadata = serviceNoSlash.getProviderMetadata();
     assertThat(metadata).isNotNull();
     assertThat(metadata.getIssuer()).isEqualTo(issuer);
+  }
+
+  @Test
+  public void shouldSendCacheControlHeaders() throws Exception {
+    final String json =
+        new JsonBuilder()
+            .add("issuer", server.url("/").toString())
+            .add("authorization_endpoint", server.url("/authorize").toString())
+            .add("token_endpoint", server.url("/token").toString())
+            .add("jwks_uri", server.url("/jwks.json").toString())
+            .add("response_types_supported", Collections.singletonList("code"))
+            .add("subject_types_supported", Collections.singletonList("public"))
+            .add("id_token_signing_alg_values_supported", Collections.singletonList("RS256"))
+            .build();
+
+    server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
+    service.getProviderMetadata();
+
+    final okhttp3.mockwebserver.RecordedRequest request = server.takeRequest();
+    assertThat(request.getHeader("Cache-Control")).isEqualTo("no-cache");
+    assertThat(request.getHeader("Pragma")).isEqualTo("no-cache");
+  }
+
+  @Test
+  public void shouldSendCacheControlHeadersForJwks() throws Exception {
+    final String jwksJson =
+        new JsonBuilder()
+            .add(
+                "keys",
+                Collections.singletonList(
+                    new JsonBuilder()
+                        .add("kty", "RSA")
+                        .add("use", "sig")
+                        .add("kid", "123")
+                        .add(
+                            "n",
+                            "AKZdf_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_u1P9f_vFrIs_Y_nd9Z6X_m_Z_")
+                        .add("e", "AQAB")))
+            .build();
+
+    server.enqueue(new MockResponse().setBody(jwksJson).setResponseCode(200));
+    service.getJwks(server.url("/jwks.json").toString());
+
+    final okhttp3.mockwebserver.RecordedRequest request = server.takeRequest();
+    assertThat(request.getHeader("Cache-Control")).isNull();
+    assertThat(request.getHeader("Pragma")).isNull();
   }
 }
