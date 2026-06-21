@@ -1,4 +1,4 @@
-# 📖 Catalogue des Fonctionnalités ScribeJava v9.2+
+# 📖 Catalogue des Fonctionnalités ScribeJava v9.4+
 
 Ce document répertorie l'ensemble des capacités exploitables par module. ScribeJava est conçu pour être **Zero-Dependency** au runtime, offrant une isolation totale et une sécurité native.
 

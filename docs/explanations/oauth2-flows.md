@@ -1,6 +1,6 @@
 # 🗺️ Guide des Flux Architecturaux (Enterprise Edition)
 
-Ce document détaille les mécanismes internes de ScribeJava v9.2.x, illustrant comment le module `core` et le module `oidc` collaborent pour gérer le cycle de vie des identités.
+Ce document détaille les mécanismes internes de ScribeJava v9.4.x, illustrant comment le module `core` et le module `oidc` collaborent pour gérer le cycle de vie des identités.
 
 ---
 

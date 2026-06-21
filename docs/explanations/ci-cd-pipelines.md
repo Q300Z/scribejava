@@ -1,6 +1,6 @@
 # 🏗️ Documentation CI/CD ScribeJava
 
-Ce document détaille l'infrastructure de Continuous Integration (CI) et Continuous Delivery (CD) de ScribeJava v9.2.4+. Notre pipeline est conçu pour garantir la règle **Zéro-Dépendance** et la stabilité sur une matrice de **5 versions de JDK**.
+Ce document détaille l'infrastructure de Continuous Integration (CI) et Continuous Delivery (CD) de ScribeJava v9.4.4+. Notre pipeline est conçu pour garantir la règle **Zéro-Dépendance** et la stabilité sur une matrice de **5 versions de JDK**.
 
 ---
 
@@ -47,7 +47,7 @@ L'intégrité du projet est maintenue par des processus automatisés :
 
 * **Zero-Dependency Enforcement** : Le plugin `maven-enforcer` bloque le build si une dépendance interdite (Jackson, Nimbus, org.json) est détectée au runtime.
 
-* **Pure Java Certification** : Depuis la v9.2.4, le module `integration-helpers` est certifié sans aucune dépendance de logging (retrait de SLF4J), garantissant une portabilité totale sans conflit de classpath.
+* **Pure Java Certification** : Depuis la v9.4.4, le module `integration-helpers` est certifié sans aucune dépendance de logging (retrait de SLF4J), garantissant une portabilité totale sans conflit de classpath.
 
 * **Dependabot** : Surveillance hebdomadaire des vulnérabilités.
 
@@ -101,4 +101,4 @@ sequenceDiagram
 ```
 
 ---
-*Dernière mise à jour : Mars 2026 - Certifié Enterprise Edition v9.2.4* ✅
+*Dernière mise à jour : Mars 2026 - Certifié Enterprise Edition v9.4.4* ✅

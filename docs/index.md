@@ -12,7 +12,7 @@ ScribeJava a été créée pour offrir aux développeurs un contrôle total et u
 
 ### 📊 Tableau Comparatif
 
-| Caractéristique | ScribeJava v9.2.x | Spring Security / Pac4j |
+| Caractéristique | ScribeJava v9.4.x | Spring Security / Pac4j |
 | :--- | :--- | :--- |
 | **Poids (Core)** | **< 1 Mo** | > 50 Mo (avec dépendances) |
 | **Dépendances** | **Zéro (JDK natif)** | Énorme graphe de transitivité |
@@ -57,12 +57,12 @@ graph TD
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-core</artifactId>
-    <version>9.2.3</version>
+    <version>9.4.4</version>
 </dependency>
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-oidc</artifactId>
-    <version>9.2.3</version>
+    <version>9.4.4</version>
 </dependency>
 ```
 

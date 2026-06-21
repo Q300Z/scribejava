@@ -71,7 +71,7 @@ boolean isVerified = claims.isEmailVerified().orElse(false);
 
 ## 🛡️ 3. Mécanismes de Durcissement (Security Hardening)
 
-ScribeJava v9.2+ intègre plusieurs fonctionnalités avancées de sécurisation et de résilience réseau :
+ScribeJava v9.4+ intègre plusieurs fonctionnalités avancées de sécurisation et de résilience réseau :
 
 ### A. Cache de Clés partagé (`OidcKeyCache`)
 

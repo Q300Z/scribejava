@@ -1,6 +1,6 @@
 # 🚀 Démarrage Rapide (Quick Start)
 
-ScribeJava v9.2.x est conçu pour être opérationnel en quelques minutes. Cette page vous guide à travers les scénarios les plus courants avec des exemples complets prêts à l'emploi.
+ScribeJava v9.4.x est conçu pour être opérationnel en quelques minutes. Cette page vous guide à travers les scénarios les plus courants avec des exemples complets prêts à l'emploi.
 
 ---
 
