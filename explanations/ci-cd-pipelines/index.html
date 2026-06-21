@@ -1431,7 +1431,7 @@
 
 
 <h1 id="documentation-cicd-scribejava">🏗️ Documentation CI/CD ScribeJava</h1>
-<p>Ce document détaille l'infrastructure de Continuous Integration (CI) et Continuous Delivery (CD) de ScribeJava v9.2.4+. Notre pipeline est conçu pour garantir la règle <strong>Zéro-Dépendance</strong> et la stabilité sur une matrice de <strong>5 versions de JDK</strong>.</p>
+<p>Ce document détaille l'infrastructure de Continuous Integration (CI) et Continuous Delivery (CD) de ScribeJava v9.4.4+. Notre pipeline est conçu pour garantir la règle <strong>Zéro-Dépendance</strong> et la stabilité sur une matrice de <strong>5 versions de JDK</strong>.</p>
 <hr />
 <h2 id="1-vue-densemble-de-larchitecture-zero-touch">1. Vue d'ensemble de l'Architecture "Zero-Touch"</h2>
 <p>Le pipeline sépare strictement la préparation humaine (Local) de la certification et distribution industrielle (Cloud).</p>
@@ -1471,7 +1471,7 @@ graph TD
 <p><strong>Zero-Dependency Enforcement</strong> : Le plugin <code>maven-enforcer</code> bloque le build si une dépendance interdite (Jackson, Nimbus, org.json) est détectée au runtime.</p>
 </li>
 <li>
-<p><strong>Pure Java Certification</strong> : Depuis la v9.2.4, le module <code>integration-helpers</code> est certifié sans aucune dépendance de logging (retrait de SLF4J), garantissant une portabilité totale sans conflit de classpath.</p>
+<p><strong>Pure Java Certification</strong> : Depuis la v9.4.4, le module <code>integration-helpers</code> est certifié sans aucune dépendance de logging (retrait de SLF4J), garantissant une portabilité totale sans conflit de classpath.</p>
 </li>
 <li>
 <p><strong>Dependabot</strong> : Surveillance hebdomadaire des vulnérabilités.</p>
@@ -1525,7 +1525,7 @@ sequenceDiagram
     S--&gt;&gt;M: Résultat Global (Certifié)
 </code></pre>
 <hr />
-<p><em>Dernière mise à jour : Mars 2026 - Certifié Enterprise Edition v9.2.4</em> ✅</p>
+<p><em>Dernière mise à jour : Mars 2026 - Certifié Enterprise Edition v9.4.4</em> ✅</p>
 
 
 

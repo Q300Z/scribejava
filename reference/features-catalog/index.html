@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#catalogue-des-fonctionnalites-scribejava-v92" class="md-skip">
+        <a href="#catalogue-des-fonctionnalites-scribejava-v94" class="md-skip">
           Aller au contenu
         </a>
       
@@ -1144,10 +1144,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#validation-cryptographie" class="md-nav__link">
+  <a href="#validation-cryptographie-durcissement-hardening" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🛡️ Validation &amp; Cryptographie
+        🛡️ Validation, Cryptographie &amp; Durcissement (Hardening)
       
     </span>
   </a>
@@ -1418,10 +1418,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#validation-cryptographie" class="md-nav__link">
+  <a href="#validation-cryptographie-durcissement-hardening" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🛡️ Validation &amp; Cryptographie
+        🛡️ Validation, Cryptographie &amp; Durcissement (Hardening)
       
     </span>
   </a>
@@ -1464,7 +1464,7 @@
   
 
 
-<h1 id="catalogue-des-fonctionnalites-scribejava-v92">📖 Catalogue des Fonctionnalités ScribeJava v9.2+</h1>
+<h1 id="catalogue-des-fonctionnalites-scribejava-v94">📖 Catalogue des Fonctionnalités ScribeJava v9.4+</h1>
 <p>Ce document répertorie l'ensemble des capacités exploitables par module. ScribeJava est conçu pour être <strong>Zero-Dependency</strong> au runtime, offrant une isolation totale et une sécurité native.</p>
 <hr />
 <h2 id="1-module-scribejava-core-le-moteur">⚙️ 1. Module <code>scribejava-core</code> (Le Moteur)</h2>
@@ -1515,14 +1515,16 @@
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">builder</span><span class="p">.</span><span class="na">baseOnDiscovery</span><span class="p">(</span><span class="n">issuerUri</span><span class="p">,</span><span class="w"> </span><span class="n">httpClient</span><span class="p">,</span><span class="w"> </span><span class="n">userAgent</span><span class="p">);</span>
 </code></pre></div>
-<h3 id="validation-cryptographie">🛡️ Validation &amp; Cryptographie</h3>
+<h3 id="validation-cryptographie-durcissement-hardening">🛡️ Validation, Cryptographie &amp; Durcissement (Hardening)</h3>
 <ul>
-<li>
-<p><strong><code>IdTokenValidator</code></strong> : Vérification native (RSA/EC) sans dépendances externes.</p>
-</li>
-<li>
-<p><strong>Support Courbes Elliptiques</strong> : Validation des signatures <strong>ES256</strong> (NIST P-256).</p>
-</li>
+<li><strong><code>IdTokenValidator</code></strong> : Vérification native (RSA/EC) sans dépendances externes.</li>
+<li><strong>Support Courbes Elliptiques</strong> : Validation des signatures <strong>ES256</strong> (NIST P-256).</li>
+<li><strong><code>OidcKeyCache</code></strong> : Cache extensible et personnalisable pour le stockage des clés publiques JWKS (avec implémentation <code>DefaultOidcKeyCache</code> en mémoire vive, extensible vers Redis ou Base de données).</li>
+<li><strong><code>IssuerValidator</code></strong> : Abstraction de validation de l'émetteur (<code>iss</code>), gérant de manière dynamique les IDPs multi-tenant (ex. Entra ID, Okta) sans correspondances rigides dans le code source via <code>DefaultIssuerValidator</code>.</li>
+<li><strong><code>OidcSessionStateStore</code></strong> : Magasin de gestion centralisée du cycle de vie de la session OIDC (<code>state</code>, <code>nonce</code>, PKCE <code>code_verifier</code>) pour automatiser la corrélation et bloquer les injections CSRF.</li>
+<li><strong><code>SignatureVerifier</code></strong> : Interface d'extension cryptographique permettant la configuration de Providers JCA (ex: HSM, Bouncy Castle) et l'enregistrement d'algorithmes de signature spécifiques.</li>
+<li><strong>Résilience Réseau (Timeouts &amp; Retries)</strong> : Gestion paramétrable des timeouts HTTP et boucles de retries non-bloquantes avec backoff exponentiel pour l'interrogation de la découverte et du JWKS.</li>
+<li><strong>Limitation de Débit (Anti-DoS)</strong> : Cooldown global et individuel par clé inconnue (<code>kid</code>) de 5 minutes pour prémunir l'application contre les attaques DoS ciblant le JWKS.</li>
 </ul>
 <hr />
 <h2 id="3-module-scribejava-integration-helpers-orchestration">🛠️ 3. Module <code>scribejava-integration-helpers</code> (Orchestration)</h2>
