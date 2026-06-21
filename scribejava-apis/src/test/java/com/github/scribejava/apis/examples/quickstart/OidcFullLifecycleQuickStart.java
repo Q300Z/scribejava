@@ -30,6 +30,8 @@ import static com.github.scribejava.apis.examples.quickstart.QuickStartUtils.ver
 import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
+import com.github.scribejava.core.pkce.PKCE;
+import com.github.scribejava.core.pkce.PKCEService;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.github.scribejava.oidc.IdToken;
 import com.github.scribejava.oidc.OidcDiscoveryService;
@@ -105,11 +107,17 @@ public final class OidcFullLifecycleQuickStart {
 
     service.setLogger(verboseLogger());
 
-    final String authUrl = service.getAuthorizationUrl();
+    // Préparation du PKCE (Proof Key for Code Exchange)
+    final PKCE pkce = PKCEService.defaultInstance().generatePKCE();
+
+    final String authUrl = service.createAuthorizationUrlBuilder().pkce(pkce).build();
     System.out.println("Connectez-vous ici : " + authUrl);
     final String code = readInput("Collez le code de redirection");
 
-    final OAuth2AccessToken token = service.getAccessToken(new AuthorizationCodeGrant(code));
+    final AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
+    grant.setPkceCodeVerifier(pkce.getCodeVerifier());
+
+    final OAuth2AccessToken token = service.getAccessToken(grant);
     final IdToken idToken = service.validateIdToken(token, null);
     final StandardClaims claims = new StandardClaims(idToken.getClaims());
 

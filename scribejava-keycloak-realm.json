@@ -1,0 +1,40 @@
+{
+  "realm": "scribejava-test",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "test-client",
+      "secret": "test-secret",
+      "enabled": true,
+      "publicClient": false,
+      "redirectUris": [
+        "http://localhost:8080/callback",
+        "http://localhost:8081/*"
+      ],
+      "directAccessGrantsEnabled": true
+    },
+    {
+      "clientId": "test-mobile-client",
+      "enabled": true,
+      "publicClient": true,
+      "redirectUris": [
+        "myapp://callback",
+        "http://localhost:8080/callback"
+      ],
+      "directAccessGrantsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "test-user",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test-password"
+        }
+      ]
+    }
+  ]
+}

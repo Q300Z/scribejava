@@ -64,9 +64,19 @@ deploy-site: doc-site ## Déploie manuellement le site de documentation sur la b
 
 # --- Release (Automatisation du cycle de vie via release-it) ---
 
-release: ## Lance le cycle de release (Bump, Changelog, Tag, Push) - Déclenche ensuite le CI de publication
+release: clean ## Génère les artifacts (JARs) et lance le cycle de release (Bump, Changelog, Tag, Push, GitHub Assets)
+	@echo "\033[36m🏗️  Construction des JARs de production...\033[0m"
+	mvn clean package -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true
+	@echo "\033[36m📦 Organisation des artifacts pour l'upload GitHub...\033[0m"
+	@mkdir -p artifacts
+	@for dir in scribejava-*; do \
+		if [ -d "$$dir/target" ]; then \
+			mkdir -p "artifacts/$$dir/target" && cp "$$dir/target"/*.jar "artifacts/$$dir/target/" 2>/dev/null || true; \
+		fi; \
+	done
 	@echo "\033[32m🚀 Lancement du processus de release avec release-it (pnpm)...\033[0m"
 	@pnpm dlx release-it
+	@rm -rf artifacts
 
 
 sync: ## Récupère les derniers changements de release depuis GitHub
