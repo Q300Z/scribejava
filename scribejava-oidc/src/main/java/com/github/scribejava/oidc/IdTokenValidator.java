@@ -24,14 +24,15 @@
 package com.github.scribejava.oidc;
 
 import com.github.scribejava.core.exceptions.OAuthException;
+import com.github.scribejava.oidc.model.DefaultSignatureVerifier;
 import com.github.scribejava.oidc.model.Jwt;
-import com.github.scribejava.oidc.model.JwtSignatureVerifier;
 import com.github.scribejava.oidc.model.OidcKey;
 import com.github.scribejava.oidc.model.OidcNonce;
+import com.github.scribejava.oidc.model.SignatureVerifier;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,12 +44,18 @@ public class IdTokenValidator {
   private final String issuer;
   private final String clientID;
   private final String expectedAlg;
-  private final Map<String, OidcKey> keys;
-  private final JwtSignatureVerifier signatureVerifier;
+  private final OidcKeyCache keys;
+  private SignatureVerifier signatureVerifier;
+  private IssuerValidator issuerValidator = new DefaultIssuerValidator();
 
   // Optionnel pour la rotation automatique
   private final OidcDiscoveryService discoveryService;
   private final String jwksUri;
+  private long lastReloadTime;
+
+  // Anti-DoS cooldown for failed kids resolution
+  private static final long FAILED_KID_COOLDOWN_MS = 300_000L; // 5 minutes
+  private final Map<String, Long> failedKids = new ConcurrentHashMap<>();
 
   /**
    * Constructeur sans support de rotation.
@@ -80,13 +87,41 @@ public class IdTokenValidator {
       Map<String, OidcKey> keys,
       OidcDiscoveryService discoveryService,
       String jwksUri) {
+    this(issuer, clientID, expectedAlg, toCache(keys), discoveryService, jwksUri);
+  }
+
+  /**
+   * Constructeur avec support de rotation utilisant un cache de clés personnalisé.
+   *
+   * @param issuer émetteur
+   * @param clientID client
+   * @param expectedAlg algorithme
+   * @param keys cache des clés
+   * @param discoveryService service de découverte
+   * @param jwksUri URI du JWKS
+   */
+  public IdTokenValidator(
+      String issuer,
+      String clientID,
+      String expectedAlg,
+      OidcKeyCache keys,
+      OidcDiscoveryService discoveryService,
+      String jwksUri) {
     this.issuer = issuer;
     this.clientID = clientID;
     this.expectedAlg = expectedAlg;
-    this.keys = new HashMap<>(keys != null ? keys : new HashMap<>());
-    this.signatureVerifier = new JwtSignatureVerifier();
+    this.keys = keys != null ? keys : new DefaultOidcKeyCache();
+    this.signatureVerifier = new DefaultSignatureVerifier();
     this.discoveryService = discoveryService;
     this.jwksUri = jwksUri;
+  }
+
+  private static OidcKeyCache toCache(Map<String, OidcKey> keysMap) {
+    final OidcKeyCache cache = new DefaultOidcKeyCache();
+    if (keysMap != null) {
+      cache.putAll(keysMap);
+    }
+    return cache;
   }
 
   /**
@@ -139,7 +174,8 @@ public class IdTokenValidator {
   }
 
   private void validateBaseClaims(Map<String, Object> claims) throws OAuthException {
-    if (!issuer.equals(claims.get("iss"))) {
+    final String claimIssuer = (String) claims.get("iss");
+    if (!isIssuerMatching(issuer, claimIssuer, claims)) {
       throw new OAuthException("Issuer mismatch.");
     }
 
@@ -186,22 +222,52 @@ public class IdTokenValidator {
 
     OidcKey key = keys.get(kid);
     if (key == null && discoveryService != null && jwksUri != null) {
-      // Rotation automatique : recharger les clés une seule fois
-      reloadKeys();
-      key = keys.get(kid);
+      // Cooldown check for failed kid
+      final long now = System.currentTimeMillis();
+      final Long lastFailure = failedKids.get(kid);
+      if (lastFailure == null || now - lastFailure > FAILED_KID_COOLDOWN_MS) {
+        reloadKeys();
+        key = keys.get(kid);
+        if (key == null) {
+          failedKids.put(kid, now);
+        } else {
+          failedKids.remove(kid);
+        }
+      }
     }
 
     if (key == null) {
       throw new OAuthException("Key not found for kid: " + kid);
     }
 
-    if (!signatureVerifier.verifyRS256(
-        jwt.getSignedContent(), jwt.getSignature(), key.getPublicKey())) {
+    final String alg = (String) jwt.getHeader().get("alg");
+    if (alg == null) {
+      throw new OAuthException("Missing 'alg' in header.");
+    }
+
+    if (!signatureVerifier.verify(
+        alg, jwt.getSignedContent(), jwt.getSignature(), key.getPublicKey())) {
       throw new OAuthException("Signature verification failed.");
     }
   }
 
+  private boolean isIssuerMatching(
+      String configuredIssuer, String claimIssuer, Map<String, Object> claims) {
+    if (issuerValidator != null) {
+      return issuerValidator.isValid(configuredIssuer, claimIssuer, claims);
+    }
+    return new DefaultIssuerValidator().isValid(configuredIssuer, claimIssuer, claims);
+  }
+
+  private static final long RELOAD_COOLDOWN_MS = 300_000L; // 5 minutes
+
   private synchronized void reloadKeys() {
+    final long now = System.currentTimeMillis();
+    if (now - lastReloadTime < RELOAD_COOLDOWN_MS) {
+      LOGGER.log(Level.FINE, "JWKS reload skipped due to cooldown.");
+      return;
+    }
+    lastReloadTime = now;
     try {
       final Map<String, OidcKey> updatedKeys = discoveryService.getJwks(jwksUri);
       if (updatedKeys != null) {
@@ -242,5 +308,25 @@ public class IdTokenValidator {
     if (expectedX5t != null && !expectedX5t.equals(cnfMap.get("x5t#S256"))) {
       throw new OAuthException("mTLS certificate mismatch.");
     }
+  }
+
+  public SignatureVerifier getSignatureVerifier() {
+    return signatureVerifier;
+  }
+
+  public void setSignatureVerifier(SignatureVerifier signatureVerifier) {
+    this.signatureVerifier = signatureVerifier;
+  }
+
+  public IssuerValidator getIssuerValidator() {
+    return issuerValidator;
+  }
+
+  public void setIssuerValidator(IssuerValidator issuerValidator) {
+    this.issuerValidator = issuerValidator;
+  }
+
+  public OidcKeyCache getKeys() {
+    return keys;
   }
 }
