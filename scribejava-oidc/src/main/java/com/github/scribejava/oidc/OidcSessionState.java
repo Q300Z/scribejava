@@ -26,7 +26,10 @@ package com.github.scribejava.oidc;
 import com.github.scribejava.oidc.model.OidcNonce;
 import java.io.Serializable;
 
-/** Représente l'état d'une session OIDC contenant le state, le nonce et le code_verifier PKCE. */
+/**
+ * Represents the state of an OIDC session containing the state, the nonce, and the PKCE code
+ * verifier.
+ */
 public class OidcSessionState implements Serializable {
   private static final long serialVersionUID = 1L;
 
@@ -34,20 +37,42 @@ public class OidcSessionState implements Serializable {
   private final OidcNonce nonce;
   private final String codeVerifier;
 
+  /**
+   * Constructs an OidcSessionState instance.
+   *
+   * @param state the state value used for CSRF protection
+   * @param nonce the OIDC nonce used to prevent replay attacks
+   * @param codeVerifier the PKCE code verifier value
+   */
   public OidcSessionState(String state, OidcNonce nonce, String codeVerifier) {
     this.state = state;
     this.nonce = nonce;
     this.codeVerifier = codeVerifier;
   }
 
+  /**
+   * Gets the state value.
+   *
+   * @return the state value
+   */
   public String getState() {
     return state;
   }
 
+  /**
+   * Gets the OIDC nonce.
+   *
+   * @return the {@link OidcNonce}
+   */
   public OidcNonce getNonce() {
     return nonce;
   }
 
+  /**
+   * Gets the PKCE code verifier.
+   *
+   * @return the PKCE code verifier string
+   */
   public String getCodeVerifier() {
     return codeVerifier;
   }

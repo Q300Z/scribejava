@@ -164,13 +164,13 @@ public class OidcService extends OAuth20Service {
   }
 
   /**
-   * Génère l'URL de déconnexion RP-Initiated Logout pour ce service.
+   * Generates the RP-Initiated Logout URL for this service.
    *
-   * @param idTokenHint Le jeton d'identité (ID Token) émis lors de l'authentification.
-   * @param postLogoutRedirectUri L'URL vers laquelle rediriger après déconnexion.
-   * @param state L'état facultatif à joindre à la redirection.
-   * @param clientId L'identifiant du client.
-   * @return L'URL de déconnexion, ou null si l'API ou le point de terminaison n'est pas configuré.
+   * @param idTokenHint the ID token hint (ID Token issued during authentication)
+   * @param postLogoutRedirectUri the URI to redirect the user to after logout
+   * @param state the optional state value to include in the redirect URI
+   * @param clientId the client identifier
+   * @return the logout URL, or {@code null} if the API or metadata is not configured/available
    */
   public String getLogoutUrl(
       String idTokenHint, String postLogoutRedirectUri, String state, String clientId) {
@@ -187,6 +187,12 @@ public class OidcService extends OAuth20Service {
 
   // Helper methods to automatically initialize state, generate auth URLs and request tokens
 
+  /**
+   * Initializes and saves a new OIDC session state (including state, nonce, and PKCE code
+   * verifier).
+   *
+   * @return the newly created {@link OidcSessionState}
+   */
   public OidcSessionState initSessionState() {
     final String state = java.util.UUID.randomUUID().toString();
     final OidcNonce nonce = OidcNonce.generate();
@@ -201,6 +207,12 @@ public class OidcService extends OAuth20Service {
     return sessionState;
   }
 
+  /**
+   * Generates the authorization URL using parameters from the provided OIDC session state.
+   *
+   * @param sessionState the OIDC session state to use for generating the authorization URL
+   * @return the authorization URL string
+   */
   public String getAuthorizationUrl(OidcSessionState sessionState) {
     final com.github.scribejava.core.pkce.PKCE pkce = new com.github.scribejava.core.pkce.PKCE();
     pkce.setCodeVerifier(sessionState.getCodeVerifier());
@@ -218,12 +230,31 @@ public class OidcService extends OAuth20Service {
         .build();
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param grant the OAuth 2.0 grant
+   * @return the retrieved {@link OAuth2AccessToken}
+   * @throws IOException if network or serialization error occurs
+   * @throws InterruptedException if current thread is interrupted
+   * @throws java.util.concurrent.ExecutionException if execution exception occurs
+   */
   @Override
   public OAuth2AccessToken getAccessToken(OAuth20Grant grant)
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
     return super.getAccessToken(grant);
   }
 
+  /**
+   * Retrieves the access token using authorization code and loads session state for verification.
+   *
+   * @param code the authorization code
+   * @param stateVal the state parameter value
+   * @return the retrieved {@link OAuth2AccessToken}
+   * @throws IOException if network or serialization error occurs
+   * @throws InterruptedException if current thread is interrupted
+   * @throws java.util.concurrent.ExecutionException if execution exception occurs
+   */
   public OAuth2AccessToken getAccessToken(String code, String stateVal)
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
     final OidcSessionState sessionState =
@@ -231,6 +262,18 @@ public class OidcService extends OAuth20Service {
     return getAccessToken(code, sessionState);
   }
 
+  /**
+   * Retrieves the access token using authorization code and performs ID Token validation using
+   * session state.
+   *
+   * @param code the authorization code
+   * @param sessionState the {@link OidcSessionState} containing nonce and code verifier, or {@code
+   *     null}
+   * @return the retrieved {@link OAuth2AccessToken}
+   * @throws IOException if network or serialization error occurs
+   * @throws InterruptedException if current thread is interrupted
+   * @throws java.util.concurrent.ExecutionException if execution exception occurs
+   */
   public OAuth2AccessToken getAccessToken(String code, OidcSessionState sessionState)
       throws IOException, InterruptedException, java.util.concurrent.ExecutionException {
     final com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant grant =
@@ -250,12 +293,29 @@ public class OidcService extends OAuth20Service {
     return token;
   }
 
+  /**
+   * Asynchronously retrieves the access token using authorization code and loads session state for
+   * verification.
+   *
+   * @param code the authorization code
+   * @param stateVal the state parameter value
+   * @return a {@link CompletableFuture} for the {@link OAuth2AccessToken}
+   */
   public CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(String code, String stateVal) {
     final OidcSessionState sessionState =
         sessionStateStore != null ? sessionStateStore.load(stateVal) : null;
     return getAccessTokenAsync(code, sessionState);
   }
 
+  /**
+   * Asynchronously retrieves the access token using authorization code and performs ID Token
+   * validation.
+   *
+   * @param code the authorization code
+   * @param sessionState the {@link OidcSessionState} containing nonce and code verifier, or {@code
+   *     null}
+   * @return a {@link CompletableFuture} for the {@link OAuth2AccessToken}
+   */
   public CompletableFuture<OAuth2AccessToken> getAccessTokenAsync(
       String code, OidcSessionState sessionState) {
     final com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant grant =
@@ -278,10 +338,20 @@ public class OidcService extends OAuth20Service {
             });
   }
 
+  /**
+   * Gets the session state store.
+   *
+   * @return the {@link OidcSessionStateStore}
+   */
   public OidcSessionStateStore getSessionStateStore() {
     return sessionStateStore;
   }
 
+  /**
+   * Sets the session state store.
+   *
+   * @param sessionStateStore the {@link OidcSessionStateStore} to use
+   */
   public void setSessionStateStore(OidcSessionStateStore sessionStateStore) {
     this.sessionStateStore = sessionStateStore;
   }

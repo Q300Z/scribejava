@@ -25,7 +25,21 @@ package com.github.scribejava.oidc;
 
 import java.util.Map;
 
-/** Interface de validation de l'émetteur (issuer) prenant en compte le multi-tenant. */
+/**
+ * Interface for validating the OpenID Connect token issuer, support for multi-tenant
+ * configurations.
+ */
 public interface IssuerValidator {
+  /**
+   * Validates if the claim issuer matches the configured issuer, considering any multi-tenant
+   * rules.
+   *
+   * @param configuredIssuer the issuer URL configured in the application
+   * @param claimIssuer the issuer URL present in the token's claims
+   * @param claims the complete map of claims present in the token (may be used for tenant
+   *     verification)
+   * @return {@code true} if the claim issuer is valid according to the configured issuer; {@code
+   *     false} otherwise
+   */
   boolean isValid(String configuredIssuer, String claimIssuer, Map<String, Object> claims);
 }

@@ -91,14 +91,14 @@ public class IdTokenValidator {
   }
 
   /**
-   * Constructeur avec support de rotation utilisant un cache de clés personnalisé.
+   * Constructor with key rotation support using a custom key cache.
    *
-   * @param issuer émetteur
-   * @param clientID client
-   * @param expectedAlg algorithme
-   * @param keys cache des clés
-   * @param discoveryService service de découverte
-   * @param jwksUri URI du JWKS
+   * @param issuer the expected issuer URL
+   * @param clientID the client ID registered with the OIDC provider
+   * @param expectedAlg the expected JWS algorithm used to sign the ID token (e.g., RS256)
+   * @param keys the custom {@link OidcKeyCache} implementation
+   * @param discoveryService the OIDC discovery service to fetch provider metadata and keys
+   * @param jwksUri the OIDC provider's JWKS URI
    */
   public IdTokenValidator(
       String issuer,
@@ -310,22 +310,47 @@ public class IdTokenValidator {
     }
   }
 
+  /**
+   * Gets the signature verifier.
+   *
+   * @return the {@link SignatureVerifier}
+   */
   public SignatureVerifier getSignatureVerifier() {
     return signatureVerifier;
   }
 
+  /**
+   * Sets the signature verifier.
+   *
+   * @param signatureVerifier the {@link SignatureVerifier} to use
+   */
   public void setSignatureVerifier(SignatureVerifier signatureVerifier) {
     this.signatureVerifier = signatureVerifier;
   }
 
+  /**
+   * Gets the issuer validator.
+   *
+   * @return the {@link IssuerValidator}
+   */
   public IssuerValidator getIssuerValidator() {
     return issuerValidator;
   }
 
+  /**
+   * Sets the issuer validator.
+   *
+   * @param issuerValidator the {@link IssuerValidator} to use
+   */
   public void setIssuerValidator(IssuerValidator issuerValidator) {
     this.issuerValidator = issuerValidator;
   }
 
+  /**
+   * Gets the key cache.
+   *
+   * @return the {@link OidcKeyCache}
+   */
   public OidcKeyCache getKeys() {
     return keys;
   }

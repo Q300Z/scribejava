@@ -26,10 +26,18 @@ package com.github.scribejava.oidc;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Implémentation par défaut en mémoire de {@link OidcSessionStateStore}. */
+/**
+ * Default in-memory implementation of {@link OidcSessionStateStore} using a {@link
+ * ConcurrentHashMap}.
+ */
 public class DefaultOidcSessionStateStore implements OidcSessionStateStore {
   private final Map<String, OidcSessionState> store = new ConcurrentHashMap<>();
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param sessionState the {@link OidcSessionState} to save
+   */
   @Override
   public void save(OidcSessionState sessionState) {
     if (sessionState != null && sessionState.getState() != null) {
@@ -37,6 +45,12 @@ public class DefaultOidcSessionStateStore implements OidcSessionStateStore {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param state the state value used as lookup key
+   * @return the associated {@link OidcSessionState}, or {@code null} if not found
+   */
   @Override
   public OidcSessionState load(String state) {
     if (state == null) {
@@ -45,6 +59,11 @@ public class DefaultOidcSessionStateStore implements OidcSessionStateStore {
     return store.get(state);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param state the state value used as lookup key
+   */
   @Override
   public void remove(String state) {
     if (state != null) {

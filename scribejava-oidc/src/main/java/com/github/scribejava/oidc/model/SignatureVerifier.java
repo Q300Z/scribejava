@@ -25,7 +25,16 @@ package com.github.scribejava.oidc.model;
 
 import java.security.PublicKey;
 
-/** Interface pour la vérification des signatures JWT. */
+/** Interface for JWT signature verification. */
 public interface SignatureVerifier {
+  /**
+   * Verifies the signature of the signed content using the provided public key.
+   *
+   * @param alg the signing algorithm (e.g., RS256, ES256, PS256)
+   * @param signedContent the raw content that was signed
+   * @param signature the signature bytes to verify
+   * @param publicKey the public key to use for verification
+   * @return {@code true} if the signature is valid; {@code false} otherwise
+   */
   boolean verify(String alg, byte[] signedContent, byte[] signature, PublicKey publicKey);
 }

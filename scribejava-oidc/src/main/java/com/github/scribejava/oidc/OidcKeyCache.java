@@ -26,11 +26,23 @@ package com.github.scribejava.oidc;
 import com.github.scribejava.oidc.model.OidcKey;
 import java.util.Map;
 
-/** Interface pour la mise en cache des clés JWKS OIDC. */
+/** Interface for OIDC JWKS (JSON Web Key Set) key caching. */
 public interface OidcKeyCache {
+  /**
+   * Retrieves an OIDC key from the cache by its Key ID (kid).
+   *
+   * @param kid the key identifier
+   * @return the corresponding {@link OidcKey}, or {@code null} if not found in the cache
+   */
   OidcKey get(String kid);
 
+  /**
+   * Caches all the given OIDC keys.
+   *
+   * @param keys a map of Key ID to {@link OidcKey} to be cached
+   */
   void putAll(Map<String, OidcKey> keys);
 
+  /** Clears all cached keys. */
   void clear();
 }

@@ -27,15 +27,26 @@ import com.github.scribejava.oidc.model.OidcKey;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Implémentation en mémoire de {@link OidcKeyCache}. */
+/** Default in-memory implementation of {@link OidcKeyCache} using a {@link ConcurrentHashMap}. */
 public class DefaultOidcKeyCache implements OidcKeyCache {
   private final Map<String, OidcKey> keys = new ConcurrentHashMap<>();
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param kid the key identifier
+   * @return the corresponding {@link OidcKey}, or {@code null} if not found in the cache
+   */
   @Override
   public OidcKey get(String kid) {
     return keys.get(kid);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param newKeys a map of Key ID to {@link OidcKey} to be cached
+   */
   @Override
   public void putAll(Map<String, OidcKey> newKeys) {
     if (newKeys != null) {
@@ -43,6 +54,7 @@ public class DefaultOidcKeyCache implements OidcKeyCache {
     }
   }
 
+  /** {@inheritDoc} */
   @Override
   public void clear() {
     keys.clear();

@@ -26,9 +26,21 @@ package com.github.scribejava.oidc;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-/** Implémentation par défaut de {@link IssuerValidator}. */
+/**
+ * Default implementation of {@link IssuerValidator} supporting standard matching and multi-tenant
+ * placeholders.
+ */
 public class DefaultIssuerValidator implements IssuerValidator {
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param configuredIssuer the issuer URL configured in the application
+   * @param claimIssuer the issuer URL present in the token's claims
+   * @param claims the complete map of claims present in the token
+   * @return {@code true} if the claim issuer is valid according to the configured issuer; {@code
+   *     false} otherwise
+   */
   @Override
   public boolean isValid(String configuredIssuer, String claimIssuer, Map<String, Object> claims) {
     if (configuredIssuer == null || claimIssuer == null) {

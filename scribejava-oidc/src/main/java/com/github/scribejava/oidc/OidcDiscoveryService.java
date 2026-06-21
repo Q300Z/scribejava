@@ -421,55 +421,115 @@ public class OidcDiscoveryService extends OAuthService
   }
 
   // Getters/setters for settings
+  /**
+   * Gets the issuer validator.
+   *
+   * @return the {@link IssuerValidator}
+   */
   public IssuerValidator getIssuerValidator() {
     return issuerValidator;
   }
 
+  /**
+   * Sets the issuer validator.
+   *
+   * @param issuerValidator the {@link IssuerValidator} to use
+   */
   public void setIssuerValidator(IssuerValidator issuerValidator) {
     this.issuerValidator = issuerValidator;
   }
 
+  /**
+   * Gets the connection timeout in milliseconds.
+   *
+   * @return the connection timeout, or {@code null} if default is used
+   */
   public Integer getConnectTimeout() {
     return connectTimeout;
   }
 
+  /**
+   * Sets the connection timeout in milliseconds.
+   *
+   * @param connectTimeout the connection timeout, or {@code null} to use default
+   */
   public void setConnectTimeout(Integer connectTimeout) {
     this.connectTimeout = connectTimeout;
   }
 
+  /**
+   * Gets the read timeout in milliseconds.
+   *
+   * @return the read timeout, or {@code null} if default is used
+   */
   public Integer getReadTimeout() {
     return readTimeout;
   }
 
+  /**
+   * Sets the read timeout in milliseconds.
+   *
+   * @param readTimeout the read timeout, or {@code null} to use default
+   */
   public void setReadTimeout(Integer readTimeout) {
     this.readTimeout = readTimeout;
   }
 
+  /**
+   * Gets the maximum number of network retry attempts.
+   *
+   * @return the maximum number of retry attempts
+   */
   public int getMaxAttempts() {
     return maxAttempts;
   }
 
+  /**
+   * Sets the maximum number of network retry attempts.
+   *
+   * @param maxAttempts the maximum number of retry attempts
+   */
   public void setMaxAttempts(int maxAttempts) {
     this.maxAttempts = maxAttempts;
   }
 
+  /**
+   * Gets the initial delay in milliseconds for retrying network operations.
+   *
+   * @return the initial delay in milliseconds
+   */
   public long getInitialDelayMs() {
     return initialDelayMs;
   }
 
+  /**
+   * Sets the initial delay in milliseconds for retrying network operations.
+   *
+   * @param initialDelayMs the initial delay in milliseconds
+   */
   public void setInitialDelayMs(long initialDelayMs) {
     this.initialDelayMs = initialDelayMs;
   }
 
+  /**
+   * Gets the backoff multiplier used for calculated retry delay.
+   *
+   * @return the backoff multiplier
+   */
   public double getBackoffMultiplier() {
     return backoffMultiplier;
   }
 
+  /**
+   * Sets the backoff multiplier used for calculated retry delay.
+   *
+   * @param backoffMultiplier the backoff multiplier
+   */
   public void setBackoffMultiplier(double backoffMultiplier) {
     this.backoffMultiplier = backoffMultiplier;
   }
 
-  /** Vide le cache des JWKS de cette instance (pour les tests). */
+  /** Clears the JWKS cache of this instance (mainly used for testing). */
   public void clearJwksCache() {
     jwksCache.clear();
   }

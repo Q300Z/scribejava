@@ -23,11 +23,27 @@
  */
 package com.github.scribejava.oidc;
 
-/** Interface pour stocker et charger l'état de session OidcSessionState. */
+/** Interface for storing, loading, and removing {@link OidcSessionState}. */
 public interface OidcSessionStateStore {
+  /**
+   * Saves the given OIDC session state.
+   *
+   * @param sessionState the {@link OidcSessionState} to save
+   */
   void save(OidcSessionState sessionState);
 
+  /**
+   * Loads the OIDC session state associated with the given state value.
+   *
+   * @param state the state value used as lookup key
+   * @return the associated {@link OidcSessionState}, or {@code null} if not found
+   */
   OidcSessionState load(String state);
 
+  /**
+   * Removes the OIDC session state associated with the given state value.
+   *
+   * @param state the state value used as lookup key
+   */
   void remove(String state);
 }

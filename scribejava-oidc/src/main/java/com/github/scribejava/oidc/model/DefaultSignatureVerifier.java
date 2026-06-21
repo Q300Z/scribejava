@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Implémentation par défaut de {@link SignatureVerifier} héritant de {@link JwtSignatureVerifier}.
- * Permet d'enregistrer des algorithmes personnalisés et de spécifier un Provider JCA.
+ * Default implementation of {@link SignatureVerifier} extending {@link JwtSignatureVerifier}.
+ * Allows registering custom JCA algorithm mappings and specifying a JCA Provider.
  */
 public class DefaultSignatureVerifier extends JwtSignatureVerifier implements SignatureVerifier {
 
@@ -39,6 +39,7 @@ public class DefaultSignatureVerifier extends JwtSignatureVerifier implements Si
   private Provider provider;
   private String providerName;
 
+  /** Default constructor initializing standard algorithm mappings. */
   public DefaultSignatureVerifier() {
     algorithmMapping.put("RS256", "SHA256withRSA");
     algorithmMapping.put("RS384", "SHA384withRSA");
@@ -51,28 +52,63 @@ public class DefaultSignatureVerifier extends JwtSignatureVerifier implements Si
     algorithmMapping.put("PS512", "RSASSA-PSS");
   }
 
+  /**
+   * Registers a custom JCA signing algorithm mapping.
+   *
+   * @param alg the JWT algorithm name (e.g., "RS256")
+   * @param jcaAlg the JCA Signature algorithm name (e.g., "SHA256withRSA")
+   */
   public void registerAlgorithm(String alg, String jcaAlg) {
     algorithmMapping.put(alg, jcaAlg);
   }
 
+  /**
+   * Gets the JCA Provider.
+   *
+   * @return the JCA {@link Provider}, or {@code null} if not set
+   */
   public Provider getProvider() {
     return provider;
   }
 
+  /**
+   * Sets the JCA Provider.
+   *
+   * @param provider the JCA {@link Provider} to use
+   */
   public void setProvider(Provider provider) {
     this.provider = provider;
     this.providerName = null;
   }
 
+  /**
+   * Gets the name of the JCA Provider.
+   *
+   * @return the provider name, or {@code null} if not set
+   */
   public String getProviderName() {
     return providerName;
   }
 
+  /**
+   * Sets the name of the JCA Provider.
+   *
+   * @param providerName the provider name to use
+   */
   public void setProviderName(String providerName) {
     this.providerName = providerName;
     this.provider = null;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @param alg the signing algorithm
+   * @param signedContent the raw content that was signed
+   * @param signature the signature bytes to verify
+   * @param publicKey the public key to use for verification
+   * @return {@code true} if the signature is valid; {@code false} otherwise
+   */
   @Override
   public boolean verify(String alg, byte[] signedContent, byte[] signature, PublicKey publicKey) {
     if (alg == null) {
