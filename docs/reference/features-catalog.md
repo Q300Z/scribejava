@@ -50,11 +50,16 @@ La fonctionnalité la plus puissante pour les administrateurs système.
   builder.baseOnDiscovery(issuerUri, httpClient, userAgent);
   ```
 
-### 🛡️ Validation & Cryptographie
+### 🛡️ Validation, Cryptographie & Durcissement (Hardening)
 
 - **`IdTokenValidator`** : Vérification native (RSA/EC) sans dépendances externes.
-
 - **Support Courbes Elliptiques** : Validation des signatures **ES256** (NIST P-256).
+- **`OidcKeyCache`** : Cache extensible et personnalisable pour le stockage des clés publiques JWKS (avec implémentation `DefaultOidcKeyCache` en mémoire vive, extensible vers Redis ou Base de données).
+- **`IssuerValidator`** : Abstraction de validation de l'émetteur (`iss`), gérant de manière dynamique les IDPs multi-tenant (ex. Entra ID, Okta) sans correspondances rigides dans le code source via `DefaultIssuerValidator`.
+- **`OidcSessionStateStore`** : Magasin de gestion centralisée du cycle de vie de la session OIDC (`state`, `nonce`, PKCE `code_verifier`) pour automatiser la corrélation et bloquer les injections CSRF.
+- **`SignatureVerifier`** : Interface d'extension cryptographique permettant la configuration de Providers JCA (ex: HSM, Bouncy Castle) et l'enregistrement d'algorithmes de signature spécifiques.
+- **Résilience Réseau (Timeouts & Retries)** : Gestion paramétrable des timeouts HTTP et boucles de retries non-bloquantes avec backoff exponentiel pour l'interrogation de la découverte et du JWKS.
+- **Limitation de Débit (Anti-DoS)** : Cooldown global et individuel par clé inconnue (`kid`) de 5 minutes pour prémunir l'application contre les attaques DoS ciblant le JWKS.
 
 ---
 
