@@ -248,8 +248,8 @@ service.signRequest(token, request);
 
 try (Response response = service.execute(request)) {
     UserInfoJsonExtractor extractor = UserInfoJsonExtractor.instance();
-    Map<String, Object> claims = extractor.extract(response.getBody());
-    System.out.println("Email : " + claims.get("email"));
+    StandardClaims claims = extractor.extract(response);
+    System.out.println("Email : " + claims.getEmail().orElse(""));
 }
 ```
 

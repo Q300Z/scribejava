@@ -13,9 +13,11 @@ En tant que bibliothèque d'authentification et d'autorisation, une mauvaise con
 Durant le développement, il est tentant de désactiver la validation des certificats SSL pour travailler avec des serveurs locaux ou auto-signés. **Cette pratique est strictement proscrite en production**, sous peine de rendre votre application vulnérable aux attaques de l'homme du milieu (MitM).
 
 ```java
-// ⚠️ DANGER CRITIQUE - NE JAMAIS FAIRE CELA EN PRODUCTION :
-HttpClientConfig config = new HttpClientConfig();
-config.setNoSSLVerification(true); // À PROSCRIRE !
+// ⚠️ DANGER CRITIQUE - NE JAMAIS DESACTIVER LA VALIDATION SSL EN PRODUCTION
+// (par exemple, en configurant un SSLSocketFactory ou un HostnameVerifier permissifs) :
+JDKHttpClientConfig config = new JDKHttpClientConfig();
+config.setSslSocketFactory(myTrustingSSLSocketFactory);
+config.setHostnameVerifier(myTrustingHostnameVerifier);
 ```
 
 ### 🟢 Comment gérer les Autorités de Certification (CA) privées ?

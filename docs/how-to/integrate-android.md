@@ -91,7 +91,6 @@ public class LoginActivity extends AppCompatActivity {
         // 1. Configuration de ScribeJava avec le client OkHttp
         oauthService = new ServiceBuilder("votre-client-id")
                 .callback("myapp://oauth-callback")
-                .pkce(true) // Sécurisation obligatoire pour les clients mobiles (RFC 7636)
                 .httpClientConfig(OkHttpHttpClientConfig.defaultConfig())
                 .build(GitHubApi.instance());
 
@@ -100,18 +99,29 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initiateOAuthFlow() {
-        // 2. Génération de l'URL d'autorisation en arrière-plan
+        // 2. Génération de l'URL d'autorisation en arrière-plan avec PKCE
         executor.execute(() -> {
-            final String authUrl = oauthService.getAuthorizationUrl();
+            com.github.scribejava.core.oauth.AuthorizationUrlBuilder builder = oauthService.createAuthorizationUrlBuilder()
+                    .initPKCE(); // ✅ Active et génère automatiquement le challenge PKCE
+            
+            // Stockez builder.getPkce().getCodeVerifier() de manière persistante (ex. SharedPreferences)
+            // pour l'utiliser lors de la phase de callback.
+            saveCodeVerifier(builder.getPkce().getCodeVerifier());
+
+            final String authUrl = builder.build();
 
             // 3. Retour sur le thread principal pour lancer Custom Tabs
             runOnUiThread(() -> {
-                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                CustomTabsIntent customTabsIntent = builder.build();
+                CustomTabsIntent.Builder tabsBuilder = new CustomTabsIntent.Builder();
+                CustomTabsIntent customTabsIntent = tabsBuilder.build();
                 // Ouvre le navigateur sécurisé natif
                 customTabsIntent.launchUrl(LoginActivity.this, Uri.parse(authUrl));
             });
         });
+    }
+
+    private void saveCodeVerifier(String verifier) {
+        // Exemple : stocker dans les SharedPreferences ou en mémoire de l'application
     }
 }
 ```
@@ -156,7 +166,6 @@ public class AuthCallbackActivity extends AppCompatActivity {
 
         oauthService = new ServiceBuilder("votre-client-id")
                 .callback("myapp://oauth-callback")
-                .pkce(true)
                 .build(GitHubApi.instance());
 
         handleIntent(getIntent());
@@ -182,13 +191,18 @@ public class AuthCallbackActivity extends AppCompatActivity {
         // Exécution en arrière-plan obligatoire
         executor.execute(() -> {
             try {
-                // 1. Échange du code d'autorisation
-                final OAuth2AccessToken accessToken = oauthService.getAccessToken(new AuthorizationCodeGrant(code));
+                // 1. Échange du code d'autorisation avec PKCE
+                final AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
+                // Récupérez le code verifier stocké lors de l'initiation de l'authentification
+                final String codeVerifier = getStoredCodeVerifier();
+                grant.setPkceCodeVerifier(codeVerifier);
+
+                final OAuth2AccessToken accessToken = oauthService.getAccessToken(grant);
                 
                 // 2. Appel immédiat d'une ressource signée pour test
                 final OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.github.com/user");
                 oauthService.signRequest(accessToken, request);
-
+ 
                 try (Response response = oauthService.execute(request)) {
                     final String userBody = response.getBody();
                     
@@ -201,6 +215,11 @@ public class AuthCallbackActivity extends AppCompatActivity {
             }
         });
     }
+
+    private String getStoredCodeVerifier() {
+        // Exemple : récupérer depuis les SharedPreferences
+        return "verifier-sauvegarde";
+    }
 }
 ```
 
@@ -208,5 +227,5 @@ public class AuthCallbackActivity extends AppCompatActivity {
 
 ## 🔒 5. Bonnes Pratiques de Sécurité sur Mobile
 
-1. **Utilisez obligatoirement PKCE (`.pkce(true)`)** : Les applications mobiles sont des clients dits "publics" qui ne peuvent pas stocker de `client_secret` de manière sécurisée (toute clé dans l'APK peut être extraite par ingénierie inverse). L'utilisation de PKCE protège votre application contre l'interception de code d'autorisation par des applications malveillantes sur le même appareil.
+1. **Utilisez obligatoirement PKCE (via `initPKCE()`)** : Les applications mobiles sont des clients dits "publics" qui ne peuvent pas stocker de `client_secret` de manière sécurisée (toute clé dans l'APK peut être extraite par ingénierie inverse). L'utilisation de PKCE (en appelant `.initPKCE()` sur l' `AuthorizationUrlBuilder` et en passant le code verifier à l' `AuthorizationCodeGrant`) protège votre application contre l'interception de code d'autorisation par des applications malveillantes sur le même appareil.
 2. **Bannissez les WebViews intégrées** : N'affichez jamais la page de connexion dans une `WebView` classique intégrée à votre application. Les serveurs d'autorisation (comme Google ou Microsoft) les bloquent souvent pour prévenir le phishing. Privilégiez toujours les **Android Custom Tabs** (`androidx.browser:browser`), qui partagent les cookies de session du navigateur système, évitant ainsi à l'utilisateur de ressaisir ses identifiants s'il est déjà connecté.

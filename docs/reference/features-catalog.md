@@ -10,27 +10,38 @@ Ce document répertorie l'ensemble des capacités exploitables par module. Scrib
 
 C'est le point de départ de tout flux utilisateur. ScribeJava offre une flexibilité totale :
 
-- **Simple** : `service.getAuthorizationUrl()` génère l'URL standard.
+- **Simple** : `service.createAuthorizationUrlBuilder().build()` génère l'URL standard.
 
 - **Paramètres personnalisés** : Ajoutez des paramètres spécifiques au fournisseur (ex: `prompt`, `access_type`) via une `Map<String, String>`.
 
   ```java
   Map<String, String> params = new HashMap<>();
   params.put("prompt", "select_account");
-  String url = service.getAuthorizationUrl(params);
+  String url = service.createAuthorizationUrlBuilder()
+      .additionalParams(params)
+      .build();
   ```
 
-- **Builder Fluide** : Utilisez `service.createAuthorizationUrlBuilder()` pour chaîner les options (`state`, `scopes`, `additionalParameters`).
+- **Builder Fluide** : Utilisez `service.createAuthorizationUrlBuilder()` pour chaîner les options (`state`, `scope`, `additionalParams`).
 
 ### 🛡️ Sécurité & PKCE (RFC 7636)
 
 Le PKCE est géré de manière transparente pour sécuriser les échanges :
 
-1. **Génération** : `PKCE pkce = service.generatePKCE()` crée le `code_verifier` (secret) et le `code_challenge`.
+1. **Génération & Autorisation** : Activez PKCE via `initPKCE()` sur l' `AuthorizationUrlBuilder` lors de la construction de l'URL :
+   ```java
+   AuthorizationUrlBuilder builder = service.createAuthorizationUrlBuilder()
+       .initPKCE();
+   String url = builder.build();
+   PKCE pkce = builder.getPkce(); // Récupération de l'objet PKCE généré contenant le code_verifier
+   ```
 
-2. **Autorisation** : Passez l'objet `pkce` à `getAuthorizationUrl()`. ScribeJava inclut automatiquement le challenge dans l'URL.
-
-3. **Échange** : Passez le même objet à `AuthorizationCodeGrant`. ScribeJava envoie le verifier au serveur pour prouver l'identité du client.
+2. **Échange** : Passez le code_verifier à l' `AuthorizationCodeGrant` :
+   ```java
+   AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code);
+   grant.setPkceCodeVerifier(pkce.getCodeVerifier());
+   OAuth2AccessToken token = service.getAccessToken(grant);
+   ```
 
 ---
 

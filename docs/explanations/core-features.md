@@ -14,7 +14,7 @@ Le `ServiceBuilder` utilise une interface fluide pour configurer votre service s
 
 - **`.discoverFromIssuer(url, service)`** : Active la découverte automatique (OIDC/RFC 8414).
 
-- **`.pkce(true)`** : Active automatiquement le challenge PKCE (RFC 7636).
+- **`AuthorizationUrlBuilder.initPKCE()`** : Active automatiquement le challenge PKCE (RFC 7636) lors de la génération de l'URL.
 
 - **`.dpop(proofCreator)`** : Active le mécanisme DPoP (RFC 9449).
 

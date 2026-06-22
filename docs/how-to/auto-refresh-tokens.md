@@ -29,13 +29,19 @@ Avant d'envoyer l'utilisateur vers le fournisseur, vous devez générer des secr
 StateGenerator gen = new StateGenerator();
 String state = gen.generate();
 String nonce = gen.generate();
-PKCE pkce = service.generatePKCE();
+
+// Utilisation du builder d'URL pour initialiser PKCE de manière propre :
+com.github.scribejava.core.oauth.AuthorizationUrlBuilder urlBuilder = service.createAuthorizationUrlBuilder()
+    .state(state)
+    .initPKCE(); // ✅ Active et génère automatiquement PKCE
+
+PKCE pkce = urlBuilder.getPkce(); // ✅ Récupère l'instance PKCE générée
 
 // Cet objet doit être persisté temporairement (ex: Session HTTP ou Cookie chiffré)
 AuthSessionContext context = new AuthSessionContext(state, nonce, pkce);
 saveInSession(context);
 
-String authUrl = service.getAuthorizationUrl(pkce, state);
+String authUrl = urlBuilder.build(); // ✅ Construit l'URL d'autorisation
 
 ```
 
@@ -103,7 +109,13 @@ Le `TokenAutoRenewer` est conçu pour les environnements à forte concurrence.
 
 TokenAutoRenewer<String> renewer = new TokenAutoRenewer<>(
     repository,
-    oldToken -> service.refreshAccessToken(oldToken.getRefreshToken())
+    oldToken -> {
+        try {
+            return service.refreshAccessToken(oldToken.getRefreshToken());
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur de rafraîchissement du jeton", e);
+        }
+    }
 );
 
 ```

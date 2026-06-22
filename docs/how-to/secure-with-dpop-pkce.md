@@ -52,13 +52,11 @@ POST sécurisée, plutôt que de les faire transiter par l'URL du navigateur.
 ### Mise en œuvre PAR
 
 ```java
-// ScribeJava gère le PAR automatiquement si l'API le supporte
-
-PushedAuthorizationResponse parResponse = service.pushAuthorizationRequest(new AuthorizationCodeGrant(code));
-
-// Redirigez l'utilisateur vers l'URI fournie par le serveur
-String authUrl = parResponse.getRequestUri();
-
+// ScribeJava gère le PAR de manière transparente lors de l'appel au builder de l'URL
+String authUrl = service.createAuthorizationUrlBuilder()
+    .state(state)
+    .usePushedAuthorizationRequests(true) // Active PAR : pousse les paramètres et génère l'URL avec request_uri
+    .build();
 ```
 
 ---
@@ -77,7 +75,7 @@ String authUrl = parResponse.getRequestUri();
 
 Avant de déployer votre intégration, vérifiez ces 5 points :
 
-1. [ ] **PKCE Activé** : Utilisez-vous `.pkce(true)` dans votre `ServiceBuilder` ?
+1. [ ] **PKCE Activé** : Appelez-vous `initPKCE()` sur l' `AuthorizationUrlBuilder` pour générer le challenge PKCE ?
 
 2. [ ] **HTTPS Uniquement** : Vos redirections (`callback`) et endpoints sont-ils tous en HTTPS ?
 
@@ -100,25 +98,26 @@ Utilisez `JarAuthorizationRequestConverter` (du module `scribejava-oidc`) dans l
 
 ```java
 
-// Clé privée pour signer le JWT
-JWK signingKey = JWK.parse("{\"kty\":\"RSA\", ...}");
+// Clé privée standard JDK pour signer le JWT
+PrivateKey privateKey = ...;
 
 OAuth20Service service = new ServiceBuilder("client-id")
     .apiSecret("secret")
     .callback("https://callback.com")
-    // Active JAR : Convertit les params en JWT signé
+    // Active JAR : Convertit les params en JWT signé avec JDK PrivateKey
     .authorizationRequestConverter(
         new JarAuthorizationRequestConverter(
             "client-id", // issuer
-            "https://issuer.com", // audience (l'IDP)
-            signingKey,
-            JWSAlgorithm.RS256
+            "https://accounts.google.com", // audience (l'IDP)
+            privateKey,
+            "kid-1",
+            new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer()
         )
     )
     .build(OidcGoogleApi20.instance());
 
 // L'URL générée contiendra ?client_id=...&request=eyJ...
-String url = service.getAuthorizationUrl();
+String url = service.createAuthorizationUrlBuilder().build();
 
 ```
 
@@ -134,8 +133,11 @@ OAuth20Service service = new ServiceBuilder("client-id")
     .authorizationRequestConverter(new JarAuthorizationRequestConverter(...)) // JAR
     .build(GoogleApi20.instance());
 
-// Pousse le JWT signé au serveur
-PushedAuthorizationResponse response = service.pushAuthorizationRequestAsync(...).get();
+// Génère l'URL d'autorisation : applique JAR pour signer et pousse via PAR
+String authUrl = service.createAuthorizationUrlBuilder()
+    .state(state)
+    .usePushedAuthorizationRequests(true)
+    .build();
 
 ```
 
@@ -148,12 +150,18 @@ Si votre serveur d'autorisation gère plusieurs ressources (APIs) avec des permi
 ### Mise en œuvre
 
 ```java
+// Pour spécifier des paramètres additionnels comme la ressource cible (RFC 8707),
+// étendez ou créez une instance personnalisée de OAuth20Grant :
+OAuth20Grant grant = new AuthorizationCodeGrant(code) {
+    @Override
+    public OAuthRequest createRequest(OAuth20Service service) {
+        OAuthRequest request = super.createRequest(service);
+        request.addParameter("resource", "https://api.monservice.com/v1");
+        return request;
+    }
+};
 
-AccessTokenRequestParams params = AccessTokenRequestParams.create(code)
-    .resource("https://api.monservice.com/v1");
-
-OAuth2AccessToken token = service.getAccessToken(params);
-
+OAuth2AccessToken token = service.getAccessToken(grant);
 ```
 
 ---

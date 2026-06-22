@@ -173,7 +173,8 @@ Branchez vos logs (ELK/Grafana) pour surveiller la santé de vos connexions.
 
 ```java
 
-service.setListener(new AuthEventListener<String>() {
+// Configurez le listener d'événements sur le coordinateur de flux (ou le TokenAutoRenewer)
+coordinator.setListener(new AuthEventListener<String>() {
     @Override
     public void onCsrfDetected(String key, String got, String expected) {
         logger.error("ALERTE SÉCURITÉ : Tentative CSRF sur l'utilisateur " + key);
