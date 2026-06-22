@@ -68,6 +68,18 @@ else
 fi
 
 echo -e "${BLUE}🧪 Étape 3 : Tests multi-JDK en parallèle...${NC}"
+
+# Démarrer Keycloak pour les tests E2E
+echo -e "${BLUE}🔑 Démarrage du conteneur Keycloak E2E...${NC}"
+docker compose -f docker-compose.ci.yml up -d keycloak
+
+# Attendre que Keycloak réponde sur le port exposé sur l'hôte
+echo -e "${BLUE}⏳ Attente du démarrage de Keycloak...${NC}"
+until [ "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/realms/scribejava-test)" -eq 200 ]; do
+    sleep 2
+done
+echo -e "${GREEN}✅ Keycloak est opérationnel !${NC}"
+
 TEST_SERVICES=("test-jdk8" "test-jdk11" "test-jdk17" "test-jdk21" "test-jdk25")
 
 declare -A PIDS
@@ -88,6 +100,9 @@ for SERVICE in "${TEST_SERVICES[@]}"; do
         FAILED=1
     fi
 done
+
+# Arrêter Keycloak et nettoyer les conteneurs résiduels
+docker compose -f docker-compose.ci.yml down
 
 if [ $FAILED -eq 0 ]; then
     echo -e "\n${GREEN}🎉 Félicitations ! Toute la matrice CI est passée avec succès.${NC}"
