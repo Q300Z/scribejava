@@ -75,9 +75,10 @@ public final class OidcFullLifecycleQuickStart {
     System.out.println("\n1. ENREGISTREMENT (Dynamic Client Registration)...");
     final OidcDiscoveryService discovery = new OidcDiscoveryService(ISSUER, null, null);
     final OidcProviderMetadata metadata = discovery.getProviderMetadata();
+    System.out.println("Metadata du fournisseur chargée, issuer : " + metadata.getIssuer());
 
     final OidcRegistrationService registrationService =
-        new OidcRegistrationService(null, metadata.getRegistrationEndpoint());
+        new OidcRegistrationService(null, "ScribeJava-QuickStart");
     registrationService.setLogger(verboseLogger());
 
     // On enregistre une nouvelle application "On-the-fly"

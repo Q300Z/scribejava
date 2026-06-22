@@ -44,6 +44,14 @@ public final class DeviceFlowQuickStart {
 
   private DeviceFlowQuickStart() {}
 
+  /**
+   * Point d'entrée.
+   *
+   * @param args arguments
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   */
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException {
 

@@ -56,6 +56,14 @@ public final class OidcLogoutMasterQuickStart {
 
   private OidcLogoutMasterQuickStart() {}
 
+  /**
+   * Point d'entrée.
+   *
+   * @param args arguments
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   */
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException {
 
@@ -99,7 +107,7 @@ public final class OidcLogoutMasterQuickStart {
     final Map<String, OidcKey> keys = discovery.getJwks(metadata.getJwksUri());
 
     final IdTokenValidator validator =
-        new IdTokenValidator(ISSUER, CLIENT_ID, metadata.getJwksUri(), keys);
+        new IdTokenValidator(ISSUER, CLIENT_ID, "RS256", keys, discovery, metadata.getJwksUri());
     try {
       validator.validateLogoutToken(simulatedLogoutToken);
       System.out.println("✅ Notification de déconnexion IdP validée. Session locale fermée.");

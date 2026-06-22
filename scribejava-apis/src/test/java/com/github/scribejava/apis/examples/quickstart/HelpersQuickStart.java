@@ -59,6 +59,14 @@ public final class HelpersQuickStart {
 
   private HelpersQuickStart() {}
 
+  /**
+   * Point d'entrée.
+   *
+   * @param args arguments
+   * @throws IOException IOException
+   * @throws InterruptedException InterruptedException
+   * @throws ExecutionException ExecutionException
+   */
   public static void main(String[] args)
       throws IOException, InterruptedException, ExecutionException {
 
