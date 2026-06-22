@@ -1472,7 +1472,7 @@
 <p>C'est le point de départ de tout flux utilisateur. ScribeJava offre une flexibilité totale :</p>
 <ul>
 <li>
-<p><strong>Simple</strong> : <code>service.getAuthorizationUrl()</code> génère l'URL standard.</p>
+<p><strong>Simple</strong> : <code>service.createAuthorizationUrlBuilder().build()</code> génère l'URL standard.</p>
 </li>
 <li>
 <p><strong>Paramètres personnalisés</strong> : Ajoutez des paramètres spécifiques au fournisseur (ex: <code>prompt</code>, <code>access_type</code>) via une <code>Map&lt;String, String&gt;</code>.</p>
@@ -1480,22 +1480,30 @@
 </ul>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">params</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&quot;prompt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;select_account&quot;</span><span class="p">);</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAuthorizationUrl</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">createAuthorizationUrlBuilder</span><span class="p">()</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">.</span><span class="na">additionalParams</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <ul>
-<li><strong>Builder Fluide</strong> : Utilisez <code>service.createAuthorizationUrlBuilder()</code> pour chaîner les options (<code>state</code>, <code>scopes</code>, <code>additionalParameters</code>).</li>
+<li><strong>Builder Fluide</strong> : Utilisez <code>service.createAuthorizationUrlBuilder()</code> pour chaîner les options (<code>state</code>, <code>scope</code>, <code>additionalParams</code>).</li>
 </ul>
 <h3 id="securite-pkce-rfc-7636">🛡️ Sécurité &amp; PKCE (RFC 7636)</h3>
 <p>Le PKCE est géré de manière transparente pour sécuriser les échanges :</p>
 <ol>
 <li>
-<p><strong>Génération</strong> : <code>PKCE pkce = service.generatePKCE()</code> crée le <code>code_verifier</code> (secret) et le <code>code_challenge</code>.</p>
+<p><strong>Génération &amp; Autorisation</strong> : Activez PKCE via <code>initPKCE()</code> sur l' <code>AuthorizationUrlBuilder</code> lors de la construction de l'URL :
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">AuthorizationUrlBuilder</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">createAuthorizationUrlBuilder</span><span class="p">()</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">.</span><span class="na">initPKCE</span><span class="p">();</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">PKCE</span><span class="w"> </span><span class="n">pkce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">getPkce</span><span class="p">();</span><span class="w"> </span><span class="c1">// Récupération de l&#39;objet PKCE généré contenant le code_verifier</span>
+</code></pre></div></p>
 </li>
 <li>
-<p><strong>Autorisation</strong> : Passez l'objet <code>pkce</code> à <code>getAuthorizationUrl()</code>. ScribeJava inclut automatiquement le challenge dans l'URL.</p>
-</li>
-<li>
-<p><strong>Échange</strong> : Passez le même objet à <code>AuthorizationCodeGrant</code>. ScribeJava envoie le verifier au serveur pour prouver l'identité du client.</p>
+<p><strong>Échange</strong> : Passez le code_verifier à l' <code>AuthorizationCodeGrant</code> :
+   <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">AuthorizationCodeGrant</span><span class="w"> </span><span class="n">grant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AuthorizationCodeGrant</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">grant</span><span class="p">.</span><span class="na">setPkceCodeVerifier</span><span class="p">(</span><span class="n">pkce</span><span class="p">.</span><span class="na">getCodeVerifier</span><span class="p">());</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">OAuth2AccessToken</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">service</span><span class="p">.</span><span class="na">getAccessToken</span><span class="p">(</span><span class="n">grant</span><span class="p">);</span>
+</code></pre></div></p>
 </li>
 </ol>
 <hr />
@@ -1513,7 +1521,7 @@
 <p><strong>Avantage</strong> : Aucune URL d'API n'est écrite en dur dans votre code. Si le fournisseur déplace ses services, votre application s'adapte dynamiquement.</p>
 </li>
 </ul>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">builder</span><span class="p">.</span><span class="na">baseOnDiscovery</span><span class="p">(</span><span class="n">issuerUri</span><span class="p">,</span><span class="w"> </span><span class="n">httpClient</span><span class="p">,</span><span class="w"> </span><span class="n">userAgent</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">builder</span><span class="p">.</span><span class="na">baseOnDiscovery</span><span class="p">(</span><span class="n">issuerUri</span><span class="p">,</span><span class="w"> </span><span class="n">httpClient</span><span class="p">,</span><span class="w"> </span><span class="n">userAgent</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="validation-cryptographie-durcissement-hardening">🛡️ Validation, Cryptographie &amp; Durcissement (Hardening)</h3>
 <ul>
