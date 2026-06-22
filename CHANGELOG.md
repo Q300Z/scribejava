@@ -1,5 +1,19 @@
 # 📓 Journal des modifications (Changelog)
 
+# [9.5.0](https://github.com/Q300Z/scribejava/compare/v9.4.4...v9.5.0) (2026-06-22)
+
+
+### Bug Fixes
+
+* **core:** update JsonUtils with necessary helper methods ([57f9e27](https://github.com/Q300Z/scribejava/commit/57f9e277840bb1a50c145af31b1f1bd587c57f1b))
+
+
+### Features
+
+* **oidc:** add OidcSessionState lifecycle helpers for automatic PKCE and state correlation ([4ee1943](https://github.com/Q300Z/scribejava/commit/4ee194342543c2eab39cfa69b7828db3a5f4f75c))
+* **oidc:** implement key caching, unknown kid rate limiting, and delegate issuer/signature validation in IdTokenValidator ([3c93806](https://github.com/Q300Z/scribejava/commit/3c93806686bf8af2e4d756ff84aaa15091d4fea5))
+* **oidc:** implement RFC 7234 HTTP caching and exponential backoff retry policy in OidcDiscoveryService ([c95fd7e](https://github.com/Q300Z/scribejava/commit/c95fd7e09720bba0ebcb406d47f6af06f992d79a))
+
 ## [9.4.4](https://github.com/Q300Z/scribejava/compare/v9.4.3...v9.4.4) (2026-05-22)
 
 ## [9.4.3](https://github.com/Q300Z/scribejava/compare/v9.4.0...v9.4.3) (2026-05-22)
