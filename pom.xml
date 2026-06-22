@@ -504,5 +504,62 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>release-package</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.6.0</version>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>collect-release-jars</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>com.github.scribejava</groupId>
+                      <artifactId>scribejava-core</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>com.github.scribejava</groupId>
+                      <artifactId>scribejava-apis</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>com.github.scribejava</groupId>
+                      <artifactId>scribejava-oauth1</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>com.github.scribejava</groupId>
+                      <artifactId>scribejava-oidc</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>com.github.scribejava</groupId>
+                      <artifactId>scribejava-httpclient-okhttp</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>com.github.scribejava</groupId>
+                      <artifactId>scribejava-httpclient-armeria</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>${project.build.directory}/release-artifacts</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
