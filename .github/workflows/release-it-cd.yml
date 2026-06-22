@@ -72,11 +72,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Bump version dans pom.xml + Commit & Tag via release-it (sans générer la release github immédiatement)
-          npx release-it ${{ github.event.inputs.increment }} --ci --no-github.release
-          
-          # 2. Re-compiler le projet avec la nouvelle version et collecter les JARs via le profil Maven
-          mvn clean package -Prelease-package -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true
-          
-          # 3. Créer la release GitHub et y associer les JARs finaux localisés dans target/release-artifacts
-          npx release-it --ci --no-git --github.release --github.assets="target/release-artifacts/*.jar"
+          npx release-it ${{ github.event.inputs.increment }} --ci

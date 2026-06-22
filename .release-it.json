@@ -9,7 +9,7 @@
   "github": {
     "release": true,
     "releaseName": "v${version}",
-    "assets": ["artifacts/**/target/*.jar"],
+    "assets": ["target/release-artifacts/*.jar"],
     "comments": {
       "submit": true,
       "issue": "🚀 Version ${version} certifiée multi-JDK et publiée."
@@ -19,7 +19,8 @@
     "publish": false
   },
   "hooks": {
-    "after:bump": "mvn versions:set -DnewVersion=${version} -DgenerateBackupPoms=false && mvn versions:commit"
+    "after:bump": "mvn versions:set -DnewVersion=${version} -DgenerateBackupPoms=false && mvn versions:commit",
+    "before:github:release": "mvn clean package -Prelease-package -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
