@@ -24,6 +24,7 @@
 package com.github.scribejava.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import com.github.scribejava.core.model.JsonBuilder;
@@ -262,5 +263,92 @@ public class OidcDiscoveryServiceTest {
     final okhttp3.mockwebserver.RecordedRequest request = server.takeRequest();
     assertThat(request.getHeader("Cache-Control")).isNull();
     assertThat(request.getHeader("Pragma")).isNull();
+  }
+
+  @Test
+  public void testOkHttpTimeoutsPropagation() throws Exception {
+    com.github.scribejava.httpclient.okhttp.OkHttpHttpClient okHttpClient =
+        new com.github.scribejava.httpclient.okhttp.OkHttpHttpClient();
+
+    service = new OidcDiscoveryService(server.url("/").toString(), okHttpClient, "ScribeJava-Test");
+    service.setConnectTimeout(4500);
+    service.setReadTimeout(5500);
+
+    final String json =
+        new JsonBuilder()
+            .add("issuer", server.url("/").toString())
+            .add("authorization_endpoint", server.url("/authorize").toString())
+            .add("token_endpoint", server.url("/token").toString())
+            .add("jwks_uri", server.url("/jwks.json").toString())
+            .add("response_types_supported", Collections.singletonList("code"))
+            .add("subject_types_supported", Collections.singletonList("public"))
+            .add("id_token_signing_alg_values_supported", Collections.singletonList("RS256"))
+            .build();
+
+    server.enqueue(new MockResponse().setBody(json).setResponseCode(200));
+
+    service.getProviderMetadata();
+
+    java.lang.reflect.Field clientField = okHttpClient.getClass().getDeclaredField("client");
+    clientField.setAccessible(true);
+    okhttp3.OkHttpClient okClient = (okhttp3.OkHttpClient) clientField.get(okHttpClient);
+
+    assertThat(okClient.connectTimeoutMillis()).isEqualTo(4500);
+    assertThat(okClient.readTimeoutMillis()).isEqualTo(5500);
+  }
+
+  @Test
+  public void testSchedulerShutdownOnClose() throws Exception {
+    OidcDiscoveryService testService =
+        new OidcDiscoveryService(
+            server.url("/").toString(), new JDKHttpClient(), "ScribeJava-Test");
+
+    java.lang.reflect.Field schedulerField =
+        OidcDiscoveryService.class.getDeclaredField("scheduler");
+    schedulerField.setAccessible(true);
+    java.util.concurrent.ScheduledExecutorService executor =
+        (java.util.concurrent.ScheduledExecutorService) schedulerField.get(testService);
+
+    assertThat(executor.isShutdown()).isFalse();
+
+    testService.close();
+
+    assertThat(executor.isShutdown()).isTrue();
+  }
+
+  @Test
+  public void testCancelScheduledRetry() throws Exception {
+    java.util.concurrent.ScheduledExecutorService mockExecutor =
+        mock(java.util.concurrent.ScheduledExecutorService.class);
+
+    java.util.concurrent.ScheduledFuture<?> mockScheduledFuture =
+        mock(java.util.concurrent.ScheduledFuture.class);
+
+    when(mockExecutor.schedule(
+            any(Runnable.class), anyLong(), any(java.util.concurrent.TimeUnit.class)))
+        .thenAnswer(invocation -> mockScheduledFuture);
+
+    OidcDiscoveryService testService =
+        new OidcDiscoveryService(
+            server.url("/").toString(), new JDKHttpClient(), "ScribeJava-Test");
+
+    java.lang.reflect.Field schedulerField =
+        OidcDiscoveryService.class.getDeclaredField("scheduler");
+    schedulerField.setAccessible(true);
+    schedulerField.set(testService, mockExecutor);
+
+    testService.setMaxAttempts(2);
+    testService.setInitialDelayMs(5000L);
+
+    server.enqueue(new MockResponse().setResponseCode(500));
+
+    java.util.concurrent.CompletableFuture<OidcProviderMetadata> future =
+        testService.getProviderMetadataAsync();
+
+    assertThat(future.isDone()).isFalse();
+
+    future.cancel(true);
+
+    verify(mockScheduledFuture, times(1)).cancel(true);
   }
 }

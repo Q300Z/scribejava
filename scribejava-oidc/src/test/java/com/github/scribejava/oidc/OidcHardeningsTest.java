@@ -31,6 +31,7 @@ import com.github.scribejava.core.exceptions.OAuthException;
 import com.github.scribejava.core.httpclient.jdk.JDKHttpClient;
 import com.github.scribejava.core.model.JsonBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
+import com.github.scribejava.oidc.dpop.DefaultDPoPProofCreator;
 import com.github.scribejava.oidc.model.DefaultSignatureVerifier;
 import com.github.scribejava.oidc.model.OidcKey;
 import com.github.scribejava.oidc.model.OidcNonce;
@@ -412,7 +413,8 @@ public class OidcHardeningsTest {
 
     // Change verifier to return false, validation must fail
     when(mockVerifier.verify(eq("RS256"), any(), any(), any())).thenReturn(false);
-    assertThrows(OAuthException.class, () -> validator.validate(rawToken, null, 0));
+    final String rawToken2 = rawToken + "2";
+    assertThrows(OAuthException.class, () -> validator.validate(rawToken2, null, 0));
   }
 
   @Test
@@ -461,5 +463,188 @@ public class OidcHardeningsTest {
     boolean failedVerification =
         standardVerifier.verify("RS256", signedContent, signature, keyPair.getPublic());
     assertThat(failedVerification).isFalse();
+  }
+
+  @Test
+  public void testJwksCooldownBug() throws Exception {
+    OidcDiscoveryService mockDiscovery = mock(OidcDiscoveryService.class);
+    String jwksUri = "https://example.com/jwks";
+    OidcKeyCache cache = new DefaultOidcKeyCache();
+
+    IdTokenValidator validator =
+        new IdTokenValidator(
+            "https://issuer.example.com", "client-id", "RS256", cache, mockDiscovery, jwksUri);
+
+    // First, getJwks throws an exception
+    when(mockDiscovery.getJwks(jwksUri)).thenThrow(new RuntimeException("JWKS fetch failed"));
+
+    String header = "{\"alg\":\"RS256\",\"kid\":\"unknown-kid-1\"}";
+    String payload =
+        "{\"iss\":\"https://issuer.example.com\",\"aud\":\"client-id\",\"exp\":"
+            + (System.currentTimeMillis() / 1000 + 3600)
+            + "}";
+    String rawToken =
+        Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(header.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(payload.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString("dummy".getBytes(StandardCharsets.UTF_8));
+
+    // First validation attempt: kid is not found, so it attempts reloadKeys(), which fails/throws.
+    // And the validation throws an OAuthException because key is not found.
+    assertThrows(OAuthException.class, () -> validator.validate(rawToken, null, 0));
+
+    // Verify mockDiscovery.getJwks was called once.
+    verify(mockDiscovery, times(1)).getJwks(jwksUri);
+
+    // Second attempt, if getJwks succeeds now, it should call getJwks again because no cooldown was
+    // set.
+    reset(mockDiscovery);
+
+    OidcKey key = mock(OidcKey.class);
+    when(key.getKid()).thenReturn("unknown-kid-1");
+    when(key.getAlg()).thenReturn("RS256");
+    when(key.getPublicKey()).thenReturn(null);
+
+    Map<String, OidcKey> successKeys = Collections.singletonMap("unknown-kid-1", key);
+    when(mockDiscovery.getJwks(jwksUri)).thenReturn(successKeys);
+
+    SignatureVerifier mockVerifier = mock(SignatureVerifier.class);
+    when(mockVerifier.verify(any(), any(), any(), any())).thenReturn(true);
+    validator.setSignatureVerifier(mockVerifier);
+
+    // Now, validation is attempted again. It should call getJwks(jwksUri) because there was no
+    // cooldown.
+    validator.validate(rawToken, null, 0);
+    verify(mockDiscovery, times(1)).getJwks(jwksUri);
+
+    // Third attempt: should NOT call getJwks again because of cooldown.
+    reset(mockDiscovery);
+    String header2 = "{\"alg\":\"RS256\",\"kid\":\"unknown-kid-2\"}";
+    String rawToken2 =
+        Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(header2.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(payload.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString("dummy".getBytes(StandardCharsets.UTF_8));
+
+    // This will throw because key-2 is not found and discovery was skipped/cooldown active.
+    assertThrows(OAuthException.class, () -> validator.validate(rawToken2, null, 0));
+    verify(mockDiscovery, never()).getJwks(jwksUri);
+  }
+
+  @Test
+  public void testSessionStateExpiration() throws Exception {
+    DefaultOidcSessionStateStore store = new DefaultOidcSessionStateStore();
+    OidcSessionState nonExpiredState =
+        new OidcSessionState(
+            "state-active", new OidcNonce("nonce-active-long-value"), "verifier-active");
+    OidcSessionState expiredState =
+        new OidcSessionState(
+            "state-expired", new OidcNonce("nonce-expired-long-value"), "verifier-expired");
+
+    store.save(nonExpiredState);
+    store.save(expiredState);
+
+    java.lang.reflect.Field storeField =
+        DefaultOidcSessionStateStore.class.getDeclaredField("store");
+    storeField.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Map<String, ?> internalMap = (Map<String, ?>) storeField.get(store);
+
+    Object expiredEntry = internalMap.get("state-expired");
+    assertThat(expiredEntry).isNotNull();
+
+    java.lang.reflect.Field createdAtField = expiredEntry.getClass().getDeclaredField("createdAt");
+    createdAtField.setAccessible(true);
+    createdAtField.set(expiredEntry, System.currentTimeMillis() - 1_200_000L);
+
+    OidcSessionState loadedActive = store.load("state-active");
+    assertThat(loadedActive).isSameAs(nonExpiredState);
+
+    OidcSessionState loadedExpired = store.load("state-expired");
+    assertThat(loadedExpired).isNull();
+
+    assertThat(internalMap).containsKey("state-active");
+    assertThat(internalMap).doesNotContainKey("state-expired");
+  }
+
+  @Test
+  public void testSignatureValidationBypassesOnCacheHit() throws Exception {
+    OidcKeyCache cache = new DefaultOidcKeyCache();
+    OidcKey dummyKey = mock(OidcKey.class);
+    when(dummyKey.getKid()).thenReturn("kid-1");
+    when(dummyKey.getAlg()).thenReturn("RS256");
+    when(dummyKey.getPublicKey()).thenReturn(null);
+    cache.putAll(Collections.singletonMap("kid-1", dummyKey));
+
+    IdTokenValidator validator =
+        new IdTokenValidator("https://issuer.example.com", "client-id", "RS256", cache, null, null);
+
+    SignatureVerifier mockVerifier = mock(SignatureVerifier.class);
+    when(mockVerifier.verify(eq("RS256"), any(), any(), any())).thenReturn(true);
+    validator.setSignatureVerifier(mockVerifier);
+
+    String header = "{\"alg\":\"RS256\",\"kid\":\"kid-1\"}";
+    String payload =
+        "{\"iss\":\"https://issuer.example.com\",\"aud\":\"client-id\",\"exp\":"
+            + (System.currentTimeMillis() / 1000 + 3600)
+            + "}";
+    String rawToken =
+        Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(header.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(payload.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString("sig".getBytes(StandardCharsets.UTF_8));
+
+    // First validation should call the verifier once.
+    validator.validate(rawToken, null, 0);
+    verify(mockVerifier, times(1)).verify(eq("RS256"), any(), any(), any());
+
+    // Second validation of the SAME token should NOT call the verifier again (cached!).
+    validator.validate(rawToken, null, 0);
+    verify(mockVerifier, times(1)).verify(eq("RS256"), any(), any(), any());
+  }
+
+  @Test
+  public void testDPoPPublicJwkNoLeadingSignBytes() throws Exception {
+    DefaultDPoPProofCreator creator = new DefaultDPoPProofCreator();
+
+    java.lang.reflect.Method createJwkMethod =
+        DefaultDPoPProofCreator.class.getDeclaredMethod("createPublicJwkMap");
+    createJwkMethod.setAccessible(true);
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> jwk = (Map<String, Object>) createJwkMethod.invoke(creator);
+
+    assertThat(jwk).containsKey("n");
+    assertThat(jwk).containsKey("e");
+
+    String nBase64 = (String) jwk.get("n");
+    String eBase64 = (String) jwk.get("e");
+
+    byte[] nBytes = Base64.getUrlDecoder().decode(nBase64);
+    byte[] eBytes = Base64.getUrlDecoder().decode(eBase64);
+
+    assertThat(nBytes[0]).isNotEqualTo((byte) 0x00);
+    assertThat(eBytes[0]).isNotEqualTo((byte) 0x00);
   }
 }

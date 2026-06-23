@@ -79,7 +79,7 @@ public class OidcDiscoveryService extends OAuthService
   private long initialDelayMs = 1000L;
   private double backoffMultiplier = 2.0;
 
-  private static final ScheduledExecutorService SCHEDULER =
+  private final ScheduledExecutorService scheduler =
       Executors.newSingleThreadScheduledExecutor(
           runnable -> {
             Thread thread = new Thread(runnable, "OidcDiscoveryService-Scheduler");
@@ -365,6 +365,37 @@ public class OidcDiscoveryService extends OAuthService
       } catch (Exception e) {
         // Ignore
       }
+    } else if (client != null
+        && client
+            .getClass()
+            .getName()
+            .equals("com.github.scribejava.httpclient.okhttp.OkHttpHttpClient")) {
+      try {
+        java.lang.reflect.Field clientField = client.getClass().getDeclaredField("client");
+        clientField.setAccessible(true);
+        Object okHttpClient = clientField.get(client);
+        if (okHttpClient != null) {
+          java.lang.reflect.Method newBuilderMethod =
+              okHttpClient.getClass().getMethod("newBuilder");
+          Object builder = newBuilderMethod.invoke(okHttpClient);
+          if (connectTimeout != null) {
+            java.lang.reflect.Method connectTimeoutMethod =
+                builder.getClass().getMethod("connectTimeout", long.class, TimeUnit.class);
+            builder =
+                connectTimeoutMethod.invoke(builder, (long) connectTimeout, TimeUnit.MILLISECONDS);
+          }
+          if (readTimeout != null) {
+            java.lang.reflect.Method readTimeoutMethod =
+                builder.getClass().getMethod("readTimeout", long.class, TimeUnit.class);
+            builder = readTimeoutMethod.invoke(builder, (long) readTimeout, TimeUnit.MILLISECONDS);
+          }
+          java.lang.reflect.Method buildMethod = builder.getClass().getMethod("build");
+          Object newClient = buildMethod.invoke(builder);
+          clientField.set(client, newClient);
+        }
+      } catch (Exception e) {
+        // Ignore
+      }
     }
   }
 
@@ -378,46 +409,65 @@ public class OidcDiscoveryService extends OAuthService
   }
 
   private <T> CompletableFuture<T> retryAsyncInternal(
-      java.util.function.Supplier<CompletableFuture<T>> action,
-      int currentAttempt,
-      int maxAttempts,
-      long delayMs,
-      double multiplier) {
-    return action
-        .get()
-        .handle(
-            (result, error) -> {
-              if (error == null) {
-                return CompletableFuture.completedFuture(result);
-              }
-              if (currentAttempt >= maxAttempts) {
-                final CompletableFuture<T> failed = new CompletableFuture<>();
-                failed.completeExceptionally(error);
-                return failed;
-              }
-              final CompletableFuture<T> retryFuture = new CompletableFuture<>();
-              SCHEDULER.schedule(
-                  () -> {
-                    retryAsyncInternal(
-                            action,
-                            currentAttempt + 1,
-                            maxAttempts,
-                            (long) (delayMs * multiplier),
-                            multiplier)
-                        .whenComplete(
-                            (r, e) -> {
-                              if (e != null) {
-                                retryFuture.completeExceptionally(e);
-                              } else {
-                                retryFuture.complete(r);
-                              }
-                            });
-                  },
-                  delayMs,
-                  TimeUnit.MILLISECONDS);
-              return retryFuture;
-            })
-        .thenCompose(f -> f);
+      final java.util.function.Supplier<CompletableFuture<T>> action,
+      final int currentAttempt,
+      final int maxAttempts,
+      final long delayMs,
+      final double multiplier) {
+    final CompletableFuture<T> activeFuture = action.get();
+    final CompletableFuture<T> retryFuture = new CompletableFuture<>();
+
+    final CompletableFuture<T> resultFuture =
+        activeFuture
+            .handle(
+                (result, error) -> {
+                  if (error == null) {
+                    return CompletableFuture.completedFuture(result);
+                  }
+                  if (currentAttempt >= maxAttempts) {
+                    final CompletableFuture<T> failed = new CompletableFuture<>();
+                    failed.completeExceptionally(error);
+                    return failed;
+                  }
+                  final java.util.concurrent.ScheduledFuture<?> scheduledFuture =
+                      scheduler.schedule(
+                          () -> {
+                            retryAsyncInternal(
+                                    action,
+                                    currentAttempt + 1,
+                                    maxAttempts,
+                                    (long) (delayMs * multiplier),
+                                    multiplier)
+                                .whenComplete(
+                                    (r, e) -> {
+                                      if (e != null) {
+                                        retryFuture.completeExceptionally(e);
+                                      } else {
+                                        retryFuture.complete(r);
+                                      }
+                                    });
+                          },
+                          delayMs,
+                          TimeUnit.MILLISECONDS);
+                  retryFuture.whenComplete(
+                      (r, e) -> {
+                        if (retryFuture.isCancelled()) {
+                          scheduledFuture.cancel(true);
+                        }
+                      });
+                  return retryFuture;
+                })
+            .thenCompose(f -> f);
+
+    resultFuture.whenComplete(
+        (r, e) -> {
+          if (resultFuture.isCancelled()) {
+            activeFuture.cancel(true);
+            retryFuture.cancel(true);
+          }
+        });
+
+    return resultFuture;
   }
 
   // Getters/setters for settings
@@ -532,5 +582,11 @@ public class OidcDiscoveryService extends OAuthService
   /** Clears the JWKS cache of this instance (mainly used for testing). */
   public void clearJwksCache() {
     jwksCache.clear();
+  }
+
+  @Override
+  public void close() throws IOException {
+    scheduler.shutdown();
+    super.close();
   }
 }

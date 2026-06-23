@@ -31,7 +31,25 @@ import java.util.concurrent.ConcurrentHashMap;
  * ConcurrentHashMap}.
  */
 public class DefaultOidcSessionStateStore implements OidcSessionStateStore {
-  private final Map<String, OidcSessionState> store = new ConcurrentHashMap<>();
+
+  private static final long EXPIRATION_DELAY_MS = 900_000L; // 15 minutes
+
+  private static class ExpiringEntry {
+    final OidcSessionState sessionState;
+    final long createdAt;
+
+    ExpiringEntry(OidcSessionState sessionState, long createdAt) {
+      this.sessionState = sessionState;
+      this.createdAt = createdAt;
+    }
+  }
+
+  private final Map<String, ExpiringEntry> store = new ConcurrentHashMap<>();
+
+  private void evictExpired() {
+    final long now = System.currentTimeMillis();
+    store.entrySet().removeIf(entry -> now - entry.getValue().createdAt > EXPIRATION_DELAY_MS);
+  }
 
   /**
    * {@inheritDoc}
@@ -40,8 +58,10 @@ public class DefaultOidcSessionStateStore implements OidcSessionStateStore {
    */
   @Override
   public void save(OidcSessionState sessionState) {
+    evictExpired();
     if (sessionState != null && sessionState.getState() != null) {
-      store.put(sessionState.getState(), sessionState);
+      store.put(
+          sessionState.getState(), new ExpiringEntry(sessionState, System.currentTimeMillis()));
     }
   }
 
@@ -53,10 +73,19 @@ public class DefaultOidcSessionStateStore implements OidcSessionStateStore {
    */
   @Override
   public OidcSessionState load(String state) {
+    evictExpired();
     if (state == null) {
       return null;
     }
-    return store.get(state);
+    final ExpiringEntry entry = store.get(state);
+    if (entry == null) {
+      return null;
+    }
+    if (System.currentTimeMillis() - entry.createdAt > EXPIRATION_DELAY_MS) {
+      store.remove(state);
+      return null;
+    }
+    return entry.sessionState;
   }
 
   /**

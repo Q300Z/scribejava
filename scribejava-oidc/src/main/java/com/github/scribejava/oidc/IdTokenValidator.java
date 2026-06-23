@@ -57,6 +57,15 @@ public class IdTokenValidator {
   private static final long FAILED_KID_COOLDOWN_MS = 300_000L; // 5 minutes
   private final Map<String, Long> failedKids = new ConcurrentHashMap<>();
 
+  private final Map<String, Boolean> signatureCache =
+      java.util.Collections.synchronizedMap(
+          new java.util.LinkedHashMap<String, Boolean>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+              return size() > 100;
+            }
+          });
+
   /**
    * Constructeur sans support de rotation.
    *
@@ -215,6 +224,10 @@ public class IdTokenValidator {
   }
 
   private void verifySignature(Jwt jwt) throws OAuthException {
+    if (Boolean.TRUE.equals(signatureCache.get(jwt.getRawToken()))) {
+      return;
+    }
+
     final String kid = (String) jwt.getHeader().get("kid");
     if (kid == null) {
       throw new OAuthException("Missing 'kid' in header.");
@@ -226,10 +239,12 @@ public class IdTokenValidator {
       final long now = System.currentTimeMillis();
       final Long lastFailure = failedKids.get(kid);
       if (lastFailure == null || now - lastFailure > FAILED_KID_COOLDOWN_MS) {
-        reloadKeys();
+        final boolean reloadSucceeded = reloadKeys();
         key = keys.get(kid);
         if (key == null) {
-          failedKids.put(kid, now);
+          if (reloadSucceeded) {
+            failedKids.put(kid, now);
+          }
         } else {
           failedKids.remove(kid);
         }
@@ -249,6 +264,8 @@ public class IdTokenValidator {
         alg, jwt.getSignedContent(), jwt.getSignature(), key.getPublicKey())) {
       throw new OAuthException("Signature verification failed.");
     }
+
+    signatureCache.put(jwt.getRawToken(), Boolean.TRUE);
   }
 
   private boolean isIssuerMatching(
@@ -261,21 +278,23 @@ public class IdTokenValidator {
 
   private static final long RELOAD_COOLDOWN_MS = 300_000L; // 5 minutes
 
-  private synchronized void reloadKeys() {
+  private synchronized boolean reloadKeys() {
     final long now = System.currentTimeMillis();
     if (now - lastReloadTime < RELOAD_COOLDOWN_MS) {
       LOGGER.log(Level.FINE, "JWKS reload skipped due to cooldown.");
-      return;
+      return false;
     }
-    lastReloadTime = now;
     try {
       final Map<String, OidcKey> updatedKeys = discoveryService.getJwks(jwksUri);
       if (updatedKeys != null) {
         keys.putAll(updatedKeys);
+        lastReloadTime = System.currentTimeMillis();
+        return true;
       }
     } catch (Exception e) {
       LOGGER.log(Level.WARNING, "Failed to reload OIDC provider keys from JWKS URI: " + jwksUri, e);
     }
+    return false;
   }
 
   /**

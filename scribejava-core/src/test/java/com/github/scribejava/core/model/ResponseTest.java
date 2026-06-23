@@ -153,4 +153,20 @@ public class ResponseTest {
     assertThat(closed[0]).isFalse();
     assertThat(closed[1]).isFalse();
   }
+
+  @Test
+  public void testStreamReadableAfterGetBody() throws IOException {
+    final byte[] data = "hello world".getBytes();
+    final InputStream is = new ByteArrayInputStream(data);
+    final Response response = new Response(200, "OK", Collections.emptyMap(), is);
+
+    assertThat(response.getBody()).isEqualTo("hello world");
+
+    InputStream responseStream = response.getStream();
+    assertThat(responseStream).isNotNull();
+
+    final byte[] buffer = new byte[100];
+    int len = responseStream.read(buffer);
+    assertThat(new String(buffer, 0, len)).isEqualTo("hello world");
+  }
 }

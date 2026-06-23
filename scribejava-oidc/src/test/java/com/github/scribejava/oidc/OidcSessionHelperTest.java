@@ -37,7 +37,7 @@ public class OidcSessionHelperTest {
         OidcSessionHelper.getSessionManagementIframeHtml(
             "https://idp.com/check-session", "client-123", "session-state-abc");
 
-    assertTrue(html.contains("https://idp.com/check-session"));
+    assertTrue(html.contains("var targetOrigin = 'https://idp.com';"));
     assertTrue(html.contains("client-123"));
     assertTrue(html.contains("session-state-abc"));
     assertTrue(html.contains("postMessage"));

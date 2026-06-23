@@ -106,11 +106,21 @@ public class Response implements Closeable {
     if (stream == null) {
       return null;
     }
+    final java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+    final byte[] buffer = new byte[4096];
+    int len;
+    while ((len = stream.read(buffer)) != -1) {
+      baos.write(buffer, 0, len);
+    }
+    final byte[] contents = baos.toByteArray();
+    stream = new java.io.ByteArrayInputStream(contents);
+
     if ("gzip".equals(getHeader("Content-Encoding"))) {
       body = StreamUtils.getGzipStreamContents(stream);
     } else {
       body = StreamUtils.getStreamContents(stream);
     }
+    stream.reset();
     return body;
   }
 

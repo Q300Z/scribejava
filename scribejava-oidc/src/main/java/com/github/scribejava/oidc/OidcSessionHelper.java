@@ -104,10 +104,28 @@ public class OidcSessionHelper {
    */
   public static String getSessionManagementIframeHtml(
       final String opCheckSessionIframe, final String clientId, final String sessionState) {
+    String origin = "";
+    if (opCheckSessionIframe != null) {
+      try {
+        final java.net.URI uri = new java.net.URI(opCheckSessionIframe);
+        final String scheme = uri.getScheme();
+        final String authority = uri.getRawAuthority();
+        if (scheme != null && authority != null) {
+          origin = scheme + "://" + authority;
+        } else {
+          origin = opCheckSessionIframe;
+        }
+      } catch (Exception e) {
+        origin = opCheckSessionIframe;
+      }
+    } else {
+      origin = "";
+    }
+
     return "<html><body>"
         + "<script>"
         + "  var targetOrigin = '"
-        + escapeJs(opCheckSessionIframe)
+        + escapeJs(origin)
         + "';"
         + "  var clientId = '"
         + escapeJs(clientId)

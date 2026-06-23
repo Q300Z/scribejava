@@ -92,13 +92,23 @@ public class DefaultDPoPProofCreator implements DPoPProofCreator {
     return builder.buildAndSign(signer, privateKey);
   }
 
+  private static byte[] toUnsignedByteArray(java.math.BigInteger val) {
+    final byte[] bytes = val.toByteArray();
+    if (bytes.length > 1 && bytes[0] == 0x00) {
+      final byte[] tmp = new byte[bytes.length - 1];
+      System.arraycopy(bytes, 1, tmp, 0, tmp.length);
+      return tmp;
+    }
+    return bytes;
+  }
+
   private Map<String, Object> createPublicJwkMap() {
     if (publicKey instanceof RSAPublicKey) {
       final RSAPublicKey rsaPub = (RSAPublicKey) publicKey;
       final Map<String, Object> jwk = new HashMap<>();
       jwk.put("kty", "RSA");
-      jwk.put("n", encode(rsaPub.getModulus().toByteArray()));
-      jwk.put("e", encode(rsaPub.getPublicExponent().toByteArray()));
+      jwk.put("n", encode(toUnsignedByteArray(rsaPub.getModulus())));
+      jwk.put("e", encode(toUnsignedByteArray(rsaPub.getPublicExponent())));
       jwk.put("use", "sig");
       return jwk;
     }

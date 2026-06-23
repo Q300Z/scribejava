@@ -32,6 +32,15 @@ import java.util.regex.Pattern;
  */
 public class DefaultIssuerValidator implements IssuerValidator {
 
+  private static final Map<String, Pattern> PATTERN_CACHE =
+      java.util.Collections.synchronizedMap(
+          new java.util.LinkedHashMap<String, Pattern>(16, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, Pattern> eldest) {
+              return size() > 100;
+            }
+          });
+
   /**
    * {@inheritDoc}
    *
@@ -83,7 +92,12 @@ public class DefaultIssuerValidator implements IssuerValidator {
               .replace("consumers", "###TENANT###");
       final String regexPattern =
           "^" + Pattern.quote(marked).replace("###TENANT###", "\\E[^/]+\\Q") + "$";
-      if (normClaim.matches(regexPattern)) {
+      Pattern pattern = PATTERN_CACHE.get(regexPattern);
+      if (pattern == null) {
+        pattern = Pattern.compile(regexPattern);
+        PATTERN_CACHE.put(regexPattern, pattern);
+      }
+      if (pattern.matcher(normClaim).matches()) {
         return true;
       }
     }
@@ -93,7 +107,12 @@ public class DefaultIssuerValidator implements IssuerValidator {
       final String marked = normConfigured.replace("{tenant}", "###TENANT###");
       final String regexPattern =
           "^" + Pattern.quote(marked).replace("###TENANT###", "\\E[^/]+\\Q") + "$";
-      if (normClaim.matches(regexPattern)) {
+      Pattern pattern = PATTERN_CACHE.get(regexPattern);
+      if (pattern == null) {
+        pattern = Pattern.compile(regexPattern);
+        PATTERN_CACHE.put(regexPattern, pattern);
+      }
+      if (pattern.matcher(normClaim).matches()) {
         return true;
       }
     }

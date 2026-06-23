@@ -82,18 +82,10 @@ echo -e "${GREEN}✅ Keycloak est opérationnel !${NC}"
 
 TEST_SERVICES=("test-jdk8" "test-jdk11" "test-jdk17" "test-jdk21" "test-jdk25")
 
-declare -A PIDS
-for SERVICE in "${TEST_SERVICES[@]}"; do
-    echo "  ➡️  Démarrage de $SERVICE..."
-    docker compose -f docker-compose.ci.yml run --rm "$SERVICE" > "$LOG_DIR/$SERVICE.log" 2>&1 &
-    PIDS[$SERVICE]=$!
-done
-
-echo -e "${BLUE}⏳ Attente de la fin des tests...${NC}"
 FAILED=0
 for SERVICE in "${TEST_SERVICES[@]}"; do
-    wait "${PIDS[$SERVICE]}"
-    if [ $? -eq 0 ]; then
+    echo "  ➡️  Exécution de $SERVICE..."
+    if docker compose -f docker-compose.ci.yml run --rm "$SERVICE" > "$LOG_DIR/$SERVICE.log" 2>&1; then
         echo -e "  ${GREEN}✅ $SERVICE : SUCCESS${NC}"
     else
         echo -e "  ${RED}❌ $SERVICE : FAILED (voir $LOG_DIR/$SERVICE.log)${NC}"
