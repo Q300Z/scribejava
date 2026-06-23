@@ -32,7 +32,6 @@ import com.github.scribejava.oidc.model.SignatureVerifier;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,14 +47,13 @@ public class IdTokenValidator {
   private SignatureVerifier signatureVerifier;
   private IssuerValidator issuerValidator = new DefaultIssuerValidator();
 
-  // Optionnel pour la rotation automatique
   private final OidcDiscoveryService discoveryService;
   private final String jwksUri;
   private long lastReloadTime;
+  private long lastReloadFailureTime;
 
-  // Anti-DoS cooldown for failed kids resolution
-  private static final long FAILED_KID_COOLDOWN_MS = 300_000L; // 5 minutes
-  private final Map<String, Long> failedKids = new ConcurrentHashMap<>();
+  private long reloadCooldownMs = 300_000L; // 5 minutes
+  private long reloadFailureCooldownMs = 10_000L; // 10 seconds
 
   private final Map<String, Boolean> signatureCache =
       java.util.Collections.synchronizedMap(
@@ -235,20 +233,8 @@ public class IdTokenValidator {
 
     OidcKey key = keys.get(kid);
     if (key == null && discoveryService != null && jwksUri != null) {
-      // Cooldown check for failed kid
-      final long now = System.currentTimeMillis();
-      final Long lastFailure = failedKids.get(kid);
-      if (lastFailure == null || now - lastFailure > FAILED_KID_COOLDOWN_MS) {
-        final boolean reloadSucceeded = reloadKeys();
-        key = keys.get(kid);
-        if (key == null) {
-          if (reloadSucceeded) {
-            failedKids.put(kid, now);
-          }
-        } else {
-          failedKids.remove(kid);
-        }
-      }
+      reloadKeys();
+      key = keys.get(kid);
     }
 
     if (key == null) {
@@ -276,12 +262,14 @@ public class IdTokenValidator {
     return new DefaultIssuerValidator().isValid(configuredIssuer, claimIssuer, claims);
   }
 
-  private static final long RELOAD_COOLDOWN_MS = 300_000L; // 5 minutes
-
   private synchronized boolean reloadKeys() {
     final long now = System.currentTimeMillis();
-    if (now - lastReloadTime < RELOAD_COOLDOWN_MS) {
+    if (now - lastReloadTime < reloadCooldownMs) {
       LOGGER.log(Level.FINE, "JWKS reload skipped due to cooldown.");
+      return false;
+    }
+    if (now - lastReloadFailureTime < reloadFailureCooldownMs) {
+      LOGGER.log(Level.FINE, "JWKS reload skipped due to failure cooldown.");
       return false;
     }
     try {
@@ -289,12 +277,22 @@ public class IdTokenValidator {
       if (updatedKeys != null) {
         keys.putAll(updatedKeys);
         lastReloadTime = System.currentTimeMillis();
+        lastReloadFailureTime = 0L;
         return true;
       }
     } catch (Exception e) {
       LOGGER.log(Level.WARNING, "Failed to reload OIDC provider keys from JWKS URI: " + jwksUri, e);
+      lastReloadFailureTime = System.currentTimeMillis();
     }
     return false;
+  }
+
+  void setReloadCooldownMs(long reloadCooldownMs) {
+    this.reloadCooldownMs = reloadCooldownMs;
+  }
+
+  void setReloadFailureCooldownMs(long reloadFailureCooldownMs) {
+    this.reloadFailureCooldownMs = reloadFailureCooldownMs;
   }
 
   /**

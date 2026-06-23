@@ -474,6 +474,7 @@ public class OidcHardeningsTest {
     IdTokenValidator validator =
         new IdTokenValidator(
             "https://issuer.example.com", "client-id", "RS256", cache, mockDiscovery, jwksUri);
+    validator.setReloadFailureCooldownMs(0L);
 
     // First, getJwks throws an exception
     when(mockDiscovery.getJwks(jwksUri)).thenThrow(new RuntimeException("JWKS fetch failed"));
@@ -646,5 +647,61 @@ public class OidcHardeningsTest {
 
     assertThat(nBytes[0]).isNotEqualTo((byte) 0x00);
     assertThat(eBytes[0]).isNotEqualTo((byte) 0x00);
+  }
+
+  @Test
+  public void testJwksFailureCooldown() throws Exception {
+    OidcDiscoveryService mockDiscovery = mock(OidcDiscoveryService.class);
+    String jwksUri = "https://example.com/jwks";
+    OidcKeyCache cache = new DefaultOidcKeyCache();
+
+    IdTokenValidator validator =
+        new IdTokenValidator(
+            "https://issuer.example.com", "client-id", "RS256", cache, mockDiscovery, jwksUri);
+
+    // Set cooldown values
+    validator.setReloadCooldownMs(1000L); // 1 second
+    validator.setReloadFailureCooldownMs(200L); // 200 ms
+
+    // First, getJwks throws an exception
+    when(mockDiscovery.getJwks(jwksUri)).thenThrow(new RuntimeException("JWKS fetch failed"));
+
+    String header = "{\"alg\":\"RS256\",\"kid\":\"unknown-kid-1\"}";
+    String payload =
+        "{\"iss\":\"https://issuer.example.com\",\"aud\":\"client-id\",\"exp\":"
+            + (System.currentTimeMillis() / 1000 + 3600)
+            + "}";
+    String rawToken =
+        Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(header.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(payload.getBytes(StandardCharsets.UTF_8))
+            + "."
+            + Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString("dummy".getBytes(StandardCharsets.UTF_8));
+
+    // First attempt: reloadKeys() fails, validate throws OAuthException
+    assertThrows(OAuthException.class, () -> validator.validate(rawToken, null, 0));
+    verify(mockDiscovery, times(1)).getJwks(jwksUri);
+
+    // Reset mock to check calls
+    reset(mockDiscovery);
+    when(mockDiscovery.getJwks(jwksUri)).thenThrow(new RuntimeException("JWKS fetch failed"));
+
+    // Second attempt immediately: should NOT call getJwks because reloadFailureCooldownMs is active
+    // (200ms)
+    assertThrows(OAuthException.class, () -> validator.validate(rawToken, null, 0));
+    verify(mockDiscovery, never()).getJwks(jwksUri);
+
+    // Wait 250ms for failure cooldown to expire
+    Thread.sleep(250);
+
+    // Third attempt: should call getJwks again because failure cooldown has expired
+    assertThrows(OAuthException.class, () -> validator.validate(rawToken, null, 0));
+    verify(mockDiscovery, times(1)).getJwks(jwksUri);
   }
 }

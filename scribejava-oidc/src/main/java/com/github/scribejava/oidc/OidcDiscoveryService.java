@@ -300,41 +300,7 @@ public class OidcDiscoveryService extends OAuthService
     if (issuerValidator != null) {
       return issuerValidator.isValid(expected, got, java.util.Collections.emptyMap());
     }
-    final String normExpected = normalizeIssuer(expected);
-    final String normGot = normalizeIssuer(got);
-    if (normExpected.equals(normGot)) {
-      return true;
-    }
-    return matchMultiTenant(normExpected, normGot) || matchMultiTenant(normGot, normExpected);
-  }
-
-  private boolean matchMultiTenant(String pattern, String value) {
-    if (pattern.contains("{tenantid}")
-        || pattern.contains("common")
-        || pattern.contains("organizations")
-        || pattern.contains("consumers")) {
-      String marked =
-          pattern
-              .replace("{tenantid}", "###TENANT###")
-              .replace("common", "###TENANT###")
-              .replace("organizations", "###TENANT###")
-              .replace("consumers", "###TENANT###");
-      String regexPattern =
-          "^" + java.util.regex.Pattern.quote(marked).replace("###TENANT###", "\\E[^/]+\\Q") + "$";
-      return value.matches(regexPattern);
-    }
-    return false;
-  }
-
-  private String normalizeIssuer(String url) {
-    if (url == null) {
-      return "";
-    }
-    String normalized = url.trim();
-    while (normalized.endsWith("/")) {
-      normalized = normalized.substring(0, normalized.length() - 1);
-    }
-    return normalized;
+    return new DefaultIssuerValidator().isValid(expected, got, java.util.Collections.emptyMap());
   }
 
   // Network timeouts reflection
@@ -416,6 +382,8 @@ public class OidcDiscoveryService extends OAuthService
       final double multiplier) {
     final CompletableFuture<T> activeFuture = action.get();
     final CompletableFuture<T> retryFuture = new CompletableFuture<>();
+    final java.util.concurrent.atomic.AtomicReference<CompletableFuture<T>> nextFutureRef =
+        new java.util.concurrent.atomic.AtomicReference<>();
 
     final CompletableFuture<T> resultFuture =
         activeFuture
@@ -432,20 +400,29 @@ public class OidcDiscoveryService extends OAuthService
                   final java.util.concurrent.ScheduledFuture<?> scheduledFuture =
                       scheduler.schedule(
                           () -> {
-                            retryAsyncInternal(
+                            if (retryFuture.isCancelled()) {
+                              return;
+                            }
+                            final CompletableFuture<T> nextFuture =
+                                retryAsyncInternal(
                                     action,
                                     currentAttempt + 1,
                                     maxAttempts,
                                     (long) (delayMs * multiplier),
-                                    multiplier)
-                                .whenComplete(
-                                    (r, e) -> {
-                                      if (e != null) {
-                                        retryFuture.completeExceptionally(e);
-                                      } else {
-                                        retryFuture.complete(r);
-                                      }
-                                    });
+                                    multiplier);
+                            nextFutureRef.set(nextFuture);
+                            if (retryFuture.isCancelled()) {
+                              nextFuture.cancel(true);
+                              return;
+                            }
+                            nextFuture.whenComplete(
+                                (r, e) -> {
+                                  if (e != null) {
+                                    retryFuture.completeExceptionally(e);
+                                  } else {
+                                    retryFuture.complete(r);
+                                  }
+                                });
                           },
                           delayMs,
                           TimeUnit.MILLISECONDS);
@@ -453,6 +430,10 @@ public class OidcDiscoveryService extends OAuthService
                       (r, e) -> {
                         if (retryFuture.isCancelled()) {
                           scheduledFuture.cancel(true);
+                          final CompletableFuture<T> next = nextFutureRef.get();
+                          if (next != null) {
+                            next.cancel(true);
+                          }
                         }
                       });
                   return retryFuture;
@@ -464,6 +445,10 @@ public class OidcDiscoveryService extends OAuthService
           if (resultFuture.isCancelled()) {
             activeFuture.cancel(true);
             retryFuture.cancel(true);
+            final CompletableFuture<T> next = nextFutureRef.get();
+            if (next != null) {
+              next.cancel(true);
+            }
           }
         });
 

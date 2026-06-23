@@ -351,4 +351,35 @@ public class OidcDiscoveryServiceTest {
 
     verify(mockScheduledFuture, times(1)).cancel(true);
   }
+
+  @Test
+  public void testCancelRecursiveScheduledRetry() throws Exception {
+    OidcDiscoveryService testService =
+        new OidcDiscoveryService(
+            server.url("/").toString(), new JDKHttpClient(), "ScribeJava-Test");
+
+    testService.setMaxAttempts(3);
+    testService.setInitialDelayMs(100L);
+    testService.setBackoffMultiplier(1.0);
+
+    // Return two 500s and one 200 (if it doesn't get cancelled)
+    server.enqueue(new MockResponse().setResponseCode(500));
+    server.enqueue(new MockResponse().setResponseCode(500));
+    server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+
+    java.util.concurrent.CompletableFuture<OidcProviderMetadata> future =
+        testService.getProviderMetadataAsync();
+
+    // Wait slightly to let the first failure happen and schedule the first retry
+    Thread.sleep(50);
+
+    // Cancel the future
+    future.cancel(true);
+
+    // Wait to see if subsequent retries are executed
+    Thread.sleep(250);
+
+    // Server should have received at most 2 requests (1st initial, 2nd retry, but not 3rd)
+    assertThat(server.getRequestCount()).isLessThan(3);
+  }
 }
