@@ -235,6 +235,7 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 * ⚙️ **[Guide ScribeJava Core](docs/explanations/core-features.md)** - Moteur OAuth, requêtes, résilience et diagnostic.
 * 🛡️ **[Sécurité Avancée (DPoP/PAR)](docs/how-to/secure-with-dpop-pkce.md)** - RFC 9449 et 9126.
 * 🔐 **[Guide des Fonctionnalités OIDC](docs/explanations/oidc-features.md)** - Discovery, JWT natif et Logout.
+* 🗺️ **[Guide des Flux Architecturaux (OAuth/OIDC)](docs/explanations/oauth2-flows.md)** - Diagrammes Mermaid et description pas-à-pas des échanges de données de connexion.
 * 📖 **[Guide d'Intégration Helpers](docs/how-to/auto-refresh-tokens.md)** - Orchestration, Auto-refresh et multi-tenant.
 * 📖 **[Catalogue des Fonctionnalités](docs/reference/features-catalog.md)** - Liste exhaustive par module.
 * 🛠️ **[Documentation CI/CD](docs/explanations/ci-cd-pipelines.md)** - Architecture du pipeline qualité.

@@ -49,6 +49,81 @@ sequenceDiagram
 
 * `IdTokenValidator` : Valide la signature cryptographique (RSA/EC) et les claims (`iss`, `aud`, `exp`).
 
+### 🔍 Description Détaillée et Échange de Données du Flux de Connexion (Login)
+
+Voici l'explication pas-à-pas des requêtes et des paramètres échangés :
+
+#### Étape 1 : Phase de Découverte Dynamique (OIDC Discovery)
+L'application interroge le point d'entrée standard de l'IdP pour configurer automatiquement les endpoints.
+* **Données envoyées :** Requête HTTP `GET` vers l'URL d'auto-configuration :
+  ```http
+  GET /.well-known/openid-configuration HTTP/1.1
+  Host: accounts.google.com
+  ```
+* **Données reçues :** Un document JSON (désérialisé en `OidcProviderMetadata`) contenant les capacités et les URL de l'IdP :
+  * `issuer` : L'identifiant unique de l'émetteur des jetons.
+  * `authorization_endpoint` : URL pour rediriger l'utilisateur afin de l'authentifier.
+  * `token_endpoint` : URL pour échanger le code contre les jetons.
+  * `jwks_uri` : URL publique contenant la liste des clés publiques (JWKS) servant à valider la signature des ID Tokens.
+  * `response_types_supported` : Ex. `["code", "token", "id_token"]`.
+  * `subject_types_supported` : Ex. `["public", "pairwise"]`.
+  * `id_token_signing_alg_values_supported` : Les algorithmes de signature supportés (ex. `RS256`, `ES256`).
+
+#### Étape 2 : Phase de Demande d'Autorisation (Redirection PKCE / CSRF)
+L'application construit l'URL de redirection de l'utilisateur pour collecter son consentement. ScribeJava génère localement un `code_verifier` (une chaîne aléatoire cryptographique) et calcule le `code_challenge` correspondant.
+* **Données envoyées (Paramètres de l'URL d'Autorisation) :**
+  * `response_type=code` : Demande un code d'autorisation (Authorization Code Flow).
+  * `client_id` : Identifiant de votre application enregistré auprès de l'IdP.
+  * `redirect_uri` : L'URL de callback de votre application où l'utilisateur sera redirigé après consentement.
+  * `scope` : Doit obligatoirement inclure `openid` pour activer OIDC (et optionnellement `profile`, `email`).
+  * `state` : Chaîne de caractères aléatoire unique servant à valider le callback et empêcher les attaques CSRF.
+  * `nonce` : Chaîne aléatoire liée à la session pour prévenir les attaques par rejeu de l'ID Token.
+  * `code_challenge` : Challenge cryptographique dérivé du `code_verifier` (ex. hash SHA-256 encodé en Base64URL).
+  * `code_challenge_method=S256` : Algorithme utilisé pour le challenge.
+* **Données reçues lors du Callback :** Le navigateur est redirigé vers l'URL de callback avec :
+  * `code` : Le code d'autorisation temporaire (usage unique, durée de vie courte).
+  * `state` : Doit être identique à la valeur envoyée au début du flux (validation CSRF).
+
+#### Étape 3 : Échange du Code contre les Jetons (Token Request)
+L'application transmet en direct (Back-Channel) le code d'autorisation et le secret de vérification PKCE à l'IdP pour obtenir les jetons.
+* **Données envoyées (Requête POST au `token_endpoint`) :**
+  ```http
+  POST /token HTTP/1.1
+  Content-Type: application/x-www-form-urlencoded
+  ```
+  Paramètres du corps :
+  * `grant_type=authorization_code` : Spécifie le flux d'échange.
+  * `code` : Le code d'autorisation reçu à l'étape précédente.
+  * `redirect_uri` : Doit être identique à l'URL envoyée à l'étape 2.
+  * `client_id` : Identifiant de votre application.
+  * `client_secret` : Secret de l'application (requis pour les clients confidentiels).
+  * `code_verifier` : Le secret original en clair généré à l'étape 2. L'IdP le hache en SHA-256 et vérifie qu'il correspond au `code_challenge` de l'étape 2.
+* **Données reçues (Réponse JSON de l'IdP) :**
+  * `access_token` : Jeton d'accès permettant d'appeler l'API de l'IdP (ex. UserInfo).
+  * `token_type` : Généralement `Bearer`.
+  * `expires_in` : Durée de vie du jeton d'accès (en secondes).
+  * `refresh_token` : (Optionnel) Permet de renouveler les jetons d'accès expirés en arrière-plan.
+  * `id_token` : Le jeton d'identité OIDC sous forme de JWT (JSON Web Token) signé.
+
+#### Étape 4 : Validation de l'ID Token
+ScribeJava valide localement et de manière stricte le jeton d'identité reçu dans la réponse de l'étape 3 avant de faire confiance aux données utilisateur.
+* **Validation de l'Enveloppe (JWT Header) :**
+  * Récupération du paramètre `kid` (Key ID) et de l'algorithme `alg` (ex. `RS256`).
+  * Récupération de la clé publique de signature correspondante via le cache JWKS (`jwks_uri`).
+* **Validation de la Signature :**
+  * Vérification de l'intégrité cryptographique du jeton grâce à la clé publique récupérée.
+* **Validation du Payload (Claims) :**
+  * `iss` (Issuer) : Doit correspondre exactement à l'émetteur configuré ou découvert.
+  * `aud` (Audience) : Doit contenir le `client_id` de votre application.
+  * `exp` (Expiration) : La date actuelle doit être inférieure à la date d'expiration (en tenant compte d'une tolérance d'horloge).
+  * `nonce` : **Crucial** : Doit correspondre exactement au `nonce` aléatoire généré localement lors de l'Étape 2 pour empêcher un pirate de réinjecter un ID Token intercepté.
+* **Extraction des Données utilisateur (Standard Claims) :**
+  Une fois validé, le développeur a accès à l'identité certifiée :
+  * `sub` : L'identifiant unique et immuable de l'utilisateur.
+  * `email` : Adresse e-mail.
+  * `email_verified` : Indique si l'e-mail a été vérifié par l'IdP.
+  * `name`, `given_name`, `family_name`, `picture` ...
+
 ---
 
 ## 2. Flux de Déconnexion (Logout)
