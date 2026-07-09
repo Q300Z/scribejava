@@ -1,5 +1,21 @@
 # 📓 Journal des modifications (Changelog)
 
+## [9.5.1](https://github.com/Q300Z/scribejava/compare/v9.5.0...v9.5.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* **examples:** fix API usages, PMD issues, and formatting in quickstarts ([3a7f5d2](https://github.com/Q300Z/scribejava/commit/3a7f5d27a3526b71395acb08384d86a0104eca7f))
+* **oidc:** resolve 10 security, lifecycle, network and crypto blind spots in TDD ([fa189ef](https://github.com/Q300Z/scribejava/commit/fa189ef39a6618fbe58b7124d18be7dc4983215b))
+* **oidc:** resolve self-DDoS, memory leak, cancellation chain, and regex performance issues ([c016047](https://github.com/Q300Z/scribejava/commit/c016047a1da05b584726fd4baae4bb89d0e424d9))
+* **release:** include scribejava-integration-helpers in release-package profile ([4fa3e3b](https://github.com/Q300Z/scribejava/commit/4fa3e3be0d827117da989ee3fa8bf336ff63ad53))
+
+
+### Features
+
+* **ci:** add GitHub Actions CD release workflow ([ebc3afe](https://github.com/Q300Z/scribejava/commit/ebc3afea26b8d9b8bb006813889e1ce8cf98bb13))
+* **ci:** integrate Keycloak and automate E2E testing inside the multi-JDK test matrix ([07825b5](https://github.com/Q300Z/scribejava/commit/07825b53107dd54d7daa3922b0ded040952c87c6))
+
 # [9.5.0](https://github.com/Q300Z/scribejava/compare/v9.4.4...v9.5.0) (2026-06-22)
 
 
