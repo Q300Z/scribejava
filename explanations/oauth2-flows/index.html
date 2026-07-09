@@ -947,6 +947,73 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Flux de Connexion OIDC (Login)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description-detaillee-et-echange-de-donnees-du-flux-de-connexion-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Description Détaillée et Échange de Données du Flux de Connexion (Login)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Description Détaillée et Échange de Données du Flux de Connexion (Login)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etape-1-phase-de-decouverte-dynamique-oidc-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 1 : Phase de Découverte Dynamique (OIDC Discovery)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-2-phase-de-demande-dautorisation-redirection-pkce-csrf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 2 : Phase de Demande d'Autorisation (Redirection PKCE / CSRF)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-3-echange-du-code-contre-les-jetons-token-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 3 : Échange du Code contre les Jetons (Token Request)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-4-validation-de-lid-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 4 : Validation de l'ID Token
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1545,6 +1612,73 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="1. Flux de Connexion OIDC (Login)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#description-detaillee-et-echange-de-donnees-du-flux-de-connexion-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔍 Description Détaillée et Échange de Données du Flux de Connexion (Login)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🔍 Description Détaillée et Échange de Données du Flux de Connexion (Login)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etape-1-phase-de-decouverte-dynamique-oidc-discovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 1 : Phase de Découverte Dynamique (OIDC Discovery)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-2-phase-de-demande-dautorisation-redirection-pkce-csrf" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 2 : Phase de Demande d'Autorisation (Redirection PKCE / CSRF)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-3-echange-du-code-contre-les-jetons-token-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 3 : Échange du Code contre les Jetons (Token Request)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-4-validation-de-lid-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 4 : Validation de l'ID Token
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1874,6 +2008,73 @@ sequenceDiagram
 <p><code>IdTokenValidator</code> : Valide la signature cryptographique (RSA/EC) et les claims (<code>iss</code>, <code>aud</code>, <code>exp</code>).</p>
 </li>
 </ul>
+<h3 id="description-detaillee-et-echange-de-donnees-du-flux-de-connexion-login">🔍 Description Détaillée et Échange de Données du Flux de Connexion (Login)</h3>
+<p>Voici l'explication pas-à-pas des requêtes et des paramètres échangés :</p>
+<h4 id="etape-1-phase-de-decouverte-dynamique-oidc-discovery">Étape 1 : Phase de Découverte Dynamique (OIDC Discovery)</h4>
+<p>L'application interroge le point d'entrée standard de l'IdP pour configurer automatiquement les endpoints.
+* <strong>Données envoyées :</strong> Requête HTTP <code>GET</code> vers l'URL d'auto-configuration :
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">GET</span> <span class="nn">/.well-known/openid-configuration</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">Host</span><span class="o">:</span> <span class="l">accounts.google.com</span>
+</code></pre></div>
+* <strong>Données reçues :</strong> Un document JSON (désérialisé en <code>OidcProviderMetadata</code>) contenant les capacités et les URL de l'IdP :
+  * <code>issuer</code> : L'identifiant unique de l'émetteur des jetons.
+  * <code>authorization_endpoint</code> : URL pour rediriger l'utilisateur afin de l'authentifier.
+  * <code>token_endpoint</code> : URL pour échanger le code contre les jetons.
+  * <code>jwks_uri</code> : URL publique contenant la liste des clés publiques (JWKS) servant à valider la signature des ID Tokens.
+  * <code>response_types_supported</code> : Ex. <code>["code", "token", "id_token"]</code>.
+  * <code>subject_types_supported</code> : Ex. <code>["public", "pairwise"]</code>.
+  * <code>id_token_signing_alg_values_supported</code> : Les algorithmes de signature supportés (ex. <code>RS256</code>, <code>ES256</code>).</p>
+<h4 id="etape-2-phase-de-demande-dautorisation-redirection-pkce-csrf">Étape 2 : Phase de Demande d'Autorisation (Redirection PKCE / CSRF)</h4>
+<p>L'application construit l'URL de redirection de l'utilisateur pour collecter son consentement. ScribeJava génère localement un <code>code_verifier</code> (une chaîne aléatoire cryptographique) et calcule le <code>code_challenge</code> correspondant.
+* <strong>Données envoyées (Paramètres de l'URL d'Autorisation) :</strong>
+  * <code>response_type=code</code> : Demande un code d'autorisation (Authorization Code Flow).
+  * <code>client_id</code> : Identifiant de votre application enregistré auprès de l'IdP.
+  * <code>redirect_uri</code> : L'URL de callback de votre application où l'utilisateur sera redirigé après consentement.
+  * <code>scope</code> : Doit obligatoirement inclure <code>openid</code> pour activer OIDC (et optionnellement <code>profile</code>, <code>email</code>).
+  * <code>state</code> : Chaîne de caractères aléatoire unique servant à valider le callback et empêcher les attaques CSRF.
+  * <code>nonce</code> : Chaîne aléatoire liée à la session pour prévenir les attaques par rejeu de l'ID Token.
+  * <code>code_challenge</code> : Challenge cryptographique dérivé du <code>code_verifier</code> (ex. hash SHA-256 encodé en Base64URL).
+  * <code>code_challenge_method=S256</code> : Algorithme utilisé pour le challenge.
+* <strong>Données reçues lors du Callback :</strong> Le navigateur est redirigé vers l'URL de callback avec :
+  * <code>code</code> : Le code d'autorisation temporaire (usage unique, durée de vie courte).
+  * <code>state</code> : Doit être identique à la valeur envoyée au début du flux (validation CSRF).</p>
+<h4 id="etape-3-echange-du-code-contre-les-jetons-token-request">Étape 3 : Échange du Code contre les Jetons (Token Request)</h4>
+<p>L'application transmet en direct (Back-Channel) le code d'autorisation et le secret de vérification PKCE à l'IdP pour obtenir les jetons.
+* <strong>Données envoyées (Requête POST au <code>token_endpoint</code>) :</strong>
+  <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nf">POST</span> <span class="nn">/token</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/x-www-form-urlencoded</span>
+</code></pre></div>
+  Paramètres du corps :
+  * <code>grant_type=authorization_code</code> : Spécifie le flux d'échange.
+  * <code>code</code> : Le code d'autorisation reçu à l'étape précédente.
+  * <code>redirect_uri</code> : Doit être identique à l'URL envoyée à l'étape 2.
+  * <code>client_id</code> : Identifiant de votre application.
+  * <code>client_secret</code> : Secret de l'application (requis pour les clients confidentiels).
+  * <code>code_verifier</code> : Le secret original en clair généré à l'étape 2. L'IdP le hache en SHA-256 et vérifie qu'il correspond au <code>code_challenge</code> de l'étape 2.
+* <strong>Données reçues (Réponse JSON de l'IdP) :</strong>
+  * <code>access_token</code> : Jeton d'accès permettant d'appeler l'API de l'IdP (ex. UserInfo).
+  * <code>token_type</code> : Généralement <code>Bearer</code>.
+  * <code>expires_in</code> : Durée de vie du jeton d'accès (en secondes).
+  * <code>refresh_token</code> : (Optionnel) Permet de renouveler les jetons d'accès expirés en arrière-plan.
+  * <code>id_token</code> : Le jeton d'identité OIDC sous forme de JWT (JSON Web Token) signé.</p>
+<h4 id="etape-4-validation-de-lid-token">Étape 4 : Validation de l'ID Token</h4>
+<p>ScribeJava valide localement et de manière stricte le jeton d'identité reçu dans la réponse de l'étape 3 avant de faire confiance aux données utilisateur.
+* <strong>Validation de l'Enveloppe (JWT Header) :</strong>
+  * Récupération du paramètre <code>kid</code> (Key ID) et de l'algorithme <code>alg</code> (ex. <code>RS256</code>).
+  * Récupération de la clé publique de signature correspondante via le cache JWKS (<code>jwks_uri</code>).
+* <strong>Validation de la Signature :</strong>
+  * Vérification de l'intégrité cryptographique du jeton grâce à la clé publique récupérée.
+* <strong>Validation du Payload (Claims) :</strong>
+  * <code>iss</code> (Issuer) : Doit correspondre exactement à l'émetteur configuré ou découvert.
+  * <code>aud</code> (Audience) : Doit contenir le <code>client_id</code> de votre application.
+  * <code>exp</code> (Expiration) : La date actuelle doit être inférieure à la date d'expiration (en tenant compte d'une tolérance d'horloge).
+  * <code>nonce</code> : <strong>Crucial</strong> : Doit correspondre exactement au <code>nonce</code> aléatoire généré localement lors de l'Étape 2 pour empêcher un pirate de réinjecter un ID Token intercepté.
+* <strong>Extraction des Données utilisateur (Standard Claims) :</strong>
+  Une fois validé, le développeur a accès à l'identité certifiée :
+  * <code>sub</code> : L'identifiant unique et immuable de l'utilisateur.
+  * <code>email</code> : Adresse e-mail.
+  * <code>email_verified</code> : Indique si l'e-mail a été vérifié par l'IdP.
+  * <code>name</code>, <code>given_name</code>, <code>family_name</code>, <code>picture</code> ...</p>
 <hr />
 <h2 id="2-flux-de-deconnexion-logout">2. Flux de Déconnexion (Logout)</h2>
 <p>ScribeJava supporte la déconnexion hybride : technique (révocation) et utilisateur (fin de session).</p>
