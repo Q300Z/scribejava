@@ -1,5 +1,12 @@
 # 📓 Journal des modifications (Changelog)
 
+## [9.5.2](https://github.com/Q300Z/scribejava/compare/v9.5.1...v9.5.2) (2026-07-09)
+
+
+### Bug Fixes
+
+* **release:** resolve maven lifecycle order in release-it hooks ([661fc19](https://github.com/Q300Z/scribejava/commit/661fc19eea250adae6e7f4c3e7404b121e71f1af))
+
 ## [9.5.1](https://github.com/Q300Z/scribejava/compare/v9.5.0...v9.5.1) (2026-07-09)
 
 
