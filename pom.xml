@@ -552,6 +552,11 @@
                       <artifactId>scribejava-httpclient-armeria</artifactId>
                       <version>${project.version}</version>
                     </artifactItem>
+                    <artifactItem>
+                      <groupId>com.github.scribejava</groupId>
+                      <artifactId>scribejava-integration-helpers</artifactId>
+                      <version>${project.version}</version>
+                    </artifactItem>
                   </artifactItems>
                   <outputDirectory>${project.build.directory}/release-artifacts</outputDirectory>
                 </configuration>
