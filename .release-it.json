@@ -20,7 +20,7 @@
   },
   "hooks": {
     "after:bump": "mvn versions:set -DnewVersion=${version} -DgenerateBackupPoms=false && mvn versions:commit",
-    "before:github:release": "mvn clean package -Prelease-package -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true"
+    "before:github:release": "mvn clean install -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true && mvn package -Prelease-package -N -DskipTests -Dmaven.javadoc.skip=true -Dspotless.check.skip=true -Dcheckstyle.skip=true -Dpmd.skip=true -Dlicense.skip=true"
   },
   "plugins": {
     "@release-it/conventional-changelog": {
