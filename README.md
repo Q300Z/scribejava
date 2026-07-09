@@ -240,6 +240,7 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 * 📖 **[Catalogue des Fonctionnalités](docs/reference/features-catalog.md)** - Liste exhaustive par module.
 * 🛠️ **[Documentation CI/CD](docs/explanations/ci-cd-pipelines.md)** - Architecture du pipeline qualité.
 * 🚑 **[Guide de Dépannage](docs/how-to/troubleshoot-ssl.md)** - Solutions aux erreurs courantes.
+* 📱 **[Guide d'Intégration Mobile / Android](docs/how-to/integrate-android.md)** - Configuration Android, Custom Tabs et Deep Linking.
 
 * 📖 **Modules** : [Core](./scribejava-core/README.md) | [OIDC](./scribejava-oidc/README.md) | [Integration Helpers](./scribejava-integration-helpers/README.md)
 

@@ -54,7 +54,88 @@ Pour recevoir le code d'autorisation après la connexion de l'utilisateur, vous 
 
 ---
 
-## 🚀 4. Exemple d'Intégration Complet
+## 🗺️ 4. Flux de Connexion Mobile (PKCE + Deep Linking)
+
+Les applications mobiles étant des **clients publics** (qui ne peuvent pas garder de secrets en toute sécurité), elles doivent obligatoirement utiliser le flux **Authorization Code avec PKCE** (RFC 8252) couplé à des **onglets personnalisés (Custom Tabs)** et des **Deep Links**.
+
+### Diagramme de Séquence
+
+```mermaid
+sequenceDiagram
+    participant App as Application Mobile
+    participant OS as Système Android (Custom Tabs)
+    participant Scribe as ScribeJava Core
+    participant IdP as Serveur d'Autorisation (IdP)
+
+    Note over App, Scribe: 1. PRÉPARATION LOCALE (PKCE)
+    App->>Scribe: generatePKCE() / initPKCE()
+    Note right of Scribe: Génère code_verifier (secret)<br/>Calcule code_challenge (S256)
+    Scribe-->>App: code_verifier + code_challenge
+    
+    Note over App, IdP: 2. REDIRECTION SÉCURISÉE (Custom Tabs)
+    App->>OS: Lancer Custom Tab (authUrl + code_challenge)
+    OS->>IdP: GET /authorize (response_type=code, code_challenge...)
+    IdP-->>OS: Rendu de l'écran de Login (Saisie Identifiants)
+    
+    Note over OS, IdP: 3. AUTHENTIFICATION & CONSENTEMENT
+    OS->>IdP: Soumission Formulaire Login
+    IdP-->>OS: 302 Redirection vers redirect_uri (myapp://oauth-callback?code=XYZ)
+    
+    Note over App, OS: 4. CAPTURE DU CALLBACK (Deep Linking)
+    OS->>App: Déclenche l'Activity associée au schéma myapp://
+    App->>App: Extraction du code d'autorisation (?code=XYZ)
+
+    Note over App, IdP: 5. ÉCHANGE DU CODE CONTRE LES JETONS
+    App->>Scribe: getAccessToken(AuthorizationCodeGrant + code_verifier)
+    Scribe->>IdP: POST /token (grant_type=authorization_code, code=XYZ, code_verifier...)
+    Note right of IdP: Vérifie SHA256(code_verifier) == code_challenge
+    IdP-->>Scribe: 200 OK (access_token, id_token, refresh_token)
+    Scribe-->>App: Objet OAuth2AccessToken
+```
+
+### Description Pas-à-Pas et Échange de Données
+
+#### Étape 1 : Préparation et Génération du PKCE
+Puisqu'un pirate pourrait intercepter le Deep Link de redirection (`myapp://oauth-callback`) sur le téléphone, le PKCE (Proof Key for Code Exchange) garantit que seule l'application mobile ayant initié la requête d'autorisation peut récupérer les jetons.
+* **Génération locale :** ScribeJava génère une chaîne aléatoire cryptographiquement forte : le `code_verifier`.
+* **Calcul du Challenge :** ScribeJava applique un hash SHA-256 sur cette chaîne puis l'encode en Base64URL pour obtenir le `code_challenge`.
+
+#### Étape 2 : Redirection via Custom Tabs
+L'application lance un onglet de navigateur sécurisé (Custom Tab) partagé avec le navigateur système de l'appareil.
+* **Données de redirection (Paramètres GET de l'URL d'autorisation) :**
+  * `response_type=code` : Demande un code d'autorisation.
+  * `client_id` : Identifiant public de l'application mobile.
+  * `redirect_uri=myapp://oauth-callback` : L'URI personnalisée de redirection déclarée dans le Manifeste Android.
+  * `scope` : Les permissions demandées (ex: `openid profile`).
+  * `state` : Clé de validation unique pour contrer les injections CSRF.
+  * `code_challenge` : Le challenge calculé à l'étape 1.
+  * `code_challenge_method=S256` : Indique que le challenge est haché en SHA-256.
+
+#### Étape 3 : Consentement de l'utilisateur
+L'utilisateur s'authentifie de manière isolée et sécurisée. L'application mobile n'a aucun accès aux identifiants (mot de passe, authentification multifacteur) saisis dans le Custom Tab.
+
+#### Étape 4 : Capture du Callback (Deep Linking)
+Une fois validé, l'IdP renvoie une redirection HTTP vers `myapp://oauth-callback?code=XYZ&state=ABC`.
+Le système d'exploitation Android intercepte le schéma `myapp` et redirige ces paramètres GET vers votre activité de callback (`AuthCallbackActivity`).
+
+#### Étape 5 : Échange du Code contre les Jetons (POST Back-Channel)
+L'application mobile envoie le code temporaire et le code verifier d'origine pour prouver sa légitimité.
+* **Données envoyées (Requête POST au `token_endpoint`) :**
+  * `grant_type=authorization_code`
+  * `code` : Le code d'autorisation reçu à l'étape 4.
+  * `redirect_uri` : Doit correspondre à `myapp://oauth-callback`.
+  * `client_id` : L'identifiant client de l'application mobile.
+  * `code_verifier` : **Crucial** : Le secret en clair généré à l'étape 1.
+  *(Note : Le secret client `client_secret` n'est PAS envoyé car les applications mobiles sont des clients publics).*
+* **Données de réponse de l'IdP :**
+  Le serveur d'autorisation hache le `code_verifier` fourni et vérifie qu'il correspond au `code_challenge` enregistré à l'étape 2. S'il correspond, il renvoie les jetons :
+  * `access_token` : Permet d'appeler l'API.
+  * `id_token` : Jeton OIDC contenant l'identité de l'utilisateur (à valider localement).
+  * `refresh_token` : Permet d'obtenir de nouveaux jetons en arrière-plan sans ré-authentification de l'utilisateur.
+
+---
+
+## 🚀 5. Exemple d'Intégration Complet
 
 Sur Android, **toutes les requêtes réseau sont interdites sur le Thread Principal (UI Thread)** sous peine de lever une exception `NetworkOnMainThreadException`. Nous devons exécuter les appels ScribeJava de manière asynchrone (via Executors, Coroutines Kotlin ou RxJava).
 
@@ -225,7 +306,7 @@ public class AuthCallbackActivity extends AppCompatActivity {
 
 ---
 
-## 🔒 5. Bonnes Pratiques de Sécurité sur Mobile
+## 🔒 6. Bonnes Pratiques de Sécurité sur Mobile
 
 1. **Utilisez obligatoirement PKCE (via `initPKCE()`)** : Les applications mobiles sont des clients dits "publics" qui ne peuvent pas stocker de `client_secret` de manière sécurisée (toute clé dans l'APK peut être extraite par ingénierie inverse). L'utilisation de PKCE (en appelant `.initPKCE()` sur l' `AuthorizationUrlBuilder` et en passant le code verifier à l' `AuthorizationCodeGrant`) protège votre application contre l'interception de code d'autorisation par des applications malveillantes sur le même appareil.
 2. **Bannissez les WebViews intégrées** : N'affichez jamais la page de connexion dans une `WebView` classique intégrée à votre application. Les serveurs d'autorisation (comme Google ou Microsoft) les bloquent souvent pour prévenir le phishing. Privilégiez toujours les **Android Custom Tabs** (`androidx.browser:browser`), qui partagent les cookies de session du navigateur système, évitant ainsi à l'utilisateur de ressaisir ses identifiants s'il est déjà connecté.
