@@ -306,7 +306,58 @@ public class AuthCallbackActivity extends AppCompatActivity {
 
 ---
 
-## 🔒 6. Bonnes Pratiques de Sécurité sur Mobile
+## 💡 6. Alternative : Proxy d'Authentification Backend (BFF Pattern)
+
+Dans certains cas, il est **impossible de configurer le fournisseur OIDC pour une application mobile** (par exemple, si le fournisseur exige un client confidentiel avec un `client_secret` qu'il est interdit d'embarquer dans l'application mobile, ou s'il refuse les redirections vers des schémas personnalisés mobiles comme `myapp://`).
+
+La solution recommandée est le pattern **BFF (Backend-For-Frontend)**. L'application mobile n'interagit jamais directement avec l'émetteur OIDC. C'est le serveur web de votre service (Backend) qui gère l'authentification OIDC (via ScribeJava) et délivre une session locale sécurisée à l'application mobile.
+
+### Diagramme d'Architecture (BFF)
+
+```mermaid
+sequenceDiagram
+    participant Mobile as App Mobile (Android)
+    participant OS as Custom Tabs / Navigateur
+    participant BFF as Backend Web (Java / ScribeJava)
+    participant IdP as Fournisseur OIDC (Google/Okta)
+
+    Note over Mobile, BFF: 1. INITIATION
+    Mobile->>OS: Ouvre Custom Tab (https://mon-service.com/auth/login)
+    OS->>BFF: GET /auth/login (Déclenche le flux web)
+    
+    Note over BFF, IdP: 2. FLUX OIDC STANDARDISE (Web Client)
+    BFF->>BFF: ScribeJava: Construit l'URL d'autorisation web
+    BFF-->>OS: 302 Redirige vers IdP (https://idp.com/auth)
+    OS->>IdP: GET /auth (login standard autorisé pour le web)
+    IdP-->>OS: Formulaire de Login / Consentement
+    OS->>IdP: Soumission identifiants
+    IdP-->>OS: 302 Redirige vers callback web (https://mon-service.com/auth/callback?code=XYZ)
+
+    Note over BFF, IdP: 3. ECHANGE ET ENREGISTREMENT (Confidential Client)
+    OS->>BFF: GET /auth/callback?code=XYZ
+    BFF->>BFF: ScribeJava: Échange le code contre l'ID Token & Access Token
+    BFF->>BFF: ScribeJava: Valide l'ID Token
+    BFF->>BFF: Génère un jeton de session locale (ex. JWT applicatif, session ID)
+
+    Note over Mobile, BFF: 4. REDIRECTION VERS L'APP MOBILE (Deep Link)
+    BFF-->>OS: 302 Redirige vers le Deep Link de l'App (myapp://auth-success?session_token=ABC)
+    OS->>Mobile: Déclenche l'Activity avec session_token=ABC
+    Mobile->>Mobile: Stocke le session_token localement (SharedPreferences sécurisées)
+    Mobile->>Mobile: Ferme le Custom Tab
+    
+    Note over Mobile, BFF: 5. REQUÊTES API FUTURES
+    Mobile->>BFF: GET /api/data (Authorization: Bearer ABC)
+    BFF-->>Mobile: Données JSON
+```
+
+### Avantages de cette approche :
+1. **Sécurité Maximale des Secrets :** Le `client_secret` du fournisseur OIDC et les jetons d'accès ou d'identité originaux (`access_token`, `id_token`) restent stockés de manière sécurisée dans la mémoire du serveur Backend. Ils ne sont jamais exposés sur le téléphone de l'utilisateur.
+2. **Compatibilité Totale avec l'IdP :** Du point de vue du fournisseur d'identité, il s'agit d'un flux d'authentification web standard. Il n'a pas besoin de savoir qu'une application mobile est impliquée à l'origine.
+3. **Gestion Centralisée de la Session :** Le serveur backend peut invalider ou rafraîchir les sessions de manière autonome sans dépendre de la logique du client mobile.
+
+---
+
+## 🔒 7. Bonnes Pratiques de Sécurité sur Mobile
 
 1. **Utilisez obligatoirement PKCE (via `initPKCE()`)** : Les applications mobiles sont des clients dits "publics" qui ne peuvent pas stocker de `client_secret` de manière sécurisée (toute clé dans l'APK peut être extraite par ingénierie inverse). L'utilisation de PKCE (en appelant `.initPKCE()` sur l' `AuthorizationUrlBuilder` et en passant le code verifier à l' `AuthorizationCodeGrant`) protège votre application contre l'interception de code d'autorisation par des applications malveillantes sur le même appareil.
 2. **Bannissez les WebViews intégrées** : N'affichez jamais la page de connexion dans une `WebView` classique intégrée à votre application. Les serveurs d'autorisation (comme Google ou Microsoft) les bloquent souvent pour prévenir le phishing. Privilégiez toujours les **Android Custom Tabs** (`androidx.browser:browser`), qui partagent les cookies de session du navigateur système, évitant ainsi à l'utilisateur de ressaisir ses identifiants s'il est déjà connecté.
