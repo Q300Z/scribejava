@@ -114,7 +114,7 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.model.OAuth2AccessToken;
-import com.github.scribejava.core.model.AuthorizationCodeGrant;
+import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import java.util.Scanner;
 
 public class Main {
@@ -156,10 +156,10 @@ public class Main {
 
 ## 📝 5. Cas d'OAuth 1.0a
 
-Si vous devez connecter un service utilisant le protocole **OAuth 1.0a** (plus ancien), la démarche est identique mais vous devez hériter de **`com.github.scribejava.core.builder.api.DefaultApi10a`** et implémenter trois points d'accès :
+Si vous devez connecter un service utilisant le protocole **OAuth 1.0a** (plus ancien), la démarche est identique mais vous devez hériter de **`com.github.scribejava.oauth1.builder.api.DefaultApi10a`** et implémenter les points d'accès :
 - `getRequestTokenEndpoint()`
 - `getAccessTokenEndpoint()`
-- `getAuthorizationUrl(OAuth1RequestToken requestToken)`
+- `getAuthorizationBaseUrl()`
 
 > [!TIP]
 > Pour plus d'exemples d'implémentations réelles, vous pouvez explorer le répertoire source [scribejava-apis](https://github.com/Q300Z/scribejava/tree/master/scribejava-apis/src/main/java/com/github/scribejava/apis) qui regorge de configurations prêtes à l'emploi pour plus de 50 fournisseurs d'identité mondiaux (Google, LinkedIn, Twitter/X, GitHub, etc.).

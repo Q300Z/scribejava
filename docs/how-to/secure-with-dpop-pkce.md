@@ -9,37 +9,39 @@ ScribeJava v9 intègre les derniers standards de sécurité de l'IETF pour prot�
 Le DPoP empêche l'utilisation d'un jeton volé en le liant mathématiquement à une paire de clés privée/publique détenue
 par le client.
 
-### Mise en œuvre DPoP
+### Mise en œuvre DPoP standard (Clé RSA éphémère)
+
+ScribeJava intègre nativement le support de DPoP et injecte automatiquement l'en-tête `DPoP` requis lors de l'obtention et de l'utilisation du jeton.
 
 ```java
-// 1. Créez un générateur de preuve (fourni dans le module OIDC)
+// 1. Créez un générateur de preuve (génère une clé RSA éphémère par défaut)
+DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator();
 
-DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator(myKeyPair);
-
-// 2. Configurez le service
+// 2. Configurez le service en passant le créateur au builder (.dpop)
 OAuth20Service service = new ServiceBuilder(clientId)
     .apiSecret(secret)
-    .dpopProofCreator(proofCreator) // Active DPoP pour tous les échanges
+    .dpop(proofCreator) // Active DPoP de manière native
     .build(GoogleApi20.instance());
 
 // Les jetons obtenus seront de type 'DPoP' et les requêtes signées automatiquement.
-
 ```
 
-### Liaison Dynamique et Interception DPoP
-Pour les cas avancés ou les flux dynamiques, vous pouvez lier dynamiquement le jeton d'accès à l'intercepteur `DPoPInterceptor` afin d'intégrer le claim `'ath'` (hachage du jeton d'accès) requis par la spécification RFC 9449 :
+### Utilisation avec une paire de clés existante (KeyPair)
+
+Si vous possédez déjà une paire de clés persistante, vous pouvez la passer au constructeur détaillé de `DefaultDPoPProofCreator` :
 
 ```java
-// Instanciation de l'intercepteur avec liaison dynamique de jeton
-DPoPInterceptor dpopInterceptor = new DPoPInterceptor(proofCreator);
+// Instanciation avec votre clé privée et clé publique existante
+DefaultDPoPProofCreator proofCreator = new DefaultDPoPProofCreator(
+    myKeyPair.getPrivate(),
+    myKeyPair.getPublic(),
+    new com.github.scribejava.oidc.model.JwtSigner.RsaSha256Signer()
+);
 
 OAuth20Service service = new ServiceBuilder(clientId)
     .apiSecret(secret)
-    .requestInterceptor(dpopInterceptor) // Enregistrement de l'intercepteur
+    .dpop(proofCreator)
     .build(GoogleApi20.instance());
-
-// Lors de l'acquisition ou de la rotation du jeton, mettez à jour l'intercepteur :
-dpopInterceptor.setAccessToken(token.getAccessToken());
 ```
 
 ---

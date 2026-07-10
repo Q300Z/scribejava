@@ -82,32 +82,26 @@ Ce guide répertorie les erreurs courantes rencontrées lors du développement o
 
 ## 5. Débogage & Logs
 
-### 🔍 Inspecter les échanges réseau
+### 🔍 Activer les logs de débogage réseau
 
-ScribeJava utilise **SLF4J** pour son logging. Pour voir le détail des requêtes/réponses (très utile pour le débogage
-OAuth) :
+ScribeJava intègre son propre système de log sans dépendance. Pour inspecter en détail les requêtes et réponses HTTP échangées (y compris les commandes `curl` générées et le masquage automatique des secrets) :
 
-1. Ajoutez une implémentation SLF4J (ex: `logback` ou `slf4j-simple`).
-
-2. Passez le niveau de log à `DEBUG` pour le package `com.github.scribejava`.
-
-**Exemple logback.xml :**
-
-```xml
-
-<logger name="com.github.scribejava" level="DEBUG" />
-
-```
-
-### 🛰️ Mode "Verbose" (Sortie standard)
-
-Si vous ne voulez pas configurer de framework de log, vous pouvez activer la sortie standard sur le `OAuthRequest` :
+1. Appelez la méthode `.debug()` (pour afficher sur la sortie standard `System.out`) ou `.debugStream(PrintStream)` lors de la construction du service via le `ServiceBuilder` :
 
 ```java
+OAuth20Service service = new ServiceBuilder("client-id")
+    .apiSecret("secret")
+    .debug() // Active automatiquement DefaultOAuthLogger sur System.out
+    .build(GoogleApi20.instance());
+```
 
-request.setCharset("UTF-8");
-// Le debug se fait ensuite via votre logger SLF4J configuré
+2. Si vous préférez router les logs vers le système de logging standard du JDK (`java.util.logging`), utilisez un `JdkOAuthLogger` :
 
+```java
+OAuth20Service service = new ServiceBuilder("client-id")
+    .apiSecret("secret")
+    .logger(new JdkOAuthLogger(Logger.getLogger("scribejava")))
+    .build(GoogleApi20.instance());
 ```
 
 ---

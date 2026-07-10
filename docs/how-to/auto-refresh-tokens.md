@@ -184,6 +184,11 @@ public class MyAuditListener implements AuthEventListener<String> {
     public void onCsrfDetected(String key, String got, String expected) {
         // Alerte critique : tentative d'attaque
     }
+
+    @Override
+    public void onRefreshFailed(String key, Exception e) {
+        // Alerte : le renouvellement automatique a échoué (ex: credentials expirés)
+    }
 }
 
 ```

@@ -62,10 +62,10 @@ Les applications mobiles étant des **clients publics** (qui ne peuvent pas gard
 
 ```mermaid
 sequenceDiagram
-    participant App as Application Mobile
-    participant OS as Système Android (Custom Tabs)
-    participant Scribe as ScribeJava Core
-    participant IdP as Serveur d'Autorisation (IdP)
+    participant App as "Application Mobile"
+    participant OS as "Système Android (Custom Tabs)"
+    participant Scribe as "ScribeJava Core"
+    participant IdP as "Serveur d'Autorisation (IdP)"
 
     Note over App, Scribe: 1. PRÉPARATION LOCALE (PKCE)
     App->>Scribe: generatePKCE() / initPKCE()
@@ -153,7 +153,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import com.github.scribejava.apis.GitHubApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.httpclient.okhttp.OkHttpHttpClientConfig;
+import com.github.scribejava.httpclient.okhttp.OkHttpHttpClientConfig;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -224,7 +224,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.github.scribejava.apis.GitHubApi;
 import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.model.AuthorizationCodeGrant;
+import com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Response;
@@ -316,10 +316,10 @@ La solution recommandée est le pattern **BFF (Backend-For-Frontend)**. L'applic
 
 ```mermaid
 sequenceDiagram
-    participant Mobile as App Mobile (Android)
-    participant OS as Custom Tabs / Navigateur
-    participant BFF as Backend Web (Java / ScribeJava)
-    participant IdP as Fournisseur OIDC (Google/Okta)
+    participant Mobile as "App Mobile (Android)"
+    participant OS as "Custom Tabs / Navigateur"
+    participant BFF as "Backend Web (Java / ScribeJava)"
+    participant IdP as "Fournisseur OIDC (Google/Okta)"
 
     Note over Mobile, BFF: 1. INITIATION
     Mobile->>OS: Ouvre Custom Tab (https://mon-service.com/auth/login)
