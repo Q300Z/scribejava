@@ -11,10 +11,10 @@ Ce flux intègre la **Découverte Dynamique**, le **PKCE** et la **Validation Na
 ```mermaid
 
 sequenceDiagram
-    participant App as Application Client
+    participant App as "Application Client"
     participant Disc as OidcDiscoveryService
     participant Service as OidcService
-    participant IdP as Fournisseur d'Identité (Google/MS)
+    participant IdP as "Fournisseur d'Identité (Google/MS)"
 
     Note over App, IdP: 1. PHASE DE DÉCOUVERTE (Discovery)
     App->>Disc: getProviderMetadata()
@@ -133,9 +133,9 @@ ScribeJava supporte la déconnexion hybride : technique (révocation) et utilisa
 ```mermaid
 
 sequenceDiagram
-    participant App as Application Client
+    participant App as "Application Client"
     participant Service as OidcService
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Note over App, IdP: MÉTHODE 1 : RÉVOCATION TECHNIQUE (Back-Channel)
     App->>Service: revokeToken(accessToken, TokenTypeHint.ACCESS_TOKEN)
@@ -164,10 +164,10 @@ Gestion de la persistance sans intervention de l'utilisateur.
 ```mermaid
 
 sequenceDiagram
-    participant App as Application Client
+    participant App as "Application Client"
     participant Service as OidcService
     participant Grant as RefreshTokenGrant
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     App->>Service: refreshAccessToken(refreshToken)
     Service->>Grant: createRequest(service)
@@ -196,19 +196,19 @@ Le `OidcAuthFlowCoordinator` centralise toutes les validations de retour.
 ```mermaid
 
 sequenceDiagram
-    participant Browser as Navigateur
-    participant App as Contrôleur Applicatif
+    participant Browser as "Navigateur"
+    participant App as "Contrôleur Applicatif"
     participant Coord as OidcAuthFlowCoordinator
     participant Service as OidcService
     participant Repo as TokenRepository
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Browser->>App: GET /callback?code=XYZ&state=ABC
     App->>Coord: finishAuthorization(userId, code, state, context)
 
     rect rgb(240, 240, 240)
     Note over Coord: 1. Validation CSRF Automatique
-    Coord->>Coord: validateState(received, expected)
+    Coord->>Coord: Validation de l'état (state)
     end
 
     Coord->>Service: getAccessToken(Grant + PKCE Verifier)
@@ -234,12 +234,12 @@ Le `AuthorizedClientService` exécute des requêtes sans que le développeur ne 
 ```mermaid
 
 sequenceDiagram
-    participant Business as Logique Métier
+    participant Business as "Logique Métier"
     participant Client as AuthorizedClientService
     participant Renewer as TokenAutoRenewer
     participant Repo as TokenRepository
     participant Service as OidcService
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Business->>Client: execute(userId, request)
     Client->>Renewer: getValidToken(userId)
@@ -294,19 +294,19 @@ sequenceDiagram
 Le moteur de ScribeJava intègre une boucle de résilience capable de gérer les erreurs transitoires (Rate Limit, Instabilité serveur).
 
 ```mermaid
-
 graph TD
-    Start[OAuthService.execute] --> Req[Exécution de la requête]
-    Req --> Resp{Code de réponse ?}
-    Resp -- "2xx / 4xx (hors 429)" --> Success[Retourne la réponse]
-    Resp -- "429 / 5xx" --> Retry{RetryPolicy active ?}
-    Retry -- Non --> Success
-    Retry -- Oui --> Check{Max attempts atteint ?}
-    Check -- Oui --> Success
-    Check -- Non --> Wait[Attente delayMs x exponential]
+    Start["OAuthService.execute"] --> Req["Exécution de la requête"]
+    Req --> Resp{"Code de réponse ?"}
+    Resp -- "2xx / 4xx (hors 429)" --> Success["Retourne la réponse"]
+    Resp -- "429 / 5xx" --> Retry{"RetryPolicy active ?"}
+    Retry -- "Non" --> Success
+    Retry -- "Oui" --> Check{"Max attempts atteint ?"}
+    Check -- "Oui" --> Success
+    Check -- "Non" --> Wait["Attente delayMs (Fixe ou Exponentiel)"]
     Wait --> Req
-
 ```
+
+*Note : Le délai d'attente est fixe pour la politique globale du Core (`OAuthService`), mais utilise un multiplicateur exponentiel pour les requêtes du service de découverte OIDC (`OidcDiscoveryService`).*
 
 ---
 
@@ -317,9 +317,9 @@ La sécurité est maintenue même dans les logs grâce au mécanisme de masquage
 ```mermaid
 
 sequenceDiagram
-    participant App as Logique Métier
+    participant App as "Logique Métier"
     participant Req as OAuthRequest
-    participant Log as OAuthLogger / cURL
+    participant Log as "OAuthLogger / cURL"
 
     App->>Req: signRequest(token)
     App->>Req: toCurlCommand() / toDebugString()
@@ -337,18 +337,16 @@ sequenceDiagram
 ScribeJava n'utilise pas de bibliothèque externe (Zéro-Dépendance) pour valider les signatures.
 
 ```mermaid
-
-flowDiagram
-    ID[ID Token String] --> Parse[Jwt.parse: Base64 Decoding]
-    Parse --> Header[Header: kid, alg]
-    Parse --> Payload[Claims: iss, sub, aud, exp]
-    Header --> Lookup{Recherche kid dans JWKS}
-    Lookup -- Trouvé --> Crypto[Signature.verify: java.security]
-    Lookup -- Absent --> Refresh[Rotation: Rechargement JWKS]
+flowchart TD
+    ID["ID Token String"] --> Parse["Jwt.parse: Base64 Decoding"]
+    Parse --> Header["Header: kid, alg"]
+    Parse --> Payload["Claims: iss, sub, aud, exp"]
+    Header --> Lookup{"Recherche kid dans JWKS"}
+    Lookup -- "Trouvé" --> Crypto["Signature.verify (java.security)"]
+    Lookup -- "Absent" --> Refresh["Rotation: Rechargement JWKS"]
     Refresh --> Crypto
-    Crypto --> Claims[Validation temporelle: iat < now < exp]
-    Claims --> Final[IdToken Validé]
-
+    Crypto --> Claims["Validation temporelle (iat < now < exp)"]
+    Claims --> Final["IdToken Validé"]
 ```
 
 ---
@@ -358,12 +356,10 @@ flowDiagram
 Flexible pour s'adapter à toutes les exigences des fournisseurs.
 
 ```mermaid
-
 graph LR
-    Service[OAuth20Service] --> Strategy{ClientAuthentication}
-    Strategy -- Default --> Basic[HttpBasic: Header Authorization: Basic base64]
-    Strategy -- Azure/Custom --> Body[RequestBody: params client_id & client_secret]
-
+    Service["OAuthService"] --> Strategy{"ClientAuthentication"}
+    Strategy -- "Default" --> Basic["HttpBasic: Header Authorization: Basic base64"]
+    Strategy -- "Azure/Custom" --> Body["RequestBody: params client_id & client_secret"]
 ```
 
 ---
@@ -373,14 +369,14 @@ graph LR
 Modification modulaire des requêtes avant l'envoi.
 
 ```mermaid
-
 graph LR
-    Start[Requête Brute] --> I1[Interceptor 1: Headers Custom]
-    I1 --> I2[Interceptor 2: PKCE Injection]
-    I2 --> I3[Interceptor 3: DPoP Proof]
-    I3 --> Exec[Exécution Client HTTP]
-
+    Start["Requête Brute"] --> I1["Interceptor 1: Headers Custom"]
+    I1 --> I2["Interceptor 2: Signature de Requête / Auth Client"]
+    I2 --> I3["Interceptor 3: DPoP Proof"]
+    I3 --> Exec["Exécution Client HTTP"]
 ```
+
+*Note : Le PKCE est injecté directement au niveau de la requête de jeton d'autorisation via `AuthorizationCodeGrant` (et non via un intercepteur de requête réseau).*
 
 ---
 
@@ -393,7 +389,7 @@ Lien indissociable entre le jeton et la clé privée du client.
 sequenceDiagram
     participant App as Application
     participant DPoP as DPoPProofCreator
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Note over App, DPoP: Génération de Preuve (chaque appel)
     App->>DPoP: createDPoPProof(request, accessToken)
@@ -418,7 +414,7 @@ sequenceDiagram
     participant App as Application
     participant Builder as AuthorizationUrlBuilder
     participant Handler as OAuth20PushedAuthHandler
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     App->>Builder: build() avec usePAR=true
     Builder->>Handler: pushAuthorizationRequestAsync(params)
@@ -457,15 +453,13 @@ graph TD
 Comment ScribeJava maintient son autonomie "Zero-Dependency" au runtime.
 
 ```mermaid
-
 graph LR
-    Service[OAuthService Constructor] --> SL[java.util.ServiceLoader]
-    SL --> Look[Cherche HttpClientProvider.class]
-    Look -- "Trouvé (OkHttp/Armeria)" --> Load[Instancie l'implémentation externe]
-    Look -- "Non trouvé" --> Default[Instancie JDKHttpClient natif]
-    Load --> Ready[Service prêt avec HttpClient optimisé]
+    Service["OAuthService Constructor"] --> SL["java.util.ServiceLoader"]
+    SL --> Look["Cherche HttpClientProvider.class"]
+    Look -- "Trouvé (OkHttp/Armeria)" --> Load["Instancie l'implémentation externe"]
+    Look -- "Non trouvé" --> Default["Instancie JDKHttpClient natif"]
+    Load --> Ready["Service prêt avec HttpClient optimisé"]
     Default --> Ready
-
 ```
 
 ---
@@ -499,11 +493,11 @@ Auto-provisioning pour les environnements de confiance ou de test.
 ```mermaid
 
 sequenceDiagram
-    participant App as Logique Métier
+    participant App as "Logique Métier"
     participant Reg as OidcRegistrationService
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
-    App->>Reg: registerClientAsync(metadata_client)
+    App->>Reg: registerClientAsync(endpoint, redirectUris, clientName, authMethod)
     Reg->>Reg: JsonBuilder.build()
     Reg->>IdP: POST /registration (Content-Type: application/json)
     IdP->>IdP: Valide et crée le client
@@ -519,39 +513,37 @@ sequenceDiagram
 Centralisation de la gestion de multiples fournisseurs et clients au sein d'une même instance applicative.
 
 ```mermaid
-
 graph LR
-    User[UserId] --> Reg[OAuthServiceRegistry]
-    Reg --> Map{Lookup by providerId}
-    Map -- "google" --> ACS1[AuthorizedClientService G]
-    Map -- "github" --> ACS2[AuthorizedClientService GH]
-    Map -- "ms-entra" --> ACS3[AuthorizedClientService MS]
-    ACS1 --> S1[OAuth20Service]
-    ACS2 --> S2[OAuth20Service]
-    ACS3 --> S3[OAuth20Service]
-
+    User["UserId"] --> Reg["OAuthServiceRegistry"]
+    Reg --> Map{"Lookup by providerId"}
+    Map -- "google" --> ACS1["AuthorizedClientService G"]
+    Map -- "github" --> ACS2["AuthorizedClientService GH"]
+    Map -- "ms-entra" --> ACS3["AuthorizedClientService MS"]
+    ACS1 --> S1["OAuth20Service"]
+    ACS2 --> S2["OAuth20Service"]
+    ACS3 --> S3["OAuth20Service"]
 ```
 
 ---
 
 ## 17. Moteur JSON Natif (Zéro-Dépendance)
 
-Analyse récursive via expressions régulières pour garantir l'autonomie totale du runtime.
+Analyse récursive par descente récursive (caractère par caractère) pour garantir l'autonomie totale du runtime.
 
 ```mermaid
-
 graph TD
-    JSON[JSON String] --> Loop[JsonUtils.parse loop]
-    Loop --> Match{Regex Pattern Match}
-    Match -- "Pair Key:Value" --> Type{Type de Valeur ?}
-    Type -- "String/Number/Bool" --> Map[Ajout à la Map courante]
-    Type -- "Object { ... }" --> Rec[Appel Récursif (max depth 32)]
-    Type -- "Array [ ... ]" --> Arr[Analyse de la liste]
-    Rec --> Loop
-    Arr --> Loop
-    Map --> Loop
-    Loop -- "Fin de chaîne" --> Result[Map finale d'objets Java]
-
+    JSON["JSON String"] --> Parser["JsonUtils.Parser (Scanner)"]
+    Parser --> Char{"Lecture Caractère"}
+    Char -- "{" --> Obj["Analyse d'Objet (Map)"]
+    Char -- "[" --> Arr["Analyse de Tableau (List)"]
+    Char -- "Clé / Valeur" --> Val{"Type de Valeur ?"}
+    Val -- "String/Number/Bool/Null" --> Add["Ajout à la Map courante"]
+    Val -- "{" --> RecObj["Appel Récursif (Analyse d'Objet)"]
+    Val -- "[" --> RecArr["Appel Récursif (Analyse de Tableau)"]
+    RecObj --> Parser
+    RecArr --> Parser
+    Add --> Parser
+    Parser -- "Fin de chaîne" --> Result["Map/List finale d'objets Java"]
 ```
 
 ---
@@ -587,24 +579,22 @@ sequenceDiagram
 Découplage entre les modèles ScribeJava et les bibliothèques tierces.
 
 ```mermaid
-
 graph LR
-    SR[Scribe Request] --> Bridge[HttpClient Implementation]
-    Bridge --> Native[Native Model]
+    SR["Scribe Request"] --> Bridge["HttpClient Implementation"]
+    Bridge --> Native["Native Model"]
 
     subgraph OkHttp
-    Native1[okhttp3.Request]
+    Native1["okhttp3.Request"]
     end
 
     subgraph Armeria
-    Native2[com.linecorp.armeria.HttpRequest]
+    Native2["com.linecorp.armeria.HttpRequest"]
     end
 
     Bridge -- "okhttp-adaptor" --> Native1
     Bridge -- "armeria-adaptor" --> Native2
-    Native1 -- "Execute" --> Resp1[okhttp3.Response]
-    Resp1 --> SResp[Scribe Response]
-
+    Native1 -- "Execute" --> Resp1["okhttp3.Response"]
+    Resp1 --> SResp["Scribe Response"]
 ```
 
 ---
@@ -614,17 +604,12 @@ graph LR
 Optimisation des performances et réduction de la charge réseau IdP.
 
 ```mermaid
-
 graph TD
-    Start[OidcDiscoveryCache.getMetadata] --> Check{Présent en cache ?}
-    Check -- Oui --> Return[Retourne les métadonnées]
-    Check -- Non --> Lock[Verrouillage par issuerUri]
-    Lock --> Check2{Toujours absent ?}
-    Check2 -- Non --> Return
-    Check2 -- Oui --> Fetch[Appel Réseau /.well-known]
-    Fetch --> Store[Mise en cache thread-safe]
+    Start["OidcDiscoveryCache.getMetadata"] --> Check{"Présent en cache ?"}
+    Check -- "Oui" --> Return["Retourne les métadonnées"]
+    Check -- "Non" --> Fetch["Appel Réseau /.well-known"]
+    Fetch --> Store["Mise en cache thread-safe (ConcurrentHashMap)"]
     Store --> Return
-
 ```
 
 ---
