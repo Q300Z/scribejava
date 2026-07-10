@@ -66,6 +66,4 @@ nav:
   - Références & Spécifications:
       - "Catalogue des Fonctionnalités": reference/features-catalog.md
       - "API Javadoc": https://q300z.github.io/scribejava/apidocs/
-  - Décisions d'Architecture (ADR):
-      - "ADR 001 : Zéro Dépendance Externe": adr/001-zero-dependency.md
-      - "ADR 002 : Compatibilité JDK 8": adr/002-jdk8-compatibility.md
+

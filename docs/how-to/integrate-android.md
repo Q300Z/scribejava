@@ -1,6 +1,6 @@
 # 📱 Guide d'intégration sur Android
 
-Grâce à sa compatibilité stricte avec le **JDK 8** (voir [ADR 002](../adr/002-jdk8-compatibility.md)) et son architecture **Zero-Dependency** au runtime, ScribeJava est extrêmement légère, performante et parfaitement adaptée au développement d'applications mobiles Android.
+Grâce à sa compatibilité stricte avec le **JDK 8** et son architecture **Zero-Dependency** au runtime, ScribeJava est extrêmement légère, performante et parfaitement adaptée au développement d'applications mobiles Android.
 
 Ce guide explique comment configurer et intégrer ScribeJava dans une application Android, en respectant les bonnes pratiques de sécurité modernes (PKCE, Custom Tabs, et exécution asynchrone).
 
