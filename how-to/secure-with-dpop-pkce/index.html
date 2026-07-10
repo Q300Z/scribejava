@@ -668,10 +668,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#mise-en-uvre-dpop" class="md-nav__link">
+  <a href="#mise-en-uvre-dpop-standard-cle-rsa-ephemere" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mise en œuvre DPoP
+        Mise en œuvre DPoP standard (Clé RSA éphémère)
       
     </span>
   </a>
@@ -679,10 +679,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#liaison-dynamique-et-interception-dpop" class="md-nav__link">
+  <a href="#utilisation-avec-une-paire-de-cles-existante-keypair" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Liaison Dynamique et Interception DPoP
+        Utilisation avec une paire de clés existante (KeyPair)
       
     </span>
   </a>
@@ -1435,10 +1435,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#mise-en-uvre-dpop" class="md-nav__link">
+  <a href="#mise-en-uvre-dpop-standard-cle-rsa-ephemere" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Mise en œuvre DPoP
+        Mise en œuvre DPoP standard (Clé RSA éphémère)
       
     </span>
   </a>
@@ -1446,10 +1446,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#liaison-dynamique-et-interception-dpop" class="md-nav__link">
+  <a href="#utilisation-avec-une-paire-de-cles-existante-keypair" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Liaison Dynamique et Interception DPoP
+        Utilisation avec une paire de clés existante (KeyPair)
       
     </span>
   </a>
@@ -1604,31 +1604,32 @@
 <h2 id="1-dpop-demonstrating-proof-of-possession">🔐 1. DPoP (Demonstrating Proof-of-Possession)</h2>
 <p>Le DPoP empêche l'utilisation d'un jeton volé en le liant mathématiquement à une paire de clés privée/publique détenue
 par le client.</p>
-<h3 id="mise-en-uvre-dpop">Mise en œuvre DPoP</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// 1. Créez un générateur de preuve (fourni dans le module OIDC)</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">DefaultDPoPProofCreator</span><span class="w"> </span><span class="n">proofCreator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultDPoPProofCreator</span><span class="p">(</span><span class="n">myKeyPair</span><span class="p">);</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1">// 2. Configurez le service</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="n">clientId</span><span class="p">)</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">.</span><span class="na">dpopProofCreator</span><span class="p">(</span><span class="n">proofCreator</span><span class="p">)</span><span class="w"> </span><span class="c1">// Active DPoP pour tous les échanges</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="c1">// Les jetons obtenus seront de type &#39;DPoP&#39; et les requêtes signées automatiquement.</span>
+<h3 id="mise-en-uvre-dpop-standard-cle-rsa-ephemere">Mise en œuvre DPoP standard (Clé RSA éphémère)</h3>
+<p>ScribeJava intègre nativement le support de DPoP et injecte automatiquement l'en-tête <code>DPoP</code> requis lors de l'obtention et de l'utilisation du jeton.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// 1. Créez un générateur de preuve (génère une clé RSA éphémère par défaut)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">DefaultDPoPProofCreator</span><span class="w"> </span><span class="n">proofCreator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultDPoPProofCreator</span><span class="p">();</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">// 2. Configurez le service en passant le créateur au builder (.dpop)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="n">clientId</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="p">.</span><span class="na">dpop</span><span class="p">(</span><span class="n">proofCreator</span><span class="p">)</span><span class="w"> </span><span class="c1">// Active DPoP de manière native</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">// Les jetons obtenus seront de type &#39;DPoP&#39; et les requêtes signées automatiquement.</span>
 </code></pre></div>
-<h3 id="liaison-dynamique-et-interception-dpop">Liaison Dynamique et Interception DPoP</h3>
-<p>Pour les cas avancés ou les flux dynamiques, vous pouvez lier dynamiquement le jeton d'accès à l'intercepteur <code>DPoPInterceptor</code> afin d'intégrer le claim <code>'ath'</code> (hachage du jeton d'accès) requis par la spécification RFC 9449 :</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Instanciation de l&#39;intercepteur avec liaison dynamique de jeton</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">DPoPInterceptor</span><span class="w"> </span><span class="n">dpopInterceptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DPoPInterceptor</span><span class="p">(</span><span class="n">proofCreator</span><span class="p">);</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="n">clientId</span><span class="p">)</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="p">.</span><span class="na">requestInterceptor</span><span class="p">(</span><span class="n">dpopInterceptor</span><span class="p">)</span><span class="w"> </span><span class="c1">// Enregistrement de l&#39;intercepteur</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1">// Lors de l&#39;acquisition ou de la rotation du jeton, mettez à jour l&#39;intercepteur :</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">dpopInterceptor</span><span class="p">.</span><span class="na">setAccessToken</span><span class="p">(</span><span class="n">token</span><span class="p">.</span><span class="na">getAccessToken</span><span class="p">());</span>
+<h3 id="utilisation-avec-une-paire-de-cles-existante-keypair">Utilisation avec une paire de clés existante (KeyPair)</h3>
+<p>Si vous possédez déjà une paire de clés persistante, vous pouvez la passer au constructeur détaillé de <code>DefaultDPoPProofCreator</code> :</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Instanciation avec votre clé privée et clé publique existante</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">DefaultDPoPProofCreator</span><span class="w"> </span><span class="n">proofCreator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DefaultDPoPProofCreator</span><span class="p">(</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">myKeyPair</span><span class="p">.</span><span class="na">getPrivate</span><span class="p">(),</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">myKeyPair</span><span class="p">.</span><span class="na">getPublic</span><span class="p">(),</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="k">new</span><span class="w"> </span><span class="n">com</span><span class="p">.</span><span class="na">github</span><span class="p">.</span><span class="na">scribejava</span><span class="p">.</span><span class="na">oidc</span><span class="p">.</span><span class="na">model</span><span class="p">.</span><span class="na">JwtSigner</span><span class="p">.</span><span class="na">RsaSha256Signer</span><span class="p">()</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">);</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="n">clientId</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="p">.</span><span class="na">dpop</span><span class="p">(</span><span class="n">proofCreator</span><span class="p">)</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
 </code></pre></div>
 <hr />
 <h2 id="2-par-pushed-authorization-requests">🛰️ 2. PAR (Pushed Authorization Requests)</h2>

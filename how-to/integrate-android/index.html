@@ -1775,10 +1775,10 @@
 <p>Les applications mobiles étant des <strong>clients publics</strong> (qui ne peuvent pas garder de secrets en toute sécurité), elles doivent obligatoirement utiliser le flux <strong>Authorization Code avec PKCE</strong> (RFC 8252) couplé à des <strong>onglets personnalisés (Custom Tabs)</strong> et des <strong>Deep Links</strong>.</p>
 <h3 id="diagramme-de-sequence">Diagramme de Séquence</h3>
 <pre class="mermaid"><code>sequenceDiagram
-    participant App as Application Mobile
-    participant OS as Système Android (Custom Tabs)
-    participant Scribe as ScribeJava Core
-    participant IdP as Serveur d'Autorisation (IdP)
+    participant App as "Application Mobile"
+    participant OS as "Système Android (Custom Tabs)"
+    participant Scribe as "ScribeJava Core"
+    participant IdP as "Serveur d'Autorisation (IdP)"
 
     Note over App, Scribe: 1. PRÉPARATION LOCALE (PKCE)
     App-&gt;&gt;Scribe: generatePKCE() / initPKCE()
@@ -1852,7 +1852,7 @@ Le système d'exploitation Android intercepte le schéma <code>myapp</code> et r
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="kn">import</span><span class="w"> </span><span class="nn">androidx.browser.customtabs.CustomTabsIntent</span><span class="p">;</span>
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.apis.GitHubApi</span><span class="p">;</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.builder.ServiceBuilder</span><span class="p">;</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.httpclient.okhttp.OkHttpHttpClientConfig</span><span class="p">;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.httpclient.okhttp.OkHttpHttpClientConfig</span><span class="p">;</span>
 <a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.oauth.OAuth20Service</span><span class="p">;</span>
 <a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.concurrent.ExecutorService</span><span class="p">;</span>
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.concurrent.Executors</span><span class="p">;</span>
@@ -1918,7 +1918,7 @@ Le système d'exploitation Android intercepte le schéma <code>myapp</code> et r
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="kn">import</span><span class="w"> </span><span class="nn">androidx.appcompat.app.AppCompatActivity</span><span class="p">;</span>
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.apis.GitHubApi</span><span class="p">;</span>
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.builder.ServiceBuilder</span><span class="p">;</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.AuthorizationCodeGrant</span><span class="p">;</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.oauth2.grant.AuthorizationCodeGrant</span><span class="p">;</span>
 <a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.OAuth2AccessToken</span><span class="p">;</span>
 <a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.OAuthRequest</span><span class="p">;</span>
 <a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="kn">import</span><span class="w"> </span><span class="nn">com.github.scribejava.core.model.Response</span><span class="p">;</span>
@@ -2003,10 +2003,10 @@ Le système d'exploitation Android intercepte le schéma <code>myapp</code> et r
 <p>La solution recommandée est le pattern <strong>BFF (Backend-For-Frontend)</strong>. L'application mobile n'interagit jamais directement avec l'émetteur OIDC. C'est le serveur web de votre service (Backend) qui gère l'authentification OIDC (via ScribeJava) et délivre une session locale sécurisée à l'application mobile.</p>
 <h3 id="diagramme-darchitecture-bff">Diagramme d'Architecture (BFF)</h3>
 <pre class="mermaid"><code>sequenceDiagram
-    participant Mobile as App Mobile (Android)
-    participant OS as Custom Tabs / Navigateur
-    participant BFF as Backend Web (Java / ScribeJava)
-    participant IdP as Fournisseur OIDC (Google/Okta)
+    participant Mobile as "App Mobile (Android)"
+    participant OS as "Custom Tabs / Navigateur"
+    participant BFF as "Backend Web (Java / ScribeJava)"
+    participant IdP as "Fournisseur OIDC (Google/Okta)"
 
     Note over Mobile, BFF: 1. INITIATION
     Mobile-&gt;&gt;OS: Ouvre Custom Tab (https://mon-service.com/auth/login)

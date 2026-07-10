@@ -2347,7 +2347,7 @@ sequenceDiagram
 
     Note over App, DPoP: Génération de Preuve (chaque appel)
     App-&gt;&gt;DPoP: createDPoPProof(request, accessToken)
-    DPoP-&gt;&gt;DPoP: Hash(accessToken) -&gt; 'ath' claim
+    DPoP-&gt;&gt;DPoP: Hash(accessToken) &amp;rarr; 'ath' claim
     DPoP-&gt;&gt;DPoP: Sign JWT(htm, htu, ath, jwk_public)
     DPoP--&gt;&gt;App: En-tête 'DPoP: signed_jwt'
     App-&gt;&gt;IdP: Request + Jeton Bearer + En-tête DPoP
@@ -2405,7 +2405,7 @@ sequenceDiagram
 
     Builder-&gt;&gt;Conv: convert(params_plats)
     Conv-&gt;&gt;Sign: createRequestObject(params)
-    Sign-&gt;&gt;Sign: Signe JWT (Params -&gt; Claims)
+    Sign-&gt;&gt;Sign: Signe JWT (Params &amp;rarr; Claims)
     Sign--&gt;&gt;Conv: signed_jwt
     Conv--&gt;&gt;Builder: Map(request = signed_jwt, client_id = ...)
     Builder-&gt;&gt;Builder: Génère URL : ?request=eyJhbG...

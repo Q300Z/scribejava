@@ -925,21 +925,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inspecter-les-echanges-reseau" class="md-nav__link">
+  <a href="#activer-les-logs-de-debogage-reseau" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔍 Inspecter les échanges réseau
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mode-verbose-sortie-standard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🛰️ Mode "Verbose" (Sortie standard)
+        🔍 Activer les logs de débogage réseau
       
     </span>
   </a>
@@ -1619,21 +1608,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#inspecter-les-echanges-reseau" class="md-nav__link">
+  <a href="#activer-les-logs-de-debogage-reseau" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔍 Inspecter les échanges réseau
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#mode-verbose-sortie-standard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🛰️ Mode "Verbose" (Sortie standard)
+        🔍 Activer les logs de débogage réseau
       
     </span>
   </a>
@@ -1771,24 +1749,23 @@
 </ul>
 <hr />
 <h2 id="5-debogage-logs">5. Débogage &amp; Logs</h2>
-<h3 id="inspecter-les-echanges-reseau">🔍 Inspecter les échanges réseau</h3>
-<p>ScribeJava utilise <strong>SLF4J</strong> pour son logging. Pour voir le détail des requêtes/réponses (très utile pour le débogage
-OAuth) :</p>
+<h3 id="activer-les-logs-de-debogage-reseau">🔍 Activer les logs de débogage réseau</h3>
+<p>ScribeJava intègre son propre système de log sans dépendance. Pour inspecter en détail les requêtes et réponses HTTP échangées (y compris les commandes <code>curl</code> générées et le masquage automatique des secrets) :</p>
 <ol>
-<li>
-<p>Ajoutez une implémentation SLF4J (ex: <code>logback</code> ou <code>slf4j-simple</code>).</p>
-</li>
-<li>
-<p>Passez le niveau de log à <code>DEBUG</code> pour le package <code>com.github.scribejava</code>.</p>
-</li>
+<li>Appelez la méthode <code>.debug()</code> (pour afficher sur la sortie standard <code>System.out</code>) ou <code>.debugStream(PrintStream)</code> lors de la construction du service via le <code>ServiceBuilder</code> :</li>
 </ol>
-<p><strong>Exemple logback.xml :</strong></p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">&lt;logger</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;com.github.scribejava&quot;</span><span class="w"> </span><span class="na">level=</span><span class="s">&quot;DEBUG&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;secret&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">.</span><span class="na">debug</span><span class="p">()</span><span class="w"> </span><span class="c1">// Active automatiquement DefaultOAuthLogger sur System.out</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
 </code></pre></div>
-<h3 id="mode-verbose-sortie-standard">🛰️ Mode "Verbose" (Sortie standard)</h3>
-<p>Si vous ne voulez pas configurer de framework de log, vous pouvez activer la sortie standard sur le <code>OAuthRequest</code> :</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">request</span><span class="p">.</span><span class="na">setCharset</span><span class="p">(</span><span class="s">&quot;UTF-8&quot;</span><span class="p">);</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">// Le debug se fait ensuite via votre logger SLF4J configuré</span>
+<ol>
+<li>Si vous préférez router les logs vers le système de logging standard du JDK (<code>java.util.logging</code>), utilisez un <code>JdkOAuthLogger</code> :</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ServiceBuilder</span><span class="p">(</span><span class="s">&quot;client-id&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="s">&quot;secret&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">.</span><span class="na">logger</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">JdkOAuthLogger</span><span class="p">(</span><span class="n">Logger</span><span class="p">.</span><span class="na">getLogger</span><span class="p">(</span><span class="s">&quot;scribejava&quot;</span><span class="p">)))</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">GoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
 </code></pre></div>
 <hr />
 <h2 id="5-outils-de-debogage-externes">5. Outils de Débogage Externes</h2>
