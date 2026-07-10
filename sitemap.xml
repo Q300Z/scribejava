@@ -2,70 +2,70 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://q300z.github.io/scribejava/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/adr/001-zero-dependency/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/adr/002-jdk8-compatibility/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/explanations/ci-cd-pipelines/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/explanations/core-features/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/explanations/oauth2-flows/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/explanations/oidc-features/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/explanations/release-process/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/how-to/add-custom-provider/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/how-to/auto-refresh-tokens/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/how-to/integrate-android/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/how-to/migration-guide/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/how-to/secure-with-dpop-pkce/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/how-to/security-hardening/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/how-to/troubleshoot-ssl/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/reference/features-catalog/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
     <url>
          <loc>https://q300z.github.io/scribejava/tutorials/quickstart/</loc>
-         <lastmod>2026-07-09</lastmod>
+         <lastmod>2026-07-10</lastmod>
     </url>
 </urlset>

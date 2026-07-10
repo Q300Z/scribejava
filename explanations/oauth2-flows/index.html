@@ -1967,10 +1967,10 @@
 <p>Ce flux intègre la <strong>Découverte Dynamique</strong>, le <strong>PKCE</strong> et la <strong>Validation Native</strong> de l'ID Token.</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant App as Application Client
+    participant App as "Application Client"
     participant Disc as OidcDiscoveryService
     participant Service as OidcService
-    participant IdP as Fournisseur d'Identité (Google/MS)
+    participant IdP as "Fournisseur d'Identité (Google/MS)"
 
     Note over App, IdP: 1. PHASE DE DÉCOUVERTE (Discovery)
     App-&gt;&gt;Disc: getProviderMetadata()
@@ -2080,9 +2080,9 @@ sequenceDiagram
 <p>ScribeJava supporte la déconnexion hybride : technique (révocation) et utilisateur (fin de session).</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant App as Application Client
+    participant App as "Application Client"
     participant Service as OidcService
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Note over App, IdP: MÉTHODE 1 : RÉVOCATION TECHNIQUE (Back-Channel)
     App-&gt;&gt;Service: revokeToken(accessToken, TokenTypeHint.ACCESS_TOKEN)
@@ -2108,10 +2108,10 @@ sequenceDiagram
 <p>Gestion de la persistance sans intervention de l'utilisateur.</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant App as Application Client
+    participant App as "Application Client"
     participant Service as OidcService
     participant Grant as RefreshTokenGrant
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     App-&gt;&gt;Service: refreshAccessToken(refreshToken)
     Service-&gt;&gt;Grant: createRequest(service)
@@ -2135,19 +2135,19 @@ sequenceDiagram
 <p>Le <code>OidcAuthFlowCoordinator</code> centralise toutes les validations de retour.</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant Browser as Navigateur
-    participant App as Contrôleur Applicatif
+    participant Browser as "Navigateur"
+    participant App as "Contrôleur Applicatif"
     participant Coord as OidcAuthFlowCoordinator
     participant Service as OidcService
     participant Repo as TokenRepository
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Browser-&gt;&gt;App: GET /callback?code=XYZ&amp;state=ABC
     App-&gt;&gt;Coord: finishAuthorization(userId, code, state, context)
 
     rect rgb(240, 240, 240)
     Note over Coord: 1. Validation CSRF Automatique
-    Coord-&gt;&gt;Coord: validateState(received, expected)
+    Coord-&gt;&gt;Coord: Validation de l'état (state)
     end
 
     Coord-&gt;&gt;Service: getAccessToken(Grant + PKCE Verifier)
@@ -2168,12 +2168,12 @@ sequenceDiagram
 <p>Le <code>AuthorizedClientService</code> exécute des requêtes sans que le développeur ne se soucie de l'expiration du jeton.</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant Business as Logique Métier
+    participant Business as "Logique Métier"
     participant Client as AuthorizedClientService
     participant Renewer as TokenAutoRenewer
     participant Repo as TokenRepository
     participant Service as OidcService
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Business-&gt;&gt;Client: execute(userId, request)
     Client-&gt;&gt;Renewer: getValidToken(userId)
@@ -2280,26 +2280,25 @@ sequenceDiagram
 <hr />
 <h2 id="5-resilience-industrielle-retry-policy">5. Résilience Industrielle (Retry Policy)</h2>
 <p>Le moteur de ScribeJava intègre une boucle de résilience capable de gérer les erreurs transitoires (Rate Limit, Instabilité serveur).</p>
-<pre class="mermaid"><code>
-graph TD
-    Start[OAuthService.execute] --&gt; Req[Exécution de la requête]
-    Req --&gt; Resp{Code de réponse ?}
-    Resp -- "2xx / 4xx (hors 429)" --&gt; Success[Retourne la réponse]
-    Resp -- "429 / 5xx" --&gt; Retry{RetryPolicy active ?}
-    Retry -- Non --&gt; Success
-    Retry -- Oui --&gt; Check{Max attempts atteint ?}
-    Check -- Oui --&gt; Success
-    Check -- Non --&gt; Wait[Attente delayMs x exponential]
-    Wait --&gt; Req
-</code></pre>
+<pre class="mermaid"><code>graph TD
+    Start["OAuthService.execute"] --&gt; Req["Exécution de la requête"]
+    Req --&gt; Resp{"Code de réponse ?"}
+    Resp -- "2xx / 4xx (hors 429)" --&gt; Success["Retourne la réponse"]
+    Resp -- "429 / 5xx" --&gt; Retry{"RetryPolicy active ?"}
+    Retry -- "Non" --&gt; Success
+    Retry -- "Oui" --&gt; Check{"Max attempts atteint ?"}
+    Check -- "Oui" --&gt; Success
+    Check -- "Non" --&gt; Wait["Attente delayMs (Fixe ou Exponentiel)"]
+    Wait --&gt; Req</code></pre>
+<p><em>Note : Le délai d'attente est fixe pour la politique globale du Core (<code>OAuthService</code>), mais utilise un multiplicateur exponentiel pour les requêtes du service de découverte OIDC (<code>OidcDiscoveryService</code>).</em></p>
 <hr />
 <h2 id="6-observabilite-et-diagnostic-redaction">6. Observabilité et Diagnostic (Redaction)</h2>
 <p>La sécurité est maintenue même dans les logs grâce au mécanisme de masquage automatique des secrets.</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant App as Logique Métier
+    participant App as "Logique Métier"
     participant Req as OAuthRequest
-    participant Log as OAuthLogger / cURL
+    participant Log as "OAuthLogger / cURL"
 
     App-&gt;&gt;Req: signRequest(token)
     App-&gt;&gt;Req: toCurlCommand() / toDebugString()
@@ -2311,37 +2310,32 @@ sequenceDiagram
 <hr />
 <h2 id="7-cryptographie-native-oidc-validation-jwt">7. Cryptographie Native OIDC (Validation JWT)</h2>
 <p>ScribeJava n'utilise pas de bibliothèque externe (Zéro-Dépendance) pour valider les signatures.</p>
-<pre class="mermaid"><code>
-flowDiagram
-    ID[ID Token String] --&gt; Parse[Jwt.parse: Base64 Decoding]
-    Parse --&gt; Header[Header: kid, alg]
-    Parse --&gt; Payload[Claims: iss, sub, aud, exp]
-    Header --&gt; Lookup{Recherche kid dans JWKS}
-    Lookup -- Trouvé --&gt; Crypto[Signature.verify: java.security]
-    Lookup -- Absent --&gt; Refresh[Rotation: Rechargement JWKS]
+<pre class="mermaid"><code>flowchart TD
+    ID["ID Token String"] --&gt; Parse["Jwt.parse: Base64 Decoding"]
+    Parse --&gt; Header["Header: kid, alg"]
+    Parse --&gt; Payload["Claims: iss, sub, aud, exp"]
+    Header --&gt; Lookup{"Recherche kid dans JWKS"}
+    Lookup -- "Trouvé" --&gt; Crypto["Signature.verify (java.security)"]
+    Lookup -- "Absent" --&gt; Refresh["Rotation: Rechargement JWKS"]
     Refresh --&gt; Crypto
-    Crypto --&gt; Claims[Validation temporelle: iat &lt; now &lt; exp]
-    Claims --&gt; Final[IdToken Validé]
-</code></pre>
+    Crypto --&gt; Claims["Validation temporelle (iat &lt; now &lt; exp)"]
+    Claims --&gt; Final["IdToken Validé"]</code></pre>
 <hr />
 <h2 id="8-authentification-client-pattern-strategy">8. Authentification Client (Pattern Strategy)</h2>
 <p>Flexible pour s'adapter à toutes les exigences des fournisseurs.</p>
-<pre class="mermaid"><code>
-graph LR
-    Service[OAuth20Service] --&gt; Strategy{ClientAuthentication}
-    Strategy -- Default --&gt; Basic[HttpBasic: Header Authorization: Basic base64]
-    Strategy -- Azure/Custom --&gt; Body[RequestBody: params client_id &amp; client_secret]
-</code></pre>
+<pre class="mermaid"><code>graph LR
+    Service["OAuthService"] --&gt; Strategy{"ClientAuthentication"}
+    Strategy -- "Default" --&gt; Basic["HttpBasic: Header Authorization: Basic base64"]
+    Strategy -- "Azure/Custom" --&gt; Body["RequestBody: params client_id &amp; client_secret"]</code></pre>
 <hr />
 <h2 id="9-pipeline-dintercepteurs-extensibilite">9. Pipeline d'Intercepteurs (Extensibilité)</h2>
 <p>Modification modulaire des requêtes avant l'envoi.</p>
-<pre class="mermaid"><code>
-graph LR
-    Start[Requête Brute] --&gt; I1[Interceptor 1: Headers Custom]
-    I1 --&gt; I2[Interceptor 2: PKCE Injection]
-    I2 --&gt; I3[Interceptor 3: DPoP Proof]
-    I3 --&gt; Exec[Exécution Client HTTP]
-</code></pre>
+<pre class="mermaid"><code>graph LR
+    Start["Requête Brute"] --&gt; I1["Interceptor 1: Headers Custom"]
+    I1 --&gt; I2["Interceptor 2: Signature de Requête / Auth Client"]
+    I2 --&gt; I3["Interceptor 3: DPoP Proof"]
+    I3 --&gt; Exec["Exécution Client HTTP"]</code></pre>
+<p><em>Note : Le PKCE est injecté directement au niveau de la requête de jeton d'autorisation via <code>AuthorizationCodeGrant</code> (et non via un intercepteur de requête réseau).</em></p>
 <hr />
 <h2 id="10-liaison-cryptographique-dpop-rfc-9449">10. Liaison Cryptographique DPoP (RFC 9449)</h2>
 <p>Lien indissociable entre le jeton et la clé privée du client.</p>
@@ -2349,7 +2343,7 @@ graph LR
 sequenceDiagram
     participant App as Application
     participant DPoP as DPoPProofCreator
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     Note over App, DPoP: Génération de Preuve (chaque appel)
     App-&gt;&gt;DPoP: createDPoPProof(request, accessToken)
@@ -2368,7 +2362,7 @@ sequenceDiagram
     participant App as Application
     participant Builder as AuthorizationUrlBuilder
     participant Handler as OAuth20PushedAuthHandler
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
     App-&gt;&gt;Builder: build() avec usePAR=true
     Builder-&gt;&gt;Handler: pushAuthorizationRequestAsync(params)
@@ -2395,15 +2389,13 @@ graph TD
 <hr />
 <h2 id="13-decouverte-du-client-http-serviceloader">13. Découverte du Client HTTP (ServiceLoader)</h2>
 <p>Comment ScribeJava maintient son autonomie "Zero-Dependency" au runtime.</p>
-<pre class="mermaid"><code>
-graph LR
-    Service[OAuthService Constructor] --&gt; SL[java.util.ServiceLoader]
-    SL --&gt; Look[Cherche HttpClientProvider.class]
-    Look -- "Trouvé (OkHttp/Armeria)" --&gt; Load[Instancie l'implémentation externe]
-    Look -- "Non trouvé" --&gt; Default[Instancie JDKHttpClient natif]
-    Load --&gt; Ready[Service prêt avec HttpClient optimisé]
-    Default --&gt; Ready
-</code></pre>
+<pre class="mermaid"><code>graph LR
+    Service["OAuthService Constructor"] --&gt; SL["java.util.ServiceLoader"]
+    SL --&gt; Look["Cherche HttpClientProvider.class"]
+    Look -- "Trouvé (OkHttp/Armeria)" --&gt; Load["Instancie l'implémentation externe"]
+    Look -- "Non trouvé" --&gt; Default["Instancie JDKHttpClient natif"]
+    Load --&gt; Ready["Service prêt avec HttpClient optimisé"]
+    Default --&gt; Ready</code></pre>
 <hr />
 <h2 id="14-jwt-secured-authorization-request-jar-rfc-9101">14. JWT-Secured Authorization Request (JAR - RFC 9101)</h2>
 <p>Encapsulation cryptographique de la demande d'autorisation.</p>
@@ -2425,11 +2417,11 @@ sequenceDiagram
 <p>Auto-provisioning pour les environnements de confiance ou de test.</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant App as Logique Métier
+    participant App as "Logique Métier"
     participant Reg as OidcRegistrationService
-    participant IdP as Fournisseur d'Identité
+    participant IdP as "Fournisseur d'Identité"
 
-    App-&gt;&gt;Reg: registerClientAsync(metadata_client)
+    App-&gt;&gt;Reg: registerClientAsync(endpoint, redirectUris, clientName, authMethod)
     Reg-&gt;&gt;Reg: JsonBuilder.build()
     Reg-&gt;&gt;IdP: POST /registration (Content-Type: application/json)
     IdP-&gt;&gt;IdP: Valide et crée le client
@@ -2439,33 +2431,31 @@ sequenceDiagram
 <hr />
 <h2 id="16-orchestration-multi-tenant-oauthserviceregistry">16. Orchestration Multi-Tenant (OAuthServiceRegistry)</h2>
 <p>Centralisation de la gestion de multiples fournisseurs et clients au sein d'une même instance applicative.</p>
-<pre class="mermaid"><code>
-graph LR
-    User[UserId] --&gt; Reg[OAuthServiceRegistry]
-    Reg --&gt; Map{Lookup by providerId}
-    Map -- "google" --&gt; ACS1[AuthorizedClientService G]
-    Map -- "github" --&gt; ACS2[AuthorizedClientService GH]
-    Map -- "ms-entra" --&gt; ACS3[AuthorizedClientService MS]
-    ACS1 --&gt; S1[OAuth20Service]
-    ACS2 --&gt; S2[OAuth20Service]
-    ACS3 --&gt; S3[OAuth20Service]
-</code></pre>
+<pre class="mermaid"><code>graph LR
+    User["UserId"] --&gt; Reg["OAuthServiceRegistry"]
+    Reg --&gt; Map{"Lookup by providerId"}
+    Map -- "google" --&gt; ACS1["AuthorizedClientService G"]
+    Map -- "github" --&gt; ACS2["AuthorizedClientService GH"]
+    Map -- "ms-entra" --&gt; ACS3["AuthorizedClientService MS"]
+    ACS1 --&gt; S1["OAuth20Service"]
+    ACS2 --&gt; S2["OAuth20Service"]
+    ACS3 --&gt; S3["OAuth20Service"]</code></pre>
 <hr />
 <h2 id="17-moteur-json-natif-zero-dependance">17. Moteur JSON Natif (Zéro-Dépendance)</h2>
-<p>Analyse récursive via expressions régulières pour garantir l'autonomie totale du runtime.</p>
-<pre class="mermaid"><code>
-graph TD
-    JSON[JSON String] --&gt; Loop[JsonUtils.parse loop]
-    Loop --&gt; Match{Regex Pattern Match}
-    Match -- "Pair Key:Value" --&gt; Type{Type de Valeur ?}
-    Type -- "String/Number/Bool" --&gt; Map[Ajout à la Map courante]
-    Type -- "Object { ... }" --&gt; Rec[Appel Récursif (max depth 32)]
-    Type -- "Array [ ... ]" --&gt; Arr[Analyse de la liste]
-    Rec --&gt; Loop
-    Arr --&gt; Loop
-    Map --&gt; Loop
-    Loop -- "Fin de chaîne" --&gt; Result[Map finale d'objets Java]
-</code></pre>
+<p>Analyse récursive par descente récursive (caractère par caractère) pour garantir l'autonomie totale du runtime.</p>
+<pre class="mermaid"><code>graph TD
+    JSON["JSON String"] --&gt; Parser["JsonUtils.Parser (Scanner)"]
+    Parser --&gt; Char{"Lecture Caractère"}
+    Char -- "{" --&gt; Obj["Analyse d'Objet (Map)"]
+    Char -- "[" --&gt; Arr["Analyse de Tableau (List)"]
+    Char -- "Clé / Valeur" --&gt; Val{"Type de Valeur ?"}
+    Val -- "String/Number/Bool/Null" --&gt; Add["Ajout à la Map courante"]
+    Val -- "{" --&gt; RecObj["Appel Récursif (Analyse d'Objet)"]
+    Val -- "[" --&gt; RecArr["Appel Récursif (Analyse de Tableau)"]
+    RecObj --&gt; Parser
+    RecArr --&gt; Parser
+    Add --&gt; Parser
+    Parser -- "Fin de chaîne" --&gt; Result["Map/List finale d'objets Java"]</code></pre>
 <hr />
 <h2 id="18-systeme-daudit-et-devenements-hooks">18. Système d'Audit et d'Événements (Hooks)</h2>
 <p>Points d'ancrage pour le monitoring et la traçabilité métier.</p>
@@ -2489,38 +2479,31 @@ sequenceDiagram
 <hr />
 <h2 id="19-pont-des-adaptateurs-http-bridge-pattern">19. Pont des Adaptateurs HTTP (Bridge Pattern)</h2>
 <p>Découplage entre les modèles ScribeJava et les bibliothèques tierces.</p>
-<pre class="mermaid"><code>
-graph LR
-    SR[Scribe Request] --&gt; Bridge[HttpClient Implementation]
-    Bridge --&gt; Native[Native Model]
+<pre class="mermaid"><code>graph LR
+    SR["Scribe Request"] --&gt; Bridge["HttpClient Implementation"]
+    Bridge --&gt; Native["Native Model"]
 
     subgraph OkHttp
-    Native1[okhttp3.Request]
+    Native1["okhttp3.Request"]
     end
 
     subgraph Armeria
-    Native2[com.linecorp.armeria.HttpRequest]
+    Native2["com.linecorp.armeria.HttpRequest"]
     end
 
     Bridge -- "okhttp-adaptor" --&gt; Native1
     Bridge -- "armeria-adaptor" --&gt; Native2
-    Native1 -- "Execute" --&gt; Resp1[okhttp3.Response]
-    Resp1 --&gt; SResp[Scribe Response]
-</code></pre>
+    Native1 -- "Execute" --&gt; Resp1["okhttp3.Response"]
+    Resp1 --&gt; SResp["Scribe Response"]</code></pre>
 <hr />
 <h2 id="20-strategie-de-cache-de-decouverte-oidc">20. Stratégie de Cache de Découverte OIDC</h2>
 <p>Optimisation des performances et réduction de la charge réseau IdP.</p>
-<pre class="mermaid"><code>
-graph TD
-    Start[OidcDiscoveryCache.getMetadata] --&gt; Check{Présent en cache ?}
-    Check -- Oui --&gt; Return[Retourne les métadonnées]
-    Check -- Non --&gt; Lock[Verrouillage par issuerUri]
-    Lock --&gt; Check2{Toujours absent ?}
-    Check2 -- Non --&gt; Return
-    Check2 -- Oui --&gt; Fetch[Appel Réseau /.well-known]
-    Fetch --&gt; Store[Mise en cache thread-safe]
-    Store --&gt; Return
-</code></pre>
+<pre class="mermaid"><code>graph TD
+    Start["OidcDiscoveryCache.getMetadata"] --&gt; Check{"Présent en cache ?"}
+    Check -- "Oui" --&gt; Return["Retourne les métadonnées"]
+    Check -- "Non" --&gt; Fetch["Appel Réseau /.well-known"]
+    Fetch --&gt; Store["Mise en cache thread-safe (ConcurrentHashMap)"]
+    Store --&gt; Return</code></pre>
 <hr />
 <p><a href="https://github.com/Q300Z/scribejava/blob/master/README.md">⬅️ Retour au README principal</a></p>
 
