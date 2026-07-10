@@ -1806,7 +1806,8 @@
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="p">.</span><span class="na">apiSecret</span><span class="p">(</span><span class="n">clientSecret</span><span class="p">)</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="p">.</span><span class="na">baseOnDiscovery</span><span class="p">(</span><span class="s">&quot;https://accounts.google.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">httpClient</span><span class="p">,</span><span class="w"> </span><span class="n">userAgent</span><span class="p">);</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">DefaultOidcApi20</span><span class="p">());</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1">// Remplacez par votre API OIDC concrète (ex. OidcGoogleApi20.instance())</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">OAuth20Service</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">(</span><span class="n">OidcGoogleApi20</span><span class="p">.</span><span class="na">instance</span><span class="p">());</span>
 </code></pre></div>
 <hr />
 <h2 id="2-gestion-de-lid-token">🔑 2. Gestion de l'ID Token</h2>
@@ -1830,8 +1831,8 @@
 <a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="n">jwksUri</span>
 <a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="p">);</span>
 <a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1">// Validation manuelle complète (avec protection contre le rejeu et âge maximum)</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">validator</span><span class="p">.</span><span class="na">validate</span><span class="p">(</span><span class="n">idToken</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OidcNonce</span><span class="p">(</span><span class="n">expectedNonce</span><span class="p">),</span><span class="w"> </span><span class="n">maxAuthAgeSeconds</span><span class="p">);</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1">// Validation manuelle complète (avec protection contre le rejeu et âge maximum) en passant le JWT brut</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="n">validator</span><span class="p">.</span><span class="na">validate</span><span class="p">(</span><span class="n">rawJwt</span><span class="p">,</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OidcNonce</span><span class="p">(</span><span class="n">expectedNonce</span><span class="p">),</span><span class="w"> </span><span class="n">maxAuthAgeSeconds</span><span class="p">);</span>
 </code></pre></div>
 <h3 id="c-acces-aux-claims-donnees-utilisateur">C. Accès aux Claims (Données Utilisateur)</h3>
 <p>ScribeJava fournit un accès typé aux informations de profil standard.</p>

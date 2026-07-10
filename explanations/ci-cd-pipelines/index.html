@@ -1435,34 +1435,32 @@
 <hr />
 <h2 id="1-vue-densemble-de-larchitecture-zero-touch">1. Vue d'ensemble de l'Architecture "Zero-Touch"</h2>
 <p>Le pipeline sépare strictement la préparation humaine (Local) de la certification et distribution industrielle (Cloud).</p>
-<pre class="mermaid"><code>
-graph TD
+<pre class="mermaid"><code>graph TD
     subgraph Local ["💻 Poste Développeur (LOCAL)"]
-        Trigger[make release] --&gt; CertPre[ci-local.sh: Multi-JDK Docker]
-        CertPre --&gt; DocLint[Audit Markdown &amp; Liens]
-        DocLint --&gt; Bump[release-it: Bump SemVer &amp; Tag Git]
-        Bump --&gt; Push[git push master + tags]
+        Trigger["make release"] --&gt; CertPre["ci-local.sh: Multi-JDK Docker"]
+        CertPre --&gt; DocLint["Audit Markdown &amp; Liens"]
+        DocLint --&gt; Bump["release-it: Bump SemVer &amp; Tag Git"]
+        Bump --&gt; Push["git push master + tags"]
     end
 
     subgraph Cloud ["☁️ GitHub Actions (CLOUD)"]
-        Push --&gt; MavenCI[Workflow: maven.yml]
-        MavenCI --&gt; GHDocLint[Audit Markdown &amp; Liens]
-        subgraph "🧪 Matrice de Certification"
-            MavenCI --&gt; JDK8[JDK 8]
-            MavenCI --&gt; JDK11[JDK 11]
-            MavenCI --&gt; JDK17[JDK 17]
-            MavenCI --&gt; JDK21[JDK 21]
-            MavenCI --&gt; JDK25[JDK 25]
+        Push --&gt; MavenCI["Workflow: maven.yml"]
+        MavenCI --&gt; GHDocLint["Audit Markdown &amp; Liens"]
+        subgraph CertificationMatrix ["🧪 Matrice de Certification"]
+            MavenCI --&gt; JDK8["JDK 8"]
+            MavenCI --&gt; JDK11["JDK 11"]
+            MavenCI --&gt; JDK17["JDK 17"]
+            MavenCI --&gt; JDK21["JDK 21"]
+            MavenCI --&gt; JDK25["JDK 25"]
         end
 
-        JDK8 &amp; JDK11 &amp; JDK17 &amp; JDK21 &amp; JDK25 &amp; GHDocLint --&gt; Success{Tests OK ?}
-        Success -- Oui --&gt; Publish[release-it: GitHub Release + JARs]
-        Success -- Non --&gt; Abort[❌ Release bloquée]
+        JDK8 &amp; JDK11 &amp; JDK17 &amp; JDK21 &amp; JDK25 &amp; GHDocLint --&gt; Success{"Tests OK ?"}
+        Success -- "Oui" --&gt; Publish["release-it: GitHub Release + JARs"]
+        Success -- "Non" --&gt; Abort["❌ Release bloquée"]
     end
 
     style Local fill:#f9f,stroke:#333,stroke-width:2px
-    style Cloud fill:#bbf,stroke:#333,stroke-width:2px
-</code></pre>
+    style Cloud fill:#bbf,stroke:#333,stroke-width:2px</code></pre>
 <hr />
 <h2 id="2-standardisation-et-maintenance">2. Standardisation et Maintenance</h2>
 <p>L'intégrité du projet est maintenue par des processus automatisés :</p>
@@ -1483,7 +1481,7 @@ graph TD
 <h3 id="le-triple-verrou-de-securite">Le Triple Verrou de Sécurité</h3>
 <ol>
 <li>
-<p><strong>Verrou Local</strong> : <code>make release</code> lance <code>./ci-local.sh</code>. La release s'arrête si un test casse sur un des 5 JDKs.</p>
+<p><strong>Verrou Local</strong> : Le développeur doit exécuter <code>make certify</code> (ou <code>./ci-local.sh</code>) avant la release. Si un test échoue sur l'un des 5 JDKs, le processus doit être corrigé avant de lancer la commande <code>make release</code>.</p>
 </li>
 <li>
 <p><strong>Verrou Cloud</strong> : Le workflow <code>maven.yml</code> ré-exécute l'intégralité de la matrice sur les serveurs GitHub pour audit.</p>
@@ -1496,7 +1494,7 @@ graph TD
 <h2 id="4-documentation-et-artefacts-premium-dx">4. Documentation et Artefacts "Premium DX"</h2>
 <ul>
 <li>
-<p><strong>Javadoc Automatisée (<code>deploy-docs.yml</code>)</strong> : Publication continue sur GitHub Pages.</p>
+<p><strong>Javadoc Automatisée (<code>maven.yml</code> - job <code>deploy-docs</code>)</strong> : Publication continue sur GitHub Pages.</p>
 </li>
 <li>
 <p><strong>JARs Unifiés</strong> : Les JARs de distribution incluent les <code>.class</code>, les sources et la documentation agrégée.</p>
@@ -1508,22 +1506,24 @@ graph TD
 <hr />
 <h2 id="5-matrice-de-certification-multi-jdk">5. Matrice de Certification multi-JDK</h2>
 <p>Le script <code>ci-local.sh</code> est le garant de la robustesse :</p>
-<pre class="mermaid"><code>
-sequenceDiagram
+<pre class="mermaid"><code>sequenceDiagram
     participant M as Makefile
     participant S as ci-local.sh
-    participant D as Docker Engine
-    participant J as JDK Containers (8-25)
+    participant D as "Docker Engine"
+    participant J as "JDK Containers (8-25)"
 
     M-&gt;&gt;S: Lancer certification
     S-&gt;&gt;D: Build images (Isolées)
-    par JDK 8 to 25
-        S-&gt;&gt;D: run container
+    par JDK 8
+        S-&gt;&gt;D: run container (JDK 8)
+        D-&gt;&gt;J: mvn test
+        J--&gt;&gt;S: Exit Code 0
+    and JDK 11 to 25
+        S-&gt;&gt;D: run container (JDK 11-25)
         D-&gt;&gt;J: mvn test
         J--&gt;&gt;S: Exit Code 0
     end
-    S--&gt;&gt;M: Résultat Global (Certifié)
-</code></pre>
+    S--&gt;&gt;M: Résultat Global (Certifié)</code></pre>
 <hr />
 <p><em>Dernière mise à jour : Mars 2026 - Certifié Enterprise Edition v9.4.4</em> ✅</p>
 

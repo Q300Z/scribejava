@@ -2318,7 +2318,7 @@ sequenceDiagram
     Lookup -- "Trouvé" --&gt; Crypto["Signature.verify (java.security)"]
     Lookup -- "Absent" --&gt; Refresh["Rotation: Rechargement JWKS"]
     Refresh --&gt; Crypto
-    Crypto --&gt; Claims["Validation temporelle (iat &lt; now &lt; exp)"]
+    Crypto --&gt; Claims["Validation temporelle (iat &amp;lt; now &amp;lt; exp)"]
     Claims --&gt; Final["IdToken Validé"]</code></pre>
 <hr />
 <h2 id="8-authentification-client-pattern-strategy">8. Authentification Client (Pattern Strategy)</h2>
@@ -2375,17 +2375,15 @@ sequenceDiagram
 <hr />
 <h2 id="12-polling-du-device-flow-rfc-8628">12. Polling du Device Flow (RFC 8628)</h2>
 <p>Gestion intelligente de l'attente active pour les terminaux IoT/Console.</p>
-<pre class="mermaid"><code>
-graph TD
-    Start[Début du Polling] --&gt; Req[POST /token grant_type=device_code]
-    Req --&gt; Resp{Réponse IdP ?}
-    Resp -- "200 OK" --&gt; Success[Retourne AccessToken]
-    Resp -- "400 authorization_pending" --&gt; Wait[Attente intervalSeconds]
-    Resp -- "400 slow_down" --&gt; SD[Augmentation interval +5s]
-    Resp -- "400 access_denied / Autre" --&gt; Fail[Lève OAuthResponseException]
+<pre class="mermaid"><code>graph TD
+    Start["Début du Polling"] --&gt; Req["POST /token grant_type=device_code"]
+    Req --&gt; Resp{"Réponse IdP ?"}
+    Resp -- "200 OK" --&gt; Success["Retourne AccessToken"]
+    Resp -- "400 authorization_pending" --&gt; Wait["Attente intervalSeconds"]
+    Resp -- "400 slow_down" --&gt; SD["Augmentation interval +5s"]
+    Resp -- "400 access_denied / Autre" --&gt; Fail["Lève OAuthResponseException"]
     Wait --&gt; Req
-    SD --&gt; Wait
-</code></pre>
+    SD --&gt; Wait</code></pre>
 <hr />
 <h2 id="13-decouverte-du-client-http-serviceloader">13. Découverte du Client HTTP (ServiceLoader)</h2>
 <p>Comment ScribeJava maintient son autonomie "Zero-Dependency" au runtime.</p>
@@ -2461,10 +2459,10 @@ sequenceDiagram
 <p>Points d'ancrage pour le monitoring et la traçabilité métier.</p>
 <pre class="mermaid"><code>
 sequenceDiagram
-    participant App as Logique Métier
+    participant App as "Logique Métier"
     participant Service as OAuth20Service
     participant Hook as OAuthEventListener
-    participant Net as Client HTTP
+    participant Net as "Client HTTP"
 
     App-&gt;&gt;Service: execute(request)
     Service-&gt;&gt;Hook: onTokenRequested(request)

@@ -1758,7 +1758,7 @@
 <p><strong>Fichier</strong> : <code>.setPayload(File)</code>.</p>
 </li>
 <li>
-<p><strong>Multipart</strong> : <code>.addBodyPart(new ByteArrayBodyPartPayload(...))</code> pour l'envoi de fichiers et données de formulaire mixtes.</p>
+<p><strong>Multipart</strong> : Le support de la charge utile Multipart est géré par les clients HTTP (<code>HttpClient.execute()</code>) via la classe <code>MultipartPayload</code> et sa méthode <code>.addBodyPart(new ByteArrayBodyPartPayload(...))</code>. <em>(Note : <code>OAuthRequest</code> n'expose pas de méthode d'injection directe, c'est le client HTTP de transport qui prend en charge l'objet <code>MultipartPayload</code>).</em></p>
 </li>
 </ul>
 <h3 id="diagnostic-premium-dx">Diagnostic Premium (DX)</h3>
