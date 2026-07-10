@@ -28,7 +28,7 @@ ScribeJava est le choix idéal pour les projets qui refusent l'opacité des fram
 
 ### Matrice de Choix : ScribeJava vs Frameworks Lourds
 
-| Caractéristique            | ScribeJava v9.2.3    | Spring Security / Pac4j       |
+| Caractéristique            | ScribeJava v9.5.2    | Spring Security / Pac4j       |
 |:---------------------------|:---------------------|:------------------------------|
 | **Poids (Core)**           | **< 1 Mo**           | > 50 Mo (avec dépendances)    |
 | **Dépendances**            | **Zéro (JDK natif)** | Énorme graphe de transitivité |
@@ -125,7 +125,8 @@ OidcServiceBuilder builder = new OidcServiceBuilder(clientId)
     .apiSecret(clientSecret)
     .baseOnDiscovery("https://accounts.google.com", httpClient, userAgent);
 
-OAuth20Service service = builder.build(new DefaultOidcApi20());
+// Remplacez par votre API OIDC concrète (ex. OidcGoogleApi20.instance())
+OAuth20Service service = builder.build(OidcGoogleApi20.instance());
 String authUrl = service.getAuthorizationUrl(); // L'URL est découverte dynamiquement !
 
 ```
@@ -190,7 +191,7 @@ coordinator.setListener(new AuthEventListener<String>() {
 
 ScribeJava est distribué via **[GitHub Releases](https://github.com/Q300Z/scribejava/releases)**.
 
-> 💡 *Note actuelle : **v9.2.3***
+> 💡 *Note actuelle : **v9.5.2***
 
 ### Maven
 
@@ -200,18 +201,18 @@ Installez le JAR téléchargé localement ou utilisez votre dépôt privé :
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-core</artifactId>
-    <version>9.2.3</version>
+    <version>9.5.2</version>
 </dependency>
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-oidc</artifactId>
-    <version>9.2.3</version>
+    <version>9.5.2</version>
 </dependency>
 <!-- Hautement recommandé : Pour l'automatisation et l'OIDC Enterprise -->
 <dependency>
     <groupId>com.github.scribejava</groupId>
     <artifactId>scribejava-integration-helpers</artifactId>
-    <version>9.2.3</version>
+    <version>9.5.2</version>
 </dependency>
 ```
 
