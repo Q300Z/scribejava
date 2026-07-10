@@ -68,7 +68,7 @@ L'objet `OAuthRequest` est une abstraction complète de la couche HTTP.
 
 - **Fichier** : `.setPayload(File)`.
 
-- **Multipart** : `.addBodyPart(new ByteArrayBodyPartPayload(...))` pour l'envoi de fichiers et données de formulaire mixtes.
+- **Multipart** : Le support de la charge utile Multipart est géré par les clients HTTP (`HttpClient.execute()`) via la classe `MultipartPayload` et sa méthode `.addBodyPart(new ByteArrayBodyPartPayload(...))`. *(Note : `OAuthRequest` n'expose pas de méthode d'injection directe, c'est le client HTTP de transport qui prend en charge l'objet `MultipartPayload`).*
 
 ### Diagnostic Premium (DX)
 

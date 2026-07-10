@@ -9,34 +9,32 @@ Ce document détaille l'infrastructure de Continuous Integration (CI) et Continu
 Le pipeline sépare strictement la préparation humaine (Local) de la certification et distribution industrielle (Cloud).
 
 ```mermaid
-
 graph TD
     subgraph Local ["💻 Poste Développeur (LOCAL)"]
-        Trigger[make release] --> CertPre[ci-local.sh: Multi-JDK Docker]
-        CertPre --> DocLint[Audit Markdown & Liens]
-        DocLint --> Bump[release-it: Bump SemVer & Tag Git]
-        Bump --> Push[git push master + tags]
+        Trigger["make release"] --> CertPre["ci-local.sh: Multi-JDK Docker"]
+        CertPre --> DocLint["Audit Markdown & Liens"]
+        DocLint --> Bump["release-it: Bump SemVer & Tag Git"]
+        Bump --> Push["git push master + tags"]
     end
 
     subgraph Cloud ["☁️ GitHub Actions (CLOUD)"]
-        Push --> MavenCI[Workflow: maven.yml]
-        MavenCI --> GHDocLint[Audit Markdown & Liens]
-        subgraph "🧪 Matrice de Certification"
-            MavenCI --> JDK8[JDK 8]
-            MavenCI --> JDK11[JDK 11]
-            MavenCI --> JDK17[JDK 17]
-            MavenCI --> JDK21[JDK 21]
-            MavenCI --> JDK25[JDK 25]
+        Push --> MavenCI["Workflow: maven.yml"]
+        MavenCI --> GHDocLint["Audit Markdown & Liens"]
+        subgraph CertificationMatrix ["🧪 Matrice de Certification"]
+            MavenCI --> JDK8["JDK 8"]
+            MavenCI --> JDK11["JDK 11"]
+            MavenCI --> JDK17["JDK 17"]
+            MavenCI --> JDK21["JDK 21"]
+            MavenCI --> JDK25["JDK 25"]
         end
 
-        JDK8 & JDK11 & JDK17 & JDK21 & JDK25 & GHDocLint --> Success{Tests OK ?}
-        Success -- Oui --> Publish[release-it: GitHub Release + JARs]
-        Success -- Non --> Abort[❌ Release bloquée]
+        JDK8 & JDK11 & JDK17 & JDK21 & JDK25 & GHDocLint --> Success{"Tests OK ?"}
+        Success -- "Oui" --> Publish["release-it: GitHub Release + JARs"]
+        Success -- "Non" --> Abort["❌ Release bloquée"]
     end
 
     style Local fill:#f9f,stroke:#333,stroke-width:2px
     style Cloud fill:#bbf,stroke:#333,stroke-width:2px
-
 ```
 
 ---
@@ -59,7 +57,7 @@ Nous utilisons **`release-it`** comme moteur unique pour garantir un versionnage
 
 ### Le Triple Verrou de Sécurité
 
-1. **Verrou Local** : `make release` lance `./ci-local.sh`. La release s'arrête si un test casse sur un des 5 JDKs.
+1. **Verrou Local** : Le développeur doit exécuter `make certify` (ou `./ci-local.sh`) avant la release. Si un test échoue sur l'un des 5 JDKs, le processus doit être corrigé avant de lancer la commande `make release`.
 
 2. **Verrou Cloud** : Le workflow `maven.yml` ré-exécute l'intégralité de la matrice sur les serveurs GitHub pour audit.
 
@@ -69,7 +67,7 @@ Nous utilisons **`release-it`** comme moteur unique pour garantir un versionnage
 
 ## 4. Documentation et Artefacts "Premium DX"
 
-* **Javadoc Automatisée (`deploy-docs.yml`)** : Publication continue sur GitHub Pages.
+* **Javadoc Automatisée (`maven.yml` - job `deploy-docs`)** : Publication continue sur GitHub Pages.
 
 * **JARs Unifiés** : Les JARs de distribution incluent les `.class`, les sources et la documentation agrégée.
 
@@ -82,22 +80,24 @@ Nous utilisons **`release-it`** comme moteur unique pour garantir un versionnage
 Le script `ci-local.sh` est le garant de la robustesse :
 
 ```mermaid
-
 sequenceDiagram
     participant M as Makefile
     participant S as ci-local.sh
-    participant D as Docker Engine
-    participant J as JDK Containers (8-25)
+    participant D as "Docker Engine"
+    participant J as "JDK Containers (8-25)"
 
     M->>S: Lancer certification
     S->>D: Build images (Isolées)
-    par JDK 8 to 25
-        S->>D: run container
+    par JDK 8
+        S->>D: run container (JDK 8)
+        D->>J: mvn test
+        J-->>S: Exit Code 0
+    and JDK 11 to 25
+        S->>D: run container (JDK 11-25)
         D->>J: mvn test
         J-->>S: Exit Code 0
     end
     S-->>M: Résultat Global (Certifié)
-
 ```
 
 ---

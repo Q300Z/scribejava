@@ -15,7 +15,8 @@ OidcServiceBuilder builder = new OidcServiceBuilder(clientId)
     .apiSecret(clientSecret)
     .baseOnDiscovery("https://accounts.google.com", httpClient, userAgent);
 
-OAuth20Service service = builder.build(new DefaultOidcApi20());
+// Remplacez par votre API OIDC concrète (ex. OidcGoogleApi20.instance())
+OAuth20Service service = builder.build(OidcGoogleApi20.instance());
 
 ```
 
@@ -51,8 +52,8 @@ IdTokenValidator validator = new IdTokenValidator(
     jwksUri
 );
 
-// Validation manuelle complète (avec protection contre le rejeu et âge maximum)
-validator.validate(idToken, new OidcNonce(expectedNonce), maxAuthAgeSeconds);
+// Validation manuelle complète (avec protection contre le rejeu et âge maximum) en passant le JWT brut
+validator.validate(rawJwt, new OidcNonce(expectedNonce), maxAuthAgeSeconds);
 ```
 
 ### C. Accès aux Claims (Données Utilisateur)

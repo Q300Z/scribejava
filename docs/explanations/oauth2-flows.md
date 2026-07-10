@@ -345,7 +345,7 @@ flowchart TD
     Lookup -- "Trouvé" --> Crypto["Signature.verify (java.security)"]
     Lookup -- "Absent" --> Refresh["Rotation: Rechargement JWKS"]
     Refresh --> Crypto
-    Crypto --> Claims["Validation temporelle (iat < now < exp)"]
+    Crypto --> Claims["Validation temporelle (iat &lt; now &lt; exp)"]
     Claims --> Final["IdToken Validé"]
 ```
 
@@ -433,17 +433,15 @@ sequenceDiagram
 Gestion intelligente de l'attente active pour les terminaux IoT/Console.
 
 ```mermaid
-
 graph TD
-    Start[Début du Polling] --> Req[POST /token grant_type=device_code]
-    Req --> Resp{Réponse IdP ?}
-    Resp -- "200 OK" --> Success[Retourne AccessToken]
-    Resp -- "400 authorization_pending" --> Wait[Attente intervalSeconds]
-    Resp -- "400 slow_down" --> SD[Augmentation interval +5s]
-    Resp -- "400 access_denied / Autre" --> Fail[Lève OAuthResponseException]
+    Start["Début du Polling"] --> Req["POST /token grant_type=device_code"]
+    Req --> Resp{"Réponse IdP ?"}
+    Resp -- "200 OK" --> Success["Retourne AccessToken"]
+    Resp -- "400 authorization_pending" --> Wait["Attente intervalSeconds"]
+    Resp -- "400 slow_down" --> SD["Augmentation interval +5s"]
+    Resp -- "400 access_denied / Autre" --> Fail["Lève OAuthResponseException"]
     Wait --> Req
     SD --> Wait
-
 ```
 
 ---
@@ -555,10 +553,10 @@ Points d'ancrage pour le monitoring et la traçabilité métier.
 ```mermaid
 
 sequenceDiagram
-    participant App as Logique Métier
+    participant App as "Logique Métier"
     participant Service as OAuth20Service
     participant Hook as OAuthEventListener
-    participant Net as Client HTTP
+    participant Net as "Client HTTP"
 
     App->>Service: execute(request)
     Service->>Hook: onTokenRequested(request)
