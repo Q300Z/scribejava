@@ -1,5 +1,7 @@
 # 📓 Journal des modifications (Changelog)
 
+# [9.7.0](https://github.com/Q300Z/scribejava/compare/v9.6.0...v9.7.0) (2026-11-24)
+
 # [9.6.0](https://github.com/Q300Z/scribejava/compare/v9.5.2...v9.6.0) (2026-11-24)
 
 ### Bug Fixes
