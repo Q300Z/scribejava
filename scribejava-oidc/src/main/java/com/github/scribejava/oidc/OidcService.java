@@ -35,12 +35,14 @@ import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth2.grant.OAuth20Grant;
 import com.github.scribejava.core.utils.JsonUtils;
+import com.github.scribejava.oidc.model.JweDecryptor;
 import com.github.scribejava.oidc.model.JwksParser;
 import com.github.scribejava.oidc.model.Jwt;
 import com.github.scribejava.oidc.model.OidcKey;
 import com.github.scribejava.oidc.model.OidcNonce;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.PrivateKey;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -52,6 +54,9 @@ public class OidcService extends OAuth20Service {
 
   private IdTokenValidator idTokenValidator;
   private OidcSessionStateStore sessionStateStore = new DefaultOidcSessionStateStore();
+  private PrivateKey decryptionKey;
+  private Map<String, PrivateKey> decryptionKeys;
+  private final JweDecryptor jweDecryptor = new JweDecryptor();
 
   public OidcService(
       DefaultApi20 api,
@@ -119,6 +124,8 @@ public class OidcService extends OAuth20Service {
       idTokenRaw = token.getRawResponse();
     }
 
+    idTokenRaw = decryptIfJwe(idTokenRaw);
+
     if (idTokenValidator != null) {
       idTokenValidator.validate(idTokenRaw, null, 0);
     } else {
@@ -146,10 +153,59 @@ public class OidcService extends OAuth20Service {
       idTokenRaw = token.getRawResponse();
     }
 
+    idTokenRaw = decryptIfJwe(idTokenRaw);
+
     if (idTokenValidator != null) {
       return idTokenValidator.validate(idTokenRaw, nonce, 0);
     }
     return idTokenRaw != null ? new IdToken(idTokenRaw) : null;
+  }
+
+  /**
+   * Retourne la clé privée par défaut utilisée pour déchiffrer les jetons JWE.
+   *
+   * @return La clé privée de déchiffrement, ou {@code null}.
+   */
+  public PrivateKey getDecryptionKey() {
+    return decryptionKey;
+  }
+
+  /**
+   * Définit la clé privée par défaut utilisée pour déchiffrer les jetons JWE (ex. FranceConnect+).
+   *
+   * @param decryptionKey La clé privée RSA de déchiffrement.
+   */
+  public void setDecryptionKey(PrivateKey decryptionKey) {
+    this.decryptionKey = decryptionKey;
+  }
+
+  /**
+   * Retourne les clés privées indexées par {@code kid} pour déchiffrer les jetons JWE.
+   *
+   * @return Le dictionnaire {@code kid -> PrivateKey}, ou {@code null}.
+   */
+  public Map<String, PrivateKey> getDecryptionKeys() {
+    return decryptionKeys;
+  }
+
+  /**
+   * Définit les clés privées indexées par {@code kid} pour déchiffrer les jetons JWE.
+   *
+   * @param decryptionKeys Le dictionnaire {@code kid -> PrivateKey}.
+   */
+  public void setDecryptionKeys(Map<String, PrivateKey> decryptionKeys) {
+    this.decryptionKeys = decryptionKeys;
+  }
+
+  private String decryptIfJwe(String rawToken) {
+    if (rawToken != null && rawToken.split("\\.", -1).length == 5) {
+      if (decryptionKey == null && (decryptionKeys == null || decryptionKeys.isEmpty())) {
+        throw new OAuthException(
+            "Encrypted JWT (JWE) received but no decryption key is configured.");
+      }
+      return jweDecryptor.decrypt(rawToken, decryptionKeys, decryptionKey);
+    }
+    return rawToken;
   }
 
   /**
@@ -257,7 +313,15 @@ public class OidcService extends OAuth20Service {
         contentType != null && contentType.contains("application/jwt");
     final boolean hasJsonContentType =
         contentType != null && contentType.contains("application/json");
+    final int dotSegments = body.split("\\.", -1).length;
 
+    if (dotSegments == 5 && (hasJwtContentType || contentType == null || !hasJsonContentType)) {
+      final String decrypted = decryptIfJwe(body);
+      if (decrypted.trim().startsWith("{")) {
+        return parseAndVerifyUserInfoJson(decrypted.trim(), token);
+      }
+      return processUserInfoJwt(decrypted.trim(), token);
+    }
     if (hasJwtContentType) {
       return processUserInfoJwt(body, token);
     }
@@ -274,7 +338,7 @@ public class OidcService extends OAuth20Service {
     if (body.startsWith("{")) {
       return parseAndVerifyUserInfoJson(body, token);
     }
-    if (body.split("\\.", -1).length == 3) {
+    if (dotSegments == 3) {
       return processUserInfoJwt(body, token);
     }
 
@@ -404,7 +468,13 @@ public class OidcService extends OAuth20Service {
     if (!(idTokenObj instanceof String)) {
       return;
     }
-    final String idTokenRaw = (String) idTokenObj;
+    String idTokenRaw = (String) idTokenObj;
+    if (idTokenRaw.split("\\.", -1).length == 5) {
+      if (decryptionKey == null && (decryptionKeys == null || decryptionKeys.isEmpty())) {
+        return;
+      }
+      idTokenRaw = decryptIfJwe(idTokenRaw);
+    }
     if (idTokenRaw.split("\\.", -1).length != 3) {
       return;
     }
