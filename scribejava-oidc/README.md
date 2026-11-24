@@ -7,10 +7,12 @@ Ce module fournit une implémentation complète et sécurisée du protocole Open
 ## 🌟 Fonctionnalités Clés
 
 * **Auto-découverte (Discovery)** : Récupération dynamique des endpoints via `/.well-known/openid-configuration`.
-* **Validation d'ID Token** : Vérification rigoureuse de la signature (RS256, etc.), de l'émetteur (`iss`), de
+* **Validation d'ID Token** : Vérification rigoureuse de la signature (`RS256`, `ES256`, `ES384`, `ES512`, `PS256`), de l'émetteur (`iss`), de
   l'audience (`aud`) et de l'expiration (`exp`).
-* **Gestion des JWKS** : Support de la rotation des clés publiques du fournisseur.
-* **UserInfo** : Récupération et parsing des claims utilisateur (email, profile, etc.).
+* **Gestion des JWKS** : Support des clés RSA et EC (`P-256`, `P-384`, `P-521`) ainsi que de la rotation automatique.
+* **UserInfo (`JSON` & `JWT` signé)** : Récupération et vérification via `OidcService.getUserInfo(token)` / `getUserInfoAsync(token)` (formats `application/json` et `application/jwt`).
+* **Déchiffrement JWE natif Java 8** : Support des jetons chiffrés à 5 segments (`RSA-OAEP-256` / `RSA-OAEP` + `A128GCM`/`A192GCM`/`A256GCM` ou `AES-CBC-HMAC`) via `JweDecryptor` (profil FranceConnect+).
+* **Fournisseurs prêts à l'emploi** : `OidcFranceConnectApi20` et `OidcProConnectApi20` (Sandbox et Production).
 
 ---
 
@@ -239,18 +241,48 @@ IdTokenValidator validator = new IdTokenValidator(
 validator.validate(idToken, new OidcNonce(expectedNonce), 3600);
 ```
 
-### Gestion des Claims (UserInfo)
+### Gestion des Claims (`UserInfo`)
+
+`OidcService.getUserInfo(token)` (et son pendant asynchrone `getUserInfoAsync(token)`) interroge automatiquement `userinfo_endpoint`, gère les réponses `application/json` comme `application/jwt` (vérification de signature et des claims `sub`/`iss`/`aud`) et déchiffre les jetons JWE si une clé privée est configurée :
 
 ```java
-DefaultOidcApi20 api = (DefaultOidcApi20) service.getApi();
-OAuthRequest request = new OAuthRequest(Verb.GET, api.getMetadata().getUserinfoEndpoint());
-service.signRequest(token, request);
+StandardClaims claims = service.getUserInfo(token);
+System.out.println("Sujet : " + claims.getSub().orElse(""));
+System.out.println("Email : " + claims.getEmail().orElse(""));
+```
 
-try (Response response = service.execute(request)) {
-    UserInfoJsonExtractor extractor = UserInfoJsonExtractor.instance();
-    StandardClaims claims = extractor.extract(response);
-    System.out.println("Email : " + claims.getEmail().orElse(""));
-}
+### FranceConnect, FranceConnect+ et ProConnect
+
+```java
+// FranceConnect (Sandbox ou Production) — acr_values=eidas1 par défaut
+OidcFranceConnectApi20 fcApi = OidcFranceConnectApi20.sandbox();
+// OidcFranceConnectApi20 fcApi = OidcFranceConnectApi20.instance(); // Production
+
+OidcService fcService = new OidcServiceBuilder(clientId)
+    .apiSecret(clientSecret)
+    .callback(callbackUrl)
+    .defaultScope("openid identite_pivot email")
+    .build(fcApi);
+
+// Optionnel (FranceConnect+) : clé privée RSA pour déchiffrer les jetons JWE (5 segments)
+fcService.setDecryptionKey(rpPrivateKey);
+
+// Paramètres d'autorisation OIDC fluides ou via Map
+OidcSessionState sessionState = fcService.initSessionState();
+String authUrl = fcService.createAuthorizationUrlBuilder()
+    .state(sessionState.getState())
+    .nonce(sessionState.getNonce().getValue())
+    .acrValues("eidas2")
+    .loginHint("usager@example.fr")
+    .build();
+
+// Ou via surcharge avec Map additionnelle (prompt, max_age, etc.)
+Map<String, String> extraParams = Collections.singletonMap("prompt", "login");
+String authUrlWithExtra = fcService.getAuthorizationUrl(sessionState, extraParams);
+
+// ProConnect (Sandbox ou Production)
+OidcProConnectApi20 pcApi = OidcProConnectApi20.sandbox();
+// OidcProConnectApi20 pcApi = OidcProConnectApi20.instance(); // Production
 ```
 
 ---
