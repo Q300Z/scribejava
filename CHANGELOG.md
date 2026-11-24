@@ -1,5 +1,16 @@
 # 📓 Journal des modifications (Changelog)
 
+# [9.6.0](https://github.com/Q300Z/scribejava/compare/v9.5.2...v9.6.0) (2026-11-24)
+
+### Bug Fixes
+
+* **ci:** correction du répertoire racine Maven dans dependabot.yml ([f1a3fce](https://github.com/Q300Z/scribejava/commit/f1a3fce312f5926021b136186cc2da54d701ef46))
+
+### Features
+
+* **oidc:** ajout du déchiffrement JWE natif Java 8 (profil FranceConnect+) ([1ace1b9](https://github.com/Q300Z/scribejava/commit/1ace1b9c05cd7ee221fb17c493c801f37b021df5))
+* **oidc:** implémentation de /userinfo, ajout de FranceConnect/ProConnect et prise en charge des courbes EC P-384/P-521 ([18ba629](https://github.com/Q300Z/scribejava/commit/18ba629b0af9ae977199913c389fe6e89081990a))
+
 ## [9.5.2](https://github.com/Q300Z/scribejava/compare/v9.5.1...v9.5.2) (2026-07-09)
 
 
