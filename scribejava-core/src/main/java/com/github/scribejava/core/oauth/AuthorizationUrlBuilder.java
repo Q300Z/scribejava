@@ -39,7 +39,10 @@ public class AuthorizationUrlBuilder {
   private final OAuth20Service oauth20Service;
 
   private String state;
+  private String nonce;
   private Map<String, String> additionalParams;
+  private String acrValues;
+  private String loginHint;
   private PKCE pkce;
   private String scope;
   private boolean usePushedAuthorizationRequests;
@@ -65,10 +68,7 @@ public class AuthorizationUrlBuilder {
    * @return builder
    */
   public AuthorizationUrlBuilder nonce(String nonce) {
-    if (this.additionalParams == null) {
-      this.additionalParams = new HashMap<>();
-    }
-    this.additionalParams.put("nonce", nonce);
+    this.nonce = nonce;
     return this;
   }
 
@@ -78,6 +78,36 @@ public class AuthorizationUrlBuilder {
    */
   public AuthorizationUrlBuilder additionalParams(Map<String, String> additionalParams) {
     this.additionalParams = additionalParams;
+    return this;
+  }
+
+  /**
+   * Définit le paramètre OIDC {@code acr_values} (Authentication Context Class Reference).
+   *
+   * <p>Les valeurs nulles, vides ou uniquement composées d'espaces sont ignorées.
+   *
+   * @param acrValues Les valeurs ACR attendues (séparées par des espaces).
+   * @return Le constructeur courant.
+   */
+  public AuthorizationUrlBuilder acrValues(String acrValues) {
+    if (acrValues != null && !acrValues.trim().isEmpty()) {
+      this.acrValues = acrValues;
+    }
+    return this;
+  }
+
+  /**
+   * Définit le paramètre OIDC {@code login_hint} pour pré-remplir l'identifiant utilisateur.
+   *
+   * <p>Les valeurs nulles, vides ou uniquement composées d'espaces sont ignorées.
+   *
+   * @param loginHint L'indice d'identifiant de connexion.
+   * @return Le constructeur courant.
+   */
+  public AuthorizationUrlBuilder loginHint(String loginHint) {
+    if (loginHint != null && !loginHint.trim().isEmpty()) {
+      this.loginHint = loginHint;
+    }
     return this;
   }
 
@@ -130,6 +160,15 @@ public class AuthorizationUrlBuilder {
   public String build() {
     final Map<String, String> params =
         additionalParams == null ? new HashMap<>() : new HashMap<>(additionalParams);
+    if (nonce != null && !nonce.trim().isEmpty()) {
+      params.put("nonce", nonce);
+    }
+    if (acrValues != null && !acrValues.trim().isEmpty()) {
+      params.put("acr_values", acrValues);
+    }
+    if (loginHint != null && !loginHint.trim().isEmpty()) {
+      params.put("login_hint", loginHint);
+    }
 
     oauth20Service.getAuthorizationRequestInterceptors().forEach(i -> i.intercept(params));
 

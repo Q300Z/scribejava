@@ -167,15 +167,15 @@ public class OidcServiceEdgeCasesTest {
   }
 
   @Test
-  public void shouldGetUserInfoAsync() throws Exception {
+  public void shouldGetUserInfoAsync() {
     final DefaultOidcApi20 api = mock(DefaultOidcApi20.class);
     final OidcService service =
         new OidcService(api, "key", "secret", null, null, null, null, "userAgent", null, null);
 
     final OAuth2AccessToken token = new OAuth2AccessToken("access-token");
-    final StandardClaims claims = service.getUserInfoAsync(token).get();
-    assertThat(claims).isNotNull();
-    assertThat(claims.getAllClaims()).isEmpty();
+    final ExecutionException ex =
+        assertThrows(ExecutionException.class, () -> service.getUserInfoAsync(token).get());
+    assertThat(ex.getCause()).isInstanceOf(OAuthException.class);
   }
 
   @Test
@@ -279,5 +279,49 @@ public class OidcServiceEdgeCasesTest {
     final OidcGoogleApi20 api = OidcGoogleApi20.instance();
     final OidcService service = builder.build(api);
     assertThat(service).isNotNull();
+  }
+
+  @Test
+  public void shouldIncludeValidAdditionalParamsAndIgnoreNullOrEmptyInGetAuthorizationUrl() {
+    final OidcGoogleApi20 api = OidcGoogleApi20.instance();
+    final OidcService service =
+        new OidcService(
+            api,
+            CLIENT_ID,
+            "secret",
+            "https://app.example.com/cb",
+            "openid profile",
+            "code",
+            null,
+            "ua",
+            null,
+            null);
+    final OidcSessionState sessionState = service.initSessionState();
+
+    final Map<String, String> params = new HashMap<>();
+    params.put("prompt", "login");
+    params.put("max_age", "300");
+    params.put("acr_values", "eidas1");
+    params.put("login_hint", "jean.dupont@example.fr");
+    params.put("empty_val", "");
+    params.put("blank_val", "   ");
+    params.put("null_val", null);
+    params.put("", "empty_key");
+    params.put("   ", "blank_key");
+    params.put(null, "null_key");
+
+    final String url = service.getAuthorizationUrl(sessionState, params);
+    assertThat(url).contains("prompt=login");
+    assertThat(url).contains("max_age=300");
+    assertThat(url).contains("acr_values=eidas1");
+    assertThat(url).contains("login_hint=jean.dupont%40example.fr");
+    assertThat(url).contains("nonce=" + sessionState.getNonce().getValue());
+    assertThat(url).contains("state=" + sessionState.getState());
+    assertThat(url).doesNotContain("empty_val");
+    assertThat(url).doesNotContain("blank_val");
+    assertThat(url).doesNotContain("null_val");
+    assertThat(url).doesNotContain("empty_key");
+    assertThat(url).doesNotContain("blank_key");
+    assertThat(url).doesNotContain("null_key");
   }
 }

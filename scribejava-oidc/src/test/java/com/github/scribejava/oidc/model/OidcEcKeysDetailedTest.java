@@ -25,6 +25,9 @@ package com.github.scribejava.oidc.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.security.PublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.HashMap;
@@ -52,5 +55,45 @@ public class OidcEcKeysDetailedTest {
     final PublicKey key = parser.parseKey(jwk).getPublicKey();
     assertThat(key).isInstanceOf(ECPublicKey.class);
     assertThat(((ECPublicKey) key).getParams().getCurve().getField().getFieldSize()).isEqualTo(256);
+  }
+
+  /**
+   * Vérifie le parsing d'une clé EC P-384.
+   *
+   * @throws Exception en cas d'échec cryptographique
+   */
+  @Test
+  public void shouldParseEcP384Key() throws Exception {
+    final ECKey generated = new ECKeyGenerator(Curve.P_384).keyID("key-p384").generate();
+    final Map<String, Object> jwk = generated.toPublicJWK().toJSONObject();
+
+    final JwksParser parser = new JwksParser();
+    final OidcKey oidcKey = parser.parseKey(jwk);
+    assertThat(oidcKey).isNotNull();
+    assertThat(oidcKey.getKid()).isEqualTo("key-p384");
+    assertThat(oidcKey.getPublicKey()).isInstanceOf(ECPublicKey.class);
+    assertThat(
+            ((ECPublicKey) oidcKey.getPublicKey()).getParams().getCurve().getField().getFieldSize())
+        .isEqualTo(384);
+  }
+
+  /**
+   * Vérifie le parsing d'une clé EC P-521.
+   *
+   * @throws Exception en cas d'échec cryptographique
+   */
+  @Test
+  public void shouldParseEcP521Key() throws Exception {
+    final ECKey generated = new ECKeyGenerator(Curve.P_521).keyID("key-p521").generate();
+    final Map<String, Object> jwk = generated.toPublicJWK().toJSONObject();
+
+    final JwksParser parser = new JwksParser();
+    final OidcKey oidcKey = parser.parseKey(jwk);
+    assertThat(oidcKey).isNotNull();
+    assertThat(oidcKey.getKid()).isEqualTo("key-p521");
+    assertThat(oidcKey.getPublicKey()).isInstanceOf(ECPublicKey.class);
+    assertThat(
+            ((ECPublicKey) oidcKey.getPublicKey()).getParams().getCurve().getField().getFieldSize())
+        .isEqualTo(521);
   }
 }

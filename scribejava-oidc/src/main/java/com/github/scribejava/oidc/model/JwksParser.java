@@ -132,7 +132,6 @@ public class JwksParser {
 
   private OidcKey parseEcKey(Map<String, Object> node) throws IOException {
     final String kid = (String) node.get("kid");
-    final String alg = node.containsKey("alg") ? (String) node.get("alg") : "ES256";
     final String crv = (String) node.get("crv");
     final String xStr = (String) node.get("x");
     final String yStr = (String) node.get("y");
@@ -141,14 +140,38 @@ public class JwksParser {
       throw new IOException("Missing EC components (crv, x, y) in JWK");
     }
 
+    // Correspondance explicite des courbes JWK vers les noms standards JCA/SunEC (Java 8)
+    final String stdCurveName;
+    final String defaultAlg;
+    switch (crv) {
+      case "P-256":
+        stdCurveName = "secp256r1";
+        defaultAlg = "ES256";
+        break;
+      case "P-384":
+        stdCurveName = "secp384r1";
+        defaultAlg = "ES384";
+        break;
+      case "P-521":
+        stdCurveName = "secp521r1";
+        defaultAlg = "ES512";
+        break;
+      default:
+        stdCurveName = crv;
+        defaultAlg = "ES256";
+        break;
+    }
+    final String alg = node.containsKey("alg") ? (String) node.get("alg") : defaultAlg;
+
     final BigInteger x = new BigInteger(1, Base64.getUrlDecoder().decode(xStr));
     final BigInteger y = new BigInteger(1, Base64.getUrlDecoder().decode(yStr));
 
     try {
       final AlgorithmParameters params = AlgorithmParameters.getInstance("EC");
       try {
-        params.init(new ECGenParameterSpec(crv));
+        params.init(new ECGenParameterSpec(stdCurveName));
       } catch (Exception e) {
+        // Repli conservé pour les courbes non reconnues afin de préserver la rétrocompatibilité
         params.init(new ECGenParameterSpec("secp256r1"));
       }
       final ECParameterSpec ecParameters = params.getParameterSpec(ECParameterSpec.class);

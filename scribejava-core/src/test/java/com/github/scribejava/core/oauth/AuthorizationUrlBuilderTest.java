@@ -29,6 +29,7 @@ import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.PushedAuthorizationResponse;
 import com.github.scribejava.core.pkce.PKCE;
 import com.github.scribejava.core.pkce.PKCECodeChallengeMethod;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -127,6 +128,64 @@ public class AuthorizationUrlBuilderTest {
   public void shouldSupportNonce() {
     final String url = service.createAuthorizationUrlBuilder().nonce("my-nonce").build();
     assertThat(url).contains("nonce=my-nonce");
+  }
+
+  /** Vérifie le support de acr_values et login_hint sans écrasement par additionalParams. */
+  @Test
+  public void shouldSupportAcrValuesAndLoginHint() {
+    final Map<String, String> extra = new HashMap<>();
+    extra.put("prompt", "consent");
+
+    final String url =
+        service
+            .createAuthorizationUrlBuilder()
+            .acrValues("eidas1")
+            .loginHint("user@example.com")
+            .additionalParams(extra)
+            .build();
+
+    assertThat(url).contains("acr_values=eidas1");
+    assertThat(url).contains("login_hint=user%40example.com");
+    assertThat(url).contains("prompt=consent");
+  }
+
+  /** Vérifie que les valeurs nulles, vides ou uniquement blanches sont ignorées. */
+  @Test
+  public void shouldIgnoreNullAndEmptyAcrValuesAndLoginHint() {
+    final String url =
+        service
+            .createAuthorizationUrlBuilder()
+            .acrValues(null)
+            .acrValues("")
+            .acrValues("   ")
+            .loginHint(null)
+            .loginHint("")
+            .loginHint("   ")
+            .build();
+
+    assertThat(url).doesNotContain("acr_values");
+    assertThat(url).doesNotContain("login_hint");
+  }
+
+  /**
+   * Vérifie que nonce et additionalParams sont indépendants de l'ordre et tolèrent une Map
+   * immuable.
+   */
+  @Test
+  public void shouldPreserveNonceRegardlessOfAdditionalParamsOrderAndImmutableMap() {
+    final Map<String, String> mutable = new HashMap<>();
+    mutable.put("prompt", "login");
+    final String urlNonceBefore =
+        service.createAuthorizationUrlBuilder().nonce("n1").additionalParams(mutable).build();
+    assertThat(urlNonceBefore).contains("nonce=n1").contains("prompt=login");
+
+    final String urlImmutableBefore =
+        service
+            .createAuthorizationUrlBuilder()
+            .additionalParams(Collections.singletonMap("prompt", "consent"))
+            .nonce("n2")
+            .build();
+    assertThat(urlImmutableBefore).contains("nonce=n2").contains("prompt=consent");
   }
 
   /** Vérifie les interceptors. */

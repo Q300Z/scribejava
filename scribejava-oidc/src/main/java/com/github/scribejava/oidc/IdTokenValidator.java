@@ -158,9 +158,9 @@ public class IdTokenValidator {
       throws OAuthException {
     final Map<String, Object> claims = jwt.getPayload();
 
-    final String alg = (String) jwt.getHeader().get("alg");
-    if (!expectedAlg.equals(alg)) {
-      throw new OAuthException("Invalid algorithm. Expected " + expectedAlg + " but got " + alg);
+    final Object algObj = jwt.getHeader().get("alg");
+    if (!(algObj instanceof String) || !expectedAlg.equals(algObj)) {
+      throw new OAuthException("Invalid algorithm. Expected " + expectedAlg + " but got " + algObj);
     }
 
     verifySignature(jwt);
@@ -171,8 +171,8 @@ public class IdTokenValidator {
     }
 
     if (expectedNonce != null) {
-      final String nonce = (String) claims.get("nonce");
-      if (!expectedNonce.getValue().equals(nonce)) {
+      final Object nonceObj = claims.get("nonce");
+      if (!(nonceObj instanceof String) || !expectedNonce.getValue().equals(nonceObj)) {
         throw new OAuthException("Nonce mismatch.");
       }
     }
@@ -180,21 +180,82 @@ public class IdTokenValidator {
     return new IdToken(jwt.getRawToken());
   }
 
+  /**
+   * Valide un jeton JWT retourné par le point de terminaison UserInfo (OIDC Core §5.3.2).
+   *
+   * <p>Vérifie que l'algorithme est asymétrique supporté ({@code RS256} ou {@code ES256}), contrôle
+   * la signature via les clés JWKS, valide {@code iss}, {@code aud}, la présence non vide de {@code
+   * sub}, ainsi que {@code exp} uniquement s'il est présent dans les revendications.
+   *
+   * @param jwt Le jeton JWT UserInfo parsé.
+   * @return Les revendications standards {@link StandardClaims}.
+   * @throws OAuthException si l'algorithme, la signature ou les revendications sont invalides.
+   */
+  public StandardClaims validateUserInfoJwt(Jwt jwt) throws OAuthException {
+    if (jwt == null) {
+      throw new OAuthException("UserInfo JWT cannot be null.");
+    }
+    final Object algObj = jwt.getHeader().get("alg");
+    if (!(algObj instanceof String) || !"RS256".equals(algObj) && !"ES256".equals(algObj)) {
+      throw new OAuthException("Unsupported UserInfo JWT algorithm: " + algObj);
+    }
+
+    verifySignature(jwt);
+
+    final Map<String, Object> claims = jwt.getPayload();
+    validateIssuerAndAudience(claims);
+
+    final Object subObj = claims.get("sub");
+    if (!(subObj instanceof String) || ((String) subObj).trim().isEmpty()) {
+      throw new OAuthException("UserInfo JWT missing or empty 'sub' claim.");
+    }
+
+    final Object expObj = claims.get("exp");
+    if (expObj != null) {
+      if (!(expObj instanceof Number)) {
+        throw new OAuthException("Invalid 'exp' claim in UserInfo JWT.");
+      }
+      final long now = new Date().getTime() / 1000;
+      if (now > ((Number) expObj).longValue()) {
+        throw new OAuthException("UserInfo JWT has expired.");
+      }
+    }
+
+    return new StandardClaims(claims);
+  }
+
   private void validateBaseClaims(Map<String, Object> claims) throws OAuthException {
-    final String claimIssuer = (String) claims.get("iss");
-    if (!isIssuerMatching(issuer, claimIssuer, claims)) {
+    validateIssuerAndAudience(claims);
+
+    final long now = new Date().getTime() / 1000;
+    final Object expObj = claims.get("exp");
+    if (!(expObj instanceof Number) || now > ((Number) expObj).longValue()) {
+      throw new OAuthException("Token has expired.");
+    }
+  }
+
+  private void validateIssuerAndAudience(Map<String, Object> claims) throws OAuthException {
+    final Object claimIssuerObj = claims.get("iss");
+    if (!(claimIssuerObj instanceof String)
+        || !isIssuerMatching(issuer, (String) claimIssuerObj, claims)) {
       throw new OAuthException("Issuer mismatch.");
     }
 
     final Object aud = claims.get("aud");
     boolean audValid = false;
     if (aud instanceof String) {
-      audValid = clientID.equals(aud);
+      audValid = clientID != null && clientID.equals(aud);
     } else if (aud instanceof List) {
       final List<?> audList = (List<?>) aud;
-      audValid = audList.contains(clientID);
-      if (audValid && audList.size() > 1 && claims.get("azp") == null) {
-        throw new OAuthException("ID Token has multiple audiences but 'azp' claim is missing.");
+      audValid = clientID != null && audList.contains(clientID);
+      if (audValid && audList.size() > 1) {
+        final Object azpObj = claims.get("azp");
+        if (azpObj == null) {
+          throw new OAuthException("ID Token has multiple audiences but 'azp' claim is missing.");
+        }
+        if (!(azpObj instanceof String) || !clientID.equals(azpObj)) {
+          throw new OAuthException("Authorized party ('azp') mismatch.");
+        }
       }
     }
 
@@ -202,21 +263,20 @@ public class IdTokenValidator {
       throw new OAuthException("Audience mismatch.");
     }
 
-    final long now = new Date().getTime() / 1000;
-    final Number exp = (Number) claims.get("exp");
-    if (exp == null || now > exp.longValue()) {
-      throw new OAuthException("Token has expired.");
+    final Object azpObj = claims.get("azp");
+    if (azpObj != null && (!(azpObj instanceof String) || !clientID.equals(azpObj))) {
+      throw new OAuthException("Authorized party ('azp') mismatch.");
     }
   }
 
   private void validateMaxAuthAge(Map<String, Object> claims, long maxAuthAgeSeconds)
       throws OAuthException {
-    final Number authTime = (Number) claims.get("auth_time");
-    if (authTime == null) {
+    final Object authTimeObj = claims.get("auth_time");
+    if (!(authTimeObj instanceof Number)) {
       throw new OAuthException("ID Token does not contain 'auth_time' claim.");
     }
     final long now = new Date().getTime() / 1000;
-    if (now - authTime.longValue() > maxAuthAgeSeconds) {
+    if (now - ((Number) authTimeObj).longValue() > maxAuthAgeSeconds) {
       throw new OAuthException("Auth time too old.");
     }
   }
@@ -226,10 +286,11 @@ public class IdTokenValidator {
       return;
     }
 
-    final String kid = (String) jwt.getHeader().get("kid");
-    if (kid == null) {
+    final Object kidObj = jwt.getHeader().get("kid");
+    if (!(kidObj instanceof String) || ((String) kidObj).isEmpty()) {
       throw new OAuthException("Missing 'kid' in header.");
     }
+    final String kid = (String) kidObj;
 
     OidcKey key = keys.get(kid);
     if (key == null && discoveryService != null && jwksUri != null) {
@@ -241,10 +302,11 @@ public class IdTokenValidator {
       throw new OAuthException("Key not found for kid: " + kid);
     }
 
-    final String alg = (String) jwt.getHeader().get("alg");
-    if (alg == null) {
+    final Object algObj = jwt.getHeader().get("alg");
+    if (!(algObj instanceof String) || ((String) algObj).isEmpty()) {
       throw new OAuthException("Missing 'alg' in header.");
     }
+    final String alg = (String) algObj;
 
     if (!signatureVerifier.verify(
         alg, jwt.getSignedContent(), jwt.getSignature(), key.getPublicKey())) {

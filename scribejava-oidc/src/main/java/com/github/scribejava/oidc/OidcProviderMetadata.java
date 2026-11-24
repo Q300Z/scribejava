@@ -51,6 +51,7 @@ public class OidcProviderMetadata {
   private final String pushedAuthorizationRequestEndpoint;
   private final String endSessionEndpoint;
   private final List<String> dpopSigningAlgValuesSupported;
+  private final List<String> tokenEndpointAuthMethodsSupported;
   private final String rawResponse;
 
   public OidcProviderMetadata(
@@ -111,6 +112,71 @@ public class OidcProviderMetadata {
       String endSessionEndpoint,
       List<String> dpopSigningAlgValuesSupported,
       String rawResponse) {
+    this(
+        issuer,
+        authorizationEndpoint,
+        tokenEndpoint,
+        jwksUri,
+        responseTypesSupported,
+        subjectTypesSupported,
+        idTokenSigningAlgValuesSupported,
+        userinfoEndpoint,
+        registrationEndpoint,
+        scopesSupported,
+        responseModesSupported,
+        grantTypesSupported,
+        revocationEndpoint,
+        introspectionEndpoint,
+        pushedAuthorizationRequestEndpoint,
+        endSessionEndpoint,
+        dpopSigningAlgValuesSupported,
+        Collections.emptyList(),
+        rawResponse);
+  }
+
+  /**
+   * Construit les métadonnées d'un fournisseur OpenID Connect.
+   *
+   * @param issuer L'identifiant de l'émetteur.
+   * @param authorizationEndpoint L'URL du point de terminaison d'autorisation.
+   * @param tokenEndpoint L'URL du point de terminaison de jeton.
+   * @param jwksUri L'URI du jeu de clés JWKS.
+   * @param responseTypesSupported Les types de réponse supportés.
+   * @param subjectTypesSupported Les types de sujet supportés.
+   * @param idTokenSigningAlgValuesSupported Les algorithmes de signature de jeton d'identité.
+   * @param userinfoEndpoint L'URL du point de terminaison UserInfo.
+   * @param registrationEndpoint L'URL d'enregistrement dynamique.
+   * @param scopesSupported Les portées supportées.
+   * @param responseModesSupported Les modes de réponse supportés.
+   * @param grantTypesSupported Les types de grant supportés.
+   * @param revocationEndpoint L'URL de révocation.
+   * @param introspectionEndpoint L'URL d'introspection.
+   * @param pushedAuthorizationRequestEndpoint L'URL PAR.
+   * @param endSessionEndpoint L'URL de déconnexion.
+   * @param dpopSigningAlgValuesSupported Les algorithmes DPoP supportés.
+   * @param tokenEndpointAuthMethodsSupported Les méthodes d'authentification au point de jeton.
+   * @param rawResponse La réponse JSON brute.
+   */
+  public OidcProviderMetadata(
+      String issuer,
+      String authorizationEndpoint,
+      String tokenEndpoint,
+      String jwksUri,
+      List<String> responseTypesSupported,
+      List<String> subjectTypesSupported,
+      List<String> idTokenSigningAlgValuesSupported,
+      String userinfoEndpoint,
+      String registrationEndpoint,
+      List<String> scopesSupported,
+      List<String> responseModesSupported,
+      List<String> grantTypesSupported,
+      String revocationEndpoint,
+      String introspectionEndpoint,
+      String pushedAuthorizationRequestEndpoint,
+      String endSessionEndpoint,
+      List<String> dpopSigningAlgValuesSupported,
+      List<String> tokenEndpointAuthMethodsSupported,
+      String rawResponse) {
     this.issuer = issuer;
     this.authorizationEndpoint = authorizationEndpoint;
     this.tokenEndpoint = tokenEndpoint;
@@ -128,6 +194,7 @@ public class OidcProviderMetadata {
     this.pushedAuthorizationRequestEndpoint = pushedAuthorizationRequestEndpoint;
     this.endSessionEndpoint = endSessionEndpoint;
     this.dpopSigningAlgValuesSupported = dpopSigningAlgValuesSupported;
+    this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
     this.rawResponse = rawResponse;
   }
 
@@ -159,6 +226,7 @@ public class OidcProviderMetadata {
         (String) node.get("pushed_authorization_request_endpoint"),
         (String) node.get("end_session_endpoint"),
         getAsList(node.get("dpop_signing_alg_values_supported")),
+        getAsList(node.get("token_endpoint_auth_methods_supported")),
         json);
   }
 
@@ -236,6 +304,16 @@ public class OidcProviderMetadata {
 
   public List<String> getDpopSigningAlgValuesSupported() {
     return dpopSigningAlgValuesSupported;
+  }
+
+  /**
+   * Retourne les méthodes d'authentification client supportées par le point de terminaison de jeton
+   * ({@code token_endpoint_auth_methods_supported}).
+   *
+   * @return La liste des méthodes d'authentification supportées.
+   */
+  public List<String> getTokenEndpointAuthMethodsSupported() {
+    return tokenEndpointAuthMethodsSupported;
   }
 
   public String getRawResponse() {
